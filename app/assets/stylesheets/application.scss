@@ -1,0 +1,12 @@
+$govuk-assets-path: "/register-as-pension-scheme-practitioner/assets/lib/govuk-frontend/govuk/assets/";
+$hmrc-assets-path: "/register-as-pension-scheme-practitioner/assets/lib/hmrc-frontend/hmrc/assets";
+
+@import "lib/govuk-frontend/govuk/all";
+@import "lib/hmrc-frontend/hmrc/components/header/header";
+@import "language-toggles.scss";
+@import "_timeout-dialog.scss";
+
+.js-visible {
+    display: none;
+}
+
