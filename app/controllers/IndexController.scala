@@ -16,12 +16,7 @@
 
 package controllers
 
-import java.time.LocalDate
-
-import connectors.RegistrationConnector
 import javax.inject.Inject
-import models.Address
-import models.registration.{Organisation, OrganisationTypeEnum, RegistrationLegalStatus}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
@@ -31,8 +26,7 @@ import scala.concurrent.ExecutionContext
 
 class IndexController @Inject()(
     val controllerComponents: MessagesControllerComponents,
-    renderer: Renderer,
-    registrationConnector: RegistrationConnector
+    renderer: Renderer
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
