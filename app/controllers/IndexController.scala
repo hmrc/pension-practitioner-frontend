@@ -38,26 +38,6 @@ class IndexController @Inject()(
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = Action.async { implicit request =>
-
-    registrationConnector.registerWithIdIndividual("AB123456C").map {response =>
-      println("\n\n Reg with id individual: "+response)
-    }
-
-    registrationConnector.registerWithIdOrganisation("12345678",
-      Organisation("organisation name", OrganisationTypeEnum.CorporateBody), RegistrationLegalStatus.LimitedCompany).map { response =>
-      println("\n\n Reg with id org: "+response)
-    }
-
-    registrationConnector.registerWithNoIdIndividual("first", "last",
-      Address("x", "y", None, None, None, "FR"), LocalDate.of(2002, 12, 1)).map {response =>
-      println("\n\n Reg with no id individual: "+response)
-    }
-
-    registrationConnector.registerWithNoIdOrganisation("org name", Address("a", "b", None, None, None, "GB"),
-      RegistrationLegalStatus.Partnership).map {response =>
-      println("\n\n Reg with no id org: "+response)
-    }
-
     renderer.render("index.njk").map(Ok(_))
   }
 }
