@@ -28,16 +28,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   private def loadConfig(key: String): String = configuration.getOptional[String](key).getOrElse(throw new Exception(s"Missing configuration key: $key"))
 
-  private def baseUrl(serviceName: String) = {
-    val protocol = configuration.getOptional[String](s"microservice.services.$serviceName.protocol").getOrElse("http")
-    val host = configuration.get[String](s"microservice.services.$serviceName.host")
-    val port = configuration.get[String](s"microservice.services.$serviceName.port")
-    s"$protocol://$host:$port"
-  }
-
   private def getConfigString(key: String) = servicesConfig.getConfString(key, throw new Exception(s"Could not find config '$key'"))
 
-  lazy val contactHost: String = baseUrl("contact-frontend")
+  lazy val contactHost: String = servicesConfig.baseUrl("contact-frontend")
 
   lazy val appName: String = configuration.get[String](path = "appName")
   val analyticsToken: String = configuration.get[String](s"google-analytics.token")
@@ -50,12 +43,24 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   lazy val authUrl: String = configuration.get[Service]("auth").baseUrl
   lazy val signOutUrl: String = loadConfig("urls.logout")
+  lazy val pspUrl: String = servicesConfig.baseUrl("pension-practitioner")
 
   lazy val timeoutSeconds: String = configuration.get[String]("session.timeoutSeconds")
   lazy val CountdownInSeconds: String = configuration.get[String]("session.CountdownInSeconds")
 
   lazy val languageTranslationEnabled: Boolean =
     configuration.get[Boolean]("microservice.services.features.welsh-translation")
+
+  lazy val locationCanonicalList: String = loadConfig("location.canonical.list.all")
+  lazy val locationCanonicalListEUAndEEA: String = loadConfig("location.canonical.list.EUAndEEA")
+
+  lazy val registerWithIdOrganisationUrl: String = s"$pspUrl${configuration.get[String]("urls.registration.registerWithIdOrganisation")}"
+
+  lazy val registerWithNoIdOrganisationUrl: String = s"$pspUrl${configuration.get[String]("urls.registration.registerWithNoIdOrganisation")}"
+
+  lazy val registerWithNoIdIndividualUrl: String = s"$pspUrl${configuration.get[String]("urls.registration.registerWithNoIdIndividual")}"
+
+  lazy val registerWithIdIndividualUrl: String = s"$pspUrl${configuration.get[String]("urls.registration.registerWithIdIndividual")}"
 
   def languageMap: Map[String, Lang] = Map(
     "english" -> Lang("en"),
