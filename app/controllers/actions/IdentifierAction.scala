@@ -16,24 +16,41 @@
 
 package controllers.actions
 
+import com.google.inject.Inject
+import config.FrontendAppConfig
 import models.requests.IdentifierRequest
 import play.api.mvc._
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.auth.core.AuthorisationException
+import uk.gov.hmrc.auth.core.AuthorisedFunctions
+import uk.gov.hmrc.auth.core.Enrolments
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.HeaderCarrierConverter
+
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 import uk.gov.hmrc.domain.PsaId
 
-import scala.concurrent.Future
 
 trait IdentifierAction extends ActionBuilder[IdentifierRequest, AnyContent] with ActionFunction[Request, IdentifierRequest]
 
-class AuthenticatedIdentifierAction
-    extends IdentifierAction
-     {
+class AuthenticatedIdentifierAction @Inject()(
+                                               override val authConnector: AuthConnector,
+                                               config: FrontendAppConfig,
+                                               val parser: BodyParsers.Default
+                                             )(implicit val executionContext: ExecutionContext)
+  extends IdentifierAction
+    with AuthorisedFunctions {
 
-       override def parser = ???
-
-       override protected def executionContext = ???
-
-       override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
-    block(IdentifierRequest(request, PsaId("")))
+  override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
+    block(IdentifierRequest(request, PsaId("A2100005")))
   }
 
+  private def getPsaId(enrolments: Enrolments): String =
+    enrolments.getEnrolment(key = "HMRC-PODS-ORG").flatMap(_.getIdentifier("PSAID")).map(_.value).getOrElse(throw new PsaIdNotFound)
+
+  case class PsaIdNotFound(msg: String = "Unable to retrieve Psa Id") extends AuthorisationException(msg)
+
 }
+

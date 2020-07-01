@@ -21,7 +21,6 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import forms.TestPageFormProvider
 import javax.inject.Inject
-import models.Mode
 import navigators.CompoundNavigator
 import play.api.i18n.I18nSupport
 import play.api.i18n.MessagesApi
@@ -52,18 +51,10 @@ class TestPageController @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad(externalId: String): Action[AnyContent] = (identify andThen getData(externalId) andThen requireData).async {
     implicit request =>
-
-
-
-
         val json = Json.obj(
           "form" -> form,
           "radios" -> Radios.yesNo (form("value"))
         )
-
       renderer.render ("testPage.njk", json).map(Ok (_))
     }
-
-
-
 }

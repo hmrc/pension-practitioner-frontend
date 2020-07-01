@@ -16,7 +16,11 @@
 
 package controllers.actions
 
+import java.time.LocalDate
+
 import com.google.inject.ImplementedBy
+import com.google.inject.Inject
+import connectors.cache.UserAnswersCacheConnector
 import models.requests.IdentifierRequest
 import models.requests.OptionalDataRequest
 import play.api.mvc.ActionTransformer
@@ -24,7 +28,9 @@ import play.api.mvc.ActionTransformer
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-class DataRetrievalImpl (implicit val executionContext: ExecutionContext)
+class DataRetrievalImpl(
+
+                       )(implicit val executionContext: ExecutionContext)
     extends DataRetrieval {
   
   override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] = {
@@ -34,10 +40,11 @@ Future.successful(OptionalDataRequest(request))
 
 }
 
-class DataRetrievalActionImpl (implicit val executionContext: ExecutionContext)
+class DataRetrievalActionImpl @Inject()(userAnswersCacheConnector: UserAnswersCacheConnector
+)(implicit val executionContext: ExecutionContext)
                                         extends DataRetrievalAction {
   override def apply(externalId: String): DataRetrieval =
-    new DataRetrievalImpl
+    new DataRetrievalImpl()
 }
 
 @ImplementedBy(classOf[DataRetrievalImpl])
