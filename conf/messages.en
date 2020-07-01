@@ -10,9 +10,9 @@ site.change = Change
 site.save_and_continue = Save and continue
 site.save_charge_and_continue = Save this charge and continue
 site.return_to_summary = Return to AFT summary
-site.service_name = Managing pension schemes
+site.service_name = Register as a pension scheme practitioner
 site.textarea.char_limit = (Limit is {0} characters)
-site.title.suffix = - managing pension schemes - GOV.UK
+site.title.suffix = - register as a pension scheme practitioner - GOV.UK
 site.view = View
 site.remove = Remove
 site.signOut = Sign out
@@ -42,8 +42,8 @@ phaseBanner.3 = will help us to improve it.
 checkYourAnswers.title = Check your answers - {0}
 checkYourAnswers.heading = Check your answers
 
-index.title = pension-scheme-accounting-for-tax-frontend
-index.heading = pension-scheme-accounting-for-tax-frontend
+index.title = pension-practitioner-frontend
+index.heading = pension-practitioner-frontend
 index.guidance = Welcome to your new frontend. Please see the README file for a guide to getting started.
 
 session_expired.title = For your security, this service has been reset
