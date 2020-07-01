@@ -18,6 +18,7 @@ package config
 
 import com.google.inject.AbstractModule
 import com.google.inject.multibindings.Multibinder
+import connectors.cache.{UserAnswersCacheConnector, UserAnswersCacheConnectorImpl}
 import navigators._
 
 class Module extends AbstractModule {
@@ -25,5 +26,9 @@ class Module extends AbstractModule {
   override def configure(): Unit = {
 
     val navigators = Multibinder.newSetBinder(binder(), classOf[Navigator])
+
+
+
+    bind(classOf[UserAnswersCacheConnector]).to(classOf[UserAnswersCacheConnectorImpl]).asEagerSingleton()
   }
 }
