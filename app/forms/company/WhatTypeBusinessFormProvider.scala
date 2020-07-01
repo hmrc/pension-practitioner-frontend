@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package generators
+package forms.company
 
-import org.scalacheck.Arbitrary
-import pages.company.{AreYouUKCompanyPage, WhatTypeBusinessPage}
+import forms.mappings.Mappings
+import javax.inject.Inject
+import models.company.WhatTypeBusiness
+import play.api.data.Form
 
-trait PageGenerators {
+class WhatTypeBusinessFormProvider @Inject() extends Mappings {
 
-  implicit lazy val arbitraryAreYouUKCompanyPage: Arbitrary[AreYouUKCompanyPage.type] =
-    Arbitrary(AreYouUKCompanyPage)
-
-  implicit lazy val arbitraryChargeTypePage: Arbitrary[WhatTypeBusinessPage.type] =
-    Arbitrary(WhatTypeBusinessPage)
+  def apply(): Form[WhatTypeBusiness] =
+    Form(
+      "value" -> enumerable[WhatTypeBusiness]("whatTypeBusiness.error.required")
+    )
 }

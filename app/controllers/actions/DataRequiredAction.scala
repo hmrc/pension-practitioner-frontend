@@ -43,15 +43,6 @@ class DataRequiredActionImpl @Inject()(implicit val executionContext: ExecutionC
         Future.successful(Left(Redirect(routes.SessionExpiredController.onPageLoad())))
     }
   }
-
-  //override protected def refine[A](request: OptionalDataRequest[A]): Future[Either[Result, DataRequest[A]]] = {
-  //
-  //  implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-  //
-  //
-  //      Future.successful(Right(DataRequest(request.request, "", request.userAnswers)))
-  //
-  //}
 }
 
 trait DataRequiredAction extends ActionRefiner[OptionalDataRequest, DataRequest]

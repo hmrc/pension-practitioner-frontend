@@ -14,16 +14,32 @@
  * limitations under the License.
  */
 
-package generators
+package forms.company
 
-import org.scalacheck.Arbitrary
-import pages.company.{AreYouUKCompanyPage, WhatTypeBusinessPage}
+import forms.behaviours.BooleanFieldBehaviours
+import play.api.data.FormError
 
-trait PageGenerators {
+class AreYouUKCompanyFormProviderSpec extends BooleanFieldBehaviours {
 
-  implicit lazy val arbitraryAreYouUKCompanyPage: Arbitrary[AreYouUKCompanyPage.type] =
-    Arbitrary(AreYouUKCompanyPage)
+  val requiredKey = "areYouUKCompany.error.required"
+  val invalidKey = "error.boolean"
 
-  implicit lazy val arbitraryChargeTypePage: Arbitrary[WhatTypeBusinessPage.type] =
-    Arbitrary(WhatTypeBusinessPage)
+  val form = new AreYouUKCompanyFormProvider()()
+
+  ".value" must  {
+
+    val fieldName = "value"
+
+    behave like booleanField(
+      form,
+      fieldName,
+      invalidError = FormError(fieldName, invalidKey)
+    )
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
+  }
 }

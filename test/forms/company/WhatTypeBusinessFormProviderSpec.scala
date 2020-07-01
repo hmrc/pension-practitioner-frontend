@@ -14,31 +14,32 @@
  * limitations under the License.
  */
 
-package generators
+package forms.company
 
-import java.time.ZoneOffset
-
-import org.scalacheck.{Arbitrary, Gen}
-import java.time.LocalDate
-import java.time.Instant
-
+import forms.behaviours.OptionFieldBehaviours
 import models.company.WhatTypeBusiness
+import play.api.data.FormError
 
-trait ModelGenerators {
+class WhatTypeBusinessFormProviderSpec extends OptionFieldBehaviours {
 
-  implicit lazy val arbitraryChargeType: Arbitrary[WhatTypeBusiness] =
-    Arbitrary {
-      Gen.oneOf(WhatTypeBusiness.values)
-    }
+  val form = new WhatTypeBusinessFormProvider()()
 
-  def datesBetween(min: LocalDate, max: LocalDate): Gen[LocalDate] = {
+  ".value" must {
 
-    def toMillis(date: LocalDate): Long =
-      date.atStartOfDay.atZone(ZoneOffset.UTC).toInstant.toEpochMilli
+    val fieldName = "value"
+    val requiredKey = "whatTypeBusiness.error.required"
 
-    Gen.choose(toMillis(min), toMillis(max)).map {
-      millis =>
-        Instant.ofEpochMilli(millis).atOffset(ZoneOffset.UTC).toLocalDate
-    }
+    behave like optionsField[WhatTypeBusiness](
+      form,
+      fieldName,
+      validValues  = WhatTypeBusiness.values,
+      invalidError = FormError(fieldName, "error.invalid")
+    )
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
   }
 }
