@@ -18,7 +18,13 @@ package config
 
 import com.google.inject.AbstractModule
 import com.google.inject.multibindings.Multibinder
-import connectors.cache.{UserAnswersCacheConnector, UserAnswersCacheConnectorImpl}
+import connectors.cache.{UserAnswersCacheConnectorImpl, UserAnswersCacheConnector}
+import controllers.actions.AuthenticatedIdentifierAction
+import controllers.actions.DataRequiredAction
+import controllers.actions.DataRequiredActionImpl
+import controllers.actions.DataRetrievalAction
+import controllers.actions.DataRetrievalActionImpl
+import controllers.actions.IdentifierAction
 import navigators._
 
 class Module extends AbstractModule {
@@ -26,9 +32,11 @@ class Module extends AbstractModule {
   override def configure(): Unit = {
 
     val navigators = Multibinder.newSetBinder(binder(), classOf[Navigator])
-
-
-
     bind(classOf[UserAnswersCacheConnector]).to(classOf[UserAnswersCacheConnectorImpl]).asEagerSingleton()
+    bind(classOf[DataRetrievalAction]).to(classOf[DataRetrievalActionImpl]).asEagerSingleton()
+    bind(classOf[DataRequiredAction]).to(classOf[DataRequiredActionImpl]).asEagerSingleton()
+    bind(classOf[IdentifierAction]).to(classOf[AuthenticatedIdentifierAction]).asEagerSingleton()
+    bind(classOf[CompoundNavigator]).to(classOf[CompoundNavigatorImpl])
+
   }
 }
