@@ -17,6 +17,7 @@
 package controllers.actions
 
 import javax.inject.Inject
+import models.UserAnswers
 import models.requests.DataRequest
 import models.requests.OptionalDataRequest
 import play.api.mvc.ActionRefiner
@@ -34,7 +35,7 @@ class DataRequiredActionImpl @Inject()(implicit val executionContext: ExecutionC
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
 
-        Future.successful(Right(DataRequest(request.request)))
+        Future.successful(Right(DataRequest(request.request, UserAnswers())))
 
   }
 }

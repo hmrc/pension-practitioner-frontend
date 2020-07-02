@@ -33,7 +33,7 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad(mode: Mode, srn: String): Action[AnyContent] = (identify andThen getData(srn) andThen requireData).async {
     implicit request =>
-      DataRetrievals.retrieveSchemeName { schemeName =>
+      DataRetrievals.retrieveCompanyName { schemeName =>
         val preparedForm = request.userAnswers.get ($className$Page) match {
           case None => form
           case Some (value) => form.fill (value)
@@ -56,7 +56,7 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
 
   def onSubmit(mode: Mode, srn: String): Action[AnyContent] = (identify andThen getData(srn) andThen requireData).async {
     implicit request =>
-      DataRetrievals.retrieveSchemeName { schemeName =>
+      DataRetrievals.retrieveCompanyName { schemeName =>
         form.bindFromRequest().fold(
           formWithErrors => {
 

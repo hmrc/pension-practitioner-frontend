@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package models.requests
+package controllers
 
-import models.UserAnswers
-import play.api.mvc.Request
-import play.api.mvc.WrappedRequest
+import models.requests.DataRequest
+import play.api.mvc.AnyContent
+import play.api.mvc.Result
 
-case class OptionalDataRequest[A] (
-                                    request: Request[A],
-                                    userAnswers: Option[UserAnswers]
-                                  ) extends WrappedRequest[A](request)
+import scala.concurrent.Future
 
-case class DataRequest[A] (
-                            request: Request[A],
-                            userAnswers: UserAnswers
-                          ) extends WrappedRequest[A](request) {
+object DataRetrievals {
+
+  def retrieveCompanyName(block: String => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
+    block("test company")
+  }
+
+
+
 }

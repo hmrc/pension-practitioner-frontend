@@ -21,6 +21,7 @@ import java.time.LocalDate
 import com.google.inject.ImplementedBy
 import com.google.inject.Inject
 import connectors.cache.UserAnswersCacheConnector
+import models.UserAnswers
 import models.requests.IdentifierRequest
 import models.requests.OptionalDataRequest
 import play.api.mvc.ActionTransformer
@@ -34,7 +35,7 @@ class DataRetrievalImpl(
     extends DataRetrieval {
   
   override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] = {
-Future.successful(OptionalDataRequest(request))
+Future.successful(OptionalDataRequest(request, Some(UserAnswers())))
   }
 
 
