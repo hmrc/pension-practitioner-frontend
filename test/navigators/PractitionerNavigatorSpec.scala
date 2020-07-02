@@ -22,7 +22,7 @@ import models.UserAnswers
 import models.WhatTypeBusiness
 import org.scalatest.prop.TableFor3
 import pages._
-import pages.register.WhatYouWillNeedPage
+import pages.register.{AreYouUKCompanyPage, WhatYouWillNeedPage}
 import play.api.mvc.Call
 
 class PractitionerNavigatorSpec extends NavigatorBehaviour {
@@ -30,6 +30,7 @@ class PractitionerNavigatorSpec extends NavigatorBehaviour {
   private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
 
   private val uaCompanyOrPartnership = SampleData.emptyUserAnswers.setOrException(WhatTypeBusinessPage, WhatTypeBusiness.Companyorpartnership)
+  private val uaInUk = SampleData.emptyUserAnswers.setOrException(AreYouUKCompanyPage, true)
 
 
   "NormalMode" must {
@@ -37,7 +38,8 @@ class PractitionerNavigatorSpec extends NavigatorBehaviour {
       Table(
         ("Id", "UserAnswers", "Next Page"),
         row(WhatTypeBusinessPage)(controllers.register.routes.WhatYouWillNeedController.onPageLoad(), Some(uaCompanyOrPartnership)),
-        row(WhatYouWillNeedPage)(controllers.register.routes.AreYouUKCompanyController.onPageLoad())
+        row(WhatYouWillNeedPage)(controllers.register.routes.AreYouUKCompanyController.onPageLoad()),
+        row(AreYouUKCompanyPage)(controllers.register.routes.BusinessTypeController.onPageLoad(), Some(uaInUk))
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)

@@ -23,7 +23,7 @@ import models.UserAnswers
 import models.WhatTypeBusiness
 import pages.Page
 import pages.WhatTypeBusinessPage
-import pages.register.WhatYouWillNeedPage
+import pages.register.{AreYouUKCompanyPage, BusinessTypePage, WhatYouWillNeedPage}
 import play.api.mvc.Call
 
 class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector, config: FrontendAppConfig)
@@ -36,6 +36,12 @@ class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCo
       case _ => controllers.routes.SessionExpiredController.onPageLoad()
     }
     case WhatYouWillNeedPage => controllers.register.routes.AreYouUKCompanyController.onPageLoad()
+    case AreYouUKCompanyPage =>
+      ua.get(AreYouUKCompanyPage) match {
+        case Some(true) =>
+          controllers.register.routes.BusinessTypeController.onPageLoad()
+        case _ => controllers.routes.SessionExpiredController.onPageLoad()
+      }
 
   }
 
