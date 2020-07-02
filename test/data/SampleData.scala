@@ -25,6 +25,8 @@ object SampleData {
   val psaId = "A0000000"
   val pspName = "psp"
 
+  def emptyUserAnswers: UserAnswers = UserAnswers()
+
   def userAnswersWithPspName: UserAnswers =
     UserAnswers(Json.obj(
       "schemeName" -> pspName)

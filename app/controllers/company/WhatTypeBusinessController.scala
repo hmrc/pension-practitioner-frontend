@@ -18,10 +18,8 @@ package controllers.company
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import controllers.actions._
-import controllers.routes
-import controllers.company.routes
 import controllers.DataRetrievals
+import controllers.actions._
 import forms.company.WhatTypeBusinessFormProvider
 import javax.inject.Inject
 import models.company.WhatTypeBusiness
@@ -69,7 +67,7 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
           "radios" -> WhatTypeBusiness.radios(preparedForm)
         )
 
-        renderer.render("whatTypeBusiness.njk", json).map(Ok(_))
+        renderer.render("company/whatTypeBusiness.njk", json).map(Ok(_))
       }
   }
 
@@ -90,7 +88,7 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
               "radios" -> WhatTypeBusiness.radios(formWithErrors)
             )
 
-            renderer.render("whatTypeBusiness.njk", json).map(BadRequest(_))
+            renderer.render("company/whatTypeBusiness.njk", json).map(BadRequest(_))
           },
           value => {
             for {
