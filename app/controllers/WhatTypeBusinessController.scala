@@ -21,7 +21,7 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import forms.WhatTypeBusinessFormProvider
 import javax.inject.Inject
-import models.{WhatTypeBusiness, GenericViewModel, Mode}
+import models.{GenericViewModel, Mode, NormalMode, WhatTypeBusiness}
 import navigators.CompoundNavigator
 import pages.WhatTypeBusinessPage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -47,7 +47,7 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
 
   private val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData() andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData() andThen requireData).async {
     implicit request =>
       DataRetrievals.retrieveCompanyName { pspName =>
         val preparedForm = request.userAnswers.get(WhatTypeBusinessPage) match {
@@ -56,7 +56,7 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
         }
 
         def viewModel = GenericViewModel(
-          submitUrl = routes.WhatTypeBusinessController.onSubmit(mode).url,
+          submitUrl = routes.WhatTypeBusinessController.onSubmit().url,
           pspName = pspName)
 
         val json = Json.obj(
@@ -69,7 +69,7 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
       }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData() andThen requireData).async {
+  def onSubmit(): Action[AnyContent] = (identify andThen getData() andThen requireData).async {
     implicit request =>
       DataRetrievals.retrieveCompanyName { pspName =>
 
@@ -77,7 +77,7 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
           formWithErrors => {
 
             def viewModel = GenericViewModel(
-              submitUrl = routes.WhatTypeBusinessController.onSubmit(mode).url,
+              submitUrl = routes.WhatTypeBusinessController.onSubmit().url,
               pspName = pspName)
 
             val json = Json.obj(
@@ -92,7 +92,7 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatTypeBusinessPage, value))
               _ <- userAnswersCacheConnector.save( updatedAnswers.data)
-            } yield Redirect(navigator.nextPage(WhatTypeBusinessPage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(WhatTypeBusinessPage, NormalMode, updatedAnswers))
           }
         )
       }

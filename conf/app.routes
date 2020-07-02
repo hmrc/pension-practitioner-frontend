@@ -9,7 +9,5 @@ GET         /language/:lang                                                     
 
 GET         /this-service-has-been-reset                                                                                        controllers.SessionExpiredController.onPageLoad
 
-GET        /what-type-business                        controllers.WhatTypeBusinessController.onPageLoad(mode: Mode = NormalMode)
-POST       /what-type-business                        controllers.WhatTypeBusinessController.onSubmit(mode: Mode = NormalMode)
-GET        /changewhat-type-business                  controllers.WhatTypeBusinessController.onPageLoad(mode: Mode = CheckMode)
-POST       /changewhat-type-business                  controllers.WhatTypeBusinessController.onSubmit(mode: Mode = CheckMode)
+GET        /what-type-business                        controllers.WhatTypeBusinessController.onPageLoad()
+POST       /what-type-business                        controllers.WhatTypeBusinessController.onSubmit()

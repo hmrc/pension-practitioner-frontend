@@ -47,8 +47,8 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
   def onwardRoute = Call("GET", "/foo")
 
-  def whatTypeBusinessRoute = routes.WhatTypeBusinessController.onPageLoad(NormalMode).url
-  def whatTypeBusinessSubmitRoute = routes.WhatTypeBusinessController.onSubmit(NormalMode).url
+  def whatTypeBusinessRoute = routes.WhatTypeBusinessController.onPageLoad().url
+  def whatTypeBusinessSubmitRoute = routes.WhatTypeBusinessController.onSubmit().url
 
   val formProvider = new WhatTypeBusinessFormProvider()
   val form = formProvider()
