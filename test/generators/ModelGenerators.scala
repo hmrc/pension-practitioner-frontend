@@ -18,11 +18,18 @@ package generators
 
 import java.time.ZoneOffset
 
-import org.scalacheck.Gen
+import org.scalacheck.{Arbitrary, Gen}
 import java.time.LocalDate
 import java.time.Instant
 
+import models.company.WhatTypeBusiness
+
 trait ModelGenerators {
+
+  implicit lazy val arbitraryChargeType: Arbitrary[WhatTypeBusiness] =
+    Arbitrary {
+      Gen.oneOf(WhatTypeBusiness.values)
+    }
 
   def datesBetween(min: LocalDate, max: LocalDate): Gen[LocalDate] = {
 

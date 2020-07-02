@@ -16,16 +16,17 @@
 
 package pages.company
 
+import models.company.WhatTypeBusiness
 import pages.behaviours.PageBehaviours
 
 class WhatTypeBusinessPageSpec extends PageBehaviours {
 
   "WhatTypeBusinessPage" - {
-    //
-    //beRetrievable[WhatTypeBusiness](WhatTypeBusinessPage)
-    //
-    //beSettable[WhatTypeBusiness](WhatTypeBusinessPage)
-    //
-    //beRemovable[WhatTypeBusiness](WhatTypeBusinessPage)
+
+    beRetrievable[WhatTypeBusiness](WhatTypeBusinessPage)
+
+    beSettable[WhatTypeBusiness](WhatTypeBusinessPage)
+
+    beRemovable[WhatTypeBusiness](WhatTypeBusinessPage)
   }
 }
