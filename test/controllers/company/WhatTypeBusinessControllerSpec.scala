@@ -78,7 +78,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
         "radios" -> WhatTypeBusiness.radios(form)
       )
 
-      templateCaptor.getValue mustEqual "whatTypeBusiness.njk"
+      templateCaptor.getValue mustEqual "company/whatTypeBusiness.njk"
 
       jsonCaptor.getValue must containJson(expectedJson)
 
@@ -109,7 +109,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
         "radios" -> WhatTypeBusiness.radios(filledForm)
       )
 
-      templateCaptor.getValue mustEqual "whatTypeBusiness.njk"
+      templateCaptor.getValue mustEqual "company/whatTypeBusiness.njk"
 
       jsonCaptor.getValue must containJson(expectedJson)
 
@@ -164,7 +164,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
         "radios" -> WhatTypeBusiness.radios(boundForm)
       )
 
-      templateCaptor.getValue mustEqual "whatTypeBusiness.njk"
+      templateCaptor.getValue mustEqual "company/whatTypeBusiness.njk"
       jsonCaptor.getValue must containJson(expectedJson)
 
       application.stop()

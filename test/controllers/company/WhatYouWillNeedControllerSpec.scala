@@ -48,7 +48,7 @@ class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar
 
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), any())(any())
 
-      templateCaptor.getValue mustEqual "whatYouWillNeed.njk"
+      templateCaptor.getValue mustEqual "company/whatYouWillNeed.njk"
 
       application.stop()
     }
