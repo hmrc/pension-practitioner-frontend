@@ -35,7 +35,7 @@ class DataRetrievalImpl(
     extends DataRetrieval {
   
   override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] = {
-Future.successful(OptionalDataRequest(request, Some(UserAnswers())))
+Future.successful(OptionalDataRequest(request, "", Some(UserAnswers())))
   }
 
 

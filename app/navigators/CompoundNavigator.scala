@@ -16,11 +16,20 @@
 
 package navigators
 
+import models.requests.DataRequest
+import pages.Page
+import models.Mode
+import play.api.mvc.AnyContent
+import play.api.mvc.Call
+import models.UserAnswers
 trait CompoundNavigator {
+  def nextPage(id: Page, mode: Mode, userAnswers: UserAnswers)(
+    implicit request: DataRequest[AnyContent]): Call
 }
 
 class CompoundNavigatorImpl extends CompoundNavigator {
 
-
+  override def nextPage(id: Page, mode: Mode, userAnswers: UserAnswers)(
+    implicit request: DataRequest[AnyContent]): Call = Call("GET", "")
 
 }

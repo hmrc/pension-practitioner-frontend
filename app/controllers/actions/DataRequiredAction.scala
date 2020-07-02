@@ -35,7 +35,7 @@ class DataRequiredActionImpl @Inject()(implicit val executionContext: ExecutionC
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
 
-        Future.successful(Right(DataRequest(request.request, UserAnswers())))
+        Future.successful(Right(DataRequest(request.request, "", UserAnswers())))
 
   }
 }

@@ -73,7 +73,7 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set($className$Page, value))
               _ <- userAnswersCacheConnector.save(request.internalId, updatedAnswers.data)
-            } yield Redirect(navigator.nextPage($className$Page, mode, updatedAnswers, srn))
+            } yield Redirect(navigator.nextPage($className$Page, mode, updatedAnswers))
         )
       }
   }
