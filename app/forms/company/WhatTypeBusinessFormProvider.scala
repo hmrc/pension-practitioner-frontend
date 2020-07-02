@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package pages
+package forms.company
 
-import models.WhatTypeBusiness
-import play.api.libs.json.JsPath
+import forms.mappings.Mappings
+import javax.inject.Inject
+import models.company.WhatTypeBusiness
+import play.api.data.Form
 
-case object WhatTypeBusinessPage extends QuestionPage[WhatTypeBusiness] {
+class WhatTypeBusinessFormProvider @Inject() extends Mappings {
 
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "whatTypeBusiness"
+  def apply(): Form[WhatTypeBusiness] =
+    Form(
+      "value" -> enumerable[WhatTypeBusiness]("whatTypeBusiness.error.required")
+    )
 }

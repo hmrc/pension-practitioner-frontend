@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package forms
+package forms.company
 
 import forms.behaviours.OptionFieldBehaviours
-import models.WhatTypeBusiness
+import models.company.WhatTypeBusiness
 import play.api.data.FormError
 
 class WhatTypeBusinessFormProviderSpec extends OptionFieldBehaviours {

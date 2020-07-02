@@ -14,30 +14,25 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.company
 
 import controllers.base.ControllerSpecBase
+import controllers.routes
+import data.SampleData._
+import forms.company.WhatTypeBusinessFormProvider
 import matchers.JsonMatchers
-import forms.WhatTypeBusinessFormProvider
-import models.GenericViewModel
-import models.NormalMode
-import models.UserAnswers
-import models.WhatTypeBusiness
+import models.{GenericViewModel, UserAnswers}
+import models.company.WhatTypeBusiness
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.when
-import org.scalatest.OptionValues
-import org.scalatest.TryValues
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.WhatTypeBusinessPage
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
+import pages.company.WhatTypeBusinessPage
+import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import data.SampleData._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 

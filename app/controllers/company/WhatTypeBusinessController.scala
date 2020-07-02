@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.company
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
-import forms.WhatTypeBusinessFormProvider
+import controllers.routes
+import controllers.company.routes
+import controllers.DataRetrievals
+import forms.company.WhatTypeBusinessFormProvider
 import javax.inject.Inject
-import models.{GenericViewModel, Mode, NormalMode, WhatTypeBusiness}
+import models.company.WhatTypeBusiness
+import models.{GenericViewModel, NormalMode}
 import navigators.CompoundNavigator
-import pages.WhatTypeBusinessPage
+import pages.company.WhatTypeBusinessPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

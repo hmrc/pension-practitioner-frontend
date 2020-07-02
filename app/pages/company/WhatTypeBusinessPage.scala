@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package pages
+package pages.company
 
-import models.WhatTypeBusiness
-import pages.behaviours.PageBehaviours
+import models.company.WhatTypeBusiness
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-class WhatTypeBusinessPageSpec extends PageBehaviours {
+case object WhatTypeBusinessPage extends QuestionPage[WhatTypeBusiness] {
 
-  "WhatTypeBusinessPage" - {
-    //
-    //beRetrievable[WhatTypeBusiness](WhatTypeBusinessPage)
-    //
-    //beSettable[WhatTypeBusiness](WhatTypeBusinessPage)
-    //
-    //beRemovable[WhatTypeBusiness](WhatTypeBusinessPage)
-  }
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "whatTypeBusiness"
 }

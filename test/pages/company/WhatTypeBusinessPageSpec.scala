@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package forms
+package pages.company
 
-import javax.inject.Inject
+import pages.behaviours.PageBehaviours
 
-import forms.mappings.Mappings
-import play.api.data.Form
-import models.WhatTypeBusiness
+class WhatTypeBusinessPageSpec extends PageBehaviours {
 
-class WhatTypeBusinessFormProvider @Inject() extends Mappings {
-
-  def apply(): Form[WhatTypeBusiness] =
-    Form(
-      "value" -> enumerable[WhatTypeBusiness]("whatTypeBusiness.error.required")
-    )
+  "WhatTypeBusinessPage" - {
+    //
+    //beRetrievable[WhatTypeBusiness](WhatTypeBusinessPage)
+    //
+    //beSettable[WhatTypeBusiness](WhatTypeBusinessPage)
+    //
+    //beRemovable[WhatTypeBusiness](WhatTypeBusinessPage)
+  }
 }

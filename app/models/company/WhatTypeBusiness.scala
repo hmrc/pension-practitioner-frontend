@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package models
+package models.company
 
 import play.api.data.Form
 import play.api.i18n.Messages
 import uk.gov.hmrc.viewmodels._
-import utils.Enumerable
-import utils.WithName
+import utils.{Enumerable, WithName}
 
 sealed trait WhatTypeBusiness
 

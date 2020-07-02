@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package models
+package models.company
 
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import org.scalatest.{FreeSpec, MustMatchers, OptionValues}
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.libs.json.{JsError, JsString, Json}
 
 class WhatTypeBusinessSpec extends FreeSpec with MustMatchers with ScalaCheckPropertyChecks with OptionValues {
