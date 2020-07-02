@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-package models
+package data
 
-import play.api.libs.json.{Json, OWrites}
+import models.UserAnswers
+import play.api.libs.json.Json
 
-case class GenericViewModel(submitUrl: String,
-                            pspName: String)
+object SampleData {
+  //scalastyle.off: magic.number
+  val userAnswersId = "id"
+  val psaId = "A0000000"
+  val pspName = "psp"
 
-object GenericViewModel {
-  implicit lazy val writes: OWrites[GenericViewModel] =
-    Json.writes[GenericViewModel]
+  def userAnswersWithPspName: UserAnswers =
+    UserAnswers(Json.obj(
+      "schemeName" -> pspName)
+    )
 }

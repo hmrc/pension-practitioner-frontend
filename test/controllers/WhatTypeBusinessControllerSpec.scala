@@ -1,54 +1,71 @@
+/*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package controllers
 
 import config.FrontendAppConfig
 import controllers.base.ControllerSpecBase
-import forms.$className$FormProvider
 import matchers.JsonMatchers
-import models.{$className$, GenericViewModel, NormalMode, UserAnswers}
+import forms.WhatTypeBusinessFormProvider
+import models.{WhatTypeBusiness, GenericViewModel, NormalMode, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{OptionValues, TryValues}
+import org.scalatestplus.mockito.MockitoSugar
+import pages.WhatTypeBusinessPage
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import data.SampleData._
-import pages.$className$Page
+import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 
 import scala.concurrent.Future
 
-class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+
   val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
   def onwardRoute = Call("GET", "/foo")
 
-  def $className;format="decap"$Route = routes.$className$Controller.onPageLoad(NormalMode, srn).url
-  def $className;format="decap"$SubmitRoute = routes.$className$Controller.onSubmit(NormalMode, srn).url
+  def whatTypeBusinessRoute = routes.WhatTypeBusinessController.onPageLoad(NormalMode, srn).url
+  def whatTypeBusinessSubmitRoute = routes.WhatTypeBusinessController.onSubmit(NormalMode, srn).url
 
-  val formProvider = new $className$FormProvider()
+  val formProvider = new WhatTypeBusinessFormProvider()
   val form = formProvider()
 
   val viewModel = GenericViewModel(
-    submitUrl = $className;format="decap"$SubmitRoute,
+    submitUrl = whatTypeBusinessSubmitRoute,
   pspName = pspName)
 
-  val answers: UserAnswers = userAnswersWithPspName.set($className$Page, $className$.values.toSet).success.value
+  val answers: UserAnswers = userAnswersWithPspName.set(WhatTypeBusinessPage, WhatTypeBusiness.values.head).success.value
 
-  "$className$ Controller" must {
+  "WhatTypeBusiness Controller" must {
 
     "return OK and the correct view for a GET" in {
-      when(mockRenderer.render(any(), any())(any())) thenReturn Future.successful(Html(""))
+      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
         .overrides(
           bind[FrontendAppConfig].toInstance(mockAppConfig)
         )
         .build()
-      val request = FakeRequest(GET, $className;format="decap"$Route)
+      val request = FakeRequest(GET, whatTypeBusinessRoute)
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
@@ -59,26 +76,26 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
 
       val expectedJson = Json.obj(
-        "form"       -> form,
-        "viewModel"       -> viewModel,
-        "checkboxes" -> $className$.checkboxes(form)
+        "form"   -> form,
+        "viewModel" -> viewModel,
+        "radios" -> WhatTypeBusiness.radios(form)
       )
 
-      templateCaptor.getValue mustEqual "$className;format="decap"$.njk"
+      templateCaptor.getValue mustEqual "whatTypeBusiness.njk"
       jsonCaptor.getValue must containJson(expectedJson)
 
       application.stop()
     }
 
     "populate the view correctly on a GET when the question has previously been answered" in {
-      when(mockRenderer.render(any(), any())(any())) thenReturn Future.successful(Html(""))
+      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(answers))
         .overrides(
           bind[FrontendAppConfig].toInstance(mockAppConfig)
         )
         .build()
-      val request = FakeRequest(GET, $className;format="decap"$Route)
+      val request = FakeRequest(GET, whatTypeBusinessRoute)
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
@@ -88,15 +105,15 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
 
-      val filledForm = form.fill($className$.values.toSet)
+      val filledForm = form.bind(Map("value" -> WhatTypeBusiness.values.head.toString))
 
       val expectedJson = Json.obj(
-        "form"       -> filledForm,
+        "form"   -> filledForm,
         "viewModel" -> viewModel,
-        "checkboxes" -> $className$.checkboxes(filledForm)
+        "radios" -> WhatTypeBusiness.radios(filledForm)
       )
 
-      templateCaptor.getValue mustEqual "$className;format="decap"$.njk"
+      templateCaptor.getValue mustEqual "whatTypeBusiness.njk"
       jsonCaptor.getValue must containJson(expectedJson)
 
       application.stop()
@@ -114,8 +131,8 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
         .build()
 
       val request =
-        FakeRequest(POST, $className;format="decap"$Route)
-      .withFormUrlEncodedBody(("value[0]", $className$.values.head.toString))
+        FakeRequest(POST, whatTypeBusinessRoute)
+      .withFormUrlEncodedBody(("value", WhatTypeBusiness.values.head.toString))
 
       val result = route(application, request).value
 
@@ -127,6 +144,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
     }
 
     "return a Bad Request and errors when invalid data is submitted" in {
+
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
@@ -134,7 +152,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
           bind[FrontendAppConfig].toInstance(mockAppConfig)
         )
         .build()
-      val request =  FakeRequest(POST, $className;format="decap"$Route).withFormUrlEncodedBody(("value", "invalid value"))
+      val request = FakeRequest(POST, whatTypeBusinessRoute).withFormUrlEncodedBody(("value", "invalid value"))
       val boundForm = form.bind(Map("value" -> "invalid value"))
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
@@ -146,12 +164,12 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
 
       val expectedJson = Json.obj(
-        "form"       -> boundForm,
+        "form"   -> boundForm,
         "viewModel" -> viewModel,
-        "checkboxes" -> $className$.checkboxes(boundForm)
+        "radios" -> WhatTypeBusiness.radios(boundForm)
       )
 
-      templateCaptor.getValue mustEqual "$className;format="decap"$.njk"
+      templateCaptor.getValue mustEqual "whatTypeBusiness.njk"
       jsonCaptor.getValue must containJson(expectedJson)
 
       application.stop()
@@ -160,7 +178,8 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
     "redirect to Session Expired for a GET if no existing data is found" in {
 
       val application = applicationBuilder(userAnswers = None).build()
-      val request = FakeRequest(GET, $className;format="decap"$Route)
+
+      val request = FakeRequest(GET, whatTypeBusinessRoute)
 
       val result = route(application, request).value
 
@@ -173,7 +192,10 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
     "redirect to Session Expired for a POST if no existing data is found" in {
 
       val application = applicationBuilder(userAnswers = None).build()
-      val request = FakeRequest(POST, $className;format="decap"$Route).withFormUrlEncodedBody(("value[0]", $className$.values.head.toString))
+
+      val request =
+        FakeRequest(POST, whatTypeBusinessRoute)
+      .withFormUrlEncodedBody(("value", WhatTypeBusiness.values.head.toString))
 
       val result = route(application, request).value
 

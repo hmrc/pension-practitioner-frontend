@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package models
+package pages
 
-import play.api.libs.json.{Json, OWrites}
+import models.WhatTypeBusiness
+import play.api.libs.json.JsPath
 
-case class GenericViewModel(submitUrl: String,
-                            pspName: String)
+case object WhatTypeBusinessPage extends QuestionPage[WhatTypeBusiness] {
 
-object GenericViewModel {
-  implicit lazy val writes: OWrites[GenericViewModel] =
-    Json.writes[GenericViewModel]
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "whatTypeBusiness"
 }

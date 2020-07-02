@@ -35,17 +35,16 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   val viewModel = GenericViewModel(
     submitUrl = $className;format="decap"$SubmitRoute,
-  practitionerName = companyName)
+  pspName = pspName)
 
-  val answers: UserAnswers = userAnswersWithSchemeName.set($className$Page, true).success.value
+  val answers: UserAnswers = userAnswersWithPspName.set($className$Page, true).success.value
 
   "$className$ Controller" must {
 
     "return OK and the correct view for a GET" in {
-      when(mockAppConfig.managePensionsSchemeSummaryUrl).thenReturn(onwardRoute.url)
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithSchemeName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
         .overrides(
           bind[FrontendAppConfig].toInstance(mockAppConfig)
         )
@@ -73,7 +72,6 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
     }
 
     "populate the view correctly on a GET when the question has previously been answered" in {
-      when(mockAppConfig.managePensionsSchemeSummaryUrl).thenReturn(onwardRoute.url)
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(answers))
@@ -106,11 +104,10 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
     }
 
     "redirect to the next page when valid data is submitted" in {
-      when(mockAppConfig.managePensionsSchemeSummaryUrl).thenReturn(onwardRoute.url)
       when(mockUserAnswersCacheConnector.save(any(), any(), any(), any())(any(), any())) thenReturn Future.successful(Json.obj())
       when(mockCompoundNavigator.nextPage(any(), any(), any(), any())).thenReturn(onwardRoute)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithSchemeName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
         .overrides(
           bind[FrontendAppConfig].toInstance(mockAppConfig)
         )
@@ -131,10 +128,9 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
     "return a Bad Request and errors when invalid data is submitted" in {
 
-      when(mockAppConfig.managePensionsSchemeSummaryUrl).thenReturn(onwardRoute.url)
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithSchemeName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
         .overrides(
           bind[FrontendAppConfig].toInstance(mockAppConfig)
         )

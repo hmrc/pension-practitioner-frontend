@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-package models
+package pages
 
-import play.api.libs.json.{Json, OWrites}
+import models.WhatTypeBusiness
+import pages.behaviours.PageBehaviours
 
-case class GenericViewModel(submitUrl: String,
-                            pspName: String)
+class WhatTypeBusinessSpec extends PageBehaviours {
 
-object GenericViewModel {
-  implicit lazy val writes: OWrites[GenericViewModel] =
-    Json.writes[GenericViewModel]
+  "WhatTypeBusinessPage" - {
+
+    beRetrievable[WhatTypeBusiness](WhatTypeBusinessPage)
+
+    beSettable[WhatTypeBusiness](WhatTypeBusinessPage)
+
+    beRemovable[WhatTypeBusiness](WhatTypeBusinessPage)
+  }
 }

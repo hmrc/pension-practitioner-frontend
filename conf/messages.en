@@ -52,3 +52,10 @@ session_expired.guidance = The details you have given have been deleted because 
 
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
+
+whatTypeBusiness.title = Who are you registering as a scheme practitioner?
+whatTypeBusiness.heading = Who are you registering as a scheme practitioner?
+whatTypeBusiness.companyOrPartnership = Company or partnership
+whatTypeBusiness.yourselfAsIndividual = Yourself as an individual
+whatTypeBusiness.checkYourAnswersLabel = Who are you registering as a scheme practitioner?
+whatTypeBusiness.error.required = Select whatTypeBusiness

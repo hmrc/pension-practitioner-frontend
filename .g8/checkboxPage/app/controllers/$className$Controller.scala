@@ -33,7 +33,7 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad(mode: Mode, srn: String): Action[AnyContent] = (identify andThen getData(srn) andThen requireData).async {
     implicit request =>
-      DataRetrievals.retrieveCompanyName { companyName =>
+      DataRetrievals.retrieveCompanyName { pspName =>
 
         val preparedForm = request.userAnswers.get($className$Page) match {
           case None => form
@@ -42,7 +42,7 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
 
         val viewModel = GenericViewModel(
           submitUrl = routes.$className$Controller.onSubmit(mode, srn).url,
-          practitionerName = companyName)
+          pspName = pspName)
 
         val json = Json.obj(
           "form" -> preparedForm,
@@ -56,14 +56,14 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
 
   def onSubmit(mode: Mode, srn: String): Action[AnyContent] = (identify andThen getData(srn) andThen requireData).async {
     implicit request =>
-      DataRetrievals.retrieveCompanyName { companyName =>
+      DataRetrievals.retrieveCompanyName { pspName =>
 
       form.bindFromRequest().fold(
         formWithErrors => {
 
           val viewModel = GenericViewModel(
             submitUrl = routes.$className$Controller.onSubmit(mode, srn).url,
-            practitionerName = companyName)
+            pspName = pspName)
 
           val json = Json.obj(
             "form" -> formWithErrors,
@@ -76,7 +76,7 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set($className$Page, value))
-            _ <- userAnswersCacheConnector.save(request.internalId, updatedAnswers.data)
+            _ <- userAnswersCacheConnector.save( updatedAnswers.data)
           } yield Redirect(navigator.nextPage($className$Page, mode, updatedAnswers))
       )
     }

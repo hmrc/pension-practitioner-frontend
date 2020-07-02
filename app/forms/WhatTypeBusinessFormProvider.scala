@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package models
+package forms
 
-import play.api.libs.json.{Json, OWrites}
+import javax.inject.Inject
 
-case class GenericViewModel(submitUrl: String,
-                            pspName: String)
+import forms.mappings.Mappings
+import play.api.data.Form
+import models.WhatTypeBusiness
 
-object GenericViewModel {
-  implicit lazy val writes: OWrites[GenericViewModel] =
-    Json.writes[GenericViewModel]
+class WhatTypeBusinessFormProvider @Inject() extends Mappings {
+
+  def apply(): Form[WhatTypeBusiness] =
+    Form(
+      "value" -> enumerable[WhatTypeBusiness]("whatTypeBusiness.error.required")
+    )
 }
