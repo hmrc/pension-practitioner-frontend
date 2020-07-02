@@ -71,3 +71,10 @@ company.whatYouWillNeed.p2 = The information you enter will be saved as you prog
 areYouUKCompany.title = Is the company or partnership registered in the UK?
 areYouUKCompany.heading = Is the company or partnership registered in the UK?
 areYouUKCompany.error.required = Select yes if the company or partnership is registered in the UK
+
+businessType.title = What type of business do you want to register?
+businessType.heading = What type of business do you want to register?
+businessType.limitedCompany = Limited company
+businessType.businessPartnership = Business partnership
+businessType.checkYourAnswersLabel = What type of business do you want to register?
+businessType.error.required = Select businessType

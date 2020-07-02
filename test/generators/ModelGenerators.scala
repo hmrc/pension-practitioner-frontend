@@ -27,6 +27,11 @@ import models.WhatTypeBusiness
 
 trait ModelGenerators {
 
+  implicit lazy val arbitraryBusinessType: Arbitrary[BusinessType] =
+    Arbitrary {
+      Gen.oneOf(BusinessType.values.toSeq)
+    }
+
   implicit lazy val arbitraryChargeType: Arbitrary[WhatTypeBusiness] =
     Arbitrary {
       Gen.oneOf(WhatTypeBusiness.values)

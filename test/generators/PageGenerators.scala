@@ -22,6 +22,9 @@ import pages.register.AreYouUKCompanyPage
 
 trait PageGenerators {
 
+  implicit lazy val arbitraryBusinessTypePage: Arbitrary[BusinessTypePage.type] =
+    Arbitrary(BusinessTypePage)
+
   implicit lazy val arbitraryAreYouUKCompanyPage: Arbitrary[AreYouUKCompanyPage.type] =
     Arbitrary(AreYouUKCompanyPage)
 
