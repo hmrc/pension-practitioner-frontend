@@ -31,6 +31,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   private def getConfigString(key: String) = servicesConfig.getConfString(key, throw new Exception(s"Could not find config '$key'"))
 
   lazy val contactHost: String = servicesConfig.baseUrl("contact-frontend")
+  lazy val addressLookUp = s"${servicesConfig.baseUrl("address-lookup")}"
 
   lazy val appName: String = configuration.get[String](path = "appName")
   val analyticsToken: String = configuration.get[String](s"google-analytics.token")

@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package controllers
+package pages.company
 
-import models.requests.DataRequest
-import pages.company.CompanyPostcodePage
-import play.api.mvc.AnyContent
-import play.api.mvc.Result
+import models.TolerantAddress
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-import scala.concurrent.Future
+case object CompanyPostcodePage extends QuestionPage[Seq[TolerantAddress]] {
 
-object DataRetrievals {
+  override def path: JsPath = JsPath \ toString
 
-  def retrieveCompanyName(block: String => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    block("psp")
-  }
-
-
-
+  override def toString: String = "companyPostcode"
 }

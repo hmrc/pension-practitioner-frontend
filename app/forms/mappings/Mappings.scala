@@ -30,18 +30,10 @@ trait Mappings extends Formatters with Constraints with Transforms {
   protected def optionalText(): FieldMapping[Option[String]] =
     of(optionalStringFormatter)
 
-  protected def postCodeMapping(keyRequired: String, keyLength: String, keyInvalid: String): Mapping[String] = {
+  protected def postCodeMapping(keyRequired: String, keyInvalid: String): Mapping[String] = {
     text(keyRequired)
       .transform(postCodeTransform, noTransform)
-      .verifying(
-        firstError(
-          maxLength(
-            maxPostCodeLength,
-            keyLength
-          ),
-          postCode(keyInvalid)
-        )
-      )
+      .verifying(postCode(keyInvalid))
       .transform(postCodeValidTransform, noTransform)
   }
 

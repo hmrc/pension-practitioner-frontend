@@ -53,9 +53,19 @@ session_expired.guidance = The details you have given have been deleted because 
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
+company = the company
+
 whatTypeBusiness.title = Who are you registering as a scheme practitioner?
 whatTypeBusiness.heading = Who are you registering as a scheme practitioner?
 whatTypeBusiness.companyOrPartnership = Company or partnership
 whatTypeBusiness.yourselfAsIndividual = Yourself as an individual
 whatTypeBusiness.checkYourAnswersLabel = Who are you registering as a scheme practitioner?
 whatTypeBusiness.error.required = Select whatTypeBusiness
+
+company.postcode.error.required = Enter the address we can use to contact the company
+company.postcode.error.invalid = Enter a valid address which we can use to contact the company
+postcode.title = Which address can we use to contact {0}?
+postcode.youCan = You can
+postcode.linkText.enterManually = enter the address manually
+postcode.label = Postcode
+findAddress = Find address

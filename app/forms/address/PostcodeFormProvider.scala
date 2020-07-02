@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package controllers
+package forms.address
 
-import models.requests.DataRequest
-import pages.company.CompanyPostcodePage
-import play.api.mvc.AnyContent
-import play.api.mvc.Result
+import javax.inject.Inject
+import forms.mappings.Mappings
+import play.api.data.Form
 
-import scala.concurrent.Future
+class PostcodeFormProvider @Inject() extends Mappings {
 
-object DataRetrievals {
-
-  def retrieveCompanyName(block: String => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    block("psp")
-  }
-
-
-
+  def apply(keyRequired: String, keyInvalid: String): Form[String] =
+    Form("value" -> postCodeMapping(keyRequired, keyInvalid))
 }

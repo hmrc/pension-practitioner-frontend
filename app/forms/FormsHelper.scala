@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-package controllers
+package forms
 
 import models.requests.DataRequest
-import pages.company.CompanyPostcodePage
+import play.api.data.Form
 import play.api.mvc.AnyContent
-import play.api.mvc.Result
 
-import scala.concurrent.Future
+object FormsHelper {
 
-object DataRetrievals {
-
-  def retrieveCompanyName(block: String => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    block("psp")
+  def formWithError[A](form: Form[A], message: String)(implicit request: DataRequest[AnyContent]): Form[A] = {
+    form.withError("value", message)
   }
-
-
 
 }
