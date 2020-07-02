@@ -6,3 +6,10 @@ GET         /                                                                   
 GET         /assets/*file                                                                                                       controllers.Assets.versioned(path="/public", file: Asset)
 
 GET         /language/:lang                                                                                                     controllers.LanguageSwitchController.switchToLanguage(lang: String)
+
+GET         /this-service-has-been-reset                                                                                        controllers.SessionExpiredController.onPageLoad
+
+GET        /whatTypeBusiness                        controllers.WhatTypeBusinessController.onPageLoad(mode: Mode = NormalMode)
+POST       /whatTypeBusiness                        controllers.WhatTypeBusinessController.onSubmit(mode: Mode = NormalMode)
+GET        /changeWhatTypeBusiness                  controllers.WhatTypeBusinessController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeWhatTypeBusiness                  controllers.WhatTypeBusinessController.onSubmit(mode: Mode = CheckMode)

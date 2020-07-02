@@ -20,6 +20,7 @@ import java.text.DecimalFormat
 
 import play.api.data.FormError
 import play.api.data.format.Formatter
+import utils.Enumerable
 
 import scala.util.control.Exception.nonFatalCatch
 import scala.util.Failure
@@ -239,19 +240,19 @@ trait Formatters extends Transforms with Constraints {
       override def unbind(key: String, value: BigDecimal): Map[String, String] = Map(key -> decimalFormat.format(value))
     }
 
-  //private[mappings] def enumerableFormatter[A](requiredKey: String, invalidKey: String)
-  //                                            (implicit ev: Enumerable[A]): Formatter[A] =
-  //  new Formatter[A] {
-  //
-  //    private val baseFormatter = stringFormatter(requiredKey)
-  //
-  //    override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], A] =
-  //      baseFormatter.bind(key, data).right.flatMap {
-  //        str =>
-  //          ev.withName(str).map(Right.apply).getOrElse(Left(Seq(FormError(key, invalidKey))))
-  //      }
-  //
-  //    override def unbind(key: String, value: A): Map[String, String] =
-  //      baseFormatter.unbind(key, value.toString)
-  //  }
+  private[mappings] def enumerableFormatter[A](requiredKey: String, invalidKey: String)
+                                              (implicit ev: Enumerable[A]): Formatter[A] =
+    new Formatter[A] {
+
+      private val baseFormatter = stringFormatter(requiredKey)
+
+      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], A] =
+        baseFormatter.bind(key, data).right.flatMap {
+          str =>
+            ev.withName(str).map(Right.apply).getOrElse(Left(Seq(FormError(key, invalidKey))))
+        }
+
+      override def unbind(key: String, value: A): Map[String, String] =
+        baseFormatter.unbind(key, value.toString)
+    }
 }

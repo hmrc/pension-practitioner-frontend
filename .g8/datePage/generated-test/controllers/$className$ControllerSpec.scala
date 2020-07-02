@@ -24,7 +24,6 @@ import scala.concurrent.Future
 
 class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers {
 
-  val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
   val formProvider = new $className$FormProvider()
   private def form: Form[LocalDate] = formProvider()
 
@@ -32,8 +31,8 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   val validAnswer = LocalDate.now(ZoneOffset.UTC)
 
-  def $className;format="decap"$Route = routes.$className$Controller.onPageLoad(NormalMode, srn).url
-  def $className;format="decap"$SubmitRoute = routes.$className$Controller.onSubmit(NormalMode, srn).url
+  def $className;format="decap"$Route = routes.$className$Controller.onPageLoad(NormalMode).url
+  def $className;format="decap"$SubmitRoute = routes.$className$Controller.onSubmit(NormalMode).url
 
   val emptyUserAnswers = UserAnswers(Json.obj())
 
@@ -50,18 +49,16 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   val viewModel = GenericViewModel(
     submitUrl = $className;format="decap"$SubmitRoute,
-  practitionerName = companyName)
+  pspName = pspName)
 
   "$className$ Controller" must {
 
     "return OK and the correct view for a GET" in {
 
-      when(mockAppConfig.managePensionsSchemeSummaryUrl).thenReturn(onwardRoute.url)
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithSchemeName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
         .overrides(
-          bind[FrontendAppConfig].toInstance(mockAppConfig)
         )
         .build()
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
@@ -89,12 +86,10 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
     "populate the view correctly on a GET when the question has previously been answered" in {
 
-      when(mockAppConfig.managePensionsSchemeSummaryUrl).thenReturn(onwardRoute.url)
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithSchemeName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
         .overrides(
-          bind[FrontendAppConfig].toInstance(mockAppConfig)
         )
         .build()
 
@@ -131,13 +126,11 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
     "redirect to the next page when valid data is submitted" in {
 
-      when(mockAppConfig.managePensionsSchemeSummaryUrl).thenReturn(onwardRoute.url)
-      when(mockUserAnswersCacheConnector.save(any(), any(), any(), any())(any(), any())) thenReturn Future.successful(Json.obj())
-      when(mockCompoundNavigator.nextPage(any(), any(), any(), any())).thenReturn(onwardRoute)
+      when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
+      when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithSchemeName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
         .overrides(
-          bind[FrontendAppConfig].toInstance(mockAppConfig)
         )
         .build()
 
@@ -154,12 +147,10 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       when(mockRenderer.render(any(), any())(any()))
         .thenReturn(Future.successful(Html("")))
-      when(mockAppConfig.managePensionsSchemeSummaryUrl).thenReturn(onwardRoute.url)
 
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithSchemeName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
         .overrides(
-          bind[FrontendAppConfig].toInstance(mockAppConfig)
         )
         .build()
 

@@ -19,7 +19,7 @@ package models
 import play.api.libs.json.{Json, OWrites}
 
 case class GenericViewModel(submitUrl: String,
-                            practitionerName: String)
+                            pspName: String)
 
 object GenericViewModel {
   implicit lazy val writes: OWrites[GenericViewModel] =

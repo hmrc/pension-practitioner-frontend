@@ -25,7 +25,7 @@ import scala.concurrent.Future
 object DataRetrievals {
 
   def retrieveCompanyName(block: String => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    block("test company")
+    block("psp")
   }
 
 

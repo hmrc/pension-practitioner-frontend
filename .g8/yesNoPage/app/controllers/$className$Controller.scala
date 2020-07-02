@@ -31,17 +31,17 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
 
   private val form = formProvider()
 
-  def onPageLoad(mode: Mode, srn: String): Action[AnyContent] = (identify andThen getData(srn) andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData()andThen requireData).async {
     implicit request =>
-      DataRetrievals.retrieveCompanyName { companyName =>
+      DataRetrievals.retrieveCompanyName { pspName =>
         val preparedForm = request.userAnswers.get ($className$Page) match {
           case None => form
           case Some (value) => form.fill (value)
         }
 
         val viewModel = GenericViewModel(
-          submitUrl = routes.$className$Controller.onSubmit(mode, srn).url,
-          practitionerName = companyName)
+          submitUrl = routes.$className$Controller.onSubmit(mode).url,
+          pspName = pspName)
 
         val json = Json.obj(
           "form" -> preparedForm,
@@ -53,15 +53,15 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
     }
   }
 
-  def onSubmit(mode: Mode, srn: String): Action[AnyContent] = (identify andThen getData(srn) andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData()andThen requireData).async {
     implicit request =>
-      DataRetrievals.retrieveCompanyName { companyName =>
+      DataRetrievals.retrieveCompanyName { pspName =>
         form.bindFromRequest().fold(
           formWithErrors => {
 
             val viewModel = GenericViewModel(
-              submitUrl = routes.$className$Controller.onSubmit(mode, srn).url,
-              practitionerName = companyName)
+              submitUrl = routes.$className$Controller.onSubmit(mode).url,
+              pspName = pspName)
 
             val json = Json.obj(
               "form"   -> formWithErrors,
@@ -74,7 +74,7 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set($className$Page, value))
-              _ <- userAnswersCacheConnector.save(request.internalId, updatedAnswers.data)
+              _ <- userAnswersCacheConnector.save( updatedAnswers.data)
             } yield Redirect(navigator.nextPage($className$Page, mode, updatedAnswers))
         )
       }

@@ -21,6 +21,7 @@ import java.time.LocalDate
 import play.api.data.FieldMapping
 import play.api.data.Mapping
 import play.api.data.Forms.of
+import utils.Enumerable
 
 trait Mappings extends Formatters with Constraints with Transforms {
 
@@ -83,9 +84,9 @@ trait Mappings extends Formatters with Constraints with Transforms {
     of(booleanFormatter(requiredKey, invalidKey))
 
 
-  //protected def enumerable[A](requiredKey: String = "error.required",
-  //                            invalidKey: String = "error.invalid")(implicit ev: Enumerable[A]): FieldMapping[A] =
-  //  of(enumerableFormatter[A](requiredKey, invalidKey))
+  protected def enumerable[A](requiredKey: String = "error.required",
+                              invalidKey: String = "error.invalid")(implicit ev: Enumerable[A]): FieldMapping[A] =
+    of(enumerableFormatter[A](requiredKey, invalidKey))
 
   protected def localDate(invalidKey: String,
                           allRequiredKey: String,
