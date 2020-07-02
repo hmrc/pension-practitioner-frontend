@@ -17,12 +17,11 @@
 package controllers.company
 
 import controllers.base.ControllerSpecBase
-import controllers.routes
 import data.SampleData._
 import forms.company.WhatTypeBusinessFormProvider
 import matchers.JsonMatchers
-import models.{GenericViewModel, UserAnswers}
 import models.company.WhatTypeBusiness
+import models.{GenericViewModel, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -180,7 +179,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
       val result = route(application, request).value
 
       status(result) mustEqual SEE_OTHER
-      redirectLocation(result).value mustEqual routes.SessionExpiredController.onPageLoad().url
+      redirectLocation(result).value mustEqual controllers.routes.SessionExpiredController.onPageLoad().url
 
       application.stop()
     }
@@ -197,7 +196,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
       status(result) mustEqual SEE_OTHER
 
-      redirectLocation(result).value mustEqual routes.SessionExpiredController.onPageLoad().url
+      redirectLocation(result).value mustEqual controllers.routes.SessionExpiredController.onPageLoad().url
 
       application.stop()
     }
