@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package navigators
+package models
 
-import pages.Page
-import models.Mode
-import play.api.mvc.Call
-import models.UserAnswers
-trait CompoundNavigator {
-  def nextPage(id: Page, mode: Mode, userAnswers: UserAnswers): Call
+case class Field(name: String, errorKeys: Map[ErrorType, String])
+
+object Field {
+
+  def apply(name: String, errors: (ErrorType, String)*): Field =
+    Field(name, errors.toMap)
 }
 
-class CompoundNavigatorImpl extends CompoundNavigator {
-
-  override def nextPage(id: Page, mode: Mode, userAnswers: UserAnswers): Call = Call("GET", "")
-
-}
+sealed trait ErrorType
+case object Required extends ErrorType
+case object Invalid extends ErrorType

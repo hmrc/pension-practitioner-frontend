@@ -19,14 +19,11 @@ package controllers.base
 import base.SpecBase
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import controllers.actions.AllowAccessActionProvider
 import controllers.actions._
 import models.UserAnswers
 import models.requests.DataRequest
 import navigators.CompoundNavigator
-import org.mockito.Matchers.any
 import org.mockito.Mockito
-import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.HeaderNames
@@ -56,8 +53,7 @@ trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with MockitoSu
   }
 
   override def beforeEach: Unit = {
-    Mockito.reset(mockRenderer, mockUserAnswersCacheConnector, mockCompoundNavigator, mockAllowAccessActionProvider)
-    when(mockAllowAccessActionProvider.apply(any(), any(), any(), any(), any())).thenReturn(FakeActionFilter)
+    Mockito.reset(mockRenderer, mockUserAnswersCacheConnector, mockCompoundNavigator)
   }
 
   protected def mockDataRetrievalAction: DataRetrievalAction = mock[DataRetrievalAction]
@@ -68,16 +64,13 @@ trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with MockitoSu
   protected val mockCompoundNavigator: CompoundNavigator = mock[CompoundNavigator]
   protected val mockRenderer: NunjucksRenderer = mock[NunjucksRenderer]
 
-  protected val mockAllowAccessActionProvider: AllowAccessActionProvider = mock[AllowAccessActionProvider]
-
   def modules: Seq[GuiceableModule] = Seq(
     bind[DataRequiredAction].to[DataRequiredActionImpl],
     bind[IdentifierAction].to[FakeIdentifierAction],
     bind[NunjucksRenderer].toInstance(mockRenderer),
     bind[FrontendAppConfig].toInstance(mockAppConfig),
     bind[UserAnswersCacheConnector].toInstance(mockUserAnswersCacheConnector),
-    bind[CompoundNavigator].toInstance(mockCompoundNavigator),
-    bind[AllowAccessActionProvider].toInstance(mockAllowAccessActionProvider)
+    bind[CompoundNavigator].toInstance(mockCompoundNavigator)
   )
 
   protected def applicationBuilder(userAnswers: Option[UserAnswers] = None,

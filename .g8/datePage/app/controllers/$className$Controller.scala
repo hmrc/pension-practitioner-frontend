@@ -31,7 +31,7 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode, srn: String): Action[AnyContent] = (identify andThen getData(srn) andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData()andThen requireData).async {
     implicit request =>
       DataRetrievals.retrieveCompanyName { pspName =>
         val preparedForm = request.userAnswers.get($className$Page) match {
@@ -40,7 +40,7 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
         }
 
         val viewModel = GenericViewModel(
-          submitUrl = routes.$className$Controller.onSubmit(mode, srn).url,
+          submitUrl = routes.$className$Controller.onSubmit(mode).url,
           pspName = pspName)
 
         val date = DateInput.localDate(preparedForm("value"))
@@ -55,14 +55,14 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
       }
   }
 
-  def onSubmit(mode: Mode, srn: String): Action[AnyContent] = (identify andThen getData(srn) andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData()andThen requireData).async {
     implicit request =>
       DataRetrievals.retrieveCompanyName { pspName =>
         form.bindFromRequest().fold(
           formWithErrors => {
 
             val viewModel = GenericViewModel(
-              submitUrl = routes.$className$Controller.onSubmit(mode, srn).url,
+              submitUrl = routes.$className$Controller.onSubmit(mode).url,
               pspName = pspName)
 
             val date = DateInput.localDate(formWithErrors("value"))

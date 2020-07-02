@@ -24,7 +24,6 @@ import scala.concurrent.Future
 
 class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
 
-  val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
   val formProvider = new $className$FormProvider()
   val form = formProvider()
 
@@ -32,8 +31,8 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   val validAnswer = $minimum$
 
-  def $className;format="decap"$Route = routes.$className$Controller.onPageLoad(NormalMode, srn).url
-  def $className;format="decap"$SubmitRoute = routes.$className$Controller.onSubmit(NormalMode, srn).url
+  def $className;format="decap"$Route = routes.$className$Controller.onPageLoad(NormalMode).url
+  def $className;format="decap"$SubmitRoute = routes.$className$Controller.onSubmit(NormalMode).url
 
   val viewModel = GenericViewModel(
     submitUrl = $className;format="decap"$SubmitRoute,
@@ -48,7 +47,6 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
         .overrides(
-          bind[FrontendAppConfig].toInstance(mockAppConfig)
         )
         .build()
       val request = FakeRequest(GET, $className;format="decap"$Route)
@@ -77,7 +75,6 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val application = applicationBuilder(userAnswers = Some(answers))
         .overrides(
-          bind[FrontendAppConfig].toInstance(mockAppConfig)
         )
         .build()
       val request = FakeRequest(GET, $className;format="decap"$Route)
@@ -105,12 +102,11 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
     "redirect to the next page when valid data is submitted" in {
 
-      when(mockUserAnswersCacheConnector.save(any(), any(), any(), any())(any(), any())) thenReturn Future.successful(Json.obj())
-      when(mockCompoundNavigator.nextPage(any(), any(), any(), any())).thenReturn(onwardRoute)
+      when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
+      when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
       val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
         .overrides(
-          bind[FrontendAppConfig].toInstance(mockAppConfig)
         )
         .build()
 
@@ -132,7 +128,6 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
         .overrides(
-          bind[FrontendAppConfig].toInstance(mockAppConfig)
         )
         .build()
       val request = FakeRequest(POST, $className;format="decap"$Route).withFormUrlEncodedBody(("value", "invalid value"))

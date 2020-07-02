@@ -44,7 +44,7 @@ Future.successful(OptionalDataRequest(request, "", Some(UserAnswers())))
 class DataRetrievalActionImpl @Inject()(userAnswersCacheConnector: UserAnswersCacheConnector
 )(implicit val executionContext: ExecutionContext)
                                         extends DataRetrievalAction {
-  override def apply(externalId: String): DataRetrieval =
+  override def apply: DataRetrieval =
     new DataRetrievalImpl()
 }
 
@@ -53,5 +53,5 @@ trait DataRetrieval extends ActionTransformer[IdentifierRequest, OptionalDataReq
 
 @ImplementedBy(classOf[DataRetrievalActionImpl])
 trait DataRetrievalAction {
-  def apply(externalId: String): DataRetrieval
+  def apply(): DataRetrieval
 }

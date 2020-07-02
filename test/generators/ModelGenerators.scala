@@ -14,18 +14,24 @@
  * limitations under the License.
  */
 
-package navigators
+package generators
 
-import pages.Page
-import models.Mode
-import play.api.mvc.Call
-import models.UserAnswers
-trait CompoundNavigator {
-  def nextPage(id: Page, mode: Mode, userAnswers: UserAnswers): Call
-}
+import java.time.ZoneOffset
 
-class CompoundNavigatorImpl extends CompoundNavigator {
+import org.scalacheck.Gen
+import java.time.LocalDate
+import java.time.Instant
 
-  override def nextPage(id: Page, mode: Mode, userAnswers: UserAnswers): Call = Call("GET", "")
+trait ModelGenerators {
 
+  def datesBetween(min: LocalDate, max: LocalDate): Gen[LocalDate] = {
+
+    def toMillis(date: LocalDate): Long =
+      date.atStartOfDay.atZone(ZoneOffset.UTC).toInstant.toEpochMilli
+
+    Gen.choose(toMillis(min), toMillis(max)).map {
+      millis =>
+        Instant.ofEpochMilli(millis).atOffset(ZoneOffset.UTC).toLocalDate
+    }
+  }
 }

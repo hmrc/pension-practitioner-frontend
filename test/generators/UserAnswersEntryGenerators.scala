@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-package navigators
+package generators
 
-import pages.Page
-import models.Mode
-import play.api.mvc.Call
-import models.UserAnswers
-trait CompoundNavigator {
-  def nextPage(id: Page, mode: Mode, userAnswers: UserAnswers): Call
-}
+trait UserAnswersEntryGenerators extends PageGenerators with ModelGenerators {
 
-class CompoundNavigatorImpl extends CompoundNavigator {
 
-  override def nextPage(id: Page, mode: Mode, userAnswers: UserAnswers): Call = Call("GET", "")
 
 }

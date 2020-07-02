@@ -24,7 +24,7 @@ class WhatTypeBusinessFormProviderSpec extends OptionFieldBehaviours {
 
   val form = new WhatTypeBusinessFormProvider()()
 
-  ".value" - {
+  ".value" must {
 
     val fieldName = "value"
     val requiredKey = "whatTypeBusiness.error.required"

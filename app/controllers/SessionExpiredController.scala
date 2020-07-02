@@ -16,18 +16,22 @@
 
 package controllers
 
-import models.requests.DataRequest
-import play.api.mvc.AnyContent
-import play.api.mvc.Result
+import javax.inject.Inject
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import renderer.Renderer
+import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
 
-object DataRetrievals {
+class SessionExpiredController @Inject()(
+    val controllerComponents: MessagesControllerComponents,
+    renderer: Renderer
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
-  def retrieveCompanyName(block: String => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    block("psp")
+  def onPageLoad: Action[AnyContent] = Action.async { implicit request =>
+    renderer.render("session-expired.njk").map(Ok(_))
   }
-
-
-
 }
