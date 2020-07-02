@@ -47,7 +47,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
     "value.year"  -> validAnswer.getYear.toString
   )
 
-  val viewModel = GenericViewModel(
+  def viewModel = GenericViewModel(
     submitUrl = $className;format="decap"$SubmitRoute,
   pspName = pspName)
 

@@ -39,7 +39,7 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
           case Some (value) => form.fill (value)
         }
 
-        val viewModel = GenericViewModel(
+        def viewModel = GenericViewModel(
           submitUrl = routes.$className$Controller.onSubmit(mode).url,
           pspName = pspName)
 
@@ -59,7 +59,7 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
         form.bindFromRequest().fold(
           formWithErrors => {
 
-            val viewModel = GenericViewModel(
+            def viewModel = GenericViewModel(
               submitUrl = routes.$className$Controller.onSubmit(mode).url,
               pspName = pspName)
 

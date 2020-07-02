@@ -53,7 +53,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
   val formProvider = new WhatTypeBusinessFormProvider()
   val form = formProvider()
 
-  val viewModel = GenericViewModel(
+  def viewModel = GenericViewModel(
     submitUrl = whatTypeBusinessSubmitRoute,
   pspName = pspName)
 
@@ -61,149 +61,150 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
   "WhatTypeBusiness Controller" must {
 
-  //  "return OK and the correct view for a GET" in {
-  //    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  //
-  //    val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
-  //      .overrides(
-  //      )
-  //      .build()
-  //    val request = FakeRequest(GET, whatTypeBusinessRoute)
-  //    val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-  //    val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-  //
-  //    val result = route(application, request).value
-  //
-  //    status(result) mustEqual OK
-  //
-  //    verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-  //
-  //    val expectedJson = Json.obj(
-  //      "form"   -> form,
-  //      "viewModel" -> viewModel,
-  //      "radios" -> WhatTypeBusiness.radios(form)
-  //    )
-  //
-  //    templateCaptor.getValue mustEqual "whatTypeBusiness.njk"
-  //    jsonCaptor.getValue must containJson(expectedJson)
-  //
-  //    application.stop()
-  //  }
-  //
-  //  "populate the view correctly on a GET when the question has previously been answered" in {
-  //    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  //
-  //    val application = applicationBuilder(userAnswers = Some(answers))
-  //      .overrides(
-  //      )
-  //      .build()
-  //    val request = FakeRequest(GET, whatTypeBusinessRoute)
-  //    val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-  //    val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-  //
-  //    val result = route(application, request).value
-  //
-  //    status(result) mustEqual OK
-  //
-  //    verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-  //
-  //    val filledForm = form.bind(Map("value" -> WhatTypeBusiness.values.head.toString))
-  //
-  //    val expectedJson = Json.obj(
-  //      "form"   -> filledForm,
-  //      "viewModel" -> viewModel,
-  //      "radios" -> WhatTypeBusiness.radios(filledForm)
-  //    )
-  //
-  //    templateCaptor.getValue mustEqual "whatTypeBusiness.njk"
-  //    jsonCaptor.getValue must containJson(expectedJson)
-  //
-  //    application.stop()
-  //  }
-  //
-  //  "redirect to the next page when valid data is submitted" in {
-  //
-  //    when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
-  //    when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
-  //
-  //    val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
-  //      .overrides(
-  //      )
-  //      .build()
-  //
-  //    val request =
-  //      FakeRequest(POST, whatTypeBusinessRoute)
-  //    .withFormUrlEncodedBody(("value", WhatTypeBusiness.values.head.toString))
-  //
-  //    val result = route(application, request).value
-  //
-  //    status(result) mustEqual SEE_OTHER
-  //
-  //    redirectLocation(result).value mustEqual onwardRoute.url
-  //
-  //    application.stop()
-  //  }
-  //
-  //  "return a Bad Request and errors when invalid data is submitted" in {
-  //
-  //    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  //
-  //    val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
-  //      .overrides(
-  //      )
-  //      .build()
-  //    val request = FakeRequest(POST, whatTypeBusinessRoute).withFormUrlEncodedBody(("value", "invalid value"))
-  //    val boundForm = form.bind(Map("value" -> "invalid value"))
-  //    val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-  //    val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-  //
-  //    val result = route(application, request).value
-  //
-  //    status(result) mustEqual BAD_REQUEST
-  //
-  //    verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-  //
-  //    val expectedJson = Json.obj(
-  //      "form"   -> boundForm,
-  //      "viewModel" -> viewModel,
-  //      "radios" -> WhatTypeBusiness.radios(boundForm)
-  //    )
-  //
-  //    templateCaptor.getValue mustEqual "whatTypeBusiness.njk"
-  //    jsonCaptor.getValue must containJson(expectedJson)
-  //
-  //    application.stop()
-  //  }
-  //
-  //  "redirect to Session Expired for a GET if no existing data is found" in {
-  //
-  //    val application = applicationBuilder(userAnswers = None).build()
-  //
-  //    val request = FakeRequest(GET, whatTypeBusinessRoute)
-  //
-  //    val result = route(application, request).value
-  //
-  //    status(result) mustEqual SEE_OTHER
-  //    redirectLocation(result).value mustEqual routes.SessionExpiredController.onPageLoad().url
-  //
-  //    application.stop()
-  //  }
-  //
-  //  "redirect to Session Expired for a POST if no existing data is found" in {
-  //
-  //    val application = applicationBuilder(userAnswers = None).build()
-  //
-  //    val request =
-  //      FakeRequest(POST, whatTypeBusinessRoute)
-  //    .withFormUrlEncodedBody(("value", WhatTypeBusiness.values.head.toString))
-  //
-  //    val result = route(application, request).value
-  //
-  //    status(result) mustEqual SEE_OTHER
-  //
-  //    redirectLocation(result).value mustEqual routes.SessionExpiredController.onPageLoad().url
-  //
-  //    application.stop()
-  //  }
+    "return OK and the correct view for a GET" in {
+      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+        .overrides(
+        )
+        .build()
+      val request = FakeRequest(GET, whatTypeBusinessRoute)
+      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
+      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+
+      val result = route(application, request).value
+
+      status(result) mustEqual OK
+
+      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+
+      val expectedJson = Json.obj(
+        "form"   -> form,
+        "viewModel" -> viewModel,
+        "radios" -> WhatTypeBusiness.radios(form)
+      )
+
+      templateCaptor.getValue mustEqual "whatTypeBusiness.njk"
+
+      jsonCaptor.getValue must containJson(expectedJson)
+
+      application.stop()
+    }
+
+    "populate the view correctly on a GET when the question has previously been answered" in {
+      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
+
+      val application = applicationBuilder(userAnswers = Some(answers))
+        .build()
+
+      val request = FakeRequest(GET, whatTypeBusinessRoute)
+      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
+      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+
+      val result = route(application, request).value
+
+      status(result) mustEqual OK
+
+      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+
+      val filledForm = form.bind(Map("value" -> WhatTypeBusiness.values.head.toString))
+
+      val expectedJson = Json.obj(
+        "form"   -> filledForm,
+        "viewModel" -> viewModel,
+        "radios" -> WhatTypeBusiness.radios(filledForm)
+      )
+
+      templateCaptor.getValue mustEqual "whatTypeBusiness.njk"
+
+      jsonCaptor.getValue must containJson(expectedJson)
+
+      application.stop()
+    }
+
+    "redirect to the next page when valid data is submitted" in {
+
+      when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
+      when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+        .overrides(
+        )
+        .build()
+
+      val request =
+        FakeRequest(POST, whatTypeBusinessRoute)
+      .withFormUrlEncodedBody(("value", WhatTypeBusiness.values.head.toString))
+
+      val result = route(application, request).value
+
+      status(result) mustEqual SEE_OTHER
+
+      redirectLocation(result).value mustEqual onwardRoute.url
+
+      application.stop()
+    }
+
+    "return a Bad Request and errors when invalid data is submitted" in {
+
+      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+        .overrides(
+        )
+        .build()
+      val request = FakeRequest(POST, whatTypeBusinessRoute).withFormUrlEncodedBody(("value", "invalid value"))
+      val boundForm = form.bind(Map("value" -> "invalid value"))
+      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
+      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+
+      val result = route(application, request).value
+
+      status(result) mustEqual BAD_REQUEST
+
+      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+
+      val expectedJson = Json.obj(
+        "form"   -> boundForm,
+        "viewModel" -> viewModel,
+        "radios" -> WhatTypeBusiness.radios(boundForm)
+      )
+
+      templateCaptor.getValue mustEqual "whatTypeBusiness.njk"
+      jsonCaptor.getValue must containJson(expectedJson)
+
+      application.stop()
+    }
+
+    "redirect to Session Expired for a GET if no existing data is found" in {
+
+      val application = applicationBuilder(userAnswers = None).build()
+
+      val request = FakeRequest(GET, whatTypeBusinessRoute)
+
+      val result = route(application, request).value
+
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual routes.SessionExpiredController.onPageLoad().url
+
+      application.stop()
+    }
+
+    "redirect to Session Expired for a POST if no existing data is found" in {
+
+      val application = applicationBuilder(userAnswers = None).build()
+
+      val request =
+        FakeRequest(POST, whatTypeBusinessRoute)
+      .withFormUrlEncodedBody(("value", WhatTypeBusiness.values.head.toString))
+
+      val result = route(application, request).value
+
+      status(result) mustEqual SEE_OTHER
+
+      redirectLocation(result).value mustEqual routes.SessionExpiredController.onPageLoad().url
+
+      application.stop()
+    }
   }
 }

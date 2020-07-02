@@ -31,8 +31,9 @@ class FakeDataRetrievalAction(json: Option[UserAnswers]) extends DataRetrievalAc
 
 class FakeDataRetrieval(dataToReturn: Option[UserAnswers]) extends DataRetrieval {
 
-  override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] =
+  override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] = {
     Future(OptionalDataRequest(request.request, s"test-id", dataToReturn))
+  }
 
   override protected implicit val executionContext: ExecutionContext =
     scala.concurrent.ExecutionContext.Implicits.global

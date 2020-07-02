@@ -16,12 +16,14 @@
 
 package controllers.actions
 
+import controllers.routes
 import javax.inject.Inject
 import models.UserAnswers
 import models.requests.DataRequest
 import models.requests.OptionalDataRequest
 import play.api.mvc.ActionRefiner
 import play.api.mvc.Result
+import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 
@@ -34,10 +36,22 @@ class DataRequiredActionImpl @Inject()(implicit val executionContext: ExecutionC
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
-
-        Future.successful(Right(DataRequest(request.request, "", UserAnswers())))
-
+    request.userAnswers match {
+      case Some(data) =>
+        Future.successful(Right(DataRequest(request.request, request.internalId, data)))
+      case _ =>
+        Future.successful(Left(Redirect(routes.SessionExpiredController.onPageLoad())))
+    }
   }
+
+  //override protected def refine[A](request: OptionalDataRequest[A]): Future[Either[Result, DataRequest[A]]] = {
+  //
+  //  implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
+  //
+  //
+  //      Future.successful(Right(DataRequest(request.request, "", request.userAnswers)))
+  //
+  //}
 }
 
 trait DataRequiredAction extends ActionRefiner[OptionalDataRequest, DataRequest]
