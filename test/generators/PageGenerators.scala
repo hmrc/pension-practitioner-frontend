@@ -18,7 +18,7 @@ package generators
 
 import org.scalacheck.Arbitrary
 import pages.WhatTypeBusinessPage
-import pages.register.AreYouUKCompanyPage
+import pages.register.{AreYouUKCompanyPage, BusinessTypePage}
 
 trait PageGenerators {
 

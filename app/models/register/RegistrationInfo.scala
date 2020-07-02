@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package models.registration
+package models.register
 
 import play.api.libs.json.{Format, Json}
 

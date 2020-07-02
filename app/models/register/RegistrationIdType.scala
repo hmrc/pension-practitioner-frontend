@@ -14,27 +14,24 @@
  * limitations under the License.
  */
 
-package models.registration
+package models.register
 
 import utils.{Enumerable, WithName}
 
-sealed trait RegistrationLegalStatus
+sealed trait RegistrationIdType
 
-object RegistrationLegalStatus extends Enumerable.Implicits {
+object RegistrationIdType extends Enumerable.Implicits {
 
-  case object Individual extends WithName("Individual") with RegistrationLegalStatus
+  case object Nino extends WithName("NINO") with RegistrationIdType
 
-  case object Partnership extends WithName("Partnership") with RegistrationLegalStatus
-
-  case object LimitedCompany extends WithName("Limited Company") with RegistrationLegalStatus
+  case object UTR extends WithName("UTR") with RegistrationIdType
 
   val values = Seq(
-    Individual,
-    Partnership,
-    LimitedCompany
+    Nino,
+    UTR
   )
 
-  implicit val enumerable: Enumerable[RegistrationLegalStatus] =
+  implicit val enumerable: Enumerable[RegistrationIdType] =
     Enumerable(values.map(v => v.toString -> v): _*)
 
 }

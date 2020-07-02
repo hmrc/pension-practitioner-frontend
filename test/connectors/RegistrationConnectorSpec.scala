@@ -20,7 +20,8 @@ import java.time.LocalDate
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models._
-import models.registration._
+import models.register.{RegistrationInfo, RegistrationNoIdIndividualRequest, TolerantIndividual}
+import models.register._
 import org.scalatest._
 import play.api.Application
 import play.api.http.Status

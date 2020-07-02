@@ -24,6 +24,7 @@ import java.time.LocalDate
 import java.time.Instant
 
 import models.WhatTypeBusiness
+import models.register.BusinessType
 
 trait ModelGenerators {
 

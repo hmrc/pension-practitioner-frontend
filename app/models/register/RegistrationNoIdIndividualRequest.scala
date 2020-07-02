@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package models
+package models.register
 
-sealed trait InternationalRegion
+import java.time.LocalDate
 
-object InternationalRegion {
+import models.Address
+import play.api.libs.json._
 
-  case object UK extends InternationalRegion
-  case object EuEea extends InternationalRegion
-  case object RestOfTheWorld extends InternationalRegion
+case class RegistrationNoIdIndividualRequest(firstName: String, lastName: String, dateOfBirth: LocalDate, address: Address)
 
+object RegistrationNoIdIndividualRequest {
+
+  implicit val formats: Format[RegistrationNoIdIndividualRequest] = Json.format[RegistrationNoIdIndividualRequest]
 }

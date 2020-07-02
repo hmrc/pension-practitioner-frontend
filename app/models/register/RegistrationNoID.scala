@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package models.registration
+package models.register
 
 import models.Address
 import play.api.libs.json._
