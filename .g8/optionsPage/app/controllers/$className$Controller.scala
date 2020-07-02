@@ -33,7 +33,7 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad(mode: Mode, srn: String): Action[AnyContent] = (identify andThen getData(srn) andThen requireData).async {
     implicit request =>
-      DataRetrievals.retrieveCompanyName { schemeName =>
+      DataRetrievals.retrieveCompanyName { companyName =>
 
         val preparedForm = request.userAnswers.get($className$Page) match {
           case None => form
@@ -42,8 +42,7 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
 
         val viewModel = GenericViewModel(
           submitUrl = routes.$className$Controller.onSubmit(mode, srn).url,
-          returnUrl = config.managePensionsSchemeSummaryUrl.format(srn),
-          schemeName = schemeName)
+          practitionerName = companyName)
 
         val json = Json.obj(
           "form" -> preparedForm,
@@ -57,15 +56,14 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
 
   def onSubmit(mode: Mode, srn: String): Action[AnyContent] = (identify andThen getData(srn) andThen requireData).async {
     implicit request =>
-      DataRetrievals.retrieveCompanyName { schemeName =>
+      DataRetrievals.retrieveCompanyName { companyName =>
 
         form.bindFromRequest().fold(
           formWithErrors => {
 
             val viewModel = GenericViewModel(
               submitUrl = routes.$className$Controller.onSubmit(mode, srn).url,
-              returnUrl = config.managePensionsSchemeSummaryUrl.format(srn),
-              schemeName = schemeName)
+              practitionerName = companyName)
 
             val json = Json.obj(
               "form" -> formWithErrors,

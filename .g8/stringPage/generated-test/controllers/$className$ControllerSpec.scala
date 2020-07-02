@@ -34,8 +34,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   val viewModel = GenericViewModel(
     submitUrl = $className;format="decap"$SubmitRoute,
-    returnUrl = onwardRoute.url,
-    schemeName = schemeName)
+    practitionerName = companyName)
 
   val answers: UserAnswers = userAnswersWithSchemeName.set($className$Page, "answer").success.value
 

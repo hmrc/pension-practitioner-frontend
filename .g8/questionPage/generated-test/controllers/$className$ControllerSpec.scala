@@ -33,7 +33,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   val userAnswers = UserAnswers(
     Json.obj(
-      "schemeName" -> schemeName,
+      "companyName" -> companyName,
       "pstr" -> pstr,
       $className$Page.toString -> Json.obj(
         "$field1Name$" -> "value 1",
@@ -44,8 +44,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   val viewModel = GenericViewModel(
     submitUrl = $className;format="decap"$SubmitRoute,
-  returnUrl = onwardRoute.url,
-  schemeName = schemeName)
+  practitionerName = companyName)
 
   "$className$ Controller" must {
 
