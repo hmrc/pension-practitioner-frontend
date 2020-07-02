@@ -50,13 +50,12 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData() andThen requireData).async {
     implicit request =>
       DataRetrievals.retrieveCompanyName { pspName =>
-
         val preparedForm = request.userAnswers.get(WhatTypeBusinessPage) match {
           case None => form
           case Some(value) => form.fill(value)
         }
 
-        val viewModel = GenericViewModel(
+        def viewModel = GenericViewModel(
           submitUrl = routes.WhatTypeBusinessController.onSubmit(mode).url,
           pspName = pspName)
 
@@ -77,7 +76,7 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
         form.bindFromRequest().fold(
           formWithErrors => {
 
-            val viewModel = GenericViewModel(
+            def viewModel = GenericViewModel(
               submitUrl = routes.WhatTypeBusinessController.onSubmit(mode).url,
               pspName = pspName)
 
@@ -89,11 +88,12 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
 
             renderer.render("whatTypeBusiness.njk", json).map(BadRequest(_))
           },
-          value =>
+          value => {
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatTypeBusinessPage, value))
               _ <- userAnswersCacheConnector.save( updatedAnswers.data)
             } yield Redirect(navigator.nextPage(WhatTypeBusinessPage, mode, updatedAnswers))
+          }
         )
       }
   }

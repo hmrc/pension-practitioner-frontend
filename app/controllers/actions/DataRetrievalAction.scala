@@ -44,7 +44,7 @@ Future.successful(OptionalDataRequest(request, "", Some(UserAnswers())))
 class DataRetrievalActionImpl @Inject()(userAnswersCacheConnector: UserAnswersCacheConnector
 )(implicit val executionContext: ExecutionContext)
                                         extends DataRetrievalAction {
-  override def apply: DataRetrieval =
+  override def apply(): DataRetrieval =
     new DataRetrievalImpl()
 }
 
