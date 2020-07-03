@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.companyorpartnership
 
-import base.SpecBase
 import controllers.base.ControllerSpecBase
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -48,7 +49,7 @@ class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar
 
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), any())(any())
 
-      templateCaptor.getValue mustEqual "company/whatYouWillNeed.njk"
+      templateCaptor.getValue mustEqual "companyorpartnership/whatYouWillNeed.njk"
 
       application.stop()
     }

@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package pages.company
+package forms.companyorpartnership
 
-import models.company.WhatTypeBusiness
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import forms.mappings.Mappings
+import javax.inject.Inject
+import play.api.data.Form
 
-case object WhatTypeBusinessPage extends QuestionPage[WhatTypeBusiness] {
+class AreYouUKCompanyFormProvider @Inject() extends Mappings {
 
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "whatTypeBusiness"
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("areYouUKCompany.error.required")
+    )
 }

@@ -16,11 +16,13 @@
 
 package generators
 
-import models.company.WhatTypeBusiness
+import models.WhatTypeBusiness
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Arbitrary
-import pages.company.{AreYouUKCompanyPage, WhatTypeBusinessPage}
-import play.api.libs.json.{JsValue, Json}
+import pages.WhatTypeBusinessPage
+import pages.companyorpartnership.AreYouUKCompanyPage
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json
 
 
 trait UserAnswersEntryGenerators extends PageGenerators with ModelGenerators {

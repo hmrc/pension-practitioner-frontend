@@ -17,11 +17,12 @@
 package controllers
 
 import controllers.base.ControllerSpecBase
-import matchers.JsonMatchers
+import data.SampleData._
 import forms.WhatTypeBusinessFormProvider
-import models.NormalMode
-import models.UserAnswers
+import matchers.JsonMatchers
+import models.GenericViewModel
 import models.WhatTypeBusiness
+import models.UserAnswers
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito.times
@@ -36,8 +37,6 @@ import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import data.SampleData._
-import models.GenericViewModel
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 
@@ -47,8 +46,8 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
   def onwardRoute = Call("GET", "/foo")
 
-  def whatTypeBusinessRoute = controllers.company.routes.WhatTypeBusinessController.onPageLoad().url
-  def whatTypeBusinessSubmitRoute = controllers.company.routes.WhatTypeBusinessController.onSubmit().url
+  def whatTypeBusinessRoute = routes.WhatTypeBusinessController.onPageLoad().url
+  def whatTypeBusinessSubmitRoute = routes.WhatTypeBusinessController.onSubmit().url
 
   val formProvider = new WhatTypeBusinessFormProvider()
   val form = formProvider()
@@ -83,7 +82,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
         "radios" -> WhatTypeBusiness.radios(form)
       )
 
-      templateCaptor.getValue mustEqual "company/whatTypeBusiness.njk"
+      templateCaptor.getValue mustEqual "whatTypeBusiness.njk"
 
       jsonCaptor.getValue must containJson(expectedJson)
 
@@ -114,7 +113,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
         "radios" -> WhatTypeBusiness.radios(filledForm)
       )
 
-      templateCaptor.getValue mustEqual "company/whatTypeBusiness.njk"
+      templateCaptor.getValue mustEqual "whatTypeBusiness.njk"
 
       jsonCaptor.getValue must containJson(expectedJson)
 
@@ -169,7 +168,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
         "radios" -> WhatTypeBusiness.radios(boundForm)
       )
 
-      templateCaptor.getValue mustEqual "company/whatTypeBusiness.njk"
+      templateCaptor.getValue mustEqual "whatTypeBusiness.njk"
       jsonCaptor.getValue must containJson(expectedJson)
 
       application.stop()
@@ -184,7 +183,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
       val result = route(application, request).value
 
       status(result) mustEqual SEE_OTHER
-      redirectLocation(result).value mustEqual routes.SessionExpiredController.onPageLoad().url
+      redirectLocation(result).value mustEqual controllers.routes.SessionExpiredController.onPageLoad().url
 
       application.stop()
     }
@@ -201,7 +200,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
       status(result) mustEqual SEE_OTHER
 
-      redirectLocation(result).value mustEqual routes.SessionExpiredController.onPageLoad().url
+      redirectLocation(result).value mustEqual controllers.routes.SessionExpiredController.onPageLoad().url
 
       application.stop()
     }

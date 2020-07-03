@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
-import forms.company.AreYouUKCompanyFormProvider
+import forms.WhatTypeBusinessFormProvider
 import javax.inject.Inject
 import models.GenericViewModel
 import models.NormalMode
+import models.WhatTypeBusiness
 import navigators.CompoundNavigator
-import pages.company.AreYouUKCompanyPage
+import pages.WhatTypeBusinessPage
 import play.api.i18n.I18nSupport
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
@@ -34,65 +35,65 @@ import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import uk.gov.hmrc.viewmodels.Radios
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
+class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi,
                                       userAnswersCacheConnector: UserAnswersCacheConnector,
                                       navigator: CompoundNavigator,
                                       identify: IdentifierAction,
                                       getData: DataRetrievalAction,
                                       requireData: DataRequiredAction,
-                                      formProvider: AreYouUKCompanyFormProvider,
+                                      formProvider: WhatTypeBusinessFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
                                       config: FrontendAppConfig,
                                       renderer: Renderer
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
+                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
 
   private val form = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData()andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData() andThen requireData).async {
     implicit request =>
-        val preparedForm = request.userAnswers.get (AreYouUKCompanyPage) match {
+        val preparedForm = request.userAnswers.get(WhatTypeBusinessPage) match {
           case None => form
-          case Some (value) => form.fill (value)
+          case Some(value) => form.fill(value)
         }
 
         def viewModel = GenericViewModel(
-          submitUrl = routes.AreYouUKCompanyController.onSubmit().url)
+          submitUrl = routes.WhatTypeBusinessController.onSubmit().url)
 
         val json = Json.obj(
           "form" -> preparedForm,
           "viewModel" -> viewModel,
-          "radios" -> Radios.yesNo (preparedForm("value"))
+          "radios" -> WhatTypeBusiness.radios(preparedForm)
         )
 
-      renderer.render ("company/areYouUKCompany.njk", json).map(Ok (_))
+        renderer.render("whatTypeBusiness.njk", json).map(Ok(_))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData()andThen requireData).async {
+  def onSubmit(): Action[AnyContent] = (identify andThen getData() andThen requireData).async {
     implicit request =>
         form.bindFromRequest().fold(
           formWithErrors => {
 
             def viewModel = GenericViewModel(
-              submitUrl = routes.AreYouUKCompanyController.onSubmit().url)
+              submitUrl = routes.WhatTypeBusinessController.onSubmit().url)
 
             val json = Json.obj(
-              "form"   -> formWithErrors,
-              "viewModel"   -> viewModel,
-              "radios" -> Radios.yesNo(formWithErrors("value"))
+              "form" -> formWithErrors,
+              "viewModel" -> viewModel,
+              "radios" -> WhatTypeBusiness.radios(formWithErrors)
             )
 
-            renderer.render("company/areYouUKCompany.njk", json).map(BadRequest(_))
+            renderer.render("whatTypeBusiness.njk", json).map(BadRequest(_))
           },
-          value =>
+          value => {
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(AreYouUKCompanyPage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatTypeBusinessPage, value))
               _ <- userAnswersCacheConnector.save( updatedAnswers.data)
-            } yield Redirect(navigator.nextPage(AreYouUKCompanyPage, NormalMode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(WhatTypeBusinessPage, NormalMode, updatedAnswers))
+          }
         )
   }
 }

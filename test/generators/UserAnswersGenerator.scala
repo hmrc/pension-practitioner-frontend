@@ -22,7 +22,7 @@ import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalatest.TryValues
 import pages._
-import pages.company.AreYouUKCompanyPage
+import pages.companyorpartnership.AreYouUKCompanyPage
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
 

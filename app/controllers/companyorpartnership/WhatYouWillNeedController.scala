@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.companyorpartnership
 
 import controllers.actions._
 import javax.inject.Inject
@@ -36,6 +36,6 @@ class WhatYouWillNeedController @Inject()(
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData()andThen requireData).async {
     implicit request =>
-      renderer.render("company/whatYouWillNeed.njk").map(Ok(_))
+      renderer.render("companyorpartnership/whatYouWillNeed.njk").map(Ok(_))
   }
 }

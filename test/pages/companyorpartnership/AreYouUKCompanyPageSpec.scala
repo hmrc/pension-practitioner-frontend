@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package pages.company
+package pages.companyorpartnership
 
 import pages.behaviours.PageBehaviours
 

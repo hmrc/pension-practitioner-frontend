@@ -18,11 +18,12 @@ package generators
 
 import java.time.ZoneOffset
 
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
 import java.time.LocalDate
 import java.time.Instant
 
-import models.company.WhatTypeBusiness
+import models.WhatTypeBusiness
 
 trait ModelGenerators {
 

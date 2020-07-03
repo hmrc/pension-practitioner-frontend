@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.companyorpartnership
 
 import controllers.base.ControllerSpecBase
 import data.SampleData._
-import forms.company.AreYouUKCompanyFormProvider
+import forms.companyorpartnership.AreYouUKCompanyFormProvider
 import matchers.JsonMatchers
 import models.GenericViewModel
 import models.UserAnswers
@@ -30,7 +30,7 @@ import org.mockito.Mockito.when
 import org.scalatest.OptionValues
 import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
-import pages.company.AreYouUKCompanyPage
+import pages.companyorpartnership.AreYouUKCompanyPage
 import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import play.api.mvc.Call
@@ -82,7 +82,7 @@ class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar
         "radios" -> Radios.yesNo(form("value"))
       )
 
-      templateCaptor.getValue mustEqual "company/areYouUKCompany.njk"
+      templateCaptor.getValue mustEqual "companyorpartnership/areYouUKCompany.njk"
       jsonCaptor.getValue must containJson(expectedJson)
 
       application.stop()
@@ -113,7 +113,7 @@ class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar
         "radios" -> Radios.yesNo(filledForm("value"))
       )
 
-      templateCaptor.getValue mustEqual "company/areYouUKCompany.njk"
+      templateCaptor.getValue mustEqual "companyorpartnership/areYouUKCompany.njk"
       jsonCaptor.getValue must containJson(expectedJson)
 
       application.stop()
@@ -166,7 +166,7 @@ class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar
         "radios" -> Radios.yesNo(boundForm("value"))
       )
 
-      templateCaptor.getValue mustEqual "company/areYouUKCompany.njk"
+      templateCaptor.getValue mustEqual "companyorpartnership/areYouUKCompany.njk"
       jsonCaptor.getValue must containJson(expectedJson)
 
       application.stop()

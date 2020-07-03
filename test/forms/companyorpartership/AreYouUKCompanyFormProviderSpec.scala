@@ -14,16 +14,32 @@
  * limitations under the License.
  */
 
-package forms.company
+package forms.companyorpartnership
 
-import forms.mappings.Mappings
-import javax.inject.Inject
-import play.api.data.Form
+import forms.behaviours.BooleanFieldBehaviours
+import play.api.data.FormError
 
-class AreYouUKCompanyFormProvider @Inject() extends Mappings {
+class AreYouUKCompanyFormProviderSpec extends BooleanFieldBehaviours {
 
-  def apply(): Form[Boolean] =
-    Form(
-      "value" -> boolean("areYouUKCompany.error.required")
+  val requiredKey = "areYouUKCompany.error.required"
+  val invalidKey = "error.boolean"
+
+  val form = new AreYouUKCompanyFormProvider()()
+
+  ".value" must  {
+
+    val fieldName = "value"
+
+    behave like booleanField(
+      form,
+      fieldName,
+      invalidError = FormError(fieldName, invalidKey)
     )
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
+  }
 }
