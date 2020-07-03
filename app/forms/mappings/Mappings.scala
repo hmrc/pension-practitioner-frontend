@@ -21,24 +21,13 @@ import java.time.LocalDate
 import play.api.data.FieldMapping
 import play.api.data.Mapping
 import play.api.data.Forms.of
+import play.api.data.validation.Constraint
 import utils.Enumerable
 
 trait Mappings extends Formatters with Constraints with Transforms {
 
-  private val maxPostCodeLength = 8
-
   protected def optionalText(): FieldMapping[Option[String]] =
     of(optionalStringFormatter)
-
-  protected def postCodeMapping(keyRequired: String, keyInvalid: String): Mapping[String] = {
-    text(keyRequired)
-      .transform(postCodeTransform, noTransform)
-      .verifying(postCode(keyInvalid))
-      .transform(postCodeValidTransform, noTransform)
-  }
-
-  protected def optionalPostcode(requiredKey: String, invalidKey: String, nonUkLengthKey: String, countryFieldName: String): FieldMapping[Option[String]] =
-    of(optionalPostcodeFormatter(requiredKey, invalidKey, nonUkLengthKey, countryFieldName))
 
   protected def text(errorKey: String = "error.required"): FieldMapping[String] =
     of(stringFormatter(errorKey))

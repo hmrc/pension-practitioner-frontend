@@ -16,12 +16,11 @@
 
 package forms.address
 
-import forms.mappings.AddressMappings
+import forms.mappings.Mappings
 import javax.inject.Inject
 import play.api.data.Form
 
-class PostcodeFormProvider @Inject() extends AddressMappings {
+class AddressListFormProvider @Inject() extends Mappings {
 
-  def apply(keyRequired: String, keyInvalid: String): Form[String] =
-    Form("value" -> postCodeMapping(keyRequired, keyInvalid))
+  def apply(requiredError: String): Form[Int] = Form("value" -> int(requiredError))
 }

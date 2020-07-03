@@ -16,12 +16,24 @@
 
 package forms.address
 
-import forms.mappings.AddressMappings
-import javax.inject.Inject
-import play.api.data.Form
+import forms.behaviours.FormBehaviours
 
-class PostcodeFormProvider @Inject() extends AddressMappings {
+class AddressListFormProviderSpec extends FormBehaviours {
 
-  def apply(keyRequired: String, keyInvalid: String): Form[String] =
-    Form("value" -> postCodeMapping(keyRequired, keyInvalid))
+  val validData: Map[String, String] = Map(
+    "value" -> "0"
+  )
+
+  val form = new AddressListFormProvider()("error.required")
+
+  "AddressList form" must {
+
+    behave like questionForm[Int](0)
+
+    "fail to bind when value is omitted" in {
+      val expectedError = error("value", "error.required")
+      checkForError(form, emptyForm, expectedError)
+    }
+  }
+
 }

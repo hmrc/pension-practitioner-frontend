@@ -62,10 +62,44 @@ whatTypeBusiness.yourselfAsIndividual = Yourself as an individual
 whatTypeBusiness.checkYourAnswersLabel = Who are you registering as a scheme practitioner?
 whatTypeBusiness.error.required = Select whatTypeBusiness
 
-company.postcode.error.required = Enter the address we can use to contact the company
-company.postcode.error.invalid = Enter a valid address which we can use to contact the company
+postcode.error.required = Enter the address we can use to contact {0}
+postcode.error.invalid = Enter a valid address which we can use to contact {0}
 postcode.title = Which address can we use to contact {0}?
 postcode.youCan = You can
-postcode.linkText.enterManually = enter the address manually
+address.linkText.enterManually = enter the address manually
 postcode.label = Postcode
 findAddress = Find address
+
+addressList.error.required = Select a contact address for {0}
+addressList.title = Select the contact address for the company
+addressList.select = Select the address from the list or
+
+address.title = What is {0}'s address?
+address.line1 = Address line 1
+address.line2 = Address line 2 (optional)
+address.line3 = Address line 3 (optional)
+address.line4 = Address line 4 (optional)
+address.postcode = Postcode
+address.country = Country
+
+
+error.address_line_1.required = Enter the first line of address
+error.address_line_2.required = Enter the second line of address
+error.address_line_1.length = The first line of address cannot be more than 35 characters
+error.address_line_2.length = The second line of address cannot be more than 35 characters
+error.address_line_3.length = The third line of address cannot be more than 35 characters
+error.address_line_4.length = The fourth line of address cannot be more than 35 characters
+error.address_line_1.invalid = The first line of the address contains invalid characters
+error.address_line_2.invalid = The second line of the address contains invalid characters
+error.address_line_3.invalid = The third line of the address contains invalid characters
+error.address_line_4.invalid = The fourth line of the address contains invalid characters
+error.country.required = Enter a country
+error.country.invalid = Enter a valid country
+error.country.invalid.eueea = Pension Scheme Practitioners must be resident in the UK, EU or EEA
+
+error.postcode.required = Enter the postcode
+error.postcode.length = The postcode cannot be more than 8 characters
+error.postcode.nonUK.length = The postcode cannot be more than 10 characters
+error.postcode.failed = There is a problem with the address finder. Try again or enter the address manually
+error.postcode.invalid = Enter a valid postcode
+error.postcode.noResults = There are no addresses for that postcode

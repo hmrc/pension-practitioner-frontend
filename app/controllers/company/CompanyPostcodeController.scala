@@ -16,59 +16,56 @@
 
 package controllers.company
 
-import java.time.LocalDate
-
-import config.FrontendAppConfig
 import connectors.AddressLookupConnector
 import connectors.cache.UserAnswersCacheConnector
-import controllers.DataRetrievals
+import controllers.Retrievals
 import controllers.actions._
+import forms.FormsHelper.formWithError
 import forms.address.PostcodeFormProvider
 import javax.inject.Inject
 import models.Mode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
-import pages.company.CompanyPostcodePage
+import pages.company.{CompanyNamePage, CompanyPostcodePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsObject, Json, Writes}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import forms.FormsHelper.formWithError
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class CompanyPostcodeController @Inject()(override val messagesApi: MessagesApi,
-                                                          userAnswersCacheConnector: UserAnswersCacheConnector,
-                                                          navigator: CompoundNavigator,
-                                                          identify: IdentifierAction,
-                                                          getData: DataRetrievalAction,
-                                                          requireData: DataRequiredAction,
-                                                          formProvider: PostcodeFormProvider,
-                                                          addressLookupConnector: AddressLookupConnector,
-                                                          val controllerComponents: MessagesControllerComponents,
-                                                          config: FrontendAppConfig,
-                                                          renderer: Renderer
-                                                         )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
+                                          userAnswersCacheConnector: UserAnswersCacheConnector,
+                                          navigator: CompoundNavigator,
+                                          identify: IdentifierAction,
+                                          getData: DataRetrievalAction,
+                                          requireData: DataRequiredAction,
+                                          formProvider: PostcodeFormProvider,
+                                          addressLookupConnector: AddressLookupConnector,
+                                          val controllerComponents: MessagesControllerComponents,
+                                          renderer: Renderer
+                                         )(implicit ec: ExecutionContext) extends FrontendBaseController
+                                          with Retrievals with I18nSupport with NunjucksSupport {
 
   private def form(implicit messages: Messages): Form[String] =
     formProvider(
-      messages("company.postcode.error.required", messages("company")),
-      messages("company.postcode.error.invalid", messages("company"))
+      messages("postcode.error.required", messages("company")),
+      messages("postcode.error.invalid", messages("company"))
     )
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
+    (identify andThen getData() andThen requireData).async {
       implicit request =>
-        getJson(mode) { json =>
+        getJson(mode, form) { json =>
           renderer.render("address/postcode.njk", json).map(Ok(_))
         }
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
+    (identify andThen getData() andThen requireData).async {
       implicit request =>
 
           form.bindFromRequest().fold(
@@ -93,16 +90,16 @@ class CompanyPostcodeController @Inject()(override val messagesApi: MessagesApi,
 
     }
 
-  private def getJson(mode: Mode, form: Form[String] = form)(block: JsObject => Future[Result])
-                     (implicit request: DataRequest[AnyContent], messages: Messages): Future[Result] =
-    request.userAnswers.get(CompanyPostcodePage).map { companyName =>
-
-      block(Json.obj(
+  private def getJson(mode: Mode, form: Form[String])(block: JsObject => Future[Result])
+                     (implicit w: Writes[Form[String]], messages: Messages, request: DataRequest[AnyContent]): Future[Result] =
+    CompanyNamePage.retrieve.right.map { companyName =>
+      val json = Json.obj(
         "form" -> form,
-        "entity" -> messages("company"),
+        "entityType" -> messages("company"),
         "entityName" -> companyName,
         "submitUrl" -> routes.CompanyPostcodeController.onSubmit(mode).url,
         "enterManuallyUrl" -> routes.CompanyAddressController.onPageLoad(mode).url
-      ))
+      )
+      block(json)
     }
 }

@@ -53,5 +53,5 @@ trait DataRetrieval extends ActionTransformer[IdentifierRequest, OptionalDataReq
 
 @ImplementedBy(classOf[DataRetrievalActionImpl])
 trait DataRetrievalAction {
-  def apply: DataRetrieval
+  def apply(): DataRetrieval
 }

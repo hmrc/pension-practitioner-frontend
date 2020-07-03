@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package forms.address
+package pages.company
 
-import forms.mappings.AddressMappings
-import javax.inject.Inject
-import play.api.data.Form
+import models.TolerantAddress
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-class PostcodeFormProvider @Inject() extends AddressMappings {
+case object CompanyNamePage extends QuestionPage[String] {
 
-  def apply(keyRequired: String, keyInvalid: String): Form[String] =
-    Form("value" -> postCodeMapping(keyRequired, keyInvalid))
+  override def path: JsPath = JsPath \ toString
+  override def toString: String = "name"
 }

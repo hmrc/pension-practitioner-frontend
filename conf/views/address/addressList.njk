@@ -1,13 +1,13 @@
 {% extends "includes/layout.njk" %}
 
 {% from "govuk/components/back-link/macro.njk"     import govukBackLink %}
-{% from "govuk/components/input/macro.njk"         import govukInput %}
+{% from "govuk/components/radios/macro.njk"        import govukRadios %}
 {% from "govuk/components/button/macro.njk"        import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "macros/title.njk"                         import title %}
 
 {% block pageTitle %}
-  {{ title(messages("postcode.title", messages(entityType)), form.errors) }}
+  {{ title(messages("addressList.title", messages(entityType)), form.errors) }}
 {% endblock %}
 
 {% block mainContent %}
@@ -22,32 +22,31 @@
           }) }}
         {% endif %}
 
-        <h1 class="govuk-heading-xl">{{messages("postcode.title", entityName)}}</h1>
+        <h1 class="govuk-heading-xl">{{messages('addressList.title', entityName)}}</h1>
 
-         <p class="govuk-body">
-            {{ messages("postcode.youCan") }} <a href="{{ enterManuallyUrl }}" class="govuk-link">{{ messages("address.linkText.enterManually") }}</a>.
-         </p>
+        <p class="govuk-body">
+          {{ messages("addressList.select") }} <a href="{{ enterManuallyUrl }}" class="govuk-link">{{ messages("address.linkText.enterManually") }}</a>.
+        </p>
 
         <form action="{{ submitUrl }}" method="post">
 
           {{ csrf() | safe }}
 
-          {{ govukInput({
-            label: {
-              text: messages('postcode.label'),
-              isPageHeading: false,
-              classes: "govuk-fieldset__legend--s"
+          {{ govukRadios({
+            name: 'value',
+            fieldset: {
+              legend: {
+                text: messages('addressList.h1', entityName),
+                isPageHeading: false,
+                classes: "govuk-fieldset__legend--xl govuk-visually-hidden"
+              }
             },
-            id: "value",
-            name: "value",
-            value: form.value.value,
-            classes: "govuk-input--width-10",
-            attributes: {autocomplete: "none"},
+            items: addresses,
             errorMessage: form.value.error
           }) }}
 
           {{ govukButton({
-            text: messages("findAddress"),
+            text: messages("site.continue"),
             attributes: {id: "submit"}
           }) }}
 

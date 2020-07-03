@@ -23,6 +23,5 @@ import play.api.libs.json.JsPath
 case object CompanyPostcodePage extends QuestionPage[Seq[TolerantAddress]] {
 
   override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "companyPostcode"
+  override def toString: String = "postcode"
 }

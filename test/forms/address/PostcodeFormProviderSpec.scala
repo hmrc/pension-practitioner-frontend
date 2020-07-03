@@ -16,12 +16,24 @@
 
 package forms.address
 
-import forms.mappings.AddressMappings
-import javax.inject.Inject
-import play.api.data.Form
+import forms.behaviours.AddressBehaviours
 
-class PostcodeFormProvider @Inject() extends AddressMappings {
+class PostcodeFormProviderSpec extends AddressBehaviours {
 
-  def apply(keyRequired: String, keyInvalid: String): Form[String] =
-    Form("value" -> postCodeMapping(keyRequired, keyInvalid))
+
+  private val requiredKey = "error.postcode.required"
+  private val invalid = "error.postcode.invalid"
+  private val fieldName = "value"
+
+  val form = new PostcodeFormProvider()(requiredKey, invalid)
+
+  ".value" must {
+    behave like formWithPostCode(
+      form,
+      fieldName,
+      requiredKey,
+      invalid
+    )
+  }
+
 }

@@ -4,6 +4,11 @@ POST       /addresses/postcode                        controllers.company.Compan
 GET        /addresses/change-postcode                 controllers.company.CompanyPostcodeController.onPageLoad(mode: Mode = CheckMode)
 POST       /addresses/change-postcode                 controllers.company.CompanyPostcodeController.onSubmit(mode: Mode = CheckMode)
 
+GET        /addresses/address-results                 controllers.company.CompanyAddressListController.onPageLoad(mode: Mode = NormalMode)
+POST       /addresses/address-results                 controllers.company.CompanyAddressListController.onSubmit(mode: Mode = NormalMode)
+GET        /addresses/change-address-results          controllers.company.CompanyAddressListController.onPageLoad(mode: Mode = CheckMode)
+POST       /addresses/change-address-results          controllers.company.CompanyAddressListController.onSubmit(mode: Mode = CheckMode)
+
 GET        /addresses/address-manual                  controllers.company.CompanyAddressController.onPageLoad(mode: Mode = NormalMode)
 POST       /addresses/address-manual                  controllers.company.CompanyAddressController.onSubmit(mode: Mode = NormalMode)
 GET        /addresses/change-address-manual           controllers.company.CompanyAddressController.onPageLoad(mode: Mode = CheckMode)
