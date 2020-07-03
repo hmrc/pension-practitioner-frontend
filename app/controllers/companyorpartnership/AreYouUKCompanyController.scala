@@ -53,7 +53,7 @@ class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
 
   private val form = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData()andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
         val preparedForm = request.userAnswers.get (AreYouUKCompanyPage) match {
           case None => form
@@ -72,7 +72,7 @@ class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
       renderer.render ("companyorpartnership/areYouUKCompany.njk", json).map(Ok (_))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData()andThen requireData).async {
+  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
         form.bindFromRequest().fold(
           formWithErrors => {

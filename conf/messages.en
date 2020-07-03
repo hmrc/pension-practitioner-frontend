@@ -71,3 +71,5 @@ company.whatYouWillNeed.p2 = The information you enter will be saved as you prog
 areYouUKCompany.title = Is the company or partnership registered in the UK?
 areYouUKCompany.heading = Is the company or partnership registered in the UK?
 areYouUKCompany.error.required = Select yes if the company or partnership is registered in the UK
+
+unauthorised.title = You can’t access this service with this account
