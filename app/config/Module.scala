@@ -38,5 +38,11 @@ class Module extends AbstractModule {
     bind(classOf[IdentifierAction]).to(classOf[AuthenticatedIdentifierAction]).asEagerSingleton()
     bind(classOf[CompoundNavigator]).to(classOf[CompoundNavigatorImpl])
 
+
+    navigators.addBinding().to(classOf[PractitionerNavigator])
+
+
+    bind(classOf[CompoundNavigator]).to(classOf[CompoundNavigatorImpl])
+
   }
 }
