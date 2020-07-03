@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.companyorpartnership
+package controllers.register
 
 import controllers.base.ControllerSpecBase
 import org.mockito.ArgumentCaptor
@@ -53,7 +53,7 @@ class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar
 
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), any())(any())
 
-      templateCaptor.getValue mustEqual "companyorpartnership/whatYouWillNeed.njk"
+      templateCaptor.getValue mustEqual "register/whatYouWillNeed.njk"
 
       application.stop()
     }

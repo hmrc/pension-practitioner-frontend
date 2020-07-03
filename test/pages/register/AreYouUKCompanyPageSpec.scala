@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package pages.companyorpartnership
+package pages.register
 
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import pages.behaviours.PageBehaviours
 
-case object AreYouUKCompanyPage extends QuestionPage[Boolean] {
+class AreYouUKCompanyPageSpec extends PageBehaviours {
 
-  override def path: JsPath = JsPath \ toString
+  "AreYouUKCompanyPage" - {
 
-  override def toString: String = "areYouUKCompany"
+    beRetrievable[Boolean](AreYouUKCompanyPage)
+
+    beSettable[Boolean](AreYouUKCompanyPage)
+
+    beRemovable[Boolean](AreYouUKCompanyPage)
+  }
 }

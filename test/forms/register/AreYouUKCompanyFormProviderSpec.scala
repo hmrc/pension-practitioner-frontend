@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package forms.companyorpartnership
+package forms.register
 
 import forms.behaviours.BooleanFieldBehaviours
 import play.api.data.FormError

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package controllers.companyorpartnership
+package controllers.register
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
-import forms.companyorpartnership.AreYouUKCompanyFormProvider
+import forms.register.AreYouUKCompanyFormProvider
 import javax.inject.Inject
 import models.GenericViewModel
 import models.NormalMode
 import navigators.CompoundNavigator
-import pages.companyorpartnership.AreYouUKCompanyPage
+import pages.register.AreYouUKCompanyPage
 import play.api.i18n.I18nSupport
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
@@ -69,7 +69,7 @@ class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
           "radios" -> Radios.yesNo (preparedForm("value"))
         )
 
-      renderer.render ("companyorpartnership/areYouUKCompany.njk", json).map(Ok (_))
+      renderer.render ("register/areYouUKCompany.njk", json).map(Ok (_))
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData()andThen requireData).async {
@@ -86,7 +86,7 @@ class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
               "radios" -> Radios.yesNo(formWithErrors("value"))
             )
 
-            renderer.render("companyorpartnership/areYouUKCompany.njk", json).map(BadRequest(_))
+            renderer.render("register/areYouUKCompany.njk", json).map(BadRequest(_))
           },
           value =>
             for {

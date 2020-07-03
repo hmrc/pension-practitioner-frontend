@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package controllers.companyorpartnership
+package controllers.register
 
 import controllers.actions._
 import javax.inject.Inject
 import models.NormalMode
 import navigators.CompoundNavigator
-import pages.companyorpartnership.WhatYouWillNeedPage
+import pages.register.WhatYouWillNeedPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -42,7 +42,7 @@ class WhatYouWillNeedController @Inject()(
   def onPageLoad: Action[AnyContent] = (identify andThen getData() andThen requireData).async { implicit request =>
     val ua = request.userAnswers
     val nextPage = navigator.nextPage(WhatYouWillNeedPage, NormalMode, ua)
-      renderer.render("companyorpartnership/whatYouWillNeed.njk",
+      renderer.render("register/whatYouWillNeed.njk",
         Json.obj(fields = "nextPage" -> nextPage.url)
       ).map(Ok(_))
   }

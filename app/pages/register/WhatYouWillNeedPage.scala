@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package pages.companyorpartnership
+package pages.register
 
 import pages.Page
 
