@@ -36,7 +36,6 @@ class WhatYouWillNeedController @Inject()(
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData()andThen requireData).async {
     implicit request =>
-
       renderer.render("company/whatYouWillNeed.njk").map(Ok(_))
   }
 }

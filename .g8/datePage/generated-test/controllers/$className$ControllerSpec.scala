@@ -48,8 +48,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
   )
 
   def viewModel = GenericViewModel(
-    submitUrl = $className;format="decap"$SubmitRoute,
-  pspName = pspName)
+    submitUrl = $className;format="decap"$SubmitRoute)
 
   "$className$ Controller" must {
 

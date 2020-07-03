@@ -20,20 +20,25 @@ import controllers.base.ControllerSpecBase
 import data.SampleData._
 import forms.company.AreYouUKCompanyFormProvider
 import matchers.JsonMatchers
-import models.{GenericViewModel, NormalMode, UserAnswers}
+import models.GenericViewModel
+import models.UserAnswers
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{times, verify, when}
-import org.scalatest.{OptionValues, TryValues}
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.when
+import org.scalatest.OptionValues
+import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.AreYouUKCompanyPage
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import controllers.company.routes
 import play.api.test.FakeRequest
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import uk.gov.hmrc.viewmodels.NunjucksSupport
+import uk.gov.hmrc.viewmodels.Radios
 
 import scala.concurrent.Future
 
@@ -48,8 +53,7 @@ class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar
   def areYouUKCompanySubmitRoute = routes.AreYouUKCompanyController.onSubmit().url
 
   def viewModel = GenericViewModel(
-    submitUrl = areYouUKCompanySubmitRoute,
-  pspName = pspName)
+    submitUrl = areYouUKCompanySubmitRoute)
 
   val answers: UserAnswers = userAnswersWithPspName.set(AreYouUKCompanyPage, true).success.value
 

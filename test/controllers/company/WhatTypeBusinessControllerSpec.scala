@@ -48,8 +48,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
   val form = formProvider()
 
   def viewModel = GenericViewModel(
-    submitUrl = whatTypeBusinessSubmitRoute,
-  pspName = pspName)
+    submitUrl = whatTypeBusinessSubmitRoute)
 
   val answers: UserAnswers = userAnswersWithPspName.set(WhatTypeBusinessPage, WhatTypeBusiness.values.head).success.value
 

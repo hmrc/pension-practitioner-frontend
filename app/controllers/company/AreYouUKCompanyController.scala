@@ -18,21 +18,26 @@ package controllers.company
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import controllers.DataRetrievals
 import controllers.actions._
 import forms.company.AreYouUKCompanyFormProvider
 import javax.inject.Inject
-import models.{GenericViewModel, Mode, NormalMode}
+import models.GenericViewModel
+import models.NormalMode
 import navigators.CompoundNavigator
 import pages.company.AreYouUKCompanyPage
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.I18nSupport
+import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import uk.gov.hmrc.viewmodels.NunjucksSupport
+import uk.gov.hmrc.viewmodels.Radios
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
                                       userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -50,15 +55,13 @@ class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData()andThen requireData).async {
     implicit request =>
-      DataRetrievals.retrieveCompanyName { pspName =>
         val preparedForm = request.userAnswers.get (AreYouUKCompanyPage) match {
           case None => form
           case Some (value) => form.fill (value)
         }
 
         def viewModel = GenericViewModel(
-          submitUrl = routes.AreYouUKCompanyController.onSubmit().url,
-          pspName = pspName)
+          submitUrl = routes.AreYouUKCompanyController.onSubmit().url)
 
         val json = Json.obj(
           "form" -> preparedForm,
@@ -67,18 +70,15 @@ class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
         )
 
       renderer.render ("company/areYouUKCompany.njk", json).map(Ok (_))
-    }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData()andThen requireData).async {
     implicit request =>
-      DataRetrievals.retrieveCompanyName { pspName =>
         form.bindFromRequest().fold(
           formWithErrors => {
 
             def viewModel = GenericViewModel(
-              submitUrl = routes.AreYouUKCompanyController.onSubmit().url,
-              pspName = pspName)
+              submitUrl = routes.AreYouUKCompanyController.onSubmit().url)
 
             val json = Json.obj(
               "form"   -> formWithErrors,
@@ -94,6 +94,5 @@ class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
               _ <- userAnswersCacheConnector.save( updatedAnswers.data)
             } yield Redirect(navigator.nextPage(AreYouUKCompanyPage, NormalMode, updatedAnswers))
         )
-      }
   }
 }
