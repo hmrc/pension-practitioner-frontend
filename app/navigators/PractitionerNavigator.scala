@@ -23,6 +23,7 @@ import models.UserAnswers
 import models.WhatTypeBusiness
 import pages.Page
 import pages.WhatTypeBusinessPage
+import pages.companyorpartnership.WhatYouWillNeedPage
 import play.api.mvc.Call
 
 class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector, config: FrontendAppConfig)
@@ -34,6 +35,7 @@ class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCo
         .WhatYouWillNeedController.onPageLoad()
       case _ => controllers.routes.SessionExpiredController.onPageLoad()
     }
+    case WhatYouWillNeedPage => controllers.companyorpartnership.routes.AreYouUKCompanyController.onPageLoad()
 
   }
 
