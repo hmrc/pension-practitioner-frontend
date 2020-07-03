@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
-package models.requests
+package pages
 
-import play.api.mvc.{Request, WrappedRequest}
+import play.api.libs.json.JsPath
 
-case class IdentifierRequest[A](request: Request[A], user: PSPUser) extends WrappedRequest[A](request)
+case object AreYouInUKPage extends QuestionPage[Boolean] {
+
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "areYouInUK"
+}
