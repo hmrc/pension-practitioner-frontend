@@ -14,21 +14,32 @@
  * limitations under the License.
  */
 
-package data
+package forms.companyorpartnership
 
-import models.UserAnswers
-import play.api.libs.json.Json
+import forms.behaviours.BooleanFieldBehaviours
+import play.api.data.FormError
 
-object SampleData {
-  //scalastyle.off: magic.number
-  val userAnswersId = "id"
-  val psaId = "A0000000"
-  val pspName = "psp"
+class AreYouUKCompanyFormProviderSpec extends BooleanFieldBehaviours {
 
-  def emptyUserAnswers: UserAnswers = UserAnswers()
+  val requiredKey = "areYouUKCompany.error.required"
+  val invalidKey = "error.boolean"
 
-  def userAnswersWithPspName: UserAnswers =
-    UserAnswers(Json.obj(
-      "schemeName" -> pspName)
+  val form = new AreYouUKCompanyFormProvider()()
+
+  ".value" must  {
+
+    val fieldName = "value"
+
+    behave like booleanField(
+      form,
+      fieldName,
+      invalidError = FormError(fieldName, invalidKey)
     )
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
+  }
 }

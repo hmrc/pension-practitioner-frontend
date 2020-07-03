@@ -58,4 +58,16 @@ whatTypeBusiness.heading = Who are you registering as a scheme practitioner?
 whatTypeBusiness.companyOrPartnership = Company or partnership
 whatTypeBusiness.yourselfAsIndividual = Yourself as an individual
 whatTypeBusiness.checkYourAnswersLabel = Who are you registering as a scheme practitioner?
-whatTypeBusiness.error.required = Select whatTypeBusiness
+whatTypeBusiness.error.required = Select who are you registering as a scheme practitioner
+
+whatYouWillNeed.title = What you will need
+whatYouWillNeed.heading = What you will need
+company.whatYouWillNeed.p1 = To register a business as a pension scheme practitioner, you will need:
+company.whatYouWillNeed.li1 = the business name and address of the business you are registering
+company.whatYouWillNeed.li2 = the phone number and email address of a contactable person within the business
+company.whatYouWillNeed.p2 = The information you enter will be saved as you progress. If you sign out, the information you have already entered will be saved for 7 days. After that time you will need to enter all of the information again.
+
+
+areYouUKCompany.title = Is the company or partnership registered in the UK?
+areYouUKCompany.heading = Is the company or partnership registered in the UK?
+areYouUKCompany.error.required = Select yes if the company or partnership is registered in the UK

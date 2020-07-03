@@ -17,12 +17,12 @@
 package controllers
 
 import controllers.base.ControllerSpecBase
-import matchers.JsonMatchers
+import data.SampleData._
 import forms.WhatTypeBusinessFormProvider
+import matchers.JsonMatchers
 import models.GenericViewModel
-import models.NormalMode
-import models.UserAnswers
 import models.WhatTypeBusiness
+import models.UserAnswers
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito.times
@@ -37,7 +37,6 @@ import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import data.SampleData._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 
@@ -47,15 +46,14 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
   def onwardRoute = Call("GET", "/foo")
 
-  def whatTypeBusinessRoute = routes.WhatTypeBusinessController.onPageLoad(NormalMode).url
-  def whatTypeBusinessSubmitRoute = routes.WhatTypeBusinessController.onSubmit(NormalMode).url
+  def whatTypeBusinessRoute = routes.WhatTypeBusinessController.onPageLoad().url
+  def whatTypeBusinessSubmitRoute = routes.WhatTypeBusinessController.onSubmit().url
 
   val formProvider = new WhatTypeBusinessFormProvider()
   val form = formProvider()
 
   def viewModel = GenericViewModel(
-    submitUrl = whatTypeBusinessSubmitRoute,
-  pspName = pspName)
+    submitUrl = whatTypeBusinessSubmitRoute)
 
   val answers: UserAnswers = userAnswersWithPspName.set(WhatTypeBusinessPage, WhatTypeBusiness.values.head).success.value
 
@@ -185,7 +183,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
       val result = route(application, request).value
 
       status(result) mustEqual SEE_OTHER
-      redirectLocation(result).value mustEqual routes.SessionExpiredController.onPageLoad().url
+      redirectLocation(result).value mustEqual controllers.routes.SessionExpiredController.onPageLoad().url
 
       application.stop()
     }
@@ -202,7 +200,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
       status(result) mustEqual SEE_OTHER
 
-      redirectLocation(result).value mustEqual routes.SessionExpiredController.onPageLoad().url
+      redirectLocation(result).value mustEqual controllers.routes.SessionExpiredController.onPageLoad().url
 
       application.stop()
     }

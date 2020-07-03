@@ -16,16 +16,39 @@
 
 package navigators
 
+import com.google.inject.Inject
 import pages.Page
 import models.Mode
 import play.api.mvc.Call
 import models.UserAnswers
+import models.requests.DataRequest
+import play.api.Logger
+import play.api.mvc.AnyContent
+
+import scala.collection.JavaConverters._
+
 trait CompoundNavigator {
   def nextPage(id: Page, mode: Mode, userAnswers: UserAnswers): Call
 }
 
-class CompoundNavigatorImpl extends CompoundNavigator {
+class CompoundNavigatorImpl @Inject()(navigators: java.util.Set[Navigator]) extends CompoundNavigator {
+  private def defaultPage(id: Page, mode: Mode): Call = {
+    Logger.warn(message = s"No navigation defined for id $id in mode $mode")
+    controllers.routes.IndexController.onPageLoad()
+  }
 
-  override def nextPage(id: Page, mode: Mode, userAnswers: UserAnswers): Call = Call("GET", "")
+  def nextPage(id: Page, mode: Mode, userAnswers: UserAnswers): Call = {
+    nextPageOptional(id, mode, userAnswers)
+      .getOrElse(defaultPage(id, mode))
+  }
 
+  private def nextPageOptional(id: Page,
+                               mode: Mode,
+                               userAnswers: UserAnswers): Option[Call] = {
+    navigators.asScala
+      .find(_.nextPageOptional(mode, userAnswers).isDefinedAt(id))
+      .map(
+        _.nextPageOptional(mode, userAnswers)(id)
+      )
+  }
 }

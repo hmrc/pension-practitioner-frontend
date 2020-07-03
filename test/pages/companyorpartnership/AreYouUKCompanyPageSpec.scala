@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package generators
+package pages.companyorpartnership
 
-import org.scalacheck.Arbitrary
-import pages.WhatTypeBusinessPage
-import pages.companyorpartnership.AreYouUKCompanyPage
+import pages.behaviours.PageBehaviours
 
-trait PageGenerators {
+class AreYouUKCompanyPageSpec extends PageBehaviours {
 
-  implicit lazy val arbitraryAreYouUKCompanyPage: Arbitrary[AreYouUKCompanyPage.type] =
-    Arbitrary(AreYouUKCompanyPage)
+  "AreYouUKCompanyPage" - {
 
-  implicit lazy val arbitraryChargeTypePage: Arbitrary[WhatTypeBusinessPage.type] =
-    Arbitrary(WhatTypeBusinessPage)
+    beRetrievable[Boolean](AreYouUKCompanyPage)
+
+    beSettable[Boolean](AreYouUKCompanyPage)
+
+    beRemovable[Boolean](AreYouUKCompanyPage)
+  }
 }
