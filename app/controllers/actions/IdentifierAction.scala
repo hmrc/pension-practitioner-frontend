@@ -57,7 +57,7 @@ class AuthenticatedIdentifierActionWithIV @Inject()(override val authConnector: 
         val authRequest = IdentifierRequest(request, pspUser(cl, affinityGroup, None, enrolments, credentials.providerId))
         successRedirect(affinityGroup, cl, enrolments, authRequest, block)
       case _ =>
-        Future.successful(Redirect(controllers.routes.IndexController.onPageLoad()))
+        Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
 
     } recover handleFailure
   }
@@ -66,9 +66,10 @@ class AuthenticatedIdentifierActionWithIV @Inject()(override val authConnector: 
   protected def successRedirect[A](affinityGroup: AffinityGroup, cl: ConfidenceLevel,
                                    enrolments: Enrolments, authRequest: IdentifierRequest[A], block: IdentifierRequest[A] => Future[Result])
                                   (implicit hc: HeaderCarrier): Future[Result] = {
+
     getData(AreYouInUKPage).flatMap {
       case _ if alreadyEnrolledInPODS(enrolments) =>
-        savePsaIdAndReturnAuthRequest(enrolments, authRequest, block)
+        savePspIdAndReturnAuthRequest(enrolments, authRequest, block)
       case Some(true) if affinityGroup == Organisation =>
         doManualIVAndRetrieveNino(authRequest, enrolments, block)
       case _ =>
@@ -76,12 +77,11 @@ class AuthenticatedIdentifierActionWithIV @Inject()(override val authConnector: 
     }
   }
 
-  protected def savePsaIdAndReturnAuthRequest[A](enrolments: Enrolments, authRequest: IdentifierRequest[A],
+  protected def savePspIdAndReturnAuthRequest[A](enrolments: Enrolments, authRequest: IdentifierRequest[A],
                                                  block: IdentifierRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
     if (alreadyEnrolledInPODS(enrolments)) {
-      val psaId = getPSPId(enrolments)
-      block(IdentifierRequest(authRequest.request, authRequest.user.copy(
-        alreadyEnrolledPspId = Some(psaId))))
+      val pspId = getPSPId(enrolments)
+      block(IdentifierRequest(authRequest.request, authRequest.user.copy(alreadyEnrolledPspId = Some(pspId))))
     }
     else {
       block(authRequest)
@@ -91,7 +91,7 @@ class AuthenticatedIdentifierActionWithIV @Inject()(override val authConnector: 
 
   private def doManualIVAndRetrieveNino[A](authRequest: IdentifierRequest[A], enrolments: Enrolments,
                                            block: IdentifierRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
-    val journeyId = authRequest.request.getQueryString("journeyId")
+    val journeyId = authRequest.request.getQueryString(key = "journeyId")
     getData(JourneyPage).flatMap {
       case Some(journey) =>
         getNinoAndUpdateAuthRequest(journey, enrolments, block, authRequest)
@@ -153,15 +153,15 @@ class AuthenticatedIdentifierActionWithIV @Inject()(override val authConnector: 
     case _: NoActiveSession =>
       Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
     case _: InsufficientEnrolments =>
-      Redirect(controllers.routes.IndexController.onPageLoad())
+      Redirect(controllers.routes.UnauthorisedController.onPageLoad())
     case _: InsufficientConfidenceLevel =>
-      Redirect(controllers.routes.IndexController.onPageLoad())
+      Redirect(controllers.routes.UnauthorisedController.onPageLoad())
     case _: UnsupportedAuthProvider =>
-      Redirect(controllers.routes.IndexController.onPageLoad())
+      Redirect(controllers.routes.UnauthorisedController.onPageLoad())
     case _: UnsupportedAffinityGroup =>
-      Redirect(controllers.routes.IndexController.onPageLoad())
+      Redirect(controllers.routes.UnauthorisedController.onPageLoad())
     case _: UnauthorizedException =>
-      Redirect(controllers.routes.IndexController.onPageLoad())
+      Redirect(controllers.routes.UnauthorisedController.onPageLoad())
   }
 
   private def existingPSP(enrolments: Enrolments): Option[String] =
@@ -208,5 +208,5 @@ class AuthenticatedIdentifierActionWithNoIV @Inject()(override val authConnector
                                   enrolments: Enrolments, authRequest: IdentifierRequest[A],
                                   block: IdentifierRequest[A] => Future[Result])
                                  (implicit hc: HeaderCarrier): Future[Result] =
-    savePsaIdAndReturnAuthRequest(enrolments, authRequest, block)
+    savePspIdAndReturnAuthRequest(enrolments, authRequest, block)
 }

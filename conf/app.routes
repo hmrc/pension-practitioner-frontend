@@ -9,6 +9,8 @@ GET         /language/:lang                                                     
 
 GET         /this-service-has-been-reset                                                                                        controllers.SessionExpiredController.onPageLoad
 
+GET         /unauthorised                           controllers.UnauthorisedController.onPageLoad
+
 GET        /whatTypeBusiness                        controllers.WhatTypeBusinessController.onPageLoad(mode: Mode = NormalMode)
 POST       /whatTypeBusiness                        controllers.WhatTypeBusinessController.onSubmit(mode: Mode = NormalMode)
 GET        /changeWhatTypeBusiness                  controllers.WhatTypeBusinessController.onPageLoad(mode: Mode = CheckMode)
