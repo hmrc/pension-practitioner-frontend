@@ -21,7 +21,6 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import forms.register.AreYouUKCompanyFormProvider
 import javax.inject.Inject
-import models.GenericViewModel
 import models.NormalMode
 import navigators.CompoundNavigator
 import pages.register.AreYouUKCompanyPage
@@ -53,19 +52,16 @@ class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
 
   private val form = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData()andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData() andThen requireData).async {
     implicit request =>
         val preparedForm = request.userAnswers.get (AreYouUKCompanyPage) match {
           case None => form
           case Some (value) => form.fill (value)
         }
 
-        def viewModel = GenericViewModel(
-          submitUrl = routes.AreYouUKCompanyController.onSubmit().url)
-
         val json = Json.obj(
           "form" -> preparedForm,
-          "viewModel" -> viewModel,
+          "submitUrl" -> routes.AreYouUKCompanyController.onSubmit().url,
           "radios" -> Radios.yesNo (preparedForm("value"))
         )
 
@@ -77,12 +73,9 @@ class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
         form.bindFromRequest().fold(
           formWithErrors => {
 
-            def viewModel = GenericViewModel(
-              submitUrl = routes.AreYouUKCompanyController.onSubmit().url)
-
             val json = Json.obj(
               "form"   -> formWithErrors,
-              "viewModel"   -> viewModel,
+              "submitUrl"   -> routes.AreYouUKCompanyController.onSubmit().url,
               "radios" -> Radios.yesNo(formWithErrors("value"))
             )
 

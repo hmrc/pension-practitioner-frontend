@@ -21,7 +21,6 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import forms.WhatTypeBusinessFormProvider
 import javax.inject.Inject
-import models.GenericViewModel
 import models.NormalMode
 import models.WhatTypeBusiness
 import navigators.CompoundNavigator
@@ -60,12 +59,9 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
           case Some(value) => form.fill(value)
         }
 
-        def viewModel = GenericViewModel(
-          submitUrl = routes.WhatTypeBusinessController.onSubmit().url)
-
         val json = Json.obj(
           "form" -> preparedForm,
-          "viewModel" -> viewModel,
+          "submitUrl" -> routes.WhatTypeBusinessController.onSubmit().url,
           "radios" -> WhatTypeBusiness.radios(preparedForm)
         )
 
@@ -77,12 +73,9 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
         form.bindFromRequest().fold(
           formWithErrors => {
 
-            def viewModel = GenericViewModel(
-              submitUrl = routes.WhatTypeBusinessController.onSubmit().url)
-
             val json = Json.obj(
               "form" -> formWithErrors,
-              "viewModel" -> viewModel,
+              "submitUrl" -> routes.WhatTypeBusinessController.onSubmit().url,
               "radios" -> WhatTypeBusiness.radios(formWithErrors)
             )
 

@@ -20,7 +20,6 @@ import controllers.base.ControllerSpecBase
 import data.SampleData._
 import forms.register.AreYouUKCompanyFormProvider
 import matchers.JsonMatchers
-import models.GenericViewModel
 import models.UserAnswers
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
@@ -52,8 +51,6 @@ class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar
   private def areYouUKCompanyRoute = routes.AreYouUKCompanyController.onPageLoad().url
   private def areYouUKCompanySubmitRoute = routes.AreYouUKCompanyController.onSubmit().url
 
-  private def viewModel = GenericViewModel(
-    submitUrl = areYouUKCompanySubmitRoute)
 
   private val answers: UserAnswers = userAnswersWithPspName.set(AreYouUKCompanyPage, true).success.value
 
@@ -78,7 +75,7 @@ class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar
 
       val expectedJson = Json.obj(
         "form"   -> form,
-        "viewModel" -> viewModel,
+        "submitUrl" -> areYouUKCompanySubmitRoute,
         "radios" -> Radios.yesNo(form("value"))
       )
 
@@ -109,7 +106,7 @@ class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar
 
       val expectedJson = Json.obj(
         "form"   -> filledForm,
-        "viewModel" -> viewModel,
+        "submitUrl" -> areYouUKCompanySubmitRoute,
         "radios" -> Radios.yesNo(filledForm("value"))
       )
 
@@ -162,7 +159,7 @@ class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar
 
       val expectedJson = Json.obj(
         "form"   -> boundForm,
-        "viewModel" -> viewModel,
+        "submitUrl" -> areYouUKCompanySubmitRoute,
         "radios" -> Radios.yesNo(boundForm("value"))
       )
 
