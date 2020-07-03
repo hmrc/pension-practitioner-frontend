@@ -14,5 +14,5 @@ POST       /what-type-business                          controllers.company.What
 
 GET        /what-you-will-need                          controllers.company.WhatYouWillNeedController.onPageLoad()
 
-GET        /areYouUKCompany                        controllers.company.AreYouUKCompanyController.onPageLoad()
-POST       /areYouUKCompany                        controllers.company.AreYouUKCompanyController.onSubmit()
+GET        /are-you-in-the-uk-company                        controllers.company.AreYouUKCompanyController.onPageLoad()
+POST       /are-you-in-the-uk-company                        controllers.company.AreYouUKCompanyController.onSubmit()

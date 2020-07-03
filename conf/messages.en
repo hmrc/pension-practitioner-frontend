@@ -68,7 +68,6 @@ company.whatYouWillNeed.li2 = the phone number and email address of a contactabl
 company.whatYouWillNeed.p2 = The information you enter will be saved as you progress. If you sign out, the information you have already entered will be saved for 7 days. After that time you will need to enter all of the information again.
 
 
-areYouUKCompany.title = areYouUKCompany
-areYouUKCompany.heading = areYouUKCompany
-areYouUKCompany.checkYourAnswersLabel = areYouUKCompany
-areYouUKCompany.error.required = Select yes if areYouUKCompany
+areYouUKCompany.title = Is the company or partnership registered in the UK?
+areYouUKCompany.heading = Is the company or partnership registered in the UK?
+areYouUKCompany.error.required = Select yes if the company or partnership is registered in the UK
