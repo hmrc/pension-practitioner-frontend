@@ -84,12 +84,12 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
           },
           value => {
             request.userAnswers match {
-              case None => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
               case Some(ua) =>
                 for {
                   updatedAnswers <- Future.fromTry(ua.set(WhatTypeBusinessPage, value))
                   _ <- userAnswersCacheConnector.save( updatedAnswers.data)
                 } yield Redirect(navigator.nextPage(WhatTypeBusinessPage, NormalMode, updatedAnswers))
+              case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
             }
           }
         )
