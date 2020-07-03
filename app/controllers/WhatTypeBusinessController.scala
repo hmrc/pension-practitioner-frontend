@@ -52,9 +52,10 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
 
   private val form = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData() andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData()).async {
     implicit request =>
-        val preparedForm = request.userAnswers.get(WhatTypeBusinessPage) match {
+
+        val preparedForm = request.userAnswers.flatMap(_.get(WhatTypeBusinessPage)) match {
           case None => form
           case Some(value) => form.fill(value)
         }
@@ -68,7 +69,7 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
         renderer.render("whatTypeBusiness.njk", json).map(Ok(_))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData() andThen requireData).async {
+  def onSubmit(): Action[AnyContent] = (identify andThen getData()).async {
     implicit request =>
         form.bindFromRequest().fold(
           formWithErrors => {
@@ -82,10 +83,14 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
             renderer.render("whatTypeBusiness.njk", json).map(BadRequest(_))
           },
           value => {
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatTypeBusinessPage, value))
-              _ <- userAnswersCacheConnector.save( updatedAnswers.data)
-            } yield Redirect(navigator.nextPage(WhatTypeBusinessPage, NormalMode, updatedAnswers))
+            request.userAnswers match {
+              case None => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+              case Some(ua) =>
+                for {
+                  updatedAnswers <- Future.fromTry(ua.set(WhatTypeBusinessPage, value))
+                  _ <- userAnswersCacheConnector.save( updatedAnswers.data)
+                } yield Redirect(navigator.nextPage(WhatTypeBusinessPage, NormalMode, updatedAnswers))
+            }
           }
         )
   }
