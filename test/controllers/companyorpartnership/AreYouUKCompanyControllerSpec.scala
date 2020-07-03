@@ -44,18 +44,18 @@ import scala.concurrent.Future
 
 class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
 
-  def onwardRoute = Call("GET", "/foo")
+  private def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new AreYouUKCompanyFormProvider()
-  val form = formProvider()
+  private val formProvider = new AreYouUKCompanyFormProvider()
+  private val form = formProvider()
 
-  def areYouUKCompanyRoute = routes.AreYouUKCompanyController.onPageLoad().url
-  def areYouUKCompanySubmitRoute = routes.AreYouUKCompanyController.onSubmit().url
+  private def areYouUKCompanyRoute = routes.AreYouUKCompanyController.onPageLoad().url
+  private def areYouUKCompanySubmitRoute = routes.AreYouUKCompanyController.onSubmit().url
 
-  def viewModel = GenericViewModel(
+  private def viewModel = GenericViewModel(
     submitUrl = areYouUKCompanySubmitRoute)
 
-  val answers: UserAnswers = userAnswersWithPspName.set(AreYouUKCompanyPage, true).success.value
+  private val answers: UserAnswers = userAnswersWithPspName.set(AreYouUKCompanyPage, true).success.value
 
   "AreYouUKCompany Controller" must {
 

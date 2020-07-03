@@ -42,7 +42,6 @@ class WhatYouWillNeedController @Inject()(
   def onPageLoad: Action[AnyContent] = (identify andThen getData() andThen requireData).async { implicit request =>
     val ua = request.userAnswers
     val nextPage = navigator.nextPage(WhatYouWillNeedPage, NormalMode, ua)
-
       renderer.render("companyorpartnership/whatYouWillNeed.njk",
         Json.obj(fields = "nextPage" -> nextPage.url)
       ).map(Ok(_))
