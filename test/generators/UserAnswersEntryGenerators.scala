@@ -16,8 +16,30 @@
 
 package generators
 
+import models.WhatTypeBusiness
+import org.scalacheck.Arbitrary.arbitrary
+import org.scalacheck.Arbitrary
+import pages.WhatTypeBusinessPage
+import pages.companyorpartnership.AreYouUKCompanyPage
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json
+
+
 trait UserAnswersEntryGenerators extends PageGenerators with ModelGenerators {
 
+  implicit lazy val arbitraryAreYouUKCompanyUserAnswersEntry: Arbitrary[(AreYouUKCompanyPage.type, JsValue)] =
+    Arbitrary {
+      for {
+        page  <- arbitrary[AreYouUKCompanyPage.type]
+        value <- arbitrary[Boolean].map(Json.toJson(_))
+      } yield (page, value)
+    }
 
-
+  implicit lazy val arbitraryChargeTypeUserAnswersEntry: Arbitrary[(WhatTypeBusinessPage.type, JsValue)] =
+    Arbitrary {
+      for {
+        page  <- arbitrary[WhatTypeBusinessPage.type]
+        value <- arbitrary[WhatTypeBusiness].map(Json.toJson(_))
+      } yield (page, value)
+    }
 }

@@ -33,8 +33,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
   def $className;format="decap"$SubmitRoute = routes.$className$Controller.onSubmit(NormalMode).url
 
   def viewModel = GenericViewModel(
-    submitUrl = $className;format="decap"$SubmitRoute,
-  pspName = pspName)
+    submitUrl = $className;format="decap"$SubmitRoute)
 
   val answers: UserAnswers = userAnswersWithPspName.set($className$Page, true).success.value
 

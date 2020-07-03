@@ -35,5 +35,11 @@ class Module extends AbstractModule {
     bind(classOf[IdentifierAction]).annotatedWith(classOf[AuthWithNoIV]).to(classOf[AuthenticatedIdentifierActionWithNoIV])
     bind(classOf[CompoundNavigator]).to(classOf[CompoundNavigatorImpl])
 
+
+    navigators.addBinding().to(classOf[PractitionerNavigator])
+
+
+    bind(classOf[CompoundNavigator]).to(classOf[CompoundNavigatorImpl])
+
   }
 }

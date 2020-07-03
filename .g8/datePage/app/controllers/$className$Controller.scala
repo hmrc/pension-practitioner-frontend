@@ -40,8 +40,7 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
         }
 
         def viewModel = GenericViewModel(
-          submitUrl = routes.$className$Controller.onSubmit(mode).url,
-          pspName = pspName)
+          submitUrl = routes.$className$Controller.onSubmit(mode).url)
 
         val date = DateInput.localDate(preparedForm("value"))
 
@@ -62,8 +61,7 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
           formWithErrors => {
 
             def viewModel = GenericViewModel(
-              submitUrl = routes.$className$Controller.onSubmit(mode).url,
-              pspName = pspName)
+              submitUrl = routes.$className$Controller.onSubmit(mode).url)
 
             val date = DateInput.localDate(formWithErrors("value"))
 
