@@ -63,7 +63,7 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
           "submitUrl" -> controllers.register.company.routes.CompanyNameController.onSubmit().url
         )
 
-        renderer.render("companyName.njk", json).map(Ok(_))
+        renderer.render("register/company/companyName.njk", json).map(Ok(_))
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -76,7 +76,7 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
               "submitUrl" -> controllers.register.company.routes.CompanyNameController.onSubmit().url
             )
 
-            renderer.render("companyName.njk", json).map(BadRequest(_))
+            renderer.render("register/company/companyName.njk", json).map(BadRequest(_))
           },
           value =>
             for {
