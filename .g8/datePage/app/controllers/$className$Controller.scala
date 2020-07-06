@@ -5,7 +5,7 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import forms.$className$FormProvider
 import javax.inject.Inject
-import models.{GenericViewModel, Mode}
+import models.Mode
 import navigators.CompoundNavigator
 import pages.$className$Page
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -39,14 +39,11 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
           case None => form
         }
 
-        def viewModel = GenericViewModel(
-          submitUrl = routes.$className$Controller.onSubmit(mode).url)
-
         val date = DateInput.localDate(preparedForm("value"))
 
         val json = Json.obj(
           "form" -> preparedForm,
-          "viewModel" -> viewModel,
+          "submitUrl" -> routes.$className$Controller.onSubmit(mode).url,
           "date" -> date
         )
 
@@ -60,14 +57,11 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
         form.bindFromRequest().fold(
           formWithErrors => {
 
-            def viewModel = GenericViewModel(
-              submitUrl = routes.$className$Controller.onSubmit(mode).url)
-
             val date = DateInput.localDate(formWithErrors("value"))
 
             val json = Json.obj(
               "form" -> formWithErrors,
-              "viewModel" -> viewModel,
+              "submitUrl" -> routes.$className$Controller.onSubmit(mode).url,
               "date" -> date
             )
 

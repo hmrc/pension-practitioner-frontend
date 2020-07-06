@@ -20,7 +20,7 @@ import models.WhatTypeBusiness
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Arbitrary
 import pages.WhatTypeBusinessPage
-import pages.companyorpartnership.AreYouUKCompanyPage
+import pages.register.AreYouUKCompanyPage
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
 

@@ -17,7 +17,7 @@ GET         /unauthorised                           controllers.UnauthorisedCont
 GET        /what-type-business                          controllers.WhatTypeBusinessController.onPageLoad()
 POST       /what-type-business                          controllers.WhatTypeBusinessController.onSubmit()
 
-GET        /what-you-will-need                          controllers.companyorpartnership.WhatYouWillNeedController.onPageLoad()
+GET        /what-you-will-need                          controllers.register.WhatYouWillNeedController.onPageLoad()
 
-GET        /are-you-in-the-uk-company                        controllers.companyorpartnership.AreYouUKCompanyController.onPageLoad()
-POST       /are-you-in-the-uk-company                        controllers.companyorpartnership.AreYouUKCompanyController.onSubmit()
+GET        /are-you-in-the-uk-company                        controllers.register.AreYouUKCompanyController.onPageLoad()
+POST       /are-you-in-the-uk-company                        controllers.register.AreYouUKCompanyController.onSubmit()

@@ -21,22 +21,18 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import forms.WhatTypeBusinessFormProvider
 import javax.inject.Inject
-import models.{GenericViewModel, NormalMode, UserAnswers, WhatTypeBusiness}
+import models.{NormalMode, UserAnswers, WhatTypeBusiness}
 import navigators.CompoundNavigator
 import pages.WhatTypeBusinessPage
-import play.api.i18n.I18nSupport
-import play.api.i18n.MessagesApi
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.annotations.AuthWithNoIV
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi,
                                            userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -54,46 +50,43 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
-      val preparedForm = request.userAnswers match {
-        case None => form
-        case Some(ua) => ua.get(WhatTypeBusinessPage).fold(form)(form.fill)
-      }
 
-      def viewModel = GenericViewModel(
-        submitUrl = routes.WhatTypeBusinessController.onSubmit().url)
+        val preparedForm = request.userAnswers.flatMap(_.get(WhatTypeBusinessPage)) match {
+          case None => form
+          case Some(value) => form.fill(value)
+        }
 
-      val json = Json.obj(
-        "form" -> preparedForm,
-        "viewModel" -> viewModel,
-        "radios" -> WhatTypeBusiness.radios(preparedForm)
-      )
+        val json = Json.obj(
+          "form" -> preparedForm,
+          "submitUrl" -> routes.WhatTypeBusinessController.onSubmit().url,
+          "radios" -> WhatTypeBusiness.radios(preparedForm)
+        )
 
-      renderer.render("whatTypeBusiness.njk", json).map(Ok(_))
+        renderer.render("whatTypeBusiness.njk", json).map(Ok(_))
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
-      val answers = request.userAnswers.getOrElse(UserAnswers())
-      form.bindFromRequest().fold(
-        formWithErrors => {
+        form.bindFromRequest().fold(
+          formWithErrors => {
 
-          def viewModel = GenericViewModel(
-            submitUrl = routes.WhatTypeBusinessController.onSubmit().url)
+            val json = Json.obj(
+              "form" -> formWithErrors,
+              "submitUrl" -> routes.WhatTypeBusinessController.onSubmit().url,
+              "radios" -> WhatTypeBusiness.radios(formWithErrors)
+            )
 
-          val json = Json.obj(
-            "form" -> formWithErrors,
-            "viewModel" -> viewModel,
-            "radios" -> WhatTypeBusiness.radios(formWithErrors)
-          )
+            renderer.render("whatTypeBusiness.njk", json).map(BadRequest(_))
+          },
+          value => {
 
-          renderer.render("whatTypeBusiness.njk", json).map(BadRequest(_))
-        },
-        value => {
-          for {
-            updatedAnswers <- Future.fromTry(answers.set(WhatTypeBusinessPage, value))
-            _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-          } yield Redirect(navigator.nextPage(WhatTypeBusinessPage, NormalMode, updatedAnswers))
-        }
-      )
+            val ua = request.userAnswers.getOrElse(UserAnswers())
+
+            for {
+              updatedAnswers <- Future.fromTry(ua.set(WhatTypeBusinessPage, value))
+              _ <- userAnswersCacheConnector.save( updatedAnswers.data)
+            } yield Redirect(navigator.nextPage(WhatTypeBusinessPage, NormalMode, updatedAnswers))
+          }
+        )
   }
 }

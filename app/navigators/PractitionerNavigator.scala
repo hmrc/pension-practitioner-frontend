@@ -23,6 +23,7 @@ import models.UserAnswers
 import models.WhatTypeBusiness
 import pages.Page
 import pages.WhatTypeBusinessPage
+import pages.register.WhatYouWillNeedPage
 import play.api.mvc.Call
 
 class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector, config: FrontendAppConfig)
@@ -30,10 +31,11 @@ class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCo
 
   override protected def routeMap(ua: UserAnswers): PartialFunction[Page, Call] = {
     case WhatTypeBusinessPage => ua.get(WhatTypeBusinessPage) match {
-      case Some(WhatTypeBusiness.Companyorpartnership) => controllers.companyorpartnership.routes.WhatYouWillNeedController.onPageLoad()
-      case Some(WhatTypeBusiness.Yourselfasindividual) => controllers.individual.routes.WhatYouWillNeedController.onPageLoad()
+      case Some(WhatTypeBusiness.Companyorpartnership) => controllers.register.routes
+        .WhatYouWillNeedController.onPageLoad()
       case _ => controllers.routes.SessionExpiredController.onPageLoad()
     }
+    case WhatYouWillNeedPage => controllers.register.routes.AreYouUKCompanyController.onPageLoad()
 
   }
 

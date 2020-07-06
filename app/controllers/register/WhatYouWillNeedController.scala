@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package controllers.companyorpartnership
+package controllers.register
 
 import controllers.actions._
 import javax.inject.Inject
+import models.NormalMode
+import navigators.CompoundNavigator
+import pages.register.WhatYouWillNeedPage
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
@@ -30,12 +34,16 @@ class WhatYouWillNeedController @Inject()(
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
+    navigator: CompoundNavigator,
     val controllerComponents: MessagesControllerComponents,
     renderer: Renderer
 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
-    implicit request =>
-      renderer.render("companyorpartnership/whatYouWillNeed.njk").map(Ok(_))
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    val ua = request.userAnswers
+    val nextPage = navigator.nextPage(WhatYouWillNeedPage, NormalMode, ua)
+      renderer.render("register/whatYouWillNeed.njk",
+        Json.obj(fields = "nextPage" -> nextPage.url)
+      ).map(Ok(_))
   }
 }

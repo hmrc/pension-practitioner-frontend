@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package pages.companyorpartnership
+package forms.register
 
-import pages.behaviours.PageBehaviours
+import forms.mappings.Mappings
+import javax.inject.Inject
+import play.api.data.Form
 
-class AreYouUKCompanyPageSpec extends PageBehaviours {
+class AreYouUKCompanyFormProvider @Inject() extends Mappings {
 
-  "AreYouUKCompanyPage" - {
-
-    beRetrievable[Boolean](AreYouUKCompanyPage)
-
-    beSettable[Boolean](AreYouUKCompanyPage)
-
-    beRemovable[Boolean](AreYouUKCompanyPage)
-  }
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("areYouUKCompany.error.required")
+    )
 }

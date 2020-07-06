@@ -16,29 +16,31 @@
 
 package controllers
 
+import config.FrontendAppConfig
+import connectors.cache.UserAnswersCacheConnector
+import controllers.actions.{DataRequiredAction, DataRequiredActionImpl, FakeIdentifierAction, IdentifierAction}
 import controllers.base.ControllerSpecBase
 import data.SampleData._
 import forms.WhatTypeBusinessFormProvider
 import matchers.JsonMatchers
-import models.GenericViewModel
-import models.WhatTypeBusiness
-import models.UserAnswers
+import models.{UserAnswers, WhatTypeBusiness}
+import navigators.CompoundNavigator
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.when
-import org.scalatest.OptionValues
-import org.scalatest.TryValues
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.WhatTypeBusinessPage
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
+import play.api.inject.bind
+import play.api.inject.guice.GuiceableModule
+import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
+import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.annotations.AuthWithNoIV
 
 import scala.concurrent.Future
 
@@ -52,20 +54,22 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
   private val formProvider = new WhatTypeBusinessFormProvider()
   private val form = formProvider()
 
-  private def viewModel = GenericViewModel(
-    submitUrl = whatTypeBusinessSubmitRoute)
+  override def modules: Seq[GuiceableModule] = Seq(
+    bind[DataRequiredAction].to[DataRequiredActionImpl],
+    bind[IdentifierAction].qualifiedWith(classOf[AuthWithNoIV]).to[FakeIdentifierAction],
+    bind[NunjucksRenderer].toInstance(mockRenderer),
+    bind[FrontendAppConfig].toInstance(mockAppConfig),
+    bind[UserAnswersCacheConnector].toInstance(mockUserAnswersCacheConnector),
+    bind[CompoundNavigator].toInstance(mockCompoundNavigator)
+  )
 
   private val answers: UserAnswers = userAnswersWithPspName.set(WhatTypeBusinessPage, WhatTypeBusiness.values.head).success.value
 
   "WhatTypeBusiness Controller" must {
-
     "return OK and the correct view for a GET" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
-        .overrides(
-        )
-        .build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName)).overrides().build()
       val request = FakeRequest(GET, whatTypeBusinessRoute)
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
@@ -76,11 +80,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
 
-      val expectedJson = Json.obj(
-        "form"   -> form,
-        "viewModel" -> viewModel,
-        "radios" -> WhatTypeBusiness.radios(form)
-      )
+      val expectedJson = Json.obj("form" -> form, "submitUrl" -> whatTypeBusinessSubmitRoute, "radios" -> WhatTypeBusiness.radios(form))
 
       templateCaptor.getValue mustEqual "whatTypeBusiness.njk"
 
@@ -92,8 +92,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
     "populate the view correctly on a GET when the question has previously been answered" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(answers))
-        .build()
+      val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       val request = FakeRequest(GET, whatTypeBusinessRoute)
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
@@ -107,11 +106,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
       val filledForm = form.bind(Map("value" -> WhatTypeBusiness.values.head.toString))
 
-      val expectedJson = Json.obj(
-        "form"   -> filledForm,
-        "viewModel" -> viewModel,
-        "radios" -> WhatTypeBusiness.radios(filledForm)
-      )
+      val expectedJson = Json.obj("form" -> filledForm, "submitUrl" -> whatTypeBusinessSubmitRoute, "radios" -> WhatTypeBusiness.radios(filledForm))
 
       templateCaptor.getValue mustEqual "whatTypeBusiness.njk"
 
@@ -121,18 +116,12 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
     }
 
     "redirect to the next page when valid data is submitted" in {
-
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
-        .overrides(
-        )
-        .build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName)).overrides().build()
 
-      val request =
-        FakeRequest(POST, whatTypeBusinessRoute)
-      .withFormUrlEncodedBody(("value", WhatTypeBusiness.values.head.toString))
+      val request = FakeRequest(POST, whatTypeBusinessRoute).withFormUrlEncodedBody(("value", WhatTypeBusiness.values.head.toString))
 
       val result = route(application, request).value
 
@@ -144,13 +133,9 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
     }
 
     "return a Bad Request and errors when invalid data is submitted" in {
-
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
-        .overrides(
-        )
-        .build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName)).overrides().build()
       val request = FakeRequest(POST, whatTypeBusinessRoute).withFormUrlEncodedBody(("value", "invalid value"))
       val boundForm = form.bind(Map("value" -> "invalid value"))
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
@@ -162,45 +147,10 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
 
-      val expectedJson = Json.obj(
-        "form"   -> boundForm,
-        "viewModel" -> viewModel,
-        "radios" -> WhatTypeBusiness.radios(boundForm)
-      )
+      val expectedJson = Json.obj("form" -> boundForm, "submitUrl" -> whatTypeBusinessSubmitRoute, "radios" -> WhatTypeBusiness.radios(boundForm))
 
       templateCaptor.getValue mustEqual "whatTypeBusiness.njk"
       jsonCaptor.getValue must containJson(expectedJson)
-
-      application.stop()
-    }
-
-    "redirect to Session Expired for a GET if no existing data is found" in {
-
-      val application = applicationBuilder(userAnswers = None).build()
-
-      val request = FakeRequest(GET, whatTypeBusinessRoute)
-
-      val result = route(application, request).value
-
-      status(result) mustEqual SEE_OTHER
-      redirectLocation(result).value mustEqual controllers.routes.SessionExpiredController.onPageLoad().url
-
-      application.stop()
-    }
-
-    "redirect to Session Expired for a POST if no existing data is found" in {
-
-      val application = applicationBuilder(userAnswers = None).build()
-
-      val request =
-        FakeRequest(POST, whatTypeBusinessRoute)
-      .withFormUrlEncodedBody(("value", WhatTypeBusiness.values.head.toString))
-
-      val result = route(application, request).value
-
-      status(result) mustEqual SEE_OTHER
-
-      redirectLocation(result).value mustEqual controllers.routes.SessionExpiredController.onPageLoad().url
 
       application.stop()
     }

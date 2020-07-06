@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package models
+package pages.register
 
-import play.api.libs.json.{Json, OWrites}
+import pages.behaviours.PageBehaviours
 
-case class GenericViewModel(submitUrl: String,
-                            pspName: Option[String] = None)
+class AreYouUKCompanyPageSpec extends PageBehaviours {
 
-object GenericViewModel {
-  implicit lazy val writes: OWrites[GenericViewModel] =
-    Json.writes[GenericViewModel]
+  "AreYouUKCompanyPage" - {
+
+    beRetrievable[Boolean](AreYouUKCompanyPage)
+
+    beSettable[Boolean](AreYouUKCompanyPage)
+
+    beRemovable[Boolean](AreYouUKCompanyPage)
+  }
 }
