@@ -169,22 +169,5 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
       application.stop()
     }
-
-    "redirect to Session Expired for a POST if no existing data is found" in {
-
-      val application = applicationBuilder(userAnswers = None).build()
-
-      val request =
-        FakeRequest(POST, whatTypeBusinessRoute)
-      .withFormUrlEncodedBody(("value", WhatTypeBusiness.values.head.toString))
-
-      val result = route(application, request).value
-
-      status(result) mustEqual SEE_OTHER
-
-      redirectLocation(result).value mustEqual controllers.routes.SessionExpiredController.onPageLoad().url
-
-      application.stop()
-    }
   }
 }
