@@ -30,6 +30,7 @@ class PractitionerNavigatorSpec extends NavigatorBehaviour {
   private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
 
   private val uaCompanyOrPartnership = SampleData.emptyUserAnswers.setOrException(WhatTypeBusinessPage, WhatTypeBusiness.Companyorpartnership)
+  private val uaIndividual = SampleData.emptyUserAnswers.setOrException(WhatTypeBusinessPage, WhatTypeBusiness.Yourselfasindividual)
 
 
   "NormalMode" must {
@@ -37,6 +38,7 @@ class PractitionerNavigatorSpec extends NavigatorBehaviour {
       Table(
         ("Id", "UserAnswers", "Next Page"),
         row(WhatTypeBusinessPage)(controllers.register.routes.WhatYouWillNeedController.onPageLoad(), Some(uaCompanyOrPartnership)),
+        row(WhatTypeBusinessPage)(controllers.individual.routes.WhatYouWillNeedController.onPageLoad(), Some(uaIndividual)),
         row(WhatYouWillNeedPage)(controllers.register.routes.AreYouUKCompanyController.onPageLoad())
       )
 
