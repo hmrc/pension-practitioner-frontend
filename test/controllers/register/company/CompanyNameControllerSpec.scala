@@ -50,14 +50,14 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
   def companyNameSubmitRoute = routes.CompanyNameController.onSubmit().url
 
 
-  val answers: UserAnswers = userAnswersWithPspName.set(CompanyNamePage, "answer").success.value
+  val answers: UserAnswers = userAnswersWithCompanyName.set(CompanyNamePage, "answer").success.value
 
   "CompanyName Controller" must {
 
     "return OK and the correct view for a GET" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
         .overrides(
         )
         .build()
@@ -118,7 +118,7 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
         .overrides(
         )
         .build()
@@ -138,7 +138,7 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
     "return a Bad Request and errors when invalid data is submitted" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
         .overrides(
         )
         .build()

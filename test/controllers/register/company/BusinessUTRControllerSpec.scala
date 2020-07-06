@@ -51,14 +51,14 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
   def businessUTRSubmitRoute = routes.BusinessUTRController.onSubmit().url
 
 
-  val answers: UserAnswers = userAnswersWithPspName.set(BusinessUTRPage, "answer").success.value
+  val answers: UserAnswers = userAnswersWithCompanyName.set(BusinessUTRPage, "answer").success.value
 
   "BusinessUTR Controller" must {
 
     "return OK and the correct view for a GET" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
         .overrides(
         )
         .build()
@@ -119,7 +119,7 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
         .overrides(
         )
         .build()
@@ -139,7 +139,7 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
     "return a Bad Request and errors when invalid data is submitted" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
         .overrides(
         )
         .build()
