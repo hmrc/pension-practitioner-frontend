@@ -23,11 +23,20 @@ import org.scalacheck.Arbitrary
 import pages.WhatTypeBusinessPage
 import pages.register.{AreYouUKCompanyPage, BusinessTypePage}
 import pages.register.AreYouUKCompanyPage
+import pages.register.company.BusinessUTRPage
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
 
 
 trait UserAnswersEntryGenerators extends PageGenerators with ModelGenerators {
+
+  implicit lazy val arbitraryBusinessUTRUserAnswersEntry: Arbitrary[(BusinessUTRPage.type, JsValue)] =
+    Arbitrary {
+      for {
+        page  <- arbitrary[BusinessUTRPage.type]
+        value <- arbitrary[String].suchThat(_.nonEmpty).map(Json.toJson(_))
+      } yield (page, value)
+    }
 
   implicit lazy val arbitraryBusinessTypeUserAnswersEntry: Arbitrary[(BusinessTypePage.type, JsValue)] =
     Arbitrary {
