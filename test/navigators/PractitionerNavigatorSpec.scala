@@ -20,8 +20,10 @@ import data.SampleData
 import models.NormalMode
 import models.UserAnswers
 import models.WhatTypeBusiness
+import models.register.BusinessType
 import org.scalatest.prop.TableFor3
 import pages._
+import pages.register.BusinessTypePage
 import pages.register.{AreYouUKCompanyPage, WhatYouWillNeedPage}
 import play.api.mvc.Call
 
@@ -31,6 +33,8 @@ class PractitionerNavigatorSpec extends NavigatorBehaviour {
 
   private val uaCompanyOrPartnership = SampleData.emptyUserAnswers.setOrException(WhatTypeBusinessPage, WhatTypeBusiness.Companyorpartnership)
   private val uaInUk = SampleData.emptyUserAnswers.setOrException(AreYouUKCompanyPage, true)
+  private val uaBusinessTypeLimitedCompany = SampleData.emptyUserAnswers.setOrException(BusinessTypePage, BusinessType.LimitedCompany)
+  private val uaBusinessTypeUnlimitedCompany = SampleData.emptyUserAnswers.setOrException(BusinessTypePage, BusinessType.UnlimitedCompany)
 
 
   "NormalMode" must {
@@ -39,7 +43,9 @@ class PractitionerNavigatorSpec extends NavigatorBehaviour {
         ("Id", "UserAnswers", "Next Page"),
         row(WhatTypeBusinessPage)(controllers.register.routes.WhatYouWillNeedController.onPageLoad(), Some(uaCompanyOrPartnership)),
         row(WhatYouWillNeedPage)(controllers.register.routes.AreYouUKCompanyController.onPageLoad()),
-        row(AreYouUKCompanyPage)(controllers.register.routes.BusinessTypeController.onPageLoad(), Some(uaInUk))
+        row(AreYouUKCompanyPage)(controllers.register.routes.BusinessTypeController.onPageLoad(), Some(uaInUk)),
+        row(BusinessTypePage)(controllers.register.routes.BusinessTypeController.onPageLoad(), Some(uaBusinessTypeLimitedCompany)),
+        row(BusinessTypePage)(controllers.register.routes.BusinessTypeController.onPageLoad(), Some(uaBusinessTypeUnlimitedCompany))
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)
