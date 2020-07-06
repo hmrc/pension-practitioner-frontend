@@ -21,12 +21,12 @@ import pages.behaviours.PageBehaviours
 
 class BusinessTypePageSpec extends PageBehaviours {
 
-//  "BusinessTypePage" must {
-//
-//    beRetrievable[BusinessType](BusinessTypePage)
-//
-//    beSettable[BusinessType](BusinessTypePage)
-//
-//    beRemovable[BusinessType](BusinessTypePage)
-//  }
+  "BusinessTypePage" - {
+
+    beRetrievable[BusinessType](BusinessTypePage)
+
+    beSettable[BusinessType](BusinessTypePage)
+
+    beRemovable[BusinessType](BusinessTypePage)
+  }
 }
