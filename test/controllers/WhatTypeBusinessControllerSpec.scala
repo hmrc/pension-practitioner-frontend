@@ -20,7 +20,6 @@ import controllers.base.ControllerSpecBase
 import data.SampleData._
 import forms.WhatTypeBusinessFormProvider
 import matchers.JsonMatchers
-import models.GenericViewModel
 import models.WhatTypeBusiness
 import models.UserAnswers
 import org.mockito.ArgumentCaptor
@@ -52,9 +51,6 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
   val formProvider = new WhatTypeBusinessFormProvider()
   val form = formProvider()
 
-  def viewModel = GenericViewModel(
-    submitUrl = whatTypeBusinessSubmitRoute)
-
   val answers: UserAnswers = userAnswersWithPspName.set(WhatTypeBusinessPage, WhatTypeBusiness.values.head).success.value
 
   "WhatTypeBusiness Controller" must {
@@ -78,7 +74,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
       val expectedJson = Json.obj(
         "form"   -> form,
-        "viewModel" -> viewModel,
+        "submitUrl" -> whatTypeBusinessSubmitRoute,
         "radios" -> WhatTypeBusiness.radios(form)
       )
 
@@ -109,7 +105,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
       val expectedJson = Json.obj(
         "form"   -> filledForm,
-        "viewModel" -> viewModel,
+        "submitUrl" -> whatTypeBusinessSubmitRoute,
         "radios" -> WhatTypeBusiness.radios(filledForm)
       )
 
@@ -164,26 +160,12 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
       val expectedJson = Json.obj(
         "form"   -> boundForm,
-        "viewModel" -> viewModel,
+        "submitUrl" -> whatTypeBusinessSubmitRoute,
         "radios" -> WhatTypeBusiness.radios(boundForm)
       )
 
       templateCaptor.getValue mustEqual "whatTypeBusiness.njk"
       jsonCaptor.getValue must containJson(expectedJson)
-
-      application.stop()
-    }
-
-    "redirect to Session Expired for a GET if no existing data is found" in {
-
-      val application = applicationBuilder(userAnswers = None).build()
-
-      val request = FakeRequest(GET, whatTypeBusinessRoute)
-
-      val result = route(application, request).value
-
-      status(result) mustEqual SEE_OTHER
-      redirectLocation(result).value mustEqual controllers.routes.SessionExpiredController.onPageLoad().url
 
       application.stop()
     }

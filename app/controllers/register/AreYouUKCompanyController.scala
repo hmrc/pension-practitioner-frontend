@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package controllers.companyorpartnership
+package controllers.register
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
-import forms.companyorpartnership.AreYouUKCompanyFormProvider
+import forms.register.AreYouUKCompanyFormProvider
 import javax.inject.Inject
-import models.GenericViewModel
 import models.NormalMode
 import navigators.CompoundNavigator
-import pages.companyorpartnership.AreYouUKCompanyPage
+import pages.register.AreYouUKCompanyPage
 import play.api.i18n.I18nSupport
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
@@ -55,21 +54,18 @@ class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-        val preparedForm = request.userAnswers.get (AreYouUKCompanyPage) match {
+        val preparedForm = request.userAnswers.get(AreYouUKCompanyPage) match {
           case None => form
           case Some (value) => form.fill (value)
         }
 
-        def viewModel = GenericViewModel(
-          submitUrl = routes.AreYouUKCompanyController.onSubmit().url)
-
         val json = Json.obj(
           "form" -> preparedForm,
-          "viewModel" -> viewModel,
+          "submitUrl" -> routes.AreYouUKCompanyController.onSubmit().url,
           "radios" -> Radios.yesNo (preparedForm("value"))
         )
 
-      renderer.render ("companyorpartnership/areYouUKCompany.njk", json).map(Ok (_))
+      renderer.render ("register/areYouUKCompany.njk", json).map(Ok (_))
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -77,22 +73,19 @@ class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
         form.bindFromRequest().fold(
           formWithErrors => {
 
-            def viewModel = GenericViewModel(
-              submitUrl = routes.AreYouUKCompanyController.onSubmit().url)
-
             val json = Json.obj(
               "form"   -> formWithErrors,
-              "viewModel"   -> viewModel,
+              "submitUrl"   -> routes.AreYouUKCompanyController.onSubmit().url,
               "radios" -> Radios.yesNo(formWithErrors("value"))
             )
 
-            renderer.render("companyorpartnership/areYouUKCompany.njk", json).map(BadRequest(_))
+            renderer.render("register/areYouUKCompany.njk", json).map(BadRequest(_))
           },
           value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(AreYouUKCompanyPage, value))
-              _ <- userAnswersCacheConnector.save( updatedAnswers.data)
-            } yield Redirect(navigator.nextPage(AreYouUKCompanyPage, NormalMode, updatedAnswers))
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(AreYouUKCompanyPage, value))
+                _ <- userAnswersCacheConnector.save( updatedAnswers.data)
+              } yield Redirect(navigator.nextPage(AreYouUKCompanyPage, NormalMode, updatedAnswers))
         )
   }
 }

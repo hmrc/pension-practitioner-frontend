@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package controllers.companyorpartnership
+package controllers.register
 
 import controllers.base.ControllerSpecBase
 import data.SampleData._
-import forms.companyorpartnership.AreYouUKCompanyFormProvider
+import forms.register.AreYouUKCompanyFormProvider
 import matchers.JsonMatchers
-import models.GenericViewModel
 import models.UserAnswers
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
@@ -30,7 +29,7 @@ import org.mockito.Mockito.when
 import org.scalatest.OptionValues
 import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
-import pages.companyorpartnership.AreYouUKCompanyPage
+import pages.register.AreYouUKCompanyPage
 import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import play.api.mvc.Call
@@ -44,18 +43,16 @@ import scala.concurrent.Future
 
 class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
 
-  def onwardRoute = Call("GET", "/foo")
+  private def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new AreYouUKCompanyFormProvider()
-  val form = formProvider()
+  private val formProvider = new AreYouUKCompanyFormProvider()
+  private val form = formProvider()
 
-  def areYouUKCompanyRoute = routes.AreYouUKCompanyController.onPageLoad().url
-  def areYouUKCompanySubmitRoute = routes.AreYouUKCompanyController.onSubmit().url
+  private def areYouUKCompanyRoute = routes.AreYouUKCompanyController.onPageLoad().url
+  private def areYouUKCompanySubmitRoute = routes.AreYouUKCompanyController.onSubmit().url
 
-  def viewModel = GenericViewModel(
-    submitUrl = areYouUKCompanySubmitRoute)
 
-  val answers: UserAnswers = userAnswersWithPspName.set(AreYouUKCompanyPage, true).success.value
+  private val answers: UserAnswers = userAnswersWithPspName.set(AreYouUKCompanyPage, true).success.value
 
   "AreYouUKCompany Controller" must {
 
@@ -78,11 +75,11 @@ class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar
 
       val expectedJson = Json.obj(
         "form"   -> form,
-        "viewModel" -> viewModel,
+        "submitUrl" -> areYouUKCompanySubmitRoute,
         "radios" -> Radios.yesNo(form("value"))
       )
 
-      templateCaptor.getValue mustEqual "companyorpartnership/areYouUKCompany.njk"
+      templateCaptor.getValue mustEqual "register/areYouUKCompany.njk"
       jsonCaptor.getValue must containJson(expectedJson)
 
       application.stop()
@@ -109,11 +106,11 @@ class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar
 
       val expectedJson = Json.obj(
         "form"   -> filledForm,
-        "viewModel" -> viewModel,
+        "submitUrl" -> areYouUKCompanySubmitRoute,
         "radios" -> Radios.yesNo(filledForm("value"))
       )
 
-      templateCaptor.getValue mustEqual "companyorpartnership/areYouUKCompany.njk"
+      templateCaptor.getValue mustEqual "register/areYouUKCompany.njk"
       jsonCaptor.getValue must containJson(expectedJson)
 
       application.stop()
@@ -162,11 +159,11 @@ class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar
 
       val expectedJson = Json.obj(
         "form"   -> boundForm,
-        "viewModel" -> viewModel,
+        "submitUrl" -> areYouUKCompanySubmitRoute,
         "radios" -> Radios.yesNo(boundForm("value"))
       )
 
-      templateCaptor.getValue mustEqual "companyorpartnership/areYouUKCompany.njk"
+      templateCaptor.getValue mustEqual "register/areYouUKCompany.njk"
       jsonCaptor.getValue must containJson(expectedJson)
 
       application.stop()

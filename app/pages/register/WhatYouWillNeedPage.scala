@@ -14,16 +14,8 @@
  * limitations under the License.
  */
 
-package forms.companyorpartnership
+package pages.register
 
-import forms.mappings.Mappings
-import javax.inject.Inject
-import play.api.data.Form
+import pages.Page
 
-class AreYouUKCompanyFormProvider @Inject() extends Mappings {
-
-  def apply(): Form[Boolean] =
-    Form(
-      "value" -> boolean("areYouUKCompany.error.required")
-    )
-}
+case object WhatYouWillNeedPage extends Page

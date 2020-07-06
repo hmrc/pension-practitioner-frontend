@@ -21,7 +21,6 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import forms.WhatTypeBusinessFormProvider
 import javax.inject.Inject
-import models.GenericViewModel
 import models.NormalMode
 import models.WhatTypeBusiness
 import navigators.CompoundNavigator
@@ -53,46 +52,45 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
 
   private val form = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
-        val preparedForm = request.userAnswers.get(WhatTypeBusinessPage) match {
+
+        val preparedForm = request.userAnswers.flatMap(_.get(WhatTypeBusinessPage)) match {
           case None => form
           case Some(value) => form.fill(value)
         }
 
-        def viewModel = GenericViewModel(
-          submitUrl = routes.WhatTypeBusinessController.onSubmit().url)
-
         val json = Json.obj(
           "form" -> preparedForm,
-          "viewModel" -> viewModel,
+          "submitUrl" -> routes.WhatTypeBusinessController.onSubmit().url,
           "radios" -> WhatTypeBusiness.radios(preparedForm)
         )
 
         renderer.render("whatTypeBusiness.njk", json).map(Ok(_))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit(): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
         form.bindFromRequest().fold(
           formWithErrors => {
 
-            def viewModel = GenericViewModel(
-              submitUrl = routes.WhatTypeBusinessController.onSubmit().url)
-
             val json = Json.obj(
               "form" -> formWithErrors,
-              "viewModel" -> viewModel,
+              "submitUrl" -> routes.WhatTypeBusinessController.onSubmit().url,
               "radios" -> WhatTypeBusiness.radios(formWithErrors)
             )
 
             renderer.render("whatTypeBusiness.njk", json).map(BadRequest(_))
           },
           value => {
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatTypeBusinessPage, value))
-              _ <- userAnswersCacheConnector.save( updatedAnswers.data)
-            } yield Redirect(navigator.nextPage(WhatTypeBusinessPage, NormalMode, updatedAnswers))
+            request.userAnswers match {
+              case Some(ua) =>
+                for {
+                  updatedAnswers <- Future.fromTry(ua.set(WhatTypeBusinessPage, value))
+                  _ <- userAnswersCacheConnector.save( updatedAnswers.data)
+                } yield Redirect(navigator.nextPage(WhatTypeBusinessPage, NormalMode, updatedAnswers))
+              case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+            }
           }
         )
   }

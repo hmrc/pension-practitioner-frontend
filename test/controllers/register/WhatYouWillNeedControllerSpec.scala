@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.companyorpartnership
+package controllers.register
 
 import controllers.base.ControllerSpecBase
 import org.mockito.ArgumentCaptor
@@ -27,10 +27,13 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import data.SampleData._
+import play.api.mvc.Call
 
 import scala.concurrent.Future
 
 class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar {
+
+  private def onwardRoute = Call("GET", "/foo")
 
   "WhatYouWillNeed Controller" must {
 
@@ -38,6 +41,7 @@ class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar
 
       when(mockRenderer.render(any(), any())(any()))
         .thenReturn(Future.successful(Html("")))
+      when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
       val request = FakeRequest(GET, routes.WhatYouWillNeedController.onPageLoad().url)
@@ -49,7 +53,7 @@ class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar
 
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), any())(any())
 
-      templateCaptor.getValue mustEqual "companyorpartnership/whatYouWillNeed.njk"
+      templateCaptor.getValue mustEqual "register/whatYouWillNeed.njk"
 
       application.stop()
     }
