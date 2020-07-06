@@ -76,7 +76,7 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
         "submitUrl" -> companyNameSubmitRoute
       )
 
-      templateCaptor.getValue mustEqual "companyName.njk"
+      templateCaptor.getValue mustEqual "register/company/companyName.njk"
       jsonCaptor.getValue must containJson(expectedJson)
 
       application.stop()
@@ -107,7 +107,7 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
         "submitUrl" -> companyNameSubmitRoute
       )
 
-      templateCaptor.getValue mustEqual "companyName.njk"
+      templateCaptor.getValue mustEqual "register/company/companyName.njk"
       jsonCaptor.getValue must containJson(expectedJson)
 
       application.stop()
@@ -158,7 +158,7 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
         "submitUrl" -> companyNameSubmitRoute
       )
 
-      templateCaptor.getValue mustEqual "companyName.njk"
+      templateCaptor.getValue mustEqual "register/company/companyName.njk"
       jsonCaptor.getValue must containJson(expectedJson)
 
       application.stop()
