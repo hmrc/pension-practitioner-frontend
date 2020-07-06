@@ -6,7 +6,7 @@ import config.FrontendAppConfig
 import controllers.base.ControllerSpecBase
 import forms.$className$FormProvider
 import matchers.JsonMatchers
-import models.{GenericViewModel, NormalMode, UserAnswers}
+import models.{NormalMode, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
