@@ -24,3 +24,6 @@ POST       /business-type                        controllers.register.BusinessTy
 
 GET        /business-utr                        controllers.register.company.BusinessUTRController.onPageLoad()
 POST       /business-utr                        controllers.register.company.BusinessUTRController.onSubmit()
+
+GET        /org-name                        controllers.register.company.CompanyNameController.onPageLoad()
+POST       /org-name                        controllers.register.company.CompanyNameController.onSubmit()

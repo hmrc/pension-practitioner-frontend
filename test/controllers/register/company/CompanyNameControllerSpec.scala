@@ -18,7 +18,6 @@ package controllers.register.company
 
 import controllers.base.ControllerSpecBase
 import matchers.JsonMatchers
-import models.NormalMode
 import models.UserAnswers
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
@@ -31,29 +30,29 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import play.api.mvc.Call
-import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import data.SampleData._
-import forms.register.company.BusinessUTRFormProvider
-import pages.register.company.BusinessUTRPage
+import forms.register.company.CompanyNameFormProvider
+import pages.register.company.CompanyNamePage
+import play.api.test.FakeRequest
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 
 import scala.concurrent.Future
 
-class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new BusinessUTRFormProvider()
+  val formProvider = new CompanyNameFormProvider()
   val form = formProvider()
 
-  def businessUTRRoute = routes.BusinessUTRController.onPageLoad().url
-  def businessUTRSubmitRoute = routes.BusinessUTRController.onSubmit().url
+  def companyNameRoute = routes.CompanyNameController.onPageLoad().url
+  def companyNameSubmitRoute = routes.CompanyNameController.onSubmit().url
 
 
-  val answers: UserAnswers = userAnswersWithPspName.set(BusinessUTRPage, "answer").success.value
+  val answers: UserAnswers = userAnswersWithPspName.set(CompanyNamePage, "answer").success.value
 
-  "BusinessUTR Controller" must {
+  "CompanyName Controller" must {
 
     "return OK and the correct view for a GET" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
@@ -62,7 +61,7 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
         .overrides(
         )
         .build()
-      val request = FakeRequest(GET, businessUTRRoute)
+      val request = FakeRequest(GET, companyNameRoute)
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
@@ -74,10 +73,10 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val expectedJson = Json.obj(
         "form" -> form,
-        "submitUrl" -> businessUTRSubmitRoute
+        "submitUrl" -> companyNameSubmitRoute
       )
 
-      templateCaptor.getValue mustEqual "register/company/businessUTR.njk"
+      templateCaptor.getValue mustEqual "companyName.njk"
       jsonCaptor.getValue must containJson(expectedJson)
 
       application.stop()
@@ -91,7 +90,7 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
         .overrides(
         )
         .build()
-      val request = FakeRequest(GET, businessUTRRoute)
+      val request = FakeRequest(GET, companyNameRoute)
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
@@ -105,10 +104,10 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val expectedJson = Json.obj(
         "form" -> filledForm,
-        "submitUrl" -> businessUTRSubmitRoute
+        "submitUrl" -> companyNameSubmitRoute
       )
 
-      templateCaptor.getValue mustEqual "register/company/businessUTR.njk"
+      templateCaptor.getValue mustEqual "companyName.njk"
       jsonCaptor.getValue must containJson(expectedJson)
 
       application.stop()
@@ -125,7 +124,7 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
         .build()
 
       val request =
-        FakeRequest(POST, businessUTRRoute)
+        FakeRequest(POST, companyNameRoute)
       .withFormUrlEncodedBody(("value", "answer"))
 
       val result = route(application, request).value
@@ -143,7 +142,7 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
         .overrides(
         )
         .build()
-      val request = FakeRequest(POST, businessUTRRoute).withFormUrlEncodedBody(("value", ""))
+      val request = FakeRequest(POST, companyNameRoute).withFormUrlEncodedBody(("value", ""))
       val boundForm = form.bind(Map("value" -> ""))
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
@@ -156,10 +155,10 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val expectedJson = Json.obj(
         "form" -> boundForm,
-        "submitUrl" -> businessUTRSubmitRoute
+        "submitUrl" -> companyNameSubmitRoute
       )
 
-      templateCaptor.getValue mustEqual "register/company/businessUTR.njk"
+      templateCaptor.getValue mustEqual "companyName.njk"
       jsonCaptor.getValue must containJson(expectedJson)
 
       application.stop()
@@ -169,7 +168,7 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val application = applicationBuilder(userAnswers = None).build()
 
-      val request = FakeRequest(GET, businessUTRRoute)
+      val request = FakeRequest(GET, companyNameRoute)
 
       val result = route(application, request).value
 
@@ -185,7 +184,7 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
       val application = applicationBuilder(userAnswers = None).build()
 
       val request =
-        FakeRequest(POST, businessUTRRoute)
+        FakeRequest(POST, companyNameRoute)
       .withFormUrlEncodedBody(("value", "answer"))
 
       val result = route(application, request).value

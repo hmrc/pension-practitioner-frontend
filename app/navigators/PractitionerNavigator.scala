@@ -24,6 +24,7 @@ import models.WhatTypeBusiness
 import models.register.BusinessType
 import pages.Page
 import pages.WhatTypeBusinessPage
+import pages.register.company.BusinessUTRPage
 import pages.register.{AreYouUKCompanyPage, WhatYouWillNeedPage, BusinessTypePage}
 import play.api.mvc.Call
 
@@ -51,6 +52,8 @@ class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCo
           controllers.register.company.routes.BusinessUTRController.onPageLoad()
         case _ => controllers.routes.SessionExpiredController.onPageLoad()
       }
+    case BusinessUTRPage =>
+      controllers.register.company.routes.CompanyNameController.onPageLoad()
 
   }
 

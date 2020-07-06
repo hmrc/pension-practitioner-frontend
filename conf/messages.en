@@ -94,3 +94,9 @@ businessUTR.p2 = If the UTR is 13 numbers, only enter the last 10.
 businessUTR.p3 = If there is a letter ‘K’ at the end of the number, do not enter it.
 businessUTR.error.required = Enter the Unique Taxpayer Reference (UTR) of the company you want to register
 businessUTR.error.length = BusinessUTR must be 10 characters or less
+
+companyName.title = companyName
+companyName.heading = companyName
+companyName.checkYourAnswersLabel = companyName
+companyName.error.required = Enter companyName
+companyName.error.length = CompanyName must be 100 characters or less

@@ -1,33 +1,33 @@
 #!/bin/bash
 
 echo ""
-echo "Applying migration BusinessUTR"
+echo "Applying migration CompanyName"
 
 echo "Adding routes to conf/app.routes"
 
 echo "" >> ../conf/app.routes
-echo "GET        /businessUTR                        controllers.BusinessUTRController.onPageLoad(mode: Mode = NormalMode)" >> ../conf/app.routes
-echo "POST       /businessUTR                        controllers.BusinessUTRController.onSubmit(mode: Mode = NormalMode)" >> ../conf/app.routes
+echo "GET        /companyName                        controllers.CompanyNameController.onPageLoad(mode: Mode = NormalMode)" >> ../conf/app.routes
+echo "POST       /companyName                        controllers.CompanyNameController.onSubmit(mode: Mode = NormalMode)" >> ../conf/app.routes
 
-echo "GET        /changeBusinessUTR                  controllers.BusinessUTRController.onPageLoad(mode: Mode = CheckMode)" >> ../conf/app.routes
-echo "POST       /changeBusinessUTR                  controllers.BusinessUTRController.onSubmit(mode: Mode = CheckMode)" >> ../conf/app.routes
+echo "GET        /changeCompanyName                  controllers.CompanyNameController.onPageLoad(mode: Mode = CheckMode)" >> ../conf/app.routes
+echo "POST       /changeCompanyName                  controllers.CompanyNameController.onSubmit(mode: Mode = CheckMode)" >> ../conf/app.routes
 
 echo "Adding messages to conf.messages"
 echo "" >> ../conf/messages.en
-echo "businessUTR.title = businessUTR" >> ../conf/messages.en
-echo "businessUTR.heading = businessUTR" >> ../conf/messages.en
-echo "businessUTR.checkYourAnswersLabel = businessUTR" >> ../conf/messages.en
-echo "businessUTR.error.required = Enter businessUTR" >> ../conf/messages.en
-echo "businessUTR.error.length = BusinessUTR must be 10 characters or less" >> ../conf/messages.en
+echo "companyName.title = companyName" >> ../conf/messages.en
+echo "companyName.heading = companyName" >> ../conf/messages.en
+echo "companyName.checkYourAnswersLabel = companyName" >> ../conf/messages.en
+echo "companyName.error.required = Enter companyName" >> ../conf/messages.en
+echo "companyName.error.length = CompanyName must be 100 characters or less" >> ../conf/messages.en
 
 echo "Adding to UserAnswersEntryGenerators"
 awk '/trait UserAnswersEntryGenerators/ {\
     print;\
     print "";\
-    print "  implicit lazy val arbitraryBusinessUTRUserAnswersEntry: Arbitrary[(BusinessUTRPage.type, JsValue)] =";\
+    print "  implicit lazy val arbitraryCompanyNameUserAnswersEntry: Arbitrary[(CompanyNamePage.type, JsValue)] =";\
     print "    Arbitrary {";\
     print "      for {";\
-    print "        page  <- arbitrary[BusinessUTRPage.type]";\
+    print "        page  <- arbitrary[CompanyNamePage.type]";\
     print "        value <- arbitrary[String].suchThat(_.nonEmpty).map(Json.toJson(_))";\
     print "      } yield (page, value)";\
     print "    }";\
@@ -37,34 +37,34 @@ echo "Adding to PageGenerators"
 awk '/trait PageGenerators/ {\
     print;\
     print "";\
-    print "  implicit lazy val arbitraryBusinessUTRPage: Arbitrary[BusinessUTRPage.type] =";\
-    print "    Arbitrary(BusinessUTRPage)";\
+    print "  implicit lazy val arbitraryCompanyNamePage: Arbitrary[CompanyNamePage.type] =";\
+    print "    Arbitrary(CompanyNamePage)";\
     next }1' ../test/generators/PageGenerators.scala > tmp && mv tmp ../test/generators/PageGenerators.scala
 
 echo "Adding to UserAnswersGenerator"
 awk '/val generators/ {\
     print;\
-    print "    arbitrary[(BusinessUTRPage.type, JsValue)] ::";\
+    print "    arbitrary[(CompanyNamePage.type, JsValue)] ::";\
     next }1' ../test/generators/UserAnswersGenerator.scala > tmp && mv tmp ../test/generators/UserAnswersGenerator.scala
 
 echo "Adding helper method to CheckYourAnswersHelper"
 awk '/class CheckYourAnswersHelper/ {\
      print;\
      print "";\
-     print "  def businessUTR: Option[Row] = userAnswers.get(BusinessUTRPage) map {";\
+     print "  def companyName: Option[Row] = userAnswers.get(CompanyNamePage) map {";\
      print "    answer =>";\
      print "      Row(";\
-     print "        key     = Key(msg\"businessUTR.checkYourAnswersLabel\", classes = Seq(\"govuk-!-width-one-half\")),";\
+     print "        key     = Key(msg\"companyName.checkYourAnswersLabel\", classes = Seq(\"govuk-!-width-one-half\")),";\
      print "        value   = Value(lit\"$answer\"),";\
      print "        actions = List(";\
      print "          Action(";\
      print "            content            = msg\"site.edit\",";\
-     print "            href               = controllers.routes.BusinessUTRController.onPageLoad(CheckMode).url,";\
-     print "            visuallyHiddenText = Some(msg\"site.edit.hidden\".withArgs(msg\"businessUTR.checkYourAnswersLabel\"))";\
+     print "            href               = controllers.routes.CompanyNameController.onPageLoad(CheckMode).url,";\
+     print "            visuallyHiddenText = Some(msg\"site.edit.hidden\".withArgs(msg\"companyName.checkYourAnswersLabel\"))";\
      print "          )";\
      print "        )";\
      print "      )";\
      print "  }";\
      next }1' ../app/utils/CYAHelper.scala > tmp && mv tmp ../app/utils/CYAHelper.scala
 
-echo "Migration BusinessUTR completed"
+echo "Migration CompanyName completed"
