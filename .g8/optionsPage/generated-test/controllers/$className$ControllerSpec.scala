@@ -32,8 +32,6 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
   val formProvider = new $className$FormProvider()
   val form = formProvider()
 
-  def viewModel = GenericViewModel(
-    submitUrl = $className;format="decap"$SubmitRoute)
 
   val answers: UserAnswers = userAnswersWithPspName.set($className$Page, $className$.values.head).success.value
 
@@ -58,7 +56,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val expectedJson = Json.obj(
         "form"   -> form,
-        "viewModel" -> viewModel,
+        "submitUrl" -> $className;format="decap"$SubmitRoute,
         "radios" -> $className$.radios(form)
       )
 
@@ -89,7 +87,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val expectedJson = Json.obj(
         "form"   -> filledForm,
-        "viewModel" -> viewModel,
+        "submitUrl" -> $className;format="decap"$SubmitRoute,
         "radios" -> $className$.radios(filledForm)
       )
 
@@ -143,7 +141,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val expectedJson = Json.obj(
         "form"   -> boundForm,
-        "viewModel" -> viewModel,
+        "submitUrl" -> $className;format="decap"$SubmitRoute,
         "radios" -> $className$.radios(boundForm)
       )
 

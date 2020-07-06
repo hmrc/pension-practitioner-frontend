@@ -41,9 +41,6 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
     )
   )
 
-  def viewModel = GenericViewModel(
-    submitUrl = $className;format="decap"$SubmitRoute)
-
   "$className$ Controller" must {
 
     "return OK and the correct view for a GET" in {
@@ -67,7 +64,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val expectedJson = Json.obj(
         "form" -> form,
-        "viewModel" -> viewModel
+        "submitUrl" -> $className;format="decap"$SubmitRoute
       )
 
       templateCaptor.getValue mustEqual "$className;format="decap"$.njk"
@@ -103,7 +100,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val expectedJson = Json.obj(
         "form" -> filledForm,
-        "viewModel" -> viewModel
+        "submitUrl" -> $className;format="decap"$SubmitRoute
       )
 
       templateCaptor.getValue mustEqual "$className;format="decap"$.njk"
@@ -159,7 +156,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val expectedJson = Json.obj(
         "form"   -> boundForm,
-        "viewModel" -> viewModel
+        "submitUrl" -> $className;format="decap"$SubmitRoute
       )
 
       templateCaptor.getValue mustEqual "$className;format="decap"$.njk"

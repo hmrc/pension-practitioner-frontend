@@ -47,9 +47,6 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
     "value.year"  -> validAnswer.getYear.toString
   )
 
-  def viewModel = GenericViewModel(
-    submitUrl = $className;format="decap"$SubmitRoute)
-
   "$className$ Controller" must {
 
     "return OK and the correct view for a GET" in {
@@ -73,7 +70,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val expectedJson = Json.obj(
         "form" -> form,
-        "viewModel" -> viewModel,
+        "submitUrl" -> $className;format="decap"$SubmitRoute,
         "date" -> date
       )
 
@@ -113,7 +110,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val expectedJson = Json.obj(
         "form" -> form,
-        "viewModel" -> viewModel,
+        "submitUrl" -> $className;format="decap"$SubmitRoute,
         "date" -> date
       )
 
@@ -168,7 +165,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val expectedJson = Json.obj(
         "form" -> boundForm,
-        "viewModel" -> viewModel,
+        "submitUrl" -> $className;format="decap"$SubmitRoute,
         "date" -> date
       )
 
