@@ -20,7 +20,7 @@ import models.NormalMode
 import models.UserAnswers
 import org.scalatest.prop.TableFor3
 import pages._
-import pages.register.company.BusinessUTRPage
+import pages.register.company.{BusinessUTRPage, CompanyNamePage}
 import play.api.mvc.Call
 
 class CompanyNavigatorSpec extends NavigatorBehaviour {
@@ -31,7 +31,8 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
     def normalModeRoutes: TableFor3[Page, UserAnswers, Call] =
       Table(
         ("Id", "UserAnswers", "Next Page"),
-        row(BusinessUTRPage)(controllers.register.company.routes.CompanyNameController.onPageLoad())
+        row(BusinessUTRPage)(controllers.register.company.routes.CompanyNameController.onPageLoad()),
+        row(CompanyNamePage)(controllers.register.company.routes.ConfirmNameController.onPageLoad())
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)

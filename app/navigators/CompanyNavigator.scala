@@ -20,14 +20,8 @@ import com.google.inject.Inject
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import models.UserAnswers
-import models.WhatTypeBusiness
-import models.register.BusinessType
 import pages.Page
-import pages.WhatTypeBusinessPage
-import pages.register.company.BusinessUTRPage
-import pages.register.AreYouUKCompanyPage
-import pages.register.BusinessTypePage
-import pages.register.WhatYouWillNeedPage
+import pages.register.company.{BusinessUTRPage, CompanyNamePage}
 import play.api.mvc.Call
 
 class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector, config: FrontendAppConfig)
@@ -36,6 +30,8 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
   override protected def routeMap(ua: UserAnswers): PartialFunction[Page, Call] = {
     case BusinessUTRPage =>
       controllers.register.company.routes.CompanyNameController.onPageLoad()
+    case CompanyNamePage =>
+      controllers.register.company.routes.ConfirmNameController.onPageLoad()
 
   }
 

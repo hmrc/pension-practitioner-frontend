@@ -27,3 +27,6 @@ POST       /business-utr                        controllers.register.company.Bus
 
 GET        /org-name                        controllers.register.company.CompanyNameController.onPageLoad()
 POST       /org-name                        controllers.register.company.CompanyNameController.onSubmit()
+
+GET        /confirm-name                        controllers.register.company.ConfirmNameController.onPageLoad()
+POST       /confirm-name                        controllers.register.company.ConfirmNameController.onSubmit()
