@@ -22,6 +22,7 @@ import controllers.actions._
 import forms.WhatTypeBusinessFormProvider
 import javax.inject.Inject
 import models.NormalMode
+import models.UserAnswers
 import models.WhatTypeBusiness
 import navigators.CompoundNavigator
 import pages.WhatTypeBusinessPage
@@ -83,14 +84,13 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
             renderer.render("whatTypeBusiness.njk", json).map(BadRequest(_))
           },
           value => {
-            request.userAnswers match {
-              case Some(ua) =>
-                for {
-                  updatedAnswers <- Future.fromTry(ua.set(WhatTypeBusinessPage, value))
-                  _ <- userAnswersCacheConnector.save( updatedAnswers.data)
-                } yield Redirect(navigator.nextPage(WhatTypeBusinessPage, NormalMode, updatedAnswers))
-              case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
-            }
+
+            val ua = request.userAnswers.getOrElse(UserAnswers())
+
+            for {
+              updatedAnswers <- Future.fromTry(ua.set(WhatTypeBusinessPage, value))
+              _ <- userAnswersCacheConnector.save( updatedAnswers.data)
+            } yield Redirect(navigator.nextPage(WhatTypeBusinessPage, NormalMode, updatedAnswers))
           }
         )
   }
