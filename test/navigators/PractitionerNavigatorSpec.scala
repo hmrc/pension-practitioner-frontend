@@ -44,8 +44,8 @@ class PractitionerNavigatorSpec extends NavigatorBehaviour {
         row(WhatTypeBusinessPage)(controllers.register.routes.WhatYouWillNeedController.onPageLoad(), Some(uaCompanyOrPartnership)),
         row(WhatYouWillNeedPage)(controllers.register.routes.AreYouUKCompanyController.onPageLoad()),
         row(AreYouUKCompanyPage)(controllers.register.routes.BusinessTypeController.onPageLoad(), Some(uaInUk)),
-        row(BusinessTypePage)(controllers.register.routes.BusinessTypeController.onPageLoad(), Some(uaBusinessTypeLimitedCompany)),
-        row(BusinessTypePage)(controllers.register.routes.BusinessTypeController.onPageLoad(), Some(uaBusinessTypeUnlimitedCompany))
+        row(BusinessTypePage)(controllers.register.company.routes.BusinessUTRController.onPageLoad(), Some(uaBusinessTypeLimitedCompany)),
+        row(BusinessTypePage)(controllers.register.company.routes.BusinessUTRController.onPageLoad(), Some(uaBusinessTypeUnlimitedCompany))
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)
