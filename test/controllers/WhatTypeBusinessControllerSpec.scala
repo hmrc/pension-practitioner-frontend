@@ -44,18 +44,18 @@ import scala.concurrent.Future
 
 class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
 
-  def onwardRoute = Call("GET", "/foo")
+  private def onwardRoute = Call("GET", "/foo")
 
-  def whatTypeBusinessRoute = routes.WhatTypeBusinessController.onPageLoad().url
-  def whatTypeBusinessSubmitRoute = routes.WhatTypeBusinessController.onSubmit().url
+  private def whatTypeBusinessRoute: String = routes.WhatTypeBusinessController.onPageLoad().url
+  private def whatTypeBusinessSubmitRoute: String = routes.WhatTypeBusinessController.onSubmit().url
 
-  val formProvider = new WhatTypeBusinessFormProvider()
-  val form = formProvider()
+  private val formProvider = new WhatTypeBusinessFormProvider()
+  private val form = formProvider()
 
-  def viewModel = GenericViewModel(
+  private def viewModel = GenericViewModel(
     submitUrl = whatTypeBusinessSubmitRoute)
 
-  val answers: UserAnswers = userAnswersWithPspName.set(WhatTypeBusinessPage, WhatTypeBusiness.values.head).success.value
+  private val answers: UserAnswers = userAnswersWithPspName.set(WhatTypeBusinessPage, WhatTypeBusiness.values.head).success.value
 
   "WhatTypeBusiness Controller" must {
 

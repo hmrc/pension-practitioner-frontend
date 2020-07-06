@@ -21,9 +21,7 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import forms.WhatTypeBusinessFormProvider
 import javax.inject.Inject
-import models.GenericViewModel
-import models.NormalMode
-import models.WhatTypeBusiness
+import models.{GenericViewModel, NormalMode, UserAnswers, WhatTypeBusiness}
 import navigators.CompoundNavigator
 import pages.WhatTypeBusinessPage
 import play.api.i18n.I18nSupport
@@ -35,65 +33,67 @@ import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.annotations.AuthWithNoIV
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi,
-                                      userAnswersCacheConnector: UserAnswersCacheConnector,
-                                      navigator: CompoundNavigator,
-                                      identify: IdentifierAction,
-                                      getData: DataRetrievalAction,
-                                      requireData: DataRequiredAction,
-                                      formProvider: WhatTypeBusinessFormProvider,
-                                      val controllerComponents: MessagesControllerComponents,
-                                      config: FrontendAppConfig,
-                                      renderer: Renderer
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
+                                           userAnswersCacheConnector: UserAnswersCacheConnector,
+                                           navigator: CompoundNavigator,
+                                           @AuthWithNoIV identify: IdentifierAction,
+                                           getData: DataRetrievalAction,
+                                           requireData: DataRequiredAction,
+                                           formProvider: WhatTypeBusinessFormProvider,
+                                           val controllerComponents: MessagesControllerComponents,
+                                           config: FrontendAppConfig,
+                                           renderer: Renderer
+                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
 
   private val form = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
-        val preparedForm = request.userAnswers.get(WhatTypeBusinessPage) match {
-          case None => form
-          case Some(value) => form.fill(value)
-        }
+      val preparedForm = request.userAnswers match {
+        case None => form
+        case Some(ua) => ua.get(WhatTypeBusinessPage).fold(form)(form.fill)
+      }
 
-        def viewModel = GenericViewModel(
-          submitUrl = routes.WhatTypeBusinessController.onSubmit().url)
+      def viewModel = GenericViewModel(
+        submitUrl = routes.WhatTypeBusinessController.onSubmit().url)
 
-        val json = Json.obj(
-          "form" -> preparedForm,
-          "viewModel" -> viewModel,
-          "radios" -> WhatTypeBusiness.radios(preparedForm)
-        )
+      val json = Json.obj(
+        "form" -> preparedForm,
+        "viewModel" -> viewModel,
+        "radios" -> WhatTypeBusiness.radios(preparedForm)
+      )
 
-        renderer.render("whatTypeBusiness.njk", json).map(Ok(_))
+      renderer.render("whatTypeBusiness.njk", json).map(Ok(_))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit(): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
-        form.bindFromRequest().fold(
-          formWithErrors => {
+      val answers = request.userAnswers.getOrElse(UserAnswers())
+      form.bindFromRequest().fold(
+        formWithErrors => {
 
-            def viewModel = GenericViewModel(
-              submitUrl = routes.WhatTypeBusinessController.onSubmit().url)
+          def viewModel = GenericViewModel(
+            submitUrl = routes.WhatTypeBusinessController.onSubmit().url)
 
-            val json = Json.obj(
-              "form" -> formWithErrors,
-              "viewModel" -> viewModel,
-              "radios" -> WhatTypeBusiness.radios(formWithErrors)
-            )
+          val json = Json.obj(
+            "form" -> formWithErrors,
+            "viewModel" -> viewModel,
+            "radios" -> WhatTypeBusiness.radios(formWithErrors)
+          )
 
-            renderer.render("whatTypeBusiness.njk", json).map(BadRequest(_))
-          },
-          value => {
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatTypeBusinessPage, value))
-              _ <- userAnswersCacheConnector.save( updatedAnswers.data)
-            } yield Redirect(navigator.nextPage(WhatTypeBusinessPage, NormalMode, updatedAnswers))
-          }
-        )
+          renderer.render("whatTypeBusiness.njk", json).map(BadRequest(_))
+        },
+        value => {
+          for {
+            updatedAnswers <- Future.fromTry(answers.set(WhatTypeBusinessPage, value))
+            _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+          } yield Redirect(navigator.nextPage(WhatTypeBusinessPage, NormalMode, updatedAnswers))
+        }
+      )
   }
 }
