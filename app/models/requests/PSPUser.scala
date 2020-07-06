@@ -16,19 +16,17 @@
 
 package models.requests
 
-import models.UserAnswers
-import play.api.mvc.Request
-import play.api.mvc.WrappedRequest
+import models.requests.UserType.UserType
 
-case class OptionalDataRequest[A](
-                                   request: Request[A],
-                                   user: PSPUser,
-                                   userAnswers: Option[UserAnswers]
-                                 ) extends WrappedRequest[A](request)
+case class PSPUser(userType: UserType,
+                   nino: Option[String],
+                   isExistingPSP: Boolean,
+                   existingPSPId: Option[String],
+                   alreadyEnrolledPspId: Option[String] = None,
+                   userId: String = ""
+                  )
 
-case class DataRequest[A](
-                           request: Request[A],
-                           user: PSPUser,
-                           userAnswers: UserAnswers
-                         ) extends WrappedRequest[A](request) {
+object UserType extends Enumeration {
+  type UserType = Value
+  val Individual, Organisation = Value
 }
