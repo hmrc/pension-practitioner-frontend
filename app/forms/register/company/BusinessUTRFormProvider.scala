@@ -16,15 +16,18 @@
 
 package forms.register.company
 
-import javax.inject.Inject
-
-import forms.mappings.Mappings
+import forms.FormErrorHelper
+import forms.mappings.UtrMapping
 import play.api.data.Form
 
-class BusinessUTRFormProvider @Inject() extends Mappings {
+class BusinessUTRFormProvider extends FormErrorHelper with UtrMapping {
 
-  def apply(): Form[String] =
+  def apply: Form[String] =
     Form(
-      "value" -> text("businessUTR.error.required")
+      "value" ->
+        utrMapping(
+          requiredKey = "businessUTR.error.required",
+          invalidKey = "businessUTR.error.invalid"
+        )
     )
 }

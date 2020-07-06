@@ -18,7 +18,6 @@ package controllers.register.company
 
 import controllers.base.ControllerSpecBase
 import matchers.JsonMatchers
-import models.NormalMode
 import models.UserAnswers
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
@@ -42,16 +41,17 @@ import uk.gov.hmrc.viewmodels.NunjucksSupport
 import scala.concurrent.Future
 
 class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
-  def onwardRoute = Call("GET", "/foo")
+  private def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new BusinessUTRFormProvider()
-  val form = formProvider()
+  private val formProvider = new BusinessUTRFormProvider
+  private val form = formProvider.apply
 
-  def businessUTRRoute = routes.BusinessUTRController.onPageLoad().url
-  def businessUTRSubmitRoute = routes.BusinessUTRController.onSubmit().url
+  private val validUTR = "1234567890"
 
+  private def businessUTRRoute = routes.BusinessUTRController.onPageLoad().url
+  private def businessUTRSubmitRoute = routes.BusinessUTRController.onSubmit().url
 
-  val answers: UserAnswers = userAnswersWithCompanyName.set(BusinessUTRPage, "answer").success.value
+  val answers: UserAnswers = userAnswersWithCompanyName.set(BusinessUTRPage, validUTR).success.value
 
   "BusinessUTR Controller" must {
 
@@ -101,7 +101,7 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
 
-      val filledForm = form.bind(Map("value" -> "answer"))
+      val filledForm = form.bind(Map("value" -> validUTR))
 
       val expectedJson = Json.obj(
         "form" -> filledForm,
@@ -126,7 +126,7 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val request =
         FakeRequest(POST, businessUTRRoute)
-      .withFormUrlEncodedBody(("value", "answer"))
+      .withFormUrlEncodedBody(("value", validUTR))
 
       val result = route(application, request).value
 
