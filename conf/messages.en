@@ -98,5 +98,5 @@ businessUTR.error.length = BusinessUTR must be 10 characters or less
 companyName.title = What is the company’s name?
 companyName.heading = What is the company’s name?
 companyName.hint = This is the name registered with Companies House.
-companyName.error.required = Enter the company's name
+companyName.error.required = Enter the company’s name
 companyName.error.length = CompanyName must be 100 characters or less
