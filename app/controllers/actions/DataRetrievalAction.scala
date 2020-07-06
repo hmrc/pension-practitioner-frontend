@@ -16,42 +16,32 @@
 
 package controllers.actions
 
-import java.time.LocalDate
-
-import com.google.inject.ImplementedBy
-import com.google.inject.Inject
+import com.google.inject.{ImplementedBy, Inject}
 import connectors.cache.UserAnswersCacheConnector
 import models.UserAnswers
-import models.requests.IdentifierRequest
-import models.requests.OptionalDataRequest
+import models.requests.{IdentifierRequest, OptionalDataRequest}
+import play.api.libs.json.JsObject
 import play.api.mvc.ActionTransformer
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.HeaderCarrierConverter
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
-class DataRetrievalImpl(
+class DataRetrievalActionImpl @Inject()(val dataCacheConnector: UserAnswersCacheConnector
+                                       )(implicit val executionContext: ExecutionContext) extends DataRetrievalAction {
 
-                       )(implicit val executionContext: ExecutionContext)
-    extends DataRetrieval {
-  
   override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] = {
-Future.successful(OptionalDataRequest(request, "", Some(UserAnswers())))
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
+
+    dataCacheConnector.fetch.map {
+      case None =>
+        OptionalDataRequest(request.request, request.user, None)
+      case Some(data) =>
+        OptionalDataRequest(request.request, request.user, Some(UserAnswers(data.as[JsObject])))
+    }
   }
-
-
 }
-
-class DataRetrievalActionImpl @Inject()(userAnswersCacheConnector: UserAnswersCacheConnector
-)(implicit val executionContext: ExecutionContext)
-                                        extends DataRetrievalAction {
-  override def apply(): DataRetrieval =
-    new DataRetrievalImpl()
-}
-
-@ImplementedBy(classOf[DataRetrievalImpl])
-trait DataRetrieval extends ActionTransformer[IdentifierRequest, OptionalDataRequest]
 
 @ImplementedBy(classOf[DataRetrievalActionImpl])
-trait DataRetrievalAction {
-  def apply(): DataRetrieval
-}
+trait DataRetrievalAction extends ActionTransformer[IdentifierRequest, OptionalDataRequest]

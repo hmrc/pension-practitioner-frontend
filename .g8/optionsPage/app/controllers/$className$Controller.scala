@@ -5,7 +5,7 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import forms.$className$FormProvider
 import javax.inject.Inject
-import models.{$className$, GenericViewModel, Mode}
+import models.{$className$, Mode}
 import navigators.CompoundNavigator
 import pages.$className$Page
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -40,12 +40,10 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
           case Some(value) => form.fill(value)
         }
 
-        def viewModel = GenericViewModel(
-          submitUrl = routes.$className$Controller.onSubmit(mode).url)
 
         val json = Json.obj(
           "form" -> preparedForm,
-          "viewModel" -> viewModel,
+          "submitUrl" -> routes.$className$Controller.onSubmit(mode).url,
           "radios" -> $className$.radios(preparedForm)
         )
 
@@ -60,12 +58,10 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
         form.bindFromRequest().fold(
           formWithErrors => {
 
-            def viewModel = GenericViewModel(
-              submitUrl = routes.$className$Controller.onSubmit(mode).url)
 
             val json = Json.obj(
               "form" -> formWithErrors,
-              "viewModel" -> viewModel,
+              "submitUrl" -> routes.$className$Controller.onSubmit(mode).url,
               "radios" -> $className$.radios(formWithErrors)
             )
 

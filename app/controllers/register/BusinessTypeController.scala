@@ -48,7 +48,7 @@ class BusinessTypeController @Inject()(override val messagesApi: MessagesApi,
 
   private val form = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData()andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
 
         val preparedForm = request.userAnswers.get(BusinessTypePage) match {
@@ -66,7 +66,7 @@ class BusinessTypeController @Inject()(override val messagesApi: MessagesApi,
         renderer.render("register/businessType.njk", json).map(Ok(_))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData()andThen requireData).async {
+  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
 
         form.bindFromRequest().fold(
