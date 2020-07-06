@@ -17,6 +17,7 @@
 package controllers.register.company
 
 import config.FrontendAppConfig
+import connectors.RegistrationConnector
 import connectors.cache.UserAnswersCacheConnector
 import controllers.DataRetrievals
 import controllers.actions._
@@ -24,14 +25,16 @@ import forms.register.company.ConfirmAddressFormProvider
 import javax.inject.Inject
 import models.Mode
 import models.NormalMode
+import models.register.Organisation
 import navigators.CompoundNavigator
-import pages.register.company.ConfirmAddressPage
+import pages.register.company.{BusinessUTRPage, ConfirmAddressPage}
 import play.api.i18n.I18nSupport
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.Results.Redirect
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
@@ -45,6 +48,7 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
                                       navigator: CompoundNavigator,
                                       identify: IdentifierAction,
                                       getData: DataRetrievalAction,
+                                      registrationConnector:RegistrationConnector,
                                       requireData: DataRequiredAction,
                                       formProvider: ConfirmAddressFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
@@ -61,14 +65,21 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
           case None => form
           case Some (value) => form.fill (value)
         }
+        request.userAnswers.get(BusinessUTRPage) match {
+          case None => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+          case Some (utr) =>
+            val organisation = Organisation(pspName,)
+            val address = registrationConnector.registerWithIdOrganisation(utr)
+            val json = Json.obj(
+              "form" -> preparedForm,
+              "pspName" -> pspName,
+              "submitUrl" -> routes.ConfirmAddressController.onSubmit().url,
+              "radios" -> Radios.yesNo (preparedForm("value"))
+            )
 
-        val json = Json.obj(
-          "form" -> preparedForm,
-          "submitUrl" -> routes.ConfirmAddressController.onSubmit().url,
-          "radios" -> Radios.yesNo (preparedForm("value"))
-        )
+            renderer.render ("register/company/confirmAddress.njk", json).map(Ok (_))
+        }
 
-      renderer.render ("register/company/confirmAddress.njk", json).map(Ok (_))
     }
   }
 
@@ -80,6 +91,7 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
 
             val json = Json.obj(
               "form"   -> formWithErrors,
+              "pspName" -> pspName,
               "submitUrl"   -> routes.ConfirmAddressController.onSubmit().url,
               "radios" -> Radios.yesNo(formWithErrors("value"))
             )

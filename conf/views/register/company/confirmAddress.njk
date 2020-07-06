@@ -7,7 +7,7 @@
 {% from "macros/title.njk"                         import title %}
 
 {% block pageTitle %}
-  {{ title(messages("confirmAddress.title"), form.errors) }}
+  {{ title(messages("confirmAddress.title",pspName), form.errors) }}
 {% endblock %}
 
 {% block mainContent %}
@@ -31,7 +31,7 @@
             name: 'value',
             fieldset: {
               legend: {
-                text: messages('confirmAddress.title'),
+                text: messages('confirmAddress.heading',pspName),
                 isPageHeading: true,
                 classes: "govuk-fieldset__legend--xl"
               }

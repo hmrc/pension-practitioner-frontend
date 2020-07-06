@@ -21,7 +21,7 @@ import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import models.UserAnswers
 import pages.Page
-import pages.register.company.{BusinessUTRPage, CompanyNamePage}
+import pages.register.company.{BusinessUTRPage, CompanyNamePage, ConfirmNamePage}
 import play.api.mvc.Call
 
 class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector, config: FrontendAppConfig)
@@ -32,6 +32,8 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
       controllers.register.company.routes.CompanyNameController.onPageLoad()
     case CompanyNamePage =>
       controllers.register.company.routes.ConfirmNameController.onPageLoad()
+    case ConfirmNamePage =>
+      controllers.register.company.routes.ConfirmAddressController.onPageLoad()
 
   }
 
