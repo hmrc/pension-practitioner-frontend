@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package pages.company
+package pages.register.company
 
 import models.TolerantAddress
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object CompanyNamePage extends QuestionPage[String] {
+case object CompanyPostcodePage extends QuestionPage[Seq[TolerantAddress]] {
 
-  override def path: JsPath = JsPath \ toString
-  override def toString: String = "name"
+  override def path: JsPath = JsPath \ "company" \ toString
+  override def toString: String = "postcode"
 }

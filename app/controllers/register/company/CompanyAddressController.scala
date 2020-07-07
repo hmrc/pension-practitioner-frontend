@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.register.company
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
@@ -25,7 +25,7 @@ import javax.inject.Inject
 import models.requests.DataRequest
 import models.{Address, Mode}
 import navigators.CompoundNavigator
-import pages.company.{CompanyAddressPage, CompanyNamePage, CompanyPostcodePage}
+import pages.register.company.{CompanyAddressPage, CompanyNamePage, CompanyPostcodePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsArray, JsObject, Json, Writes}

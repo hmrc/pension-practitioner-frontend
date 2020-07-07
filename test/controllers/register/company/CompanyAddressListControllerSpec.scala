@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.register.company
 
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
-import forms.address.{AddressListFormProvider, PostcodeFormProvider}
+import forms.address.AddressListFormProvider
 import matchers.JsonMatchers
-
-import org.mockito.Matchers.{eq => eqTo, _}
 import models.{NormalMode, TolerantAddress, UserAnswers}
-import org.mockito.Matchers.any
+import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.company.{CompanyAddressListPage, CompanyNamePage, CompanyPostcodePage}
+import pages.register.company.{CompanyAddressListPage, CompanyAddressPage, CompanyNamePage, CompanyPostcodePage}
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
@@ -37,7 +35,6 @@ import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.InputOption
 import utils.countryOptions.CountryOptions
 
 import scala.concurrent.Future
@@ -60,9 +57,9 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
   val userAnswers: UserAnswers = UserAnswers().set(CompanyNamePage, companyName).toOption.value
                                   .set(CompanyPostcodePage, Seq(tolerantAddress)).toOption.value
 
-  private def onPageLoadUrl: String = controllers.company.routes.CompanyAddressListController.onPageLoad(NormalMode).url
-  private def enterManuallyUrl: Call = controllers.company.routes.CompanyAddressController.onPageLoad(NormalMode)
-  private def submitUrl: String = controllers.company.routes.CompanyAddressListController.onSubmit(NormalMode).url
+  private def onPageLoadUrl: String = routes.CompanyAddressListController.onPageLoad(NormalMode).url
+  private def enterManuallyUrl: Call = routes.CompanyAddressController.onPageLoad(NormalMode)
+  private def submitUrl: String = routes.CompanyAddressListController.onSubmit(NormalMode).url
 
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq("0"))
 
@@ -112,9 +109,10 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
 
     "Save data to user answers and redirect to next page when valid data is submitted" in {
 
-      val expectedJson = Json.obj(
+      val expectedJson = Json.obj( "company" -> Json.obj(
           CompanyNamePage.toString -> companyName,
-          CompanyPostcodePage.toString -> Seq(tolerantAddress))
+          CompanyPostcodePage.toString -> Seq(tolerantAddress),
+          CompanyAddressPage.toString -> tolerantAddress.toAddress))
 
       when(mockCompoundNavigator.nextPage(Matchers.eq(CompanyAddressListPage), any(), any())).thenReturn(enterManuallyUrl)
 

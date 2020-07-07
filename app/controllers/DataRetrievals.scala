@@ -17,7 +17,7 @@
 package controllers
 
 import models.requests.DataRequest
-import pages.company.CompanyPostcodePage
+import pages.register.company.CompanyPostcodePage
 import play.api.mvc.AnyContent
 import play.api.mvc.Result
 
