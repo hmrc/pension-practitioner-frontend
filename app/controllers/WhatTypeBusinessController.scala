@@ -21,17 +21,23 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import forms.WhatTypeBusinessFormProvider
 import javax.inject.Inject
-import models.{WhatTypeBusiness, GenericViewModel, Mode}
+import models.NormalMode
+import models.UserAnswers
+import models.WhatTypeBusiness
 import navigators.CompoundNavigator
 import pages.WhatTypeBusinessPage
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.I18nSupport
+import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi,
                                       userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -47,54 +53,45 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
 
   private val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData() andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
-      DataRetrievals.retrieveCompanyName { pspName =>
-        val preparedForm = request.userAnswers.get(WhatTypeBusinessPage) match {
+
+        val preparedForm = request.userAnswers.flatMap(_.get(WhatTypeBusinessPage)) match {
           case None => form
           case Some(value) => form.fill(value)
         }
 
-        def viewModel = GenericViewModel(
-          submitUrl = routes.WhatTypeBusinessController.onSubmit(mode).url,
-          pspName = pspName)
-
         val json = Json.obj(
           "form" -> preparedForm,
-          "viewModel" -> viewModel,
+          "submitUrl" -> routes.WhatTypeBusinessController.onSubmit().url,
           "radios" -> WhatTypeBusiness.radios(preparedForm)
         )
 
         renderer.render("whatTypeBusiness.njk", json).map(Ok(_))
-      }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData() andThen requireData).async {
+  def onSubmit(): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
-      DataRetrievals.retrieveCompanyName { pspName =>
-
         form.bindFromRequest().fold(
           formWithErrors => {
 
-            def viewModel = GenericViewModel(
-              submitUrl = routes.WhatTypeBusinessController.onSubmit(mode).url,
-              pspName = pspName)
-
             val json = Json.obj(
               "form" -> formWithErrors,
-              "viewModel" -> viewModel,
+              "submitUrl" -> routes.WhatTypeBusinessController.onSubmit().url,
               "radios" -> WhatTypeBusiness.radios(formWithErrors)
             )
 
             renderer.render("whatTypeBusiness.njk", json).map(BadRequest(_))
           },
           value => {
+
+            val ua = request.userAnswers.getOrElse(UserAnswers())
+
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatTypeBusinessPage, value))
+              updatedAnswers <- Future.fromTry(ua.set(WhatTypeBusinessPage, value))
               _ <- userAnswersCacheConnector.save( updatedAnswers.data)
-            } yield Redirect(navigator.nextPage(WhatTypeBusinessPage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(WhatTypeBusinessPage, NormalMode, updatedAnswers))
           }
         )
-      }
   }
 }

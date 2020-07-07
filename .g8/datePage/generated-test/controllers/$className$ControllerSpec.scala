@@ -6,7 +6,7 @@ import config.FrontendAppConfig
 import controllers.base.ControllerSpecBase
 import forms.$className$FormProvider
 import matchers.JsonMatchers
-import models.{GenericViewModel, NormalMode, UserAnswers}
+import models.{NormalMode, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -47,10 +47,6 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
     "value.year"  -> validAnswer.getYear.toString
   )
 
-  def viewModel = GenericViewModel(
-    submitUrl = $className;format="decap"$SubmitRoute,
-  pspName = pspName)
-
   "$className$ Controller" must {
 
     "return OK and the correct view for a GET" in {
@@ -74,7 +70,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val expectedJson = Json.obj(
         "form" -> form,
-        "viewModel" -> viewModel,
+        "submitUrl" -> $className;format="decap"$SubmitRoute,
         "date" -> date
       )
 
@@ -114,7 +110,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val expectedJson = Json.obj(
         "form" -> form,
-        "viewModel" -> viewModel,
+        "submitUrl" -> $className;format="decap"$SubmitRoute,
         "date" -> date
       )
 
@@ -169,7 +165,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val expectedJson = Json.obj(
         "form" -> boundForm,
-        "viewModel" -> viewModel,
+        "submitUrl" -> $className;format="decap"$SubmitRoute,
         "date" -> date
       )
 

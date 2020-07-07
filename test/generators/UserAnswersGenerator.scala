@@ -18,9 +18,11 @@ package generators
 
 import models.UserAnswers
 import org.scalacheck.Arbitrary
+import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalatest.TryValues
 import pages._
+import pages.register.AreYouUKCompanyPage
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
 
@@ -28,6 +30,7 @@ trait UserAnswersGenerator extends TryValues {
   self: Generators =>
 
   val generators: Seq[Gen[(QuestionPage[_], JsValue)]] =
+    arbitrary[(AreYouUKCompanyPage.type, JsValue)] ::
     Nil
 
   implicit lazy val arbitraryUserData: Arbitrary[UserAnswers] = {

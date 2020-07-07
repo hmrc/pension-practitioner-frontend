@@ -16,30 +16,21 @@
 
 package controllers.actions
 
-import java.time.LocalDate
-
 import models.UserAnswers
-import models.requests.IdentifierRequest
-import models.requests.OptionalDataRequest
+import models.requests.{IdentifierRequest, OptionalDataRequest}
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class MutableFakeDataRetrievalAction extends DataRetrievalAction {
   private var dataToReturn: Option[UserAnswers] = None
 
   def setDataToReturn(userAnswers: Option[UserAnswers]): Unit = dataToReturn = userAnswers
 
-  override def apply(): DataRetrieval = new MutableFakeDataRetrieval(dataToReturn)
-}
-
-class MutableFakeDataRetrieval(dataToReturn: Option[UserAnswers])
-    extends DataRetrieval {
-
   override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] =
-    Future(OptionalDataRequest(request.request, s"srn-startDt-id", dataToReturn))
+    Future(OptionalDataRequest(request.request, request.user, dataToReturn))
 
   override protected implicit val executionContext: ExecutionContext =
     scala.concurrent.ExecutionContext.Implicits.global
 }
+
 

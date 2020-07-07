@@ -4,7 +4,7 @@ import config.FrontendAppConfig
 import controllers.base.ControllerSpecBase
 import matchers.JsonMatchers
 import forms.$className$FormProvider
-import models.{GenericViewModel, NormalMode, UserAnswers}
+import models.{NormalMode, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -31,9 +31,6 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
   def $className;format="decap"$Route = routes.$className$Controller.onPageLoad(NormalMode).url
   def $className;format="decap"$SubmitRoute = routes.$className$Controller.onSubmit(NormalMode).url
 
-  def viewModel = GenericViewModel(
-    submitUrl = $className;format="decap"$SubmitRoute,
-    pspName = pspName)
 
   val answers: UserAnswers = userAnswersWithPspName.set($className$Page, "answer").success.value
 
@@ -58,7 +55,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val expectedJson = Json.obj(
         "form" -> form,
-        "viewModel" -> viewModel
+        "submitUrl" -> $className;format="decap"$SubmitRoute
       )
 
       templateCaptor.getValue mustEqual "$className;format="decap"$.njk"
@@ -89,7 +86,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val expectedJson = Json.obj(
         "form" -> filledForm,
-        "viewModel" -> viewModel
+        "submitUrl" -> $className;format="decap"$SubmitRoute
       )
 
       templateCaptor.getValue mustEqual "$className;format="decap"$.njk"
@@ -140,7 +137,7 @@ class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val expectedJson = Json.obj(
         "form" -> boundForm,
-        "viewModel" -> viewModel
+        "submitUrl" -> $className;format="decap"$SubmitRoute
       )
 
       templateCaptor.getValue mustEqual "$className;format="decap"$.njk"

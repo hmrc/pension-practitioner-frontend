@@ -41,7 +41,7 @@
           }) }}
 
           {{ govukButton({
-            text: messages("site.continue"),
+            text: messages("site.save_and_continue"),
             attributes: {id: "submit"}
           }) }}
 
@@ -49,7 +49,5 @@
 
       </div>
     </div>
-
-    <a href="{{ viewModel.returnUrl }}" class="govuk-link">{{ messages("return.to.link", viewModel.companyName) }}</a>
 
 {% endblock %}

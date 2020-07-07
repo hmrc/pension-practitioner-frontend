@@ -52,6 +52,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val languageTranslationEnabled: Boolean =
     configuration.get[Boolean]("microservice.services.features.welsh-translation")
 
+  lazy val validCountryCodes: Seq[String] = configuration.get[String]("validCountryCodes").split(",").toSeq
   lazy val locationCanonicalList: String = loadConfig("location.canonical.list.all")
   lazy val locationCanonicalListEUAndEEA: String = loadConfig("location.canonical.list.EUAndEEA")
 
@@ -62,6 +63,22 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val registerWithNoIdIndividualUrl: String = s"$pspUrl${configuration.get[String]("urls.registration.registerWithNoIdIndividual")}"
 
   lazy val registerWithIdIndividualUrl: String = s"$pspUrl${configuration.get[String]("urls.registration.registerWithIdIndividual")}"
+
+  lazy val identityVerification: String = servicesConfig.baseUrl("identity-verification")
+
+  lazy val identityVerificationFrontend: String = servicesConfig.baseUrl("identity-verification-frontend")
+
+  lazy val identityVerificationProxy: String = servicesConfig.baseUrl("identity-verification-proxy")
+
+  lazy val ivRegisterOrganisationAsIndividualUrl: String = s"$identityVerificationProxy${configuration.get[String]("urls.ivRegisterOrganisationAsIndividual")}"
+
+  lazy val manualIvUrl: String = configuration.get[String]("urls.manualIvUrl")
+
+  lazy val ukJourneyContinueUrl: String = configuration.get[String]("urls.ukJourneyContinue")
+
+  lazy val loginContinueUrl: String = configuration.get[String]("urls.loginContinue")
+
+  lazy val loginUrl: String = configuration.get[String]("urls.login")
 
   def languageMap: Map[String, Lang] = Map(
     "english" -> Lang("en"),

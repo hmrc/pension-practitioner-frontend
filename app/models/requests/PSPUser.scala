@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-package models
+package models.requests
 
-import play.api.libs.json.{Json, OWrites}
+import models.requests.UserType.UserType
 
-case class GenericViewModel(submitUrl: String,
-                            pspName: String)
+case class PSPUser(userType: UserType,
+                   nino: Option[String],
+                   isExistingPSP: Boolean,
+                   existingPSPId: Option[String],
+                   alreadyEnrolledPspId: Option[String] = None,
+                   userId: String = ""
+                  )
 
-object GenericViewModel {
-  implicit lazy val writes: OWrites[GenericViewModel] =
-    Json.writes[GenericViewModel]
+object UserType extends Enumeration {
+  type UserType = Value
+  val Individual, Organisation = Value
 }

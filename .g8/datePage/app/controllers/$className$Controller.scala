@@ -5,7 +5,7 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import forms.$className$FormProvider
 import javax.inject.Inject
-import models.{GenericViewModel, Mode}
+import models.Mode
 import navigators.CompoundNavigator
 import pages.$className$Page
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -31,7 +31,7 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData()andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       DataRetrievals.retrieveCompanyName { pspName =>
         val preparedForm = request.userAnswers.get($className$Page) match {
@@ -39,15 +39,11 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
           case None => form
         }
 
-        def viewModel = GenericViewModel(
-          submitUrl = routes.$className$Controller.onSubmit(mode).url,
-          pspName = pspName)
-
         val date = DateInput.localDate(preparedForm("value"))
 
         val json = Json.obj(
           "form" -> preparedForm,
-          "viewModel" -> viewModel,
+          "submitUrl" -> routes.$className$Controller.onSubmit(mode).url,
           "date" -> date
         )
 
@@ -55,21 +51,17 @@ class $className$Controller @Inject()(override val messagesApi: MessagesApi,
       }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData()andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       DataRetrievals.retrieveCompanyName { pspName =>
         form.bindFromRequest().fold(
           formWithErrors => {
 
-            def viewModel = GenericViewModel(
-              submitUrl = routes.$className$Controller.onSubmit(mode).url,
-              pspName = pspName)
-
             val date = DateInput.localDate(formWithErrors("value"))
 
             val json = Json.obj(
               "form" -> formWithErrors,
-              "viewModel" -> viewModel,
+              "submitUrl" -> routes.$className$Controller.onSubmit(mode).url,
               "date" -> date
             )
 

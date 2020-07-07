@@ -21,7 +21,7 @@ import controllers.Retrievals
 import controllers.actions._
 import forms.address.AddressListFormProvider
 import javax.inject.Inject
-import models.Mode
+import models.{Mode, TolerantAddress}
 import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.company.{CompanyAddressListPage, CompanyAddressPage, CompanyNamePage, CompanyPostcodePage}
@@ -32,6 +32,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.countryOptions.CountryOptions
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -43,6 +44,7 @@ class CompanyAddressListController @Inject()(override val messagesApi: MessagesA
                                              requireData: DataRequiredAction,
                                              formProvider: AddressListFormProvider,
                                              val controllerComponents: MessagesControllerComponents,
+                                             countryOptions: CountryOptions,
                                              renderer: Renderer
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController
                                           with Retrievals with I18nSupport with NunjucksSupport {
@@ -52,7 +54,7 @@ class CompanyAddressListController @Inject()(override val messagesApi: MessagesA
     formProvider(messages("addressList.error.invalid", messages("company")))
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen getData() andThen requireData).async {
+    (identify andThen getData andThen requireData).async {
       implicit request =>
         getJson(mode, form) { json =>
           renderer.render("address/addressList.njk", json).map(Ok(_))
@@ -60,7 +62,7 @@ class CompanyAddressListController @Inject()(override val messagesApi: MessagesA
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData() andThen requireData).async {
+    (identify andThen getData andThen requireData).async {
       implicit request =>
 
           form.bindFromRequest().fold(
@@ -88,10 +90,19 @@ class CompanyAddressListController @Inject()(override val messagesApi: MessagesA
           "form" -> form,
           "entityType" -> messages("company"),
           "entityName" -> companyName,
-          "addresses" -> addresses,
+          "addresses" -> transformAddressesForTemplate(addresses),
           "submitUrl" -> routes.CompanyAddressListController.onSubmit(mode).url,
           "enterManuallyUrl" -> routes.CompanyAddressController.onPageLoad(mode).url
         )
         block(json)
     }
+
+  private def transformAddressesForTemplate(addresses:Seq[TolerantAddress]):Seq[JsObject] = {
+    for ((row, i) <- addresses.zipWithIndex) yield {
+      Json.obj(
+        "value" -> i,
+        "text" -> row.print(countryOptions)
+      )
+    }
+  }
 }

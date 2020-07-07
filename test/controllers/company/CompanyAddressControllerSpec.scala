@@ -87,6 +87,7 @@ class CompanyAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
     when(countryOptions.options).thenReturn(Seq(InputOption("UK", "United Kingdom")))
+    when(mockAppConfig.validCountryCodes).thenReturn(Seq("UK"))
   }
 
   "CompanyAddress Controller" must {

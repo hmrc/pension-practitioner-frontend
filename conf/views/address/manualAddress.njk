@@ -29,7 +29,7 @@
 
         <h1 class="govuk-heading-xl">{{messages('address.title', entityName)}}</h1>
 
-        <form action="{{ viewModel.submitUrl }}" method="post" autoComplete="off">
+        <form action="{{ submitUrl }}" method="post" autoComplete="off">
 
           {{ csrf() | safe }}
 
@@ -49,7 +49,7 @@
 
           {{ govukInput({
             label: {
-              text: messages('address.line1'),
+              text: messages('address.line2'),
               isPageHeading: false,
               classes: "govuk-label--s"
             },
@@ -63,7 +63,7 @@
 
           {{ govukInput({
             label: {
-              text: messages('address.line1'),
+              text: messages('address.line3'),
               isPageHeading: false,
               classes: "govuk-label--s"
             },
@@ -77,7 +77,7 @@
 
           {{ govukInput({
             label: {
-              text: messages('address.line1'),
+              text: messages('address.line4'),
               isPageHeading: false,
               classes: "govuk-label--s"
             },
@@ -89,6 +89,7 @@
             errorMessage: form.line4.error
           }) }}
 
+
           {{ govukInput({
               label: {
                 text: messages('address.postcode'),
@@ -98,54 +99,40 @@
               id: "postcode",
               name: "postcode",
               value: form.postcode.value,
-              classes: "govuk-input--width-20",
+              classes: "govuk-input--width-10",
               attributes: {autocomplete: "none"},
               errorMessage: form.postcode.error
             }) }}
 
+
+
           <div class="govuk-form-group autocomplete-wrapper govuk-body govuk-input--width-20">
-              {{ govukSelect({
-                label: {
-                    text: messages('address.country'),
-                    classes: "govuk-label--s"
-                },
-                id: "country-select",
-                classes: "autocomplete",
-                name: "country",
-                items: countries,
-                errorMessage: form.country.error,
-                attributes: {
-                    value: form.country.value
-                }
-              }) }}
+                  {{ govukSelect({
+                    label: {
+                        text: messages('address.country'),
+                        classes: "govuk-label--s"
+                    },
+                    id: "country-select",
+                    classes: "autocomplete",
+                    name: "country",
+                    items: countries,
+                    errorMessage: form.country.error,
+                    attributes: {
+                        value: form.country.value
+                    }
+                  }) }}
           </div>
 
-
-
-          {{ govukInput({
-            label: {
-              text: messages('chargeC.sponsoringEmployerAddress.postcode.title'),
-              isPageHeading: false,
-              classes: "govuk-label--s"
-            },
-            id: "postcode",
-            name: "postcode",
-            value: form.postcode.value,
-            classes: "govuk-input--width-10",
-            attributes: {autocomplete: "none"},
-            errorMessage: form.postcode.error
-          }) }}
-
           {{ govukButton({
-            text: messages("site.continue"),
-            attributes: {id: "submit"}
-          }) }}
+              text: messages("site.save_and_continue"),
+              attributes: {id: "submit"}
+            }) }}
 
         </form>
 
       </div>
     </div>
-    <a href="{{ viewModel.returnUrl }}" class="govuk-link">{{ messages("return.to.link", viewModel.schemeName) }}</a>
+
 {% endblock %}
 
 {% block pageScripts %}

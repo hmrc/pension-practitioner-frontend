@@ -16,6 +16,7 @@
 
 package controllers.company
 
+import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
@@ -27,7 +28,7 @@ import navigators.CompoundNavigator
 import pages.company.{CompanyAddressPage, CompanyNamePage, CompanyPostcodePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, Json, Writes}
+import play.api.libs.json.{JsArray, JsObject, Json, Writes}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
@@ -43,6 +44,7 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
                                           requireData: DataRequiredAction,
                                           formProvider: AddressFormProvider,
                                           val controllerComponents: MessagesControllerComponents,
+                                          config: FrontendAppConfig,
                                           renderer: Renderer
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController
   with Retrievals with I18nSupport with NunjucksSupport {
@@ -50,7 +52,7 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
   private def form(implicit messages: Messages): Form[Address] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen getData() andThen requireData).async {
+    (identify andThen getData andThen requireData).async {
       implicit request =>
         getJson(mode, form) { json =>
           renderer.render("address/manualAddress.njk", json).map(Ok(_))
@@ -58,24 +60,19 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData() andThen requireData).async {
+    (identify andThen getData andThen requireData).async {
       implicit request =>
-
         form.bindFromRequest().fold(
-          formWithErrors => {
-            println(s"\n\n\n >>>>>>>>>>>>>>>>>>>>>>>>>> $formWithErrors")
+          formWithErrors =>
             getJson(mode, formWithErrors) { json =>
               renderer.render("address/manualAddress.njk", json).map(BadRequest(_))
-            }
-          },
+            },
           value =>
                 for {
                   updatedAnswers <- Future.fromTry(request.userAnswers.set(CompanyAddressPage, value))
                   _ <- userAnswersCacheConnector.save(updatedAnswers.data)
                 } yield Redirect(navigator.nextPage(CompanyAddressPage, mode, updatedAnswers))
-
         )
-
     }
 
   private def getJson(mode: Mode, form: Form[Address])(block: JsObject => Future[Result])
@@ -85,8 +82,32 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
         "form" -> form,
         "entityType" -> messages("company"),
         "entityName" -> companyName,
-        "submitUrl" -> routes.CompanyAddressController.onSubmit(mode).url
+        "submitUrl" -> routes.CompanyAddressController.onSubmit(mode).url,
+        "countries" -> jsonCountries(form.data.get("country"))(request2Messages)
       )
       block(json)
     }
+
+  private def countryJsonElement(tuple: (String, String), isSelected: Boolean): JsArray = Json.arr(
+    if (isSelected) {
+      Json.obj(
+        "value" -> tuple._1,
+        "text" -> tuple._2,
+        "selected" -> true
+      )
+    } else {
+      Json.obj(
+        "value" -> tuple._1,
+        "text" -> tuple._2
+      )
+    }
+  )
+
+  private def jsonCountries(countrySelected: Option[String])(implicit messages: Messages): JsArray =
+    config.validCountryCodes
+      .map(countryCode => (countryCode, messages(s"country.$countryCode")))
+      .sortWith(_._2 < _._2)
+      .foldLeft(JsArray(Seq(Json.obj("value" -> "", "text" -> "")))) { (acc, nextCountryTuple) =>
+        acc ++ countryJsonElement(nextCountryTuple, countrySelected.contains(nextCountryTuple._1))
+      }
 }

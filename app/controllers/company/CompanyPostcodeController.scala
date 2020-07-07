@@ -57,7 +57,7 @@ class CompanyPostcodeController @Inject()(override val messagesApi: MessagesApi,
     )
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen getData() andThen requireData).async {
+    (identify andThen getData andThen requireData).async {
       implicit request =>
         getJson(mode, form) { json =>
           renderer.render("address/postcode.njk", json).map(Ok(_))
@@ -65,7 +65,7 @@ class CompanyPostcodeController @Inject()(override val messagesApi: MessagesApi,
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData() andThen requireData).async {
+    (identify andThen getData andThen requireData).async {
       implicit request =>
 
           form.bindFromRequest().fold(
