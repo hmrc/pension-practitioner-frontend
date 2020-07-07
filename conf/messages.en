@@ -89,7 +89,7 @@ whatTypeBusiness.limitedPartnership = Limited partnership
 whatTypeBusiness.limitedLiabilityPartnership = Limited liability partnership
 whatTypeBusiness.unlimitedCompany = Unlimited company
 
-businessUTR.title = What is the Unique Taxpayer Reference (UTR) of the Limited company you want to register?
+businessUTR.title = What is the Unique Taxpayer Reference (UTR) of the limited company you want to register?
 businessUTR.heading = What is the Unique Taxpayer Reference (UTR) of the Limited company you want to register?
 businessUTR.p1 = This is a 10-digit or 13-digit number. You can find it on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
 businessUTR.p2 = If the UTR is 13 numbers, only enter the last 10.
