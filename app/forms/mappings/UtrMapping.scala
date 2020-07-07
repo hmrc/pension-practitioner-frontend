@@ -32,7 +32,3 @@ trait UtrMapping extends Mappings with Transforms {
 
 }
 
-object UtrMapping {
-  val utrMaxLength: Int = 10
-  val reasonMaxLength: Int = 160
-}
