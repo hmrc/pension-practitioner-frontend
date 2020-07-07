@@ -48,14 +48,14 @@ class BusinessTypeControllerSpec extends ControllerSpecBase with MockitoSugar wi
   private val form = formProvider()
 
 
-  val answers: UserAnswers = userAnswersWithPspName.set(BusinessTypePage, BusinessType.values.head).success.value
+  val answers: UserAnswers = userAnswersWithCompanyName.set(BusinessTypePage, BusinessType.values.head).success.value
 
   "BusinessType Controller" must {
 
     "return OK and the correct view for a GET" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
         .overrides(
         )
         .build()
@@ -117,7 +117,7 @@ class BusinessTypeControllerSpec extends ControllerSpecBase with MockitoSugar wi
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
         .overrides(
         )
         .build()
@@ -139,7 +139,7 @@ class BusinessTypeControllerSpec extends ControllerSpecBase with MockitoSugar wi
 
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
         .overrides(
         )
         .build()

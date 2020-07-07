@@ -58,6 +58,7 @@ class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
 
         val json = Json.obj(
           "form" -> preparedForm,
+          "pspName" -> pspName,
           "submitUrl" -> routes.ConfirmNameController.onSubmit().url,
           "radios" -> Radios.yesNo (preparedForm("value"))
         )
@@ -74,6 +75,7 @@ class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
 
             val json = Json.obj(
               "form"   -> formWithErrors,
+              "pspName" -> pspName,
               "submitUrl"   -> routes.ConfirmNameController.onSubmit().url,
               "radios" -> Radios.yesNo(formWithErrors("value"))
             )
