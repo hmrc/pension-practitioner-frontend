@@ -1,32 +1,32 @@
 #!/bin/bash
 
 echo ""
-echo "Applying migration ConfirmName"
+echo "Applying migration ConfirmAddress"
 
 echo "Adding routes to conf/app.routes"
 
 echo "" >> ../conf/app.routes
-echo "GET        /confirmName                        controllers.ConfirmNameController.onPageLoad(mode: Mode = NormalMode)" >> ../conf/app.routes
-echo "POST       /confirmName                        controllers.ConfirmNameController.onSubmit(mode: Mode = NormalMode)" >> ../conf/app.routes
+echo "GET        /confirmAddress                        controllers.ConfirmAddressController.onPageLoad(mode: Mode = NormalMode)" >> ../conf/app.routes
+echo "POST       /confirmAddress                        controllers.ConfirmAddressController.onSubmit(mode: Mode = NormalMode)" >> ../conf/app.routes
 
-echo "GET        /changeConfirmName                  controllers.ConfirmNameController.onPageLoad(mode: Mode = CheckMode)" >> ../conf/app.routes
-echo "POST       /changeConfirmName                  controllers.ConfirmNameController.onSubmit(mode: Mode = CheckMode)" >> ../conf/app.routes
+echo "GET        /changeConfirmAddress                  controllers.ConfirmAddressController.onPageLoad(mode: Mode = CheckMode)" >> ../conf/app.routes
+echo "POST       /changeConfirmAddress                  controllers.ConfirmAddressController.onSubmit(mode: Mode = CheckMode)" >> ../conf/app.routes
 
 echo "Adding messages to conf.messages"
 echo "" >> ../conf/messages.en
-echo "confirmName.title = confirmName" >> ../conf/messages.en
-echo "confirmName.heading = confirmName" >> ../conf/messages.en
-echo "confirmName.checkYourAnswersLabel = confirmName" >> ../conf/messages.en
-echo "confirmName.error.required = Select yes if confirmName" >> ../conf/messages.en
+echo "confirmAddress.title = confirmAddress" >> ../conf/messages.en
+echo "confirmAddress.heading = confirmAddress" >> ../conf/messages.en
+echo "confirmAddress.checkYourAnswersLabel = confirmAddress" >> ../conf/messages.en
+echo "confirmAddress.error.required = Select yes if confirmAddress" >> ../conf/messages.en
 
 echo "Adding to UserAnswersEntryGenerators"
 awk '/trait UserAnswersEntryGenerators/ {\
     print;\
     print "";\
-    print "  implicit lazy val arbitraryConfirmNameUserAnswersEntry: Arbitrary[(ConfirmNamePage.type, JsValue)] =";\
+    print "  implicit lazy val arbitraryConfirmAddressUserAnswersEntry: Arbitrary[(ConfirmAddressPage.type, JsValue)] =";\
     print "    Arbitrary {";\
     print "      for {";\
-    print "        page  <- arbitrary[ConfirmNamePage.type]";\
+    print "        page  <- arbitrary[ConfirmAddressPage.type]";\
     print "        value <- arbitrary[Boolean].map(Json.toJson(_))";\
     print "      } yield (page, value)";\
     print "    }";\
@@ -36,34 +36,34 @@ echo "Adding to PageGenerators"
 awk '/trait PageGenerators/ {\
     print;\
     print "";\
-    print "  implicit lazy val arbitraryConfirmNamePage: Arbitrary[ConfirmNamePage.type] =";\
-    print "    Arbitrary(ConfirmNamePage)";\
+    print "  implicit lazy val arbitraryConfirmAddressPage: Arbitrary[ConfirmAddressPage.type] =";\
+    print "    Arbitrary(ConfirmAddressPage)";\
     next }1' ../test/generators/PageGenerators.scala > tmp && mv tmp ../test/generators/PageGenerators.scala
 
 echo "Adding to UserAnswersGenerator"
 awk '/val generators/ {\
     print;\
-    print "    arbitrary[(ConfirmNamePage.type, JsValue)] ::";\
+    print "    arbitrary[(ConfirmAddressPage.type, JsValue)] ::";\
     next }1' ../test/generators/UserAnswersGenerator.scala > tmp && mv tmp ../test/generators/UserAnswersGenerator.scala
 
 echo "Adding helper method to CheckYourAnswersHelper"
 awk '/class CheckYourAnswersHelper/ {\
      print;\
      print "";\
-     print "  def confirmName: Option[Row] = userAnswers.get(ConfirmNamePage) map {";\
+     print "  def confirmAddress: Option[Row] = userAnswers.get(ConfirmAddressPage) map {";\
      print "    answer =>";\
      print "      Row(";\
-     print "        key     = Key(msg\"confirmName.checkYourAnswersLabel\", classes = Seq(\"govuk-!-width-one-half\")),";\
+     print "        key     = Key(msg\"confirmAddress.checkYourAnswersLabel\", classes = Seq(\"govuk-!-width-one-half\")),";\
      print "        value   = Value(yesOrNo(answer)),";\
      print "        actions = List(";\
      print "          Action(";\
      print "            content            = msg\"site.edit\",";\
-     print "            href               = controllers.routes.ConfirmNameController.onPageLoad(CheckMode).url,";\
-     print "            visuallyHiddenText = Some(msg\"site.edit.hidden\".withArgs(msg\"confirmName.checkYourAnswersLabel\"))";\
+     print "            href               = controllers.routes.ConfirmAddressController.onPageLoad(CheckMode).url,";\
+     print "            visuallyHiddenText = Some(msg\"site.edit.hidden\".withArgs(msg\"confirmAddress.checkYourAnswersLabel\"))";\
      print "          )";\
      print "        )";\
      print "      )";\
      print "  }";\
      next }1' ../app/utils/CYAHelper.scala > tmp && mv tmp ../app/utils/CYAHelper.scala
 
-echo "Migration ConfirmName completed"
+echo "Migration ConfirmAddress completed"
