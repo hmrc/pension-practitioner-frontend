@@ -14,20 +14,10 @@
  * limitations under the License.
  */
 
-package forms.register.company
+package forms
 
-import forms.FormErrorHelper
-import forms.mappings.UtrMapping
-import play.api.data.Form
+import play.api.data.FormError
 
-class BusinessUTRFormProvider extends FormErrorHelper with UtrMapping {
-
-  def apply: Form[String] =
-    Form(
-      "value" ->
-        utrMapping(
-          requiredKey = "businessUTR.error.required",
-          invalidKey = "businessUTR.error.invalid"
-        )
-    )
+trait FormErrorHelper {
+  def produceError(key: String, error: String) = Left(Seq(FormError(key, error)))
 }

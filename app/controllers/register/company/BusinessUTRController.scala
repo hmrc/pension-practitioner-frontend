@@ -22,8 +22,10 @@ import controllers.actions._
 import forms.register.company.BusinessUTRFormProvider
 import javax.inject.Inject
 import models.NormalMode
+import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.register.company.BusinessUTRPage
+import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
@@ -49,7 +51,8 @@ class BusinessUTRController @Inject()(override val messagesApi: MessagesApi,
                                       renderer: Renderer
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
 
-  private val form = formProvider()
+  protected def form
+    (implicit request: DataRequest[AnyContent]): Form[String] = formProvider.apply
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>

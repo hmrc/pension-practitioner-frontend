@@ -28,6 +28,7 @@ trait Constraints {
   lazy val nameRegex: String = """^[a-zA-Z &`\-\'\.^]*$"""
   private val regexCrn = "^[A-Za-z0-9 -]{8}$"
   val addressLineRegex = """^[A-Za-z0-9 \-,.&'\/]{1,35}$"""
+  protected val utrRegex = """^\d{10}$"""
 
   protected def firstError[A](constraints: Constraint[A]*): Constraint[A] =
     Constraint {
@@ -190,4 +191,6 @@ trait Constraints {
     case _ =>
       Invalid(invalidKey, addressLineRegex)
   }
+
+  protected def uniqueTaxReference(errorKey: String): Constraint[String] = regexp(utrRegex, errorKey)
 }
