@@ -22,6 +22,7 @@ import play.api.data.validation.Constraint
 import play.api.data.validation.Invalid
 import play.api.data.validation.Valid
 import uk.gov.hmrc.domain.Nino
+import utils.countryOptions.CountryOptions
 
 trait Constraints {
   private val regexPostcode = """^[A-Z]{1,2}[0-9][0-9A-Z]?\s?[0-9][A-Z]{2}$"""
@@ -183,6 +184,7 @@ trait Constraints {
     }
 
   protected def validAddressLine(invalidKey: String): Constraint[String] = regexp(addressLineRegex, invalidKey)
+
   protected def optionalValidAddressLine(invalidKey: String): Constraint[Option[String]] = Constraint {
     case Some(str) if str.matches(addressLineRegex) =>
       Valid
@@ -190,4 +192,13 @@ trait Constraints {
     case _ =>
       Invalid(invalidKey, addressLineRegex)
   }
+
+  protected def country(countryOptions: CountryOptions, errorKey: String): Constraint[String] =
+    Constraint {
+      input =>
+        countryOptions.options
+          .find(_.value == input)
+          .map(_ => Valid)
+          .getOrElse(Invalid(errorKey))
+    }
 }

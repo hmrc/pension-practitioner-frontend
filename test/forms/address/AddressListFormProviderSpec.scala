@@ -14,21 +14,26 @@
  * limitations under the License.
  */
 
-package controllers
+package forms.address
 
-import models.requests.DataRequest
-import pages.register.company.CompanyPostcodePage
-import play.api.mvc.AnyContent
-import play.api.mvc.Result
+import forms.behaviours.FormBehaviours
 
-import scala.concurrent.Future
+class AddressListFormProviderSpec extends FormBehaviours {
 
-object DataRetrievals {
+  val validData: Map[String, String] = Map(
+    "value" -> "0"
+  )
 
-  def retrieveCompanyName(block: String => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    block("psp")
+  val form = new AddressListFormProvider()("error.required")
+
+  "AddressList form" must {
+
+    behave like questionForm[Int](0)
+
+    "fail to bind when value is omitted" in {
+      val expectedError = error("value", "error.required")
+      checkForError(form, emptyForm, expectedError)
+    }
   }
-
-
 
 }

@@ -14,21 +14,26 @@
  * limitations under the License.
  */
 
-package controllers
+package forms.address
 
-import models.requests.DataRequest
-import pages.register.company.CompanyPostcodePage
-import play.api.mvc.AnyContent
-import play.api.mvc.Result
+import forms.behaviours.AddressBehaviours
 
-import scala.concurrent.Future
+class PostcodeFormProviderSpec extends AddressBehaviours {
 
-object DataRetrievals {
 
-  def retrieveCompanyName(block: String => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    block("psp")
+  private val requiredKey = "error.postcode.required"
+  private val invalid = "error.postcode.invalid"
+  private val fieldName = "value"
+
+  val form = new PostcodeFormProvider()(requiredKey, invalid)
+
+  ".value" must {
+    behave like formWithPostCode(
+      form,
+      fieldName,
+      requiredKey,
+      invalid
+    )
   }
-
-
 
 }

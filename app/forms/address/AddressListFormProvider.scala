@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package controllers
+package forms.address
 
-import models.requests.DataRequest
-import pages.register.company.CompanyPostcodePage
-import play.api.mvc.AnyContent
-import play.api.mvc.Result
+import forms.mappings.Mappings
+import javax.inject.Inject
+import play.api.data.Form
 
-import scala.concurrent.Future
+class AddressListFormProvider @Inject() extends Mappings {
 
-object DataRetrievals {
-
-  def retrieveCompanyName(block: String => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    block("psp")
-  }
-
-
-
+  def apply(requiredError: String): Form[Int] = Form("value" -> int(requiredError))
 }
