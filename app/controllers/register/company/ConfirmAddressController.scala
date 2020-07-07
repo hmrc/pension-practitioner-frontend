@@ -23,18 +23,30 @@ import controllers.DataRetrievals
 import controllers.actions._
 import forms.register.company.ConfirmAddressFormProvider
 import javax.inject.Inject
-import models.Mode
 import models.NormalMode
+import models.TolerantAddress
+import models.register.BusinessType
 import models.register.Organisation
+import models.register.OrganisationRegisterWithIdResponse
+import models.register.OrganisationRegistration
+import models.register.RegistrationCustomerType
+import models.register.RegistrationInfo
+import models.register.RegistrationLegalStatus
+import models.register.RegistrationLegalStatus.LimitedCompany
+import models.requests.DataRequest
 import navigators.CompoundNavigator
-import pages.register.company.{BusinessUTRPage, ConfirmAddressPage}
+import pages.register.BusinessTypePage
+import pages.register.company.CompanyNamePage
+import pages.register.company.RegistrationInfoPage
+import pages.register.company.BusinessUTRPage
+import pages.register.company.ConfirmAddressPage
 import play.api.i18n.I18nSupport
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
-import play.api.mvc.Results.Redirect
+import play.api.mvc.Result
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
@@ -58,29 +70,47 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
 
   private val form = formProvider()
 
+  private def retrieveDataForRegistration(block: (String, String, BusinessType) => Future[Result])(implicit
+    request: DataRequest[AnyContent]): Future[Result] = {
+    (request.userAnswers.get(CompanyNamePage),
+      request.userAnswers.get(BusinessUTRPage),
+      request.userAnswers.get(BusinessTypePage) ) match {
+      case (Some(pspName), Some(utr), Some(businessType)) =>
+          block (pspName, utr, businessType)
+      case _  => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+    }
+  }
+
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      DataRetrievals.retrieveCompanyName { pspName =>
-        val preparedForm = request.userAnswers.get (ConfirmAddressPage) match {
-          case None => form
-          case Some (value) => form.fill (value)
-        }
-        request.userAnswers.get(BusinessUTRPage) match {
-          case None => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
-          case Some (utr) =>
-            val organisation = Organisation(pspName,)
-            val address = registrationConnector.registerWithIdOrganisation(utr)
+      retrieveDataForRegistration { (pspName, utr, businessType) =>
+        val organisation = Organisation(pspName,businessType)
+       //registrationConnector.registerWithIdOrganisation(utr, organisation, LimitedCompany).flatMap { reg =>
+        val or = OrganisationRegistration(
+          OrganisationRegisterWithIdResponse(
+            organisation,
+            TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
+          ),
+          RegistrationInfo(RegistrationLegalStatus.LimitedCompany, "", false, RegistrationCustomerType.UK, None, None)
+        )
+        
+        Future.successful(or).flatMap{ reg =>
+          val ua = request.userAnswers
+            .setOrException(ConfirmAddressPage, reg.response.address)
+            .setOrException(CompanyNamePage, reg.response.organisation.organisationName)
+            .setOrException(RegistrationInfoPage, reg.info)
+
+          userAnswersCacheConnector.save(ua.data).flatMap{ _ =>
             val json = Json.obj(
-              "form" -> preparedForm,
-              "pspName" -> pspName,
+              "form" -> form, "pspName" -> pspName,
+              "address" -> reg.response.address.lines,
               "submitUrl" -> routes.ConfirmAddressController.onSubmit().url,
-              "radios" -> Radios.yesNo (preparedForm("value"))
-            )
+              "radios" -> Radios.yesNo(form("value")))
 
-            renderer.render ("register/company/confirmAddress.njk", json).map(Ok (_))
+            renderer.render("register/company/confirmAddress.njk", json).map(Ok(_))
+          }
         }
-
-    }
+      }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -98,11 +128,17 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
 
             renderer.render("register/company/confirmAddress.njk", json).map(BadRequest(_))
           },
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(ConfirmAddressPage, value))
-              _ <- userAnswersCacheConnector.save( updatedAnswers.data)
-            } yield Redirect(navigator.nextPage(ConfirmAddressPage, NormalMode, updatedAnswers))
+          {
+            case true =>
+              Future.successful(Redirect(navigator.nextPage(ConfirmAddressPage, NormalMode, request.userAnswers)))
+            case false =>
+              val updatedAnswers = request.userAnswers
+                .removeOrException(ConfirmAddressPage)
+                .removeOrException(RegistrationInfoPage)
+                userAnswersCacheConnector.save(updatedAnswers.data).map { _ =>
+                  Redirect(controllers.routes.SessionExpiredController.onPageLoad())
+                }
+          }
         )
       }
   }

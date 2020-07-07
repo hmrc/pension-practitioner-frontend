@@ -25,17 +25,11 @@ import play.api.mvc.Results.Redirect
 import scala.concurrent.Future
 
 object DataRetrievals {
-
   def retrieveCompanyName(block: String => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
     request.userAnswers.get(CompanyNamePage) match {
 
       case Some(value) => block(value)
       case _  => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
     }
-
-
   }
-
-
-
 }
