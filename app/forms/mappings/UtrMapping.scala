@@ -14,20 +14,25 @@
  * limitations under the License.
  */
 
-package forms.register.company
+package forms.mappings
 
-import forms.FormErrorHelper
-import forms.mappings.UtrMapping
-import play.api.data.Form
+import play.api.data.Mapping
 
-class BusinessUTRFormProvider extends FormErrorHelper with UtrMapping {
+trait UtrMapping extends Mappings with Transforms {
 
-  def apply: Form[String] =
-    Form(
-      "value" ->
-        utrMapping(
-          requiredKey = "businessUTR.error.required",
-          invalidKey = "businessUTR.error.invalid"
-        )
+  def utrMapping(requiredKey: String,
+    invalidKey: String
+                ): Mapping[String] = {
+    text(requiredKey)
+    .transform(strip, noTransform)
+    .verifying(
+      uniqueTaxReference(invalidKey)
     )
+  }
+
+}
+
+object UtrMapping {
+  val utrMaxLength: Int = 10
+  val reasonMaxLength: Int = 160
 }

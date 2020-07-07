@@ -18,7 +18,7 @@ package forms.behaviours
 
 import play.api.data.{Form, FormError}
 
-trait OptionFieldBehaviours extends FieldBehaviours {
+class OptionFieldBehaviours extends FieldBehaviours {
 
   def optionsField[T](form: Form[_],
                       fieldName: String,
@@ -26,16 +26,16 @@ trait OptionFieldBehaviours extends FieldBehaviours {
                       invalidError: FormError): Unit = {
 
 
-    "must bind all valid values" in {
+    "bind all valid values" in {
 
-      for(value <- validValues) {
+      for (value <- validValues) {
 
         val result = form.bind(Map(fieldName -> value.toString)).apply(fieldName)
-        result.value.value mustEqual value.toString
+        result.value.value shouldEqual value.toString
       }
     }
 
-    "must not bind invalid values" in {
+    "not bind invalid values" in {
 
       val generator = stringsExceptSpecificValues(validValues.map(_.toString))
 
@@ -43,7 +43,7 @@ trait OptionFieldBehaviours extends FieldBehaviours {
         value =>
 
           val result = form.bind(Map(fieldName -> value)).apply(fieldName)
-          result.errors mustEqual Seq(invalidError)
+          result.errors shouldEqual Seq(invalidError)
       }
     }
   }
