@@ -54,7 +54,7 @@ trait AddressMappings extends Mappings with Constraints with Transforms {
 
   def postCodeWithCountryMapping(keyRequired: String, keyInvalid: String, keyNonUKLength: String): Mapping[Option[String]] = {
 
-    val fieldName = "postCode"
+    val fieldName = "postcode"
 
     def bind(data: Map[String, String]): Either[Seq[FormError], Option[String]] = {
       val postCode = postCodeDataTransform(data.get(fieldName))

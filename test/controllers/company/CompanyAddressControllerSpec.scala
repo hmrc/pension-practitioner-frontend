@@ -86,7 +86,7 @@ class CompanyAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-    when(countryOptions.options).thenReturn(Seq(InputOption("United Arab Emirates", "country:AE")))
+    when(countryOptions.options).thenReturn(Seq(InputOption("UK", "United Kingdom")))
   }
 
   "CompanyAddress Controller" must {
@@ -116,9 +116,9 @@ class CompanyAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
 
     "Save data to user answers and redirect to next page when valid data is submitted" in {
 
-      val expectedJson = Json.obj("company" -> Json.obj(
+      val expectedJson = Json.obj(
           CompanyNamePage.toString -> companyName,
-          CompanyAddressPage.toString -> address))
+          CompanyAddressPage.toString -> address)
 
       when(mockCompoundNavigator.nextPage(Matchers.eq(CompanyAddressPage), any(), any())).thenReturn(dummyCall)
 
@@ -128,7 +128,7 @@ class CompanyAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
       jsonCaptor.getValue must containJson(expectedJson)
-      redirectLocation(result) mustBe Some(dummyCall)
+      redirectLocation(result) mustBe Some(dummyCall.url)
 
     }
 

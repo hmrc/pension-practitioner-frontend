@@ -63,6 +63,7 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
 
         form.bindFromRequest().fold(
           formWithErrors => {
+            println(s"\n\n\n >>>>>>>>>>>>>>>>>>>>>>>>>> $formWithErrors")
             getJson(mode, formWithErrors) { json =>
               renderer.render("address/manualAddress.njk", json).map(BadRequest(_))
             }
