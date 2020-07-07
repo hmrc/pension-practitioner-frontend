@@ -16,18 +16,24 @@
 
 package forms
 
-import org.scalatest.OptionValues
-import org.scalatestplus.play.PlaySpec
+import config.FrontendAppConfig
+import org.scalatest.{Matchers, OptionValues, WordSpec}
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Environment
 import play.api.data.{Form, FormError}
+import play.api.i18n.{Messages, MessagesApi}
+import play.api.inject.Injector
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.test.FakeRequest
 
-trait FormSpec extends PlaySpec with OptionValues {
+trait FormSpec extends WordSpec with OptionValues with Matchers with GuiceOneAppPerSuite {
 
   def checkForError(form: Form[_], data: Map[String, String], expectedErrors: Seq[FormError]) = {
 
     form.bind(data).fold(
       formWithErrors => {
-        for (error <- expectedErrors) formWithErrors.errors must contain(FormError(error.key, error.message, error.args))
-        formWithErrors.errors.size mustBe expectedErrors.size
+        for (error <- expectedErrors) formWithErrors.errors should contain(FormError(error.key, error.message, error.args))
+        formWithErrors.errors.size shouldBe expectedErrors.size
       },
       form => {
         fail("Expected a validation error when binding the form, but it was bound successfully.")
@@ -38,4 +44,19 @@ trait FormSpec extends PlaySpec with OptionValues {
   def error(key: String, value: String, args: Any*) = Seq(FormError(key, value, args))
 
   lazy val emptyForm = Map[String, String]()
+
+  override lazy val app = new GuiceApplicationBuilder()
+    .build()
+
+  def injector: Injector = app.injector
+
+  def frontendAppConfig: FrontendAppConfig = injector.instanceOf[FrontendAppConfig]
+
+  def messagesApi: MessagesApi = injector.instanceOf[MessagesApi]
+
+  def fakeRequest = FakeRequest("", "")
+
+  implicit def messages: Messages = messagesApi.preferred(fakeRequest)
+
+  def environment: Environment = injector.instanceOf[Environment]
 }

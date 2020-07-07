@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package forms.register.company
+package forms.mappings
 
-import javax.inject.Inject
-import forms.mappings.BusinessNameMapping
-import play.api.data.Form
+import play.api.data.Mapping
 
-class CompanyNameFormProvider @Inject() extends BusinessNameMapping {
-  def apply(
-    requiredKey: String = "companyName.error.required",
-    invalidKey: String = "companyName.error.invalid",
-    lengthKey: String = "companyName.error.length"
-  ): Form[String] =
+trait UtrMapping extends Mappings with Transforms {
 
-    Form("value" -> nameMapping(requiredKey, invalidKey, lengthKey))
+  def utrMapping(requiredKey: String,
+    invalidKey: String
+                ): Mapping[String] = {
+    text(requiredKey)
+    .transform(strip, noTransform)
+    .verifying(
+      uniqueTaxReference(invalidKey)
+    )
+  }
+
 }
+

@@ -16,31 +16,28 @@
 
 package forms.register.company
 
-import forms.behaviours.StringFieldBehaviours
-import play.api.data.FormError
+import forms.behaviours.UtrBehaviour
 
-class BusinessUTRFormProviderSpec extends StringFieldBehaviours {
-
+class BusinessUTRFormProviderSpec extends UtrBehaviour {
   val requiredKey = "businessUTR.error.required"
-  val lengthKey = "businessUTR.error.length"
-  val maxLength = 10
+  val invalidKey = "businessUTR.error.invalid"
 
-  val form = new BusinessUTRFormProvider()()
+  private val fieldName: String = "value"
 
-  ".value" must {
+  "A form with a Utr" should {
+    val testForm = (new BusinessUTRFormProvider).apply
 
-    val fieldName = "value"
-
-    behave like fieldThatBindsValidData(
-      form,
-      fieldName,
-      stringsWithMaxLength(maxLength)
+    behave like formWithUniqueTaxReference[String](
+      testForm,
+      fieldName = fieldName,
+      requiredKey: String,
+      invalidKey: String
     )
 
-    behave like mandatoryField(
-      form,
-      fieldName,
-      requiredError = FormError(fieldName, requiredKey)
-    )
+    "remove spaces for valid value" in {
+      val actual = testForm.bind(Map(fieldName -> "  123 456 7890 "))
+      actual.errors.isEmpty shouldBe true
+      actual.value shouldBe Some("1234567890")
+    }
   }
 }

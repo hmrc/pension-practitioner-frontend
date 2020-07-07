@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-package forms.register.company
+package forms
 
-import javax.inject.Inject
-import forms.mappings.BusinessNameMapping
-import play.api.data.Form
+import play.api.data.FormError
 
-class CompanyNameFormProvider @Inject() extends BusinessNameMapping {
-  def apply(
-    requiredKey: String = "companyName.error.required",
-    invalidKey: String = "companyName.error.invalid",
-    lengthKey: String = "companyName.error.length"
-  ): Form[String] =
-
-    Form("value" -> nameMapping(requiredKey, invalidKey, lengthKey))
+trait FormErrorHelper {
+  def produceError(key: String, error: String) = Left(Seq(FormError(key, error)))
 }
