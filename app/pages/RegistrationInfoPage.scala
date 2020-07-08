@@ -16,7 +16,7 @@
 
 package pages
 
-import models.registration.RegistrationInfo
+import models.register.RegistrationInfo
 import play.api.libs.json.JsPath
 
 case object RegistrationInfoPage extends QuestionPage[RegistrationInfo] {

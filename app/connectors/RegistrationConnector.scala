@@ -21,14 +21,16 @@ import java.time.LocalDate
 import com.google.inject.{ImplementedBy, Inject}
 import config.FrontendAppConfig
 import javax.inject.Singleton
-import models._
-import models.registration._
+import models.{register, _}
+import models.register._
 import play.Logger
 import play.api.http.Status
 import play.api.libs.json._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import java.time.LocalDate
+
+import models.register._
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Failure
@@ -191,7 +193,7 @@ class RegistrationConnectorImpl @Inject()(http: HttpClient,
 
     json.validate[String](readsSapNumber) match {
       case JsSuccess(sapNumber, _) =>
-        RegistrationInfo(legalStatus, sapNumber, noIdentifier = noIdentifier, customerType, idType, idNumber)
+        register.RegistrationInfo(legalStatus, sapNumber, noIdentifier = noIdentifier, customerType, idType, idNumber)
       case JsError(errors) => throw JsResultException(errors)
     }
   }

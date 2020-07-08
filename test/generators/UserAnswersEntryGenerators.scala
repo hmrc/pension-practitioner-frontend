@@ -17,15 +17,50 @@
 package generators
 
 import models.WhatTypeBusiness
+import models.register.BusinessType
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Arbitrary
 import pages.WhatTypeBusinessPage
+import pages.register.BusinessTypePage
 import pages.register.AreYouUKCompanyPage
+import pages.register.company.{BusinessUTRPage, CompanyNamePage, ConfirmNamePage}
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
 
 
 trait UserAnswersEntryGenerators extends PageGenerators with ModelGenerators {
+
+  implicit lazy val arbitraryConfirmNameUserAnswersEntry: Arbitrary[(ConfirmNamePage.type, JsValue)] =
+    Arbitrary {
+      for {
+        page  <- arbitrary[ConfirmNamePage.type]
+        value <- arbitrary[Boolean].map(Json.toJson(_))
+      } yield (page, value)
+    }
+
+  implicit lazy val arbitraryCompanyNameUserAnswersEntry: Arbitrary[(CompanyNamePage.type, JsValue)] =
+    Arbitrary {
+      for {
+        page  <- arbitrary[CompanyNamePage.type]
+        value <- arbitrary[String].suchThat(_.nonEmpty).map(Json.toJson(_))
+      } yield (page, value)
+    }
+
+  implicit lazy val arbitraryBusinessUTRUserAnswersEntry: Arbitrary[(BusinessUTRPage.type, JsValue)] =
+    Arbitrary {
+      for {
+        page  <- arbitrary[BusinessUTRPage.type]
+        value <- arbitrary[String].suchThat(_.nonEmpty).map(Json.toJson(_))
+      } yield (page, value)
+    }
+
+  implicit lazy val arbitraryBusinessTypeUserAnswersEntry: Arbitrary[(BusinessTypePage.type, JsValue)] =
+    Arbitrary {
+      for {
+        page  <- arbitrary[BusinessTypePage.type]
+        value <- arbitrary[BusinessType].map(Json.toJson(_))
+      } yield (page, value)
+    }
 
   implicit lazy val arbitraryAreYouUKCompanyUserAnswersEntry: Arbitrary[(AreYouUKCompanyPage.type, JsValue)] =
     Arbitrary {

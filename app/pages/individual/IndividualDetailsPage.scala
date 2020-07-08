@@ -16,7 +16,7 @@
 
 package pages.individual
 
-import models.registration.TolerantIndividual
+import models.register.TolerantIndividual
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 

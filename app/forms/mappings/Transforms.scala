@@ -66,4 +66,8 @@ trait Transforms {
     value.map(s => strip(s).toUpperCase()).filter(_.nonEmpty)
   }
 
+  def standardTextTransform(value: String): String = {
+    value.trim
+  }
+
 }

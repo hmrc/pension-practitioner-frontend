@@ -77,7 +77,7 @@ trait Formatters extends Transforms with Constraints {
     new Formatter[String] {
 
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] =
-        data.get(key) match {
+        data.get(key).map(_.trim()) match {
           case None | Some("") => Left(Seq(FormError(key, errorKey)))
           case Some(s) => Right(s)
         }

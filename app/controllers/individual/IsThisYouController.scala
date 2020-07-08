@@ -47,8 +47,8 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
                                     val controllerComponents: MessagesControllerComponents,
                                     config: FrontendAppConfig,
                                     renderer: Renderer
-                                                  )(implicit val executionContext: ExecutionContext
-                                                  ) extends FrontendBaseController with I18nSupport with NunjucksSupport {
+                                   )(implicit val executionContext: ExecutionContext
+                                   ) extends FrontendBaseController with I18nSupport with NunjucksSupport {
 
   private val form: Form[Boolean] = formProvider()
 
@@ -67,19 +67,19 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
       )
       (ua.get(IndividualDetailsPage), ua.get(IndividualAddressPage), ua.get(RegistrationInfoPage)) match {
         case (Some(individual), Some(address), Some(_)) =>
-          renderer.render("individual/areYouUKResident.njk", json).map(Ok(_))
+          renderer.render("individual/isThisYou.njk", json).map(Ok(_))
         case _ =>
           request.user.nino match {
             case Some(nino) =>
-              for {
+              (for {
                 registration <- registrationConnector.registerWithIdIndividual(nino)
                 uaWithIndvDetails <- Future.fromTry(ua.set(IndividualDetailsPage, registration.response.individual))
                 uaWithIndvAddress <- Future.fromTry(uaWithIndvDetails.set(IndividualAddressPage, registration.response.address))
                 uaWithIndvRegInfo <- Future.fromTry(uaWithIndvAddress.set(RegistrationInfoPage, registration.info))
                 _ <- userAnswersCacheConnector.save(uaWithIndvRegInfo.data)
               } yield {
-                renderer.render("individual/isThisYou.njk", json).map(Ok(_))
-              }
+                renderer.render("individual/isThisYou.njk", json)
+              }).map(Ok(_))
             case _ =>
               Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
           }
@@ -99,7 +99,7 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
           )
           (ua.get(IndividualDetailsPage), ua.get(IndividualAddressPage)) match {
             case (Some(individualDetails), Some(individualAddress)) =>
-              renderer.render("individual/areYouUKResident.njk", json).map(BadRequest(_))
+              renderer.render("individual/isThisYou.njk", json).map(BadRequest(_))
             case _ =>
               Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
           }

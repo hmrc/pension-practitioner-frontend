@@ -19,8 +19,9 @@ package utils.countryOptions
 import com.typesafe.config.ConfigException
 import config.FrontendAppConfig
 import javax.inject.{Inject, Singleton}
-import models.{Address, InternationalRegion, TolerantAddress}
-import models.InternationalRegion.{EuEea, RestOfTheWorld, UK}
+import models.register.InternationalRegion
+import models.register.InternationalRegion.{EuEea, RestOfTheWorld, UK}
+import models.{Address, TolerantAddress}
 import play.api.Environment
 import play.api.libs.json.Json
 import utils.InputOption

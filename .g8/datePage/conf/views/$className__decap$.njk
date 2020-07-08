@@ -29,7 +29,7 @@
           {{ govukDateInput({
             fieldset: {
               legend: {
-                text: messages('$className;format="decap"$.title'),
+                text: messages('$className;format="decap"$.heading'),
                 isPageHeading: true,
                 classes: "govuk-fieldset__legend--xl"
               }
@@ -42,7 +42,7 @@
           }) }}
 
           {{ govukButton({
-            text: messages("site.continue"),
+            text: messages("site.save_and_continue"),
             attributes: {id: "submit"}
           }) }}
 
