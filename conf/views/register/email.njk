@@ -26,7 +26,7 @@
 
          <p class="govuk-body"> {{ messages("email.hint") }} </p>
 
-        <form action="{{ submitUrl }}" method="post">
+        <form action="{{ submitUrl }}" method="post" novalidate>
 
           {{ csrf() | safe }}
 
@@ -39,7 +39,8 @@
             id: "value",
             name: "value",
             value: form.value.value,
-            classes: "govuk-input--width-10",
+            type: "email",
+            classes: "govuk-!-width-three-quarters",
             attributes: {autocomplete: "none"},
             errorMessage: form.value.error
           }) }}
