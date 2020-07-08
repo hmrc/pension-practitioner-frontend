@@ -1,4 +1,7 @@
 import sbt._
+import uk.gov.hmrc.SbtAutoBuildPlugin
+import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
+import uk.gov.hmrc.versioning.SbtGitVersioning
 
 object AppDependencies {
   import play.core.PlayVersion

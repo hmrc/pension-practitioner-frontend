@@ -17,6 +17,7 @@
 package data
 
 import models.UserAnswers
+import pages.register.company.CompanyNamePage
 import play.api.libs.json.Json
 
 object SampleData {
@@ -27,8 +28,6 @@ object SampleData {
 
   def emptyUserAnswers: UserAnswers = UserAnswers()
 
-  def userAnswersWithPspName: UserAnswers =
-    UserAnswers(Json.obj(
-      "schemeName" -> pspName)
-    )
+  def userAnswersWithCompanyName: UserAnswers =
+    UserAnswers().setOrException(CompanyNamePage, pspName)
 }

@@ -16,31 +16,23 @@
 
 package controllers
 
-import config.FrontendAppConfig
-import connectors.cache.UserAnswersCacheConnector
-import controllers.actions.{DataRequiredAction, DataRequiredActionImpl, FakeIdentifierAction, IdentifierAction}
 import controllers.base.ControllerSpecBase
 import data.SampleData._
 import forms.WhatTypeBusinessFormProvider
 import matchers.JsonMatchers
 import models.{UserAnswers, WhatTypeBusiness}
-import navigators.CompoundNavigator
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.WhatTypeBusinessPage
-import play.api.inject.bind
-import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthWithNoIV
 
 import scala.concurrent.Future
 
@@ -54,22 +46,13 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
   private val formProvider = new WhatTypeBusinessFormProvider()
   private val form = formProvider()
 
-  override def modules: Seq[GuiceableModule] = Seq(
-    bind[DataRequiredAction].to[DataRequiredActionImpl],
-    bind[IdentifierAction].qualifiedWith(classOf[AuthWithNoIV]).to[FakeIdentifierAction],
-    bind[NunjucksRenderer].toInstance(mockRenderer),
-    bind[FrontendAppConfig].toInstance(mockAppConfig),
-    bind[UserAnswersCacheConnector].toInstance(mockUserAnswersCacheConnector),
-    bind[CompoundNavigator].toInstance(mockCompoundNavigator)
-  )
-
-  private val answers: UserAnswers = userAnswersWithPspName.set(WhatTypeBusinessPage, WhatTypeBusiness.values.head).success.value
+  val answers: UserAnswers = userAnswersWithCompanyName.set(WhatTypeBusinessPage, WhatTypeBusiness.values.head).success.value
 
   "WhatTypeBusiness Controller" must {
     "return OK and the correct view for a GET" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName)).overrides().build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName)).overrides().build()
       val request = FakeRequest(GET, whatTypeBusinessRoute)
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
@@ -119,7 +102,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName)).overrides().build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName)).overrides().build()
 
       val request = FakeRequest(POST, whatTypeBusinessRoute).withFormUrlEncodedBody(("value", WhatTypeBusiness.values.head.toString))
 
@@ -135,7 +118,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
     "return a Bad Request and errors when invalid data is submitted" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName)).overrides().build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName)).overrides().build()
       val request = FakeRequest(POST, whatTypeBusinessRoute).withFormUrlEncodedBody(("value", "invalid value"))
       val boundForm = form.bind(Map("value" -> "invalid value"))
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])

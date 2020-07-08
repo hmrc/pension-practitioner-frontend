@@ -37,7 +37,7 @@ class Module extends AbstractModule {
 
 
     navigators.addBinding().to(classOf[PractitionerNavigator])
-
+    navigators.addBinding().to(classOf[CompanyNavigator])
 
     bind(classOf[CompoundNavigator]).to(classOf[CompoundNavigatorImpl])
 

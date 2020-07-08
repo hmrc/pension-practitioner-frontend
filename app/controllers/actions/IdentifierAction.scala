@@ -22,19 +22,28 @@ import connectors.IdentityVerificationConnector
 import connectors.cache.UserAnswersCacheConnector
 import models.UserAnswers
 import models.requests.UserType.UserType
-import models.requests.{IdentifierRequest, PSPUser, UserType}
-import pages.{AreYouInUKPage, JourneyPage, QuestionPage, RegisterAsBusinessPage}
-import play.api.libs.json.{JsObject, Json, Reads}
+import models.requests.IdentifierRequest
+import models.requests.PSPUser
+import models.requests.UserType
+import pages.AreYouInUKPage
+import pages.JourneyPage
+import pages.QuestionPage
+import pages.RegisterAsBusinessPage
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
+import play.api.libs.json.Reads
 import play.api.mvc.Results._
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AffinityGroup._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.UnauthorizedException
 import uk.gov.hmrc.play.HeaderCarrierConverter
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 class AuthenticatedIdentifierActionWithIV @Inject()(override val authConnector: AuthConnector,
                                                     config: FrontendAppConfig,
