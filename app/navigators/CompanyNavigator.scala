@@ -21,9 +21,10 @@ import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import models.UserAnswers
 import pages.Page
-import pages.register.AreYouUKCompanyPage
 import pages.register.company.ConfirmAddressPage
-import pages.register.company.{BusinessUTRPage, CompanyNamePage, ConfirmNamePage}
+import pages.register.company.BusinessUTRPage
+import pages.register.company.CompanyNamePage
+import pages.register.company.ConfirmNamePage
 import play.api.mvc.Call
 
 class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector, config: FrontendAppConfig)

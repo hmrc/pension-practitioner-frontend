@@ -25,6 +25,7 @@ import forms.register.company.ConfirmAddressFormProvider
 import javax.inject.Inject
 import models.NormalMode
 import models.TolerantAddress
+import models.UserAnswers
 import models.register.BusinessType
 import models.register.Organisation
 import models.register.OrganisationRegisterWithIdResponse
@@ -42,6 +43,7 @@ import pages.register.company.BusinessUTRPage
 import pages.register.company.ConfirmAddressPage
 import play.api.i18n.I18nSupport
 import play.api.i18n.MessagesApi
+import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
@@ -145,8 +147,8 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
               val updatedAnswers = request.userAnswers
                 .removeOrException(ConfirmAddressPage)
                 .removeOrException(RegistrationInfoPage)
-                userAnswersCacheConnector.save(updatedAnswers.data).map { _ =>
-                  Redirect(controllers.routes.SessionExpiredController.onPageLoad())
+                userAnswersCacheConnector.save(updatedAnswers.data).map { jsValue =>
+                  Redirect(navigator.nextPage(ConfirmAddressPage, NormalMode, UserAnswers(jsValue.as[JsObject])))
                 }
           }
         )
