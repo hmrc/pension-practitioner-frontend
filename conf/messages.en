@@ -408,3 +408,7 @@ country.EE = Estonia
 
 tellHMRC.title = You need to update the details for before registering
 tellHMRC.heading = You need to update the details for before registering
+tellHMRC.p1 = If you are a company or a limited liability partnership that is registered with Companies House, you need to inform both
+tellHMRC.companiesHouse = Companies House
+tellHMRC.and = and
+tellHMRC.hmrc = HMRC

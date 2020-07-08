@@ -16,10 +16,12 @@
 
 package controllers.register.company
 
+import config.FrontendAppConfig
 import controllers.actions._
 import javax.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.i18n.MessagesApi
+import play.api.libs.json.Json
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
@@ -33,13 +35,17 @@ class TellHMRCController @Inject()(
     identify: IdentifierAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
+  config: FrontendAppConfig,
     val controllerComponents: MessagesControllerComponents,
     renderer: Renderer
 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-
-      renderer.render("register/company/tellHMRC.njk").map(Ok(_))
+      val json = Json.obj(
+        "companiesHouseUrl" -> config.companiesHouseFileChangesUrl,
+        "hmrcUrl" -> config.hmrcChangesMustReportUrl
+      )
+      renderer.render("register/company/tellHMRC.njk", json).map(Ok(_))
   }
 }
