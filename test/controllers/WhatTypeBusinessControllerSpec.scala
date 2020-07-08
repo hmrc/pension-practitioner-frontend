@@ -20,19 +20,14 @@ import controllers.base.ControllerSpecBase
 import data.SampleData._
 import forms.WhatTypeBusinessFormProvider
 import matchers.JsonMatchers
-import models.WhatTypeBusiness
-import models.UserAnswers
+import models.{UserAnswers, WhatTypeBusiness}
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.when
-import org.scalatest.OptionValues
-import org.scalatest.TryValues
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.WhatTypeBusinessPage
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -43,13 +38,13 @@ import scala.concurrent.Future
 
 class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
 
-  def onwardRoute = Call("GET", "/foo")
+  private def onwardRoute = Call("GET", "/foo")
 
-  def whatTypeBusinessRoute = routes.WhatTypeBusinessController.onPageLoad().url
-  def whatTypeBusinessSubmitRoute = routes.WhatTypeBusinessController.onSubmit().url
+  private def whatTypeBusinessRoute: String = routes.WhatTypeBusinessController.onPageLoad().url
+  private def whatTypeBusinessSubmitRoute: String = routes.WhatTypeBusinessController.onSubmit().url
 
-  val formProvider = new WhatTypeBusinessFormProvider()
-  val form = formProvider()
+  private val formProvider = new WhatTypeBusinessFormProvider()
+  private val form = formProvider()
 
   val answers: UserAnswers = userAnswersWithCompanyName.set(WhatTypeBusinessPage, WhatTypeBusiness.values.head).success.value
 

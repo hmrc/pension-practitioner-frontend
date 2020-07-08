@@ -35,6 +35,8 @@ class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCo
     case WhatTypeBusinessPage => ua.get(WhatTypeBusinessPage) match {
       case Some(WhatTypeBusiness.Companyorpartnership) => controllers.register.routes
         .WhatYouWillNeedController.onPageLoad()
+      case Some(WhatTypeBusiness.Yourselfasindividual) => controllers.individual.routes
+        .WhatYouWillNeedController.onPageLoad()
       case _ => controllers.routes.SessionExpiredController.onPageLoad()
     }
     case WhatYouWillNeedPage => controllers.register.routes.AreYouUKCompanyController.onPageLoad()
