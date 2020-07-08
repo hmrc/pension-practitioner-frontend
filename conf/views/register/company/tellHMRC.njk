@@ -15,12 +15,14 @@
           {{ messages("tellHMRC.heading") }}
         </h1>
 
-        <p class="govuk-body">
-            {{messages("tellHMRC.p1")}}
-            <a href="{{ companiesHouseUrl }}" class="govuk-link"> {{ messages("tellHMRC.companiesHouse") }}</a>
-            {{messages("tellHMRC.and")}}
-            <a href="{{ hmrcUrl }}" class="govuk-link"> {{ messages("tellHMRC.hmrc") }}.</a>
-        </p>
+
+        <p class="govuk-body">{{messages("tellHMRC.p1")}}</p>
+        <ul class="govuk-list govuk-list--bullet">
+          <li><a class="govuk-link" href="{{ companiesHouseUrl }}">{{messages("tellHMRC.aboutBusiness")}}</a> {{messages("tellHMRC.p2")}}</li>
+          <li><a class="govuk-link" href="{{ hmrcUrl }}">{{messages("tellHMRC.tellHMRC.companiesHouse")}}</a> {{messages("tellHMRC.p3")}}</li>
+        </ul>
+
+
 
       </div>
     </div>

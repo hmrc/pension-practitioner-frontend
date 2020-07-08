@@ -409,12 +409,15 @@ country.ZW = Zimbabwe
 country.JM = Jamaica
 country.EE = Estonia
 
-tellHMRC.title = You need to update the details for before registering
-tellHMRC.heading = You need to update the details for before registering
-tellHMRC.p1 = If you are a company or a limited liability partnership that is registered with Companies House, you need to inform both
+tellHMRC.title = You need to update the company՚s details before registering
+tellHMRC.heading = You need to update the company՚s details before registering
+tellHMRC.p1 = You need to tell:
 tellHMRC.companiesHouse = Companies House
-tellHMRC.and = and
+tellHMRC.aboutBusiness = HMRC about changes to your business
+tellHMRC.p2 = , such as changing the business address
+tellHMRC.p3 = if it's a limited company or Limited Liability Partnership (LLP)
 tellHMRC.hmrc = HMRC
+
 
 email.error.invalid = Enter an email address in the correct format, like name@example.com
 email.error.required = Enter {0}’s email address
