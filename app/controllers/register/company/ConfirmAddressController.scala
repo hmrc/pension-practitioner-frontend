@@ -103,10 +103,12 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
             .setOrException(CompanyNamePage, reg.response.organisation.organisationName)
             .setOrException(RegistrationInfoPage, reg.info)
 
+         val formattedAddress = reg.response.address.lines
+
           userAnswersCacheConnector.save(ua.data).flatMap{ _ =>
             val json = Json.obj(
               "form" -> form, "pspName" -> pspName,
-              "address" -> reg.response.address.lines,
+              "address" -> formattedAddress,
               "submitUrl" -> routes.ConfirmAddressController.onSubmit().url,
               "radios" -> Radios.yesNo(form("value")))
 
