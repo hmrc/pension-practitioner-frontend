@@ -29,7 +29,5 @@ object SampleData {
   def emptyUserAnswers: UserAnswers = UserAnswers()
 
   def userAnswersWithCompanyName: UserAnswers =
-    UserAnswers(Json.obj(
-      CompanyNamePage.toString -> pspName)
-    )
+    UserAnswers().setOrException(CompanyNamePage, pspName)
 }

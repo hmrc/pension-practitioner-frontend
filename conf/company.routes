@@ -1,0 +1,24 @@
+
+GET        /addresses/postcode                        controllers.register.company.CompanyPostcodeController.onPageLoad(mode: Mode = NormalMode)
+POST       /addresses/postcode                        controllers.register.company.CompanyPostcodeController.onSubmit(mode: Mode = NormalMode)
+GET        /addresses/change-postcode                 controllers.register.company.CompanyPostcodeController.onPageLoad(mode: Mode = CheckMode)
+POST       /addresses/change-postcode                 controllers.register.company.CompanyPostcodeController.onSubmit(mode: Mode = CheckMode)
+
+GET        /addresses/address-results                 controllers.register.company.CompanyAddressListController.onPageLoad(mode: Mode = NormalMode)
+POST       /addresses/address-results                 controllers.register.company.CompanyAddressListController.onSubmit(mode: Mode = NormalMode)
+GET        /addresses/change-address-results          controllers.register.company.CompanyAddressListController.onPageLoad(mode: Mode = CheckMode)
+POST       /addresses/change-address-results          controllers.register.company.CompanyAddressListController.onSubmit(mode: Mode = CheckMode)
+
+GET        /addresses/address-manual                  controllers.register.company.CompanyAddressController.onPageLoad(mode: Mode = NormalMode)
+POST       /addresses/address-manual                  controllers.register.company.CompanyAddressController.onSubmit(mode: Mode = NormalMode)
+GET        /addresses/change-address-manual           controllers.register.company.CompanyAddressController.onPageLoad(mode: Mode = CheckMode)
+POST       /addresses/change-address-manual           controllers.register.company.CompanyAddressController.onSubmit(mode: Mode = CheckMode)
+
+GET        /business-utr                        controllers.register.company.BusinessUTRController.onPageLoad()
+POST       /business-utr                        controllers.register.company.BusinessUTRController.onSubmit()
+
+GET        /org-name                        controllers.register.company.CompanyNameController.onPageLoad()
+POST       /org-name                        controllers.register.company.CompanyNameController.onSubmit()
+
+GET        /confirm-name                        controllers.register.company.ConfirmNameController.onPageLoad()
+POST       /confirm-name                        controllers.register.company.ConfirmNameController.onSubmit()

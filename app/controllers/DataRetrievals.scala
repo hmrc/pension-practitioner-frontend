@@ -32,10 +32,5 @@ object DataRetrievals {
       case Some(value) => block(value)
       case _  => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
     }
-
-
   }
-
-
-
 }

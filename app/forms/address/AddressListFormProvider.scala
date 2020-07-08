@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package pages.register.company
+package forms.address
 
-import models.TolerantAddress
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import forms.mappings.Mappings
+import javax.inject.Inject
+import play.api.data.Form
 
-case object CompanyNamePage extends QuestionPage[String] {
+class AddressListFormProvider @Inject() extends Mappings {
 
-  override def path: JsPath = JsPath \ "company" \ toString
-  override def toString: String = "name"
+  def apply(requiredError: String): Form[Int] = Form("value" -> int(requiredError))
 }

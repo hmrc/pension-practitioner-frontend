@@ -16,12 +16,12 @@
 
 package pages.register.company
 
-import models.TolerantAddress
+import models.Address
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object CompanyNamePage extends QuestionPage[String] {
+case object CompanyAddressPage extends QuestionPage[Address] {
 
   override def path: JsPath = JsPath \ "company" \ toString
-  override def toString: String = "name"
+  override def toString: String = "address"
 }

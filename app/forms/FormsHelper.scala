@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package pages.register.company
+package forms
 
-import models.TolerantAddress
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import models.requests.DataRequest
+import play.api.data.Form
+import play.api.mvc.AnyContent
 
-case object CompanyNamePage extends QuestionPage[String] {
+object FormsHelper {
 
-  override def path: JsPath = JsPath \ "company" \ toString
-  override def toString: String = "name"
+  def formWithError[A](form: Form[A], message: String)(implicit request: DataRequest[AnyContent]): Form[A] = {
+    form.withError("value", message)
+  }
+
 }
