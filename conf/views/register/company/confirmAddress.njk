@@ -22,6 +22,15 @@
           }) }}
         {% endif %}
 
+
+        <h1 class="govuk-heading-xl">{{messages('confirmAddress.heading',pspName)}}</h1>
+        <p class="govuk-body">
+        <span class="govuk-!-display-block">{{address.addr1}}</span>
+        <span class="govuk-!-display-block">{{address.addr2}}</span>
+        <span class="govuk-!-display-block">{{address.addr3}}</span>
+        <span class="govuk-!-display-block">{{address.addr4}}</span>
+        <span class="govuk-!-display-block">{{address.postcode}}</span>
+        </p>
         <form action="{{ submitUrl }}" method="post">
 
           {{ csrf() | safe }}
@@ -29,13 +38,6 @@
           {{ govukRadios({
             classes: "govuk-radios--inline",
             name: 'value',
-            fieldset: {
-              legend: {
-                text: messages('confirmAddress.heading',pspName),
-                isPageHeading: true,
-                classes: "govuk-fieldset__legend--xl"
-              }
-            },
             items: radios,
             errorMessage: form.value.error
           }) }}
