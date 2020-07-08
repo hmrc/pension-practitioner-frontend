@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package models.registration
+package forms.register
 
-import java.time.LocalDate
+import javax.inject.Inject
 
-import models.Address
-import play.api.libs.json._
+import forms.mappings.Mappings
+import play.api.data.Form
+import models.register.BusinessType
 
-case class RegistrationNoIdIndividualRequest(firstName: String, lastName: String, dateOfBirth: LocalDate, address: Address)
+class BusinessTypeFormProvider @Inject() extends Mappings {
 
-object RegistrationNoIdIndividualRequest {
-
-  implicit val formats: Format[RegistrationNoIdIndividualRequest] = Json.format[RegistrationNoIdIndividualRequest]
+  def apply(): Form[BusinessType] =
+    Form(
+      "value" -> enumerable[BusinessType]("businessType.error.required")
+    )
 }

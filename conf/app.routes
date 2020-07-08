@@ -18,3 +18,8 @@ GET        /what-you-will-need                          controllers.register.Wha
 
 GET        /are-you-in-the-uk-company                        controllers.register.AreYouUKCompanyController.onPageLoad()
 POST       /are-you-in-the-uk-company                        controllers.register.AreYouUKCompanyController.onSubmit()
+
+GET        /business-type                        controllers.register.BusinessTypeController.onPageLoad()
+POST       /business-type                        controllers.register.BusinessTypeController.onSubmit()
+
+

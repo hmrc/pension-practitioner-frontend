@@ -52,14 +52,14 @@ class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar
   private def areYouUKCompanySubmitRoute = routes.AreYouUKCompanyController.onSubmit().url
 
 
-  private val answers: UserAnswers = userAnswersWithPspName.set(AreYouUKCompanyPage, true).success.value
+  private val answers: UserAnswers = userAnswersWithCompanyName.set(AreYouUKCompanyPage, true).success.value
 
   "AreYouUKCompany Controller" must {
 
     "return OK and the correct view for a GET" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
         .overrides(
         )
         .build()
@@ -120,7 +120,7 @@ class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
         .overrides(
         )
         .build()
@@ -142,7 +142,7 @@ class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar
 
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
         .overrides(
         )
         .build()

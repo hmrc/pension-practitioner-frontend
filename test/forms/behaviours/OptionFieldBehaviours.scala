@@ -31,7 +31,7 @@ trait OptionFieldBehaviours extends FieldBehaviours {
       for(value <- validValues) {
 
         val result = form.bind(Map(fieldName -> value.toString)).apply(fieldName)
-        result.value.value mustEqual value.toString
+        result.value.value shouldBe value.toString
       }
     }
 
@@ -43,7 +43,7 @@ trait OptionFieldBehaviours extends FieldBehaviours {
         value =>
 
           val result = form.bind(Map(fieldName -> value)).apply(fieldName)
-          result.errors mustEqual Seq(invalidError)
+          result.errors shouldBe Seq(invalidError)
       }
     }
   }

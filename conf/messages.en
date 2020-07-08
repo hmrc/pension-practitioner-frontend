@@ -76,6 +76,39 @@ areYouUKCompany.error.required = Select yes if the company or partnership is reg
 
 unauthorised.title = You can’t access this service with this account
 
+businessType.title = What type of business do you want to register?
+businessType.heading = What type of business do you want to register?
+businessType.limitedCompany = Limited company
+businessType.businessPartnership = Business partnership
+businessType.error.required = Select what type of business you want to register
+
+
+whatTypeBusiness.limitedCompany = Limited company
+whatTypeBusiness.businessPartnership = Business partnership
+whatTypeBusiness.limitedPartnership = Limited partnership
+whatTypeBusiness.limitedLiabilityPartnership = Limited liability partnership
+whatTypeBusiness.unlimitedCompany = Unlimited company
+
+businessUTR.title = What is the Unique Taxpayer Reference (UTR) of the Limited company you want to register?
+businessUTR.heading = What is the Unique Taxpayer Reference (UTR) of the Limited company you want to register?
+businessUTR.p1 = This is a 10-digit or 13-digit number. You can find it on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
+businessUTR.p2 = If the UTR is 13 numbers, only enter the last 10.
+businessUTR.p3 = If there is a letter ‘K’ at the end of the number, do not enter it.
+businessUTR.error.required = Enter the UTR of the company you want to register
+businessUTR.error.invalid = Enter the company’s UTR in the correct format
+
+companyName.title = What is the company’s name?
+companyName.heading = What is the company’s name?
+companyName.hint = This is the name registered with Companies House.
+companyName.error.required = Enter the company’s name
+companyName.error.length = Company name must be 105 characters or fewer
+companyName.error.invalid = Company name must only include letters, numbers, dashes, spaces, apostrophes, ampersands and slashes
+
+confirmName.title = Is this the registered name of the company?
+confirmName.heading = Is {0} the registered name of the company?
+confirmName.checkYourAnswersLabel = confirmName
+confirmName.error.required = Select yes if this is the registered name of the company
+
 postcode.error.required = Enter the address we can use to contact {0}
 postcode.error.invalid = Enter a valid address which we can use to contact {0}
 postcode.title = Which address can we use to contact {0}?

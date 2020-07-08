@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-package models
+package models.register
 
+import uk.gov.hmrc.viewmodels._
+import play.api.data.Form
+import play.api.i18n.Messages
+import uk.gov.hmrc.viewmodels.Radios
 import utils.{Enumerable, InputOption, WithName}
 
 sealed trait BusinessType
@@ -53,6 +57,20 @@ object BusinessType extends Enumerable.Implicits {
     ) map { value =>
       InputOption(value.toString, s"businessType.${value.toString}")
     }
+
+  def radios(form: Form[_])(implicit messages: Messages): Seq[Radios.Item] = {
+
+    val field = form("value")
+    val items = Seq(
+      Radios.Radio(msg"whatTypeBusiness.limitedCompany", LimitedCompany.toString),
+      Radios.Radio(msg"whatTypeBusiness.businessPartnership", BusinessPartnership.toString),
+      Radios.Radio(msg"whatTypeBusiness.limitedPartnership", LimitedPartnership.toString),
+      Radios.Radio(msg"whatTypeBusiness.limitedLiabilityPartnership", LimitedLiabilityPartnership.toString),
+      Radios.Radio(msg"whatTypeBusiness.unlimitedCompany", UnlimitedCompany.toString)
+    )
+
+    Radios(field, items)
+  }
 
   implicit val enumerable: Enumerable[BusinessType] =
     Enumerable(values.map(v => v.toString -> v): _*)

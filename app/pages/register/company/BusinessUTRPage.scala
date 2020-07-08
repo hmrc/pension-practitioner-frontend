@@ -14,24 +14,14 @@
  * limitations under the License.
  */
 
-package models.registration
+package pages.register.company
 
-import models.Address
-import play.api.libs.json._
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-case class OrganisationName(organisationName: String)
+case object BusinessUTRPage extends QuestionPage[String] {
 
-object OrganisationName {
+  override def path: JsPath = JsPath \ toString
 
-  implicit val format: Format[OrganisationName] = Json.format[OrganisationName]
+  override def toString: String = "businessUTR"
 }
-
-case class OrganisationRegistrant(
-                                   organisation: OrganisationName,
-                                   address: Address
-                                 )
-
-object OrganisationRegistrant {
-  implicit val format: Format[OrganisationRegistrant] = Json.format[OrganisationRegistrant]
-}
-

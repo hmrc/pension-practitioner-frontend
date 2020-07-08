@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package models.registration
+package models.register
 
-import models.BusinessType
-import models.BusinessType._
+import models.register.BusinessType.{BusinessPartnership, LimitedCompany, LimitedLiabilityPartnership, LimitedPartnership, UnlimitedCompany}
 import play.api.libs.json.{Json, _}
 import utils.EnumUtils
 

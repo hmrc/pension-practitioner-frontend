@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package models
+package pages.register
 
-sealed trait InternationalRegion
+import models.register.BusinessType
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-object InternationalRegion {
+case object BusinessTypePage extends QuestionPage[BusinessType] {
 
-  case object UK extends InternationalRegion
-  case object EuEea extends InternationalRegion
-  case object RestOfTheWorld extends InternationalRegion
+  override def path: JsPath = JsPath \ toString
 
+  override def toString: String = "businessType"
 }

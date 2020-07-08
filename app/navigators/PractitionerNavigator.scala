@@ -21,9 +21,11 @@ import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import models.UserAnswers
 import models.WhatTypeBusiness
+import models.register.BusinessType
 import pages.Page
 import pages.WhatTypeBusinessPage
-import pages.register.WhatYouWillNeedPage
+import pages.register.company.BusinessUTRPage
+import pages.register.{AreYouUKCompanyPage, WhatYouWillNeedPage, BusinessTypePage}
 import play.api.mvc.Call
 
 class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector, config: FrontendAppConfig)
@@ -36,6 +38,22 @@ class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCo
       case _ => controllers.routes.SessionExpiredController.onPageLoad()
     }
     case WhatYouWillNeedPage => controllers.register.routes.AreYouUKCompanyController.onPageLoad()
+    case AreYouUKCompanyPage =>
+      ua.get(AreYouUKCompanyPage) match {
+        case Some(true) =>
+          controllers.register.routes.BusinessTypeController.onPageLoad()
+        case _ => controllers.routes.SessionExpiredController.onPageLoad()
+      }
+    case BusinessTypePage=>
+      ua.get(BusinessTypePage) match {
+        case Some(BusinessType.LimitedCompany) =>
+          controllers.register.company.routes.BusinessUTRController.onPageLoad()
+        case Some(BusinessType.UnlimitedCompany) =>
+          controllers.register.company.routes.BusinessUTRController.onPageLoad()
+        case _ => controllers.routes.SessionExpiredController.onPageLoad()
+      }
+    case BusinessUTRPage =>
+      controllers.register.company.routes.CompanyNameController.onPageLoad()
 
   }
 

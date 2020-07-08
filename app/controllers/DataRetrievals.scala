@@ -17,18 +17,20 @@
 package controllers
 
 import models.requests.DataRequest
-import pages.register.company.CompanyPostcodePage
+import pages.register.company.CompanyNamePage
 import play.api.mvc.AnyContent
 import play.api.mvc.Result
+import play.api.mvc.Results.Redirect
 
 import scala.concurrent.Future
 
 object DataRetrievals {
 
   def retrieveCompanyName(block: String => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    block("psp")
+    request.userAnswers.get(CompanyNamePage) match {
+
+      case Some(value) => block(value)
+      case _  => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+    }
   }
-
-
-
 }

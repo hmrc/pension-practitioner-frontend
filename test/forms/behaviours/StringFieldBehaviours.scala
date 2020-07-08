@@ -16,101 +16,83 @@
 
 package forms.behaviours
 
+import forms.mappings.RegexBehaviourSpec
 import play.api.data.{Form, FormError}
 
-trait StringFieldBehaviours extends FieldBehaviours {
+trait StringFieldBehaviours extends FieldBehaviours with RegexBehaviourSpec {
 
   def fieldWithMaxLength(form: Form[_],
                          fieldName: String,
                          maxLength: Int,
                          lengthError: FormError): Unit = {
 
-    s"must not bind strings longer than $maxLength characters" in {
+    s"not bind strings longer than $maxLength characters" in {
 
       forAll(stringsLongerThan(maxLength) -> "longString") {
         string =>
           val result = form.bind(Map(fieldName -> string)).apply(fieldName)
-          result.errors.head.message mustEqual lengthError.message
-          result.errors.head.key mustEqual lengthError.key
-      }
-    }
-  }
-
-  def fieldWithMinLength(form: Form[_],
-                         fieldName: String,
-                         minLength: Int,
-                         lengthError: FormError): Unit = {
-
-    s"must not bind strings shorter than $minLength characters" in {
-
-      forAll(stringsShorterThan(minLength) -> "longString") {
-        string =>
-          val result = form.bind(Map(fieldName -> string)).apply(fieldName)
-          result.errors.head.message mustEqual lengthError.message
-          result.errors.head.key mustEqual lengthError.key
+          result.errors shouldEqual Seq(lengthError)
       }
     }
   }
 
   def fieldWithRegex(form: Form[_],
                      fieldName: String,
-                     invalidValues: Seq[String],
-                     invalidError: FormError): Unit = {
+                     invalidString: String,
+                     error: FormError): Unit = {
 
-    invalidValues.foreach { invalidVal =>
-      s"not bind string $invalidVal invalidated by regex" in {
-        val result = form.bind(Map(fieldName -> invalidVal)).apply(fieldName)
-        result.errors mustEqual Seq(invalidError)
-      }
+    "not bind strings invalidated by regex" in {
+      val result = form.bind(Map(fieldName -> invalidString)).apply(fieldName)
+      result.errors shouldEqual Seq(error)
     }
   }
 
-  def nino(form: Form[_],
-           fieldName: String,
-           requiredKey: String,
-           invalidKey: String): Unit = {
-
-    behave like mandatoryField(
-      form,
-      fieldName,
-      requiredError = FormError(fieldName, requiredKey)
-    )
-
-    "successfully bind when yes is selected and valid NINO is provided" in {
-      val res = form.bind(Map("nino" -> "AB020202A")).apply("nino")
-      res.value.get mustEqual "AB020202A"
-    }
-
-    Seq("DE999999A", "AO111111B", "ORA12345C", "AB0202020", "AB0303030D", "AB040404E").foreach { nino =>
-      s"fail to bind when NINO $nino is invalid" in {
-        val result = form.bind(Map("nino" -> nino)).apply("nino")
-        result.errors mustBe Seq(FormError("nino", invalidKey))
-      }
+  def fieldWithTransform[A, B](form: Form[A],
+                               transformName: String,
+                               data: Map[String, String],
+                               expected: B,
+                               actual: A => B): Unit = {
+    s"apply field transform $transformName" in {
+      val result = form.bind(data)
+      result.errors.size shouldBe 0
+      actual(result.get) shouldBe expected
     }
   }
 
-  def qrOps(form: Form[_],
-            fieldName: String,
-            requiredKey: String,
-            invalidKey: String): Unit = {
-
-    behave like mandatoryField(
-      form,
-      fieldName,
-      requiredError = FormError(fieldName, requiredKey)
-    )
-
-    "successfully bind when valid QROPS is provided" in {
-      val res = form.bind(Map(fieldName -> "123123")).apply(fieldName)
-      res.value.get mustEqual "123123"
-    }
-
-    Seq("A123789", "ABCDEF3", "1122334").foreach { qrops =>
-      s"fail to bind when QROPS $qrops is invalid" in {
-        val result = form.bind(Map(fieldName -> qrops)).apply(fieldName)
-        result.errors.head.key mustBe fieldName
-        result.errors.head.message mustBe invalidKey
-      }
+  def formWithTransform[A](form: Form[A],
+                           data: Map[String, String],
+                           expectedData: A): Unit = {
+    s"bind the form with the transformation" in {
+      val result = form.bind(data)
+      result.errors.size shouldBe 0
+      result.get shouldBe expectedData
     }
   }
+
+  override def mandatoryField(form: Form[_],
+                              fieldName: String,
+                              requiredError: FormError): Unit = {
+
+    "not bind spaces" in {
+      val result = form.bind(Map(fieldName -> "   ")).apply(fieldName)
+      result.errors shouldEqual Seq(requiredError)
+    }
+
+    super.mandatoryField(form, fieldName, requiredError)
+  }
+
+  def optionalField[T](
+                        form: Form[T],
+                        fieldName: String,
+                        validData: Map[String, String],
+                        accessor: T => Option[String]
+                      ): Unit = {
+
+    "trim spaces" in {
+      val value = validData(fieldName)
+        val result = form.bind(validData.updated(fieldName, "   " + value + "   "))
+        accessor(result.get) shouldBe Some("abc")
+      }
+  }
+
 }
