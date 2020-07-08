@@ -53,52 +53,50 @@ import uk.gov.hmrc.viewmodels.Radios
 
 import scala.concurrent.Future
 
-class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues with BeforeAndAfterEach {
+class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar with
+  NunjucksSupport with JsonMatchers with OptionValues with TryValues with BeforeAndAfterEach {
 
-  def onwardRoute = Call("GET", "/foo")
+  private def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new ConfirmAddressFormProvider()
-  val form = formProvider()
+  private val formProvider = new ConfirmAddressFormProvider()
+  private val form = formProvider()
 
-  def confirmAddressRoute = routes.ConfirmAddressController.onPageLoad().url
-  def confirmAddressSubmitRoute = routes.ConfirmAddressController.onSubmit().url
+  private def confirmAddressRoute = routes.ConfirmAddressController.onPageLoad().url
+  private def confirmAddressSubmitRoute = routes.ConfirmAddressController.onSubmit().url
+
+  private val organisation = Organisation(pspName,BusinessType.LimitedCompany)
+  private val organisationRegistration = OrganisationRegistration(
+    OrganisationRegisterWithIdResponse(
+      organisation,
+      TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
+    ),
+    RegistrationInfo(RegistrationLegalStatus.LimitedCompany,
+      "", false, RegistrationCustomerType.UK, None, None)
+  )
+
+  private val mockRegistrationConnector = mock[RegistrationConnector]
+
+  private val utr = "1234567890"
+
+  private val userAnswersWithRegistrationValues = userAnswersWithCompanyName
+    .setOrException(BusinessUTRPage, utr)
+    .setOrException(BusinessTypePage, BusinessType.LimitedCompany)
 
   override def beforeEach: Unit = {
     super.beforeEach
-    reset(mockAppConfig)
+    reset(mockRenderer, mockRegistrationConnector, mockUserAnswersCacheConnector)
   }
 
   "ConfirmAddress Controller" must {
-
     "return OK and the correct view for a GET" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-
-      val utr = "1234567890"
-
-      val userAnswersWithRegistrationValues = userAnswersWithCompanyName
-          .setOrException(BusinessUTRPage, utr)
-        .setOrException(BusinessTypePage, BusinessType.LimitedCompany)
-
-
-      val mockRegistrationConnector = mock[RegistrationConnector]
-
       val application = applicationBuilder(userAnswers = Some(userAnswersWithRegistrationValues))
         .overrides(
           bind[RegistrationConnector].toInstance(mockRegistrationConnector)
-        )
-        .build()
-      val organisation = Organisation(pspName,BusinessType.LimitedCompany)
-       val organisationRegistration = OrganisationRegistration(
-         OrganisationRegisterWithIdResponse(
-           organisation,
-           TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
-         ),
-         RegistrationInfo(RegistrationLegalStatus.LimitedCompany, "", false, RegistrationCustomerType.UK, None, None)
-       )
+        ).build()
 
+      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
       when(mockRegistrationConnector.registerWithIdOrganisation(any(),any(),any())(any(),any()))
         .thenReturn(Future.successful(organisationRegistration))
-
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
 
       val request = FakeRequest(GET, confirmAddressRoute)
@@ -110,7 +108,8 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
       status(result) mustEqual OK
 
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-      verify(mockRegistrationConnector, times(1)).registerWithIdOrganisation(any(),any(),any())(any(),any())
+      verify(mockRegistrationConnector, times(1))
+        .registerWithIdOrganisation(any(),any(),any())(any(),any())
       verify(mockUserAnswersCacheConnector, times(1)).save(any())(any(),any())
 
       val expectedJson = Json.obj(
