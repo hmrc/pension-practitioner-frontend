@@ -85,16 +85,16 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
     implicit request =>
       retrieveDataForRegistration { (pspName, utr, businessType) =>
         val organisation = Organisation(pspName,businessType)
-       //registrationConnector.registerWithIdOrganisation(utr, organisation, LimitedCompany).flatMap { reg =>
-        val or = OrganisationRegistration(
-          OrganisationRegisterWithIdResponse(
-            organisation,
-            TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
-          ),
-          RegistrationInfo(RegistrationLegalStatus.LimitedCompany, "", false, RegistrationCustomerType.UK, None, None)
-        )
-        
-        Future.successful(or).flatMap{ reg =>
+       registrationConnector.registerWithIdOrganisation(utr, organisation, LimitedCompany).flatMap { reg =>
+       // val or = OrganisationRegistration(
+       //   OrganisationRegisterWithIdResponse(
+       //     organisation,
+       //     TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
+       //   ),
+       //   RegistrationInfo(RegistrationLegalStatus.LimitedCompany, "", false, RegistrationCustomerType.UK, None, None)
+       // )
+       //
+       // Future.successful(or).flatMap{ reg =>
           val ua = request.userAnswers
             .setOrException(ConfirmAddressPage, reg.response.address)
             .setOrException(CompanyNamePage, reg.response.organisation.organisationName)
