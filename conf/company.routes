@@ -27,3 +27,8 @@ GET        /contact-details/contact-email             controllers.register.compa
 POST       /contact-details/contact-email             controllers.register.company.CompanyEmailController.onSubmit(mode: Mode = NormalMode)
 GET        /contact-details/change-contact-email      controllers.register.company.CompanyEmailController.onPageLoad(mode: Mode = CheckMode)
 POST       /contact-details/change-contact-email      controllers.register.company.CompanyEmailController.onSubmit(mode: Mode = CheckMode)
+
+GET        /contact-details/contact-phone             controllers.register.company.CompanyPhoneController.onPageLoad(mode: Mode = NormalMode)
+POST       /contact-details/contact-phone             controllers.register.company.CompanyPhoneController.onSubmit(mode: Mode = NormalMode)
+GET        /contact-details/change-contact-phone      controllers.register.company.CompanyPhoneController.onPageLoad(mode: Mode = CheckMode)
+POST       /contact-details/change-contact-phone      controllers.register.company.CompanyPhoneController.onSubmit(mode: Mode = CheckMode)

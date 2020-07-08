@@ -410,3 +410,8 @@ email.error.invalid = Enter an email address in the correct format, like name@ex
 email.error.required = Enter {0}’s email address
 email.title = What is {0}’s email address?
 email.hint = We will only use this to contact about pension scheme practitioners.
+
+phone.error.required = Enter the {0}’s phone number
+phone.error.invalid = Enter a phone number in the correct format
+phone.title = What is {0}’s phone number?
+phone.hint = We will only use this to contact about pension scheme practitioners.
