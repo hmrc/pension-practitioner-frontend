@@ -51,6 +51,7 @@ import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import uk.gov.hmrc.viewmodels.Radios
+import utils.countryOptions.CountryOptions
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -64,6 +65,7 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
                                       requireData: DataRequiredAction,
                                       formProvider: ConfirmAddressFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
+                                      countryOptions: CountryOptions,
                                       config: FrontendAppConfig,
                                       renderer: Renderer
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
@@ -92,18 +94,23 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
        //     TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
        //   ),
        //   RegistrationInfo(RegistrationLegalStatus.LimitedCompany, "", false, RegistrationCustomerType.UK, None, None)
-       // )
+       // )co
        //
        // Future.successful(or).flatMap{ reg =>
-
-         println( "\n>>" + reg.response)
 
           val ua = request.userAnswers
             .setOrException(ConfirmAddressPage, reg.response.address)
             .setOrException(CompanyNamePage, reg.response.organisation.organisationName)
             .setOrException(RegistrationInfoPage, reg.info)
 
-         val formattedAddress = reg.response.address.lines
+         val formattedAddress = Json.obj(
+           "addr1" -> reg.response.address.addressLine1.getOrElse[String](""),
+           "addr2" -> reg.response.address.addressLine2.getOrElse[String](""),
+           "addr3" -> reg.response.address.addressLine3.getOrElse[String](""),
+           "addr4" -> reg.response.address.addressLine4.getOrElse[String](""),
+           "postcode" -> reg.response.address.postcode.getOrElse[String](""),
+           "country" -> countryOptions.getCountryNameFromCode(reg.response.address.country.getOrElse[String](""))
+         )
 
           userAnswersCacheConnector.save(ua.data).flatMap{ _ =>
             val json = Json.obj(
