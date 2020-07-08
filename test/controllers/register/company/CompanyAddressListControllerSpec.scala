@@ -36,6 +36,7 @@ import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.countryOptions.CountryOptions
+import viewmodels.CommonViewModel
 
 import scala.concurrent.Future
 
@@ -68,11 +69,8 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
   private val jsonToPassToTemplate: Form[Int] => JsObject =
     form => Json.obj(
         "form" -> form,
-        "entityType" -> messages("company"),
-        "entityName" -> companyName,
-        "addresses" -> Json.arr(Json.obj("value" -> 0,"text" ->"addr1, addr2, addr3, addr4, postcode, United Kingdom")),
-        "submitUrl" -> submitUrl,
-        "enterManuallyUrl" -> enterManuallyUrl.url)
+      "addresses" -> Json.arr(Json.obj("value" -> 0,"text" ->"addr1, addr2, addr3, addr4, postcode, United Kingdom")),
+      "viewmodel" -> CommonViewModel("company", companyName, submitUrl, Some(enterManuallyUrl.url)))
 
   override def beforeEach: Unit = {
     super.beforeEach

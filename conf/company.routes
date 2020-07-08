@@ -34,4 +34,3 @@ GET        /contact-details/change-contact-phone      controllers.register.compa
 POST       /contact-details/change-contact-phone      controllers.register.company.CompanyPhoneController.onSubmit(mode: Mode = CheckMode)
 
 GET        /check-your-answers                        controllers.register.company.CheckYourAnswersController.onPageLoad
-POST       /check-your-answers                        controllers.register.company.CheckYourAnswersController.onSubmit

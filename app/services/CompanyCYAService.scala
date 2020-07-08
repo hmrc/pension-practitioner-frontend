@@ -23,9 +23,9 @@ import uk.gov.hmrc.viewmodels.SummaryList.{Action, Key, Row, Value}
 import uk.gov.hmrc.viewmodels.Text.Literal
 import uk.gov.hmrc.viewmodels._
 
-class CompanyCYAService(implicit messages: Messages) extends CYAService {
+class CompanyCYAService extends CYAService {
 
-  def companyCya(ua: UserAnswers): Seq[Row] =
+  def companyCya(ua: UserAnswers)(implicit messages: Messages): Seq[Row] =
     (
       ua.get(CompanyNamePage),
       ua.get(BusinessUTRPage),
@@ -57,7 +57,7 @@ class CompanyCYAService(implicit messages: Messages) extends CYAService {
         value = Value(Literal(utr), classes = Seq("govuk-!-width-one-third"))
       )
 
-  private def companyAddress(address: Address): Row =
+  private def companyAddress(address: Address)(implicit messages: Messages): Row =
       Row(
         key = Key(msg"cya.address", classes = Seq("govuk-!-width-one-half")),
         value = Value(addressAnswer(address), classes = Seq("govuk-!-width-one-third")),

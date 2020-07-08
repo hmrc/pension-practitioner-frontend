@@ -53,12 +53,11 @@ class CheckYourAnswersController @Inject()(config: FrontendAppConfig,
   def onPageLoad: Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
 
-      val json: Json.obj(
-      "list" -> companyCYAService.companyCya(request.userAnswers)
+      val json = Json.obj(
+        "redirectUrl" -> controllers.register.routes.DeclarationController.onPageLoad().url,
+        "list" -> companyCYAService.companyCya(request.userAnswers)
     )
 
-        renderer.render("check-your-answers.njk",
-          Json.obj()
-          ).map(Ok(_))
+        renderer.render("check-your-answers.njk", json).map(Ok(_))
       }
 }

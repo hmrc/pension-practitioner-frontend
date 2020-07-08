@@ -18,7 +18,7 @@ package controllers.register.company
 
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
-import forms.register.{EmailFormProvider, PhoneFormProvider}
+import forms.register.PhoneFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
 import org.mockito.Matchers.any
@@ -26,7 +26,7 @@ import org.mockito.Mockito.{times, verify, when}
 import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.register.company.{CompanyEmailPage, CompanyNamePage, CompanyPhonePage}
+import pages.register.company.{CompanyNamePage, CompanyPhonePage}
 import play.api.Application
 import play.api.data.Form
 import play.api.libs.json.{JsObject, Json}
@@ -34,6 +34,7 @@ import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import viewmodels.CommonViewModel
 
 import scala.concurrent.Future
 
@@ -59,11 +60,7 @@ class CompanyPhoneControllerSpec extends ControllerSpecBase with MockitoSugar wi
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
 
   private val jsonToPassToTemplate: Form[String] => JsObject =
-    form => Json.obj(
-      "form" -> form,
-      "entityType" -> messages("company"),
-      "entityName" -> companyName,
-      "submitUrl" -> submitUrl)
+    form => Json.obj("form" -> form, "viewmodel" -> CommonViewModel("company", companyName, submitUrl))
 
   override def beforeEach: Unit = {
     super.beforeEach

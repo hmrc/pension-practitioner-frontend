@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block pageTitle %}
-  {{ title(messages("address.title", messages(entityType)), form.errors) }}
+  {{ title(messages("address.title", messages(viewmodel.entityType)), form.errors) }}
 {% endblock %}
 
 {% block mainContent %}
@@ -27,9 +27,9 @@
           }) }}
         {% endif %}
 
-        <h1 class="govuk-heading-xl">{{messages('address.title', entityName)}}</h1>
+        <h1 class="govuk-heading-xl">{{messages('address.title', viewmodel.entityName)}}</h1>
 
-        <form action="{{ submitUrl }}" method="post" autoComplete="off">
+        <form action="{{ viewmodel.submitUrl }}" method="post" autoComplete="off">
 
           {{ csrf() | safe }}
 
