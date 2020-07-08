@@ -83,39 +83,30 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
     }
   }
 
+  private def formattedAddress(tolerantAddress:TolerantAddress) = Json.obj(
+    "addr1" -> tolerantAddress.addressLine1.getOrElse[String](""),
+    "addr2" -> tolerantAddress.addressLine2.getOrElse[String](""),
+    "addr3" -> tolerantAddress.addressLine3.getOrElse[String](""),
+    "addr4" -> tolerantAddress.addressLine4.getOrElse[String](""),
+    "postcode" -> tolerantAddress.postcode.getOrElse[String](""),
+    "country" -> countryOptions.getCountryNameFromCode(tolerantAddress.country.getOrElse[String](""))
+  )
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       retrieveDataForRegistration { (pspName, utr, businessType) =>
         val organisation = Organisation(pspName,businessType)
        registrationConnector.registerWithIdOrganisation(utr, organisation, LimitedCompany).flatMap { reg =>
-       // val or = OrganisationRegistration(
-       //   OrganisationRegisterWithIdResponse(
-       //     organisation,
-       //     TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
-       //   ),
-       //   RegistrationInfo(RegistrationLegalStatus.LimitedCompany, "", false, RegistrationCustomerType.UK, None, None)
-       // )co
-       //
-       // Future.successful(or).flatMap{ reg =>
 
           val ua = request.userAnswers
             .setOrException(ConfirmAddressPage, reg.response.address)
             .setOrException(CompanyNamePage, reg.response.organisation.organisationName)
             .setOrException(RegistrationInfoPage, reg.info)
 
-         val formattedAddress = Json.obj(
-           "addr1" -> reg.response.address.addressLine1.getOrElse[String](""),
-           "addr2" -> reg.response.address.addressLine2.getOrElse[String](""),
-           "addr3" -> reg.response.address.addressLine3.getOrElse[String](""),
-           "addr4" -> reg.response.address.addressLine4.getOrElse[String](""),
-           "postcode" -> reg.response.address.postcode.getOrElse[String](""),
-           "country" -> countryOptions.getCountryNameFromCode(reg.response.address.country.getOrElse[String](""))
-         )
-
           userAnswersCacheConnector.save(ua.data).flatMap{ _ =>
             val json = Json.obj(
-              "form" -> form, "pspName" -> pspName,
-              "address" -> formattedAddress,
+              "form" -> form,
+              "pspName" -> pspName,
+              "address" -> formattedAddress(reg.response.address),
               "submitUrl" -> routes.ConfirmAddressController.onSubmit().url,
               "radios" -> Radios.yesNo(form("value")))
 
@@ -131,14 +122,21 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
         form.bindFromRequest().fold(
           formWithErrors => {
 
-            val json = Json.obj(
-              "form"   -> formWithErrors,
-              "pspName" -> pspName,
-              "submitUrl"   -> routes.ConfirmAddressController.onSubmit().url,
-              "radios" -> Radios.yesNo(formWithErrors("value"))
-            )
+            request.userAnswers.get(ConfirmAddressPage) match {
+              case Some(addr) =>
+                val json = Json.obj(
+                  "form"   -> formWithErrors,
+                  "pspName" -> pspName,
+                  "address" -> formattedAddress(addr),
+                  "submitUrl"   -> routes.ConfirmAddressController.onSubmit().url,
+                  "radios" -> Radios.yesNo(formWithErrors("value"))
+                )
 
-            renderer.render("register/company/confirmAddress.njk", json).map(BadRequest(_))
+                renderer.render("register/company/confirmAddress.njk", json).map(BadRequest(_))
+
+              case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+            }
+
           },
           {
             case true =>
