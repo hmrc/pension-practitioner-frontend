@@ -75,4 +75,13 @@ areYouUKCompany.title = Is the company or partnership registered in the UK?
 areYouUKCompany.heading = Is the company or partnership registered in the UK?
 areYouUKCompany.error.required = Select yes if the company or partnership is registered in the UK
 
+
+areYouUKResident.error.required = Select yes if you are a UK resident
+areYouUKResident.title = Are you a UK resident?
+areYouUKResident.heading = Are you a UK resident?
+
+isThisYou.title = Is this your name and address??
+isThisYou.heading = Is this your name and address??
+isThisYou.error.required = Select yes if this is your name and address
+
 unauthorised.title = You can’t access this service with this account

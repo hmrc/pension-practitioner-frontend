@@ -1,3 +1,11 @@
 
-GET         /what-you-will-need                     controllers.individual.WhatYouWillNeedController.onPageLoad
+GET         /what-you-will-need                        controllers.individual.WhatYouWillNeedController.onPageLoad
+
+GET        /are-you-uk-resident                        controllers.individual.AreYouUKResidentController.onPageLoad()
+POST       /are-you-uk-resident                        controllers.individual.AreYouUKResidentController.onSubmit()
+
+GET         /uk/is-this-you                            controllers.individual.IsThisYouController.onPageLoad(mode: Mode = NormalMode)
+POST        /uk/is-this-you                            controllers.individual.IsThisYouController.onSubmit(mode: Mode = NormalMode)
+GET         /uk/change/is-this-you                      controllers.individual.IsThisYouController.onPageLoad(mode: Mode = CheckMode)
+POST        /uk/change/is-this-you                      controllers.individual.IsThisYouController.onSubmit(mode: Mode = CheckMode)
 

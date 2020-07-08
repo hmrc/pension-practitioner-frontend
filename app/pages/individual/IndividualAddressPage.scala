@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-package models
+package pages.individual
 
-import play.api.mvc.{JavascriptLiteral, PathBindable}
+import models.TolerantAddress
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-sealed trait Mode
+case object IndividualAddressPage extends QuestionPage[TolerantAddress] {
 
-case object CheckMode extends Mode
-case object NormalMode extends Mode
+  override def path: JsPath = JsPath \ toString
 
-object Mode {
-
-  case class UnknownModeException() extends Exception
-
-  implicit val jsLiteral: JavascriptLiteral[Mode] = new JavascriptLiteral[Mode] {
-    override def to(value: Mode): String = value match {
-      case NormalMode => "NormalMode"
-      case CheckMode => "CheckMode"
-    }
-  }
+  override def toString: String = "individualAddress"
 }
