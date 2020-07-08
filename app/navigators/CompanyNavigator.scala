@@ -36,7 +36,10 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
     case CompanyNamePage =>
       controllers.register.company.routes.ConfirmNameController.onPageLoad()
     case ConfirmNamePage =>
-      controllers.register.company.routes.ConfirmAddressController.onPageLoad()
+      ua.get(ConfirmNamePage) match {
+        case Some(false) => controllers.register.company.routes.TellHMRCController.onPageLoad()
+        case _ => controllers.register.company.routes.ConfirmAddressController.onPageLoad()
+      }
     case ConfirmAddressPage =>
       ua.get(ConfirmAddressPage) match {
         case None => controllers.register.company.routes.TellHMRCController.onPageLoad()

@@ -31,6 +31,10 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
   private val uaConfirmAddressYes = SampleData
     .emptyUserAnswers.setOrException(ConfirmAddressPage, SampleData.addressUK)
 
+  private def uaConfirmName(v:Boolean) = SampleData
+    .emptyUserAnswers.setOrException(ConfirmNamePage, v)
+
+
   private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
 
   "NormalMode" must {
@@ -39,7 +43,8 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
         ("Id", "UserAnswers", "Next Page"),
         row(BusinessUTRPage)(controllers.register.company.routes.CompanyNameController.onPageLoad()),
         row(CompanyNamePage)(controllers.register.company.routes.ConfirmNameController.onPageLoad()),
-        row(ConfirmNamePage)(controllers.register.company.routes.ConfirmAddressController.onPageLoad()),
+        row(ConfirmNamePage)(controllers.register.company.routes.ConfirmAddressController.onPageLoad(), Some(uaConfirmName(true))),
+        row(ConfirmNamePage)(controllers.register.company.routes.TellHMRCController.onPageLoad(),Some(uaConfirmName(false))),
         row(ConfirmAddressPage)(controllers.register.company.routes.TellHMRCController.onPageLoad()),
         row(ConfirmAddressPage)(controllers.routes.SessionExpiredController.onPageLoad(), Some(uaConfirmAddressYes))
       )
