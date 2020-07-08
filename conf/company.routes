@@ -22,3 +22,8 @@ POST       /org-name                        controllers.register.company.Company
 
 GET        /confirm-name                        controllers.register.company.ConfirmNameController.onPageLoad()
 POST       /confirm-name                        controllers.register.company.ConfirmNameController.onSubmit()
+
+GET        /contact-details/contact-email             controllers.register.company.CompanyEmailController.onPageLoad(mode: Mode = NormalMode)
+POST       /contact-details/contact-email             controllers.register.company.CompanyEmailController.onSubmit(mode: Mode = NormalMode)
+GET        /contact-details/change-contact-email      controllers.register.company.CompanyEmailController.onPageLoad(mode: Mode = CheckMode)
+POST       /contact-details/change-contact-email      controllers.register.company.CompanyEmailController.onSubmit(mode: Mode = CheckMode)
