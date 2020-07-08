@@ -14,14 +14,26 @@
  * limitations under the License.
  */
 
-package pages.register.company
+package forms.address
 
-import models.TolerantAddress
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import forms.behaviours.AddressBehaviours
 
-case object CompanyNamePage extends QuestionPage[String] {
+class PostcodeFormProviderSpec extends AddressBehaviours {
 
-  override def path: JsPath = JsPath \ "company" \ toString
-  override def toString: String = "name"
+
+  private val requiredKey = "error.postcode.required"
+  private val invalid = "error.postcode.invalid"
+  private val fieldName = "value"
+
+  val form = new PostcodeFormProvider()(requiredKey, invalid)
+
+  ".value" must {
+    behave like formWithPostCode(
+      form,
+      fieldName,
+      requiredKey,
+      invalid
+    )
+  }
+
 }

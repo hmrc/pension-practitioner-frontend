@@ -14,14 +14,26 @@
  * limitations under the License.
  */
 
-package pages.register.company
+package forms.address
 
-import models.TolerantAddress
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import forms.behaviours.FormBehaviours
 
-case object CompanyNamePage extends QuestionPage[String] {
+class AddressListFormProviderSpec extends FormBehaviours {
 
-  override def path: JsPath = JsPath \ "company" \ toString
-  override def toString: String = "name"
+  val validData: Map[String, String] = Map(
+    "value" -> "0"
+  )
+
+  val form = new AddressListFormProvider()("error.required")
+
+  "AddressList form" must {
+
+    behave like questionForm[Int](0)
+
+    "fail to bind when value is omitted" in {
+      val expectedError = error("value", "error.required")
+      checkForError(form, emptyForm, expectedError)
+    }
+  }
+
 }

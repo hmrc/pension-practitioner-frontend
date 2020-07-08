@@ -53,14 +53,14 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
   def confirmAddressSubmitRoute = routes.ConfirmAddressController.onSubmit().url
 
 
-  val answers: UserAnswers = userAnswersWithPspName.set(ConfirmAddressPage, true).success.value
+  val answers: UserAnswers = userAnswersWithCompanyName.set(ConfirmAddressPage, true).success.value
 
   "ConfirmAddress Controller" must {
 
     "return OK and the correct view for a GET" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
         .overrides(
         )
         .build()
@@ -121,7 +121,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
         .overrides(
         )
         .build()
@@ -143,7 +143,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
 
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
         .overrides(
         )
         .build()
