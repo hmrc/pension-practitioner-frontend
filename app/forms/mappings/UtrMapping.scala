@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package models.registration
+package forms.mappings
 
-import utils.{Enumerable, WithName}
+import play.api.data.Mapping
 
-sealed trait RegistrationIdType
+trait UtrMapping extends Mappings with Transforms {
 
-object RegistrationIdType extends Enumerable.Implicits {
-
-  case object Nino extends WithName("NINO") with RegistrationIdType
-
-  case object UTR extends WithName("UTR") with RegistrationIdType
-
-  val values = Seq(
-    Nino,
-    UTR
-  )
-
-  implicit val enumerable: Enumerable[RegistrationIdType] =
-    Enumerable(values.map(v => v.toString -> v): _*)
+  def utrMapping(requiredKey: String,
+    invalidKey: String
+                ): Mapping[String] = {
+    text(requiredKey)
+    .transform(strip, noTransform)
+    .verifying(
+      uniqueTaxReference(invalidKey)
+    )
+  }
 
 }
+

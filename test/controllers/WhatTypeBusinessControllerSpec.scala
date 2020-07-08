@@ -51,13 +51,13 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
   val formProvider = new WhatTypeBusinessFormProvider()
   val form = formProvider()
 
-  val answers: UserAnswers = userAnswersWithPspName.set(WhatTypeBusinessPage, WhatTypeBusiness.values.head).success.value
+  val answers: UserAnswers = userAnswersWithCompanyName.set(WhatTypeBusinessPage, WhatTypeBusiness.values.head).success.value
 
   "WhatTypeBusiness Controller" must {
     "return OK and the correct view for a GET" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName)).overrides().build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName)).overrides().build()
       val request = FakeRequest(GET, whatTypeBusinessRoute)
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
@@ -107,7 +107,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName)).overrides().build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName)).overrides().build()
 
       val request = FakeRequest(POST, whatTypeBusinessRoute).withFormUrlEncodedBody(("value", WhatTypeBusiness.values.head.toString))
 
@@ -123,7 +123,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
     "return a Bad Request and errors when invalid data is submitted" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName)).overrides().build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName)).overrides().build()
       val request = FakeRequest(POST, whatTypeBusinessRoute).withFormUrlEncodedBody(("value", "invalid value"))
       val boundForm = form.bind(Map("value" -> "invalid value"))
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])

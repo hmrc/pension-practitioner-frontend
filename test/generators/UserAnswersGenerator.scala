@@ -22,7 +22,9 @@ import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalatest.TryValues
 import pages._
+import pages.register.BusinessTypePage
 import pages.register.AreYouUKCompanyPage
+import pages.register.company.{BusinessUTRPage, CompanyNamePage, ConfirmNamePage}
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
 
@@ -30,6 +32,10 @@ trait UserAnswersGenerator extends TryValues {
   self: Generators =>
 
   val generators: Seq[Gen[(QuestionPage[_], JsValue)]] =
+    arbitrary[(ConfirmNamePage.type, JsValue)] ::
+    arbitrary[(CompanyNamePage.type, JsValue)] ::
+    arbitrary[(BusinessUTRPage.type, JsValue)] ::
+    arbitrary[(BusinessTypePage.type, JsValue)] ::
     arbitrary[(AreYouUKCompanyPage.type, JsValue)] ::
     Nil
 

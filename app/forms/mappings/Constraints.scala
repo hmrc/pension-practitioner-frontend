@@ -29,6 +29,8 @@ trait Constraints {
   lazy val nameRegex: String = """^[a-zA-Z &`\-\'\.^]*$"""
   private val regexCrn = "^[A-Za-z0-9 -]{8}$"
   val addressLineRegex = """^[A-Za-z0-9 \-,.&'\/]{1,35}$"""
+  protected val utrRegex = """^\d{10}$"""
+  protected val businessNameRegex = """^[a-zA-Z0-9- '&\\/]{1,105}$"""
   protected val emailRestrictiveRegex: String = "^(?:[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"" +
     "(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")" +
     "@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?|" +
@@ -200,6 +202,10 @@ trait Constraints {
     case _ =>
       Invalid(invalidKey, addressLineRegex)
   }
+
+  protected def uniqueTaxReference(errorKey: String): Constraint[String] = regexp(utrRegex, errorKey)
+
+  protected def businessName(errorKey: String): Constraint[String] = regexp(businessNameRegex, errorKey)
 
   protected def country(countryOptions: CountryOptions, errorKey: String): Constraint[String] =
     Constraint {

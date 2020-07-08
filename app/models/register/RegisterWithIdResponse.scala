@@ -30,7 +30,7 @@
  * limitations under the License.
  */
 
-package models.registration
+package models.register
 
 import models.TolerantAddress
 import play.api.libs.functional.syntax._

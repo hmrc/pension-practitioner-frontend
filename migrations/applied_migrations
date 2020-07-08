@@ -1,32 +1,32 @@
 #!/bin/bash
 
 echo ""
-echo "Applying migration AreYouUKCompany"
+echo "Applying migration ConfirmName"
 
 echo "Adding routes to conf/app.routes"
 
 echo "" >> ../conf/app.routes
-echo "GET        /areYouUKCompany                        controllers.company.AreYouUKCompanyController.onPageLoad(mode: Mode = NormalMode)" >> ../conf/app.routes
-echo "POST       /areYouUKCompany                        controllers.company.AreYouUKCompanyController.onSubmit(mode: Mode = NormalMode)" >> ../conf/app.routes
+echo "GET        /confirmName                        controllers.ConfirmNameController.onPageLoad(mode: Mode = NormalMode)" >> ../conf/app.routes
+echo "POST       /confirmName                        controllers.ConfirmNameController.onSubmit(mode: Mode = NormalMode)" >> ../conf/app.routes
 
-echo "GET        /changeAreYouUKCompany                  controllers.company.AreYouUKCompanyController.onPageLoad(mode: Mode = CheckMode)" >> ../conf/app.routes
-echo "POST       /changeAreYouUKCompany                  controllers.company.AreYouUKCompanyController.onSubmit(mode: Mode = CheckMode)" >> ../conf/app.routes
+echo "GET        /changeConfirmName                  controllers.ConfirmNameController.onPageLoad(mode: Mode = CheckMode)" >> ../conf/app.routes
+echo "POST       /changeConfirmName                  controllers.ConfirmNameController.onSubmit(mode: Mode = CheckMode)" >> ../conf/app.routes
 
 echo "Adding messages to conf.messages"
 echo "" >> ../conf/messages.en
-echo "areYouUKCompany.title = areYouUKCompany" >> ../conf/messages.en
-echo "areYouUKCompany.heading = areYouUKCompany" >> ../conf/messages.en
-echo "areYouUKCompany.checkYourAnswersLabel = areYouUKCompany" >> ../conf/messages.en
-echo "areYouUKCompany.error.required = Select yes if areYouUKCompany" >> ../conf/messages.en
+echo "confirmName.title = confirmName" >> ../conf/messages.en
+echo "confirmName.heading = confirmName" >> ../conf/messages.en
+echo "confirmName.checkYourAnswersLabel = confirmName" >> ../conf/messages.en
+echo "confirmName.error.required = Select yes if confirmName" >> ../conf/messages.en
 
 echo "Adding to UserAnswersEntryGenerators"
 awk '/trait UserAnswersEntryGenerators/ {\
     print;\
     print "";\
-    print "  implicit lazy val arbitraryAreYouUKCompanyUserAnswersEntry: Arbitrary[(AreYouUKCompanyPage.type, JsValue)] =";\
+    print "  implicit lazy val arbitraryConfirmNameUserAnswersEntry: Arbitrary[(ConfirmNamePage.type, JsValue)] =";\
     print "    Arbitrary {";\
     print "      for {";\
-    print "        page  <- arbitrary[AreYouUKCompanyPage.type]";\
+    print "        page  <- arbitrary[ConfirmNamePage.type]";\
     print "        value <- arbitrary[Boolean].map(Json.toJson(_))";\
     print "      } yield (page, value)";\
     print "    }";\
@@ -36,34 +36,34 @@ echo "Adding to PageGenerators"
 awk '/trait PageGenerators/ {\
     print;\
     print "";\
-    print "  implicit lazy val arbitraryAreYouUKCompanyPage: Arbitrary[AreYouUKCompanyPage.type] =";\
-    print "    Arbitrary(AreYouUKCompanyPage)";\
+    print "  implicit lazy val arbitraryConfirmNamePage: Arbitrary[ConfirmNamePage.type] =";\
+    print "    Arbitrary(ConfirmNamePage)";\
     next }1' ../test/generators/PageGenerators.scala > tmp && mv tmp ../test/generators/PageGenerators.scala
 
 echo "Adding to UserAnswersGenerator"
 awk '/val generators/ {\
     print;\
-    print "    arbitrary[(AreYouUKCompanyPage.type, JsValue)] ::";\
+    print "    arbitrary[(ConfirmNamePage.type, JsValue)] ::";\
     next }1' ../test/generators/UserAnswersGenerator.scala > tmp && mv tmp ../test/generators/UserAnswersGenerator.scala
 
 echo "Adding helper method to CheckYourAnswersHelper"
 awk '/class CheckYourAnswersHelper/ {\
      print;\
      print "";\
-     print "  def areYouUKCompany: Option[Row] = userAnswers.get(AreYouUKCompanyPage) map {";\
+     print "  def confirmName: Option[Row] = userAnswers.get(ConfirmNamePage) map {";\
      print "    answer =>";\
      print "      Row(";\
-     print "        key     = Key(msg\"areYouUKCompany.checkYourAnswersLabel\", classes = Seq(\"govuk-!-width-one-half\")),";\
+     print "        key     = Key(msg\"confirmName.checkYourAnswersLabel\", classes = Seq(\"govuk-!-width-one-half\")),";\
      print "        value   = Value(yesOrNo(answer)),";\
      print "        actions = List(";\
      print "          Action(";\
      print "            content            = msg\"site.edit\",";\
-     print "            href               = controllers.routes.AreYouUKCompanyController.onPageLoad(CheckMode).url,";\
-     print "            visuallyHiddenText = Some(msg\"site.edit.hidden\".withArgs(msg\"areYouUKCompany.checkYourAnswersLabel\"))";\
+     print "            href               = controllers.routes.ConfirmNameController.onPageLoad(CheckMode).url,";\
+     print "            visuallyHiddenText = Some(msg\"site.edit.hidden\".withArgs(msg\"confirmName.checkYourAnswersLabel\"))";\
      print "          )";\
      print "        )";\
      print "      )";\
      print "  }";\
      next }1' ../app/utils/CYAHelper.scala > tmp && mv tmp ../app/utils/CYAHelper.scala
 
-echo "Migration AreYouUKCompany completed"
+echo "Migration ConfirmName completed"

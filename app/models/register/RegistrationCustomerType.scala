@@ -14,27 +14,33 @@
  * limitations under the License.
  */
 
-package models.registration
+package models.register
 
+import models.TolerantAddress
 import utils.{Enumerable, WithName}
 
-sealed trait RegistrationLegalStatus
+sealed trait RegistrationCustomerType
 
-object RegistrationLegalStatus extends Enumerable.Implicits {
+object RegistrationCustomerType extends Enumerable.Implicits {
 
-  case object Individual extends WithName("Individual") with RegistrationLegalStatus
+  case object UK extends WithName("UK") with RegistrationCustomerType
 
-  case object Partnership extends WithName("Partnership") with RegistrationLegalStatus
+  case object NonUK extends WithName("NON-UK") with RegistrationCustomerType
 
-  case object LimitedCompany extends WithName("Limited Company") with RegistrationLegalStatus
+  def fromAddress(address: TolerantAddress): RegistrationCustomerType = {
+    address.country match {
+      case Some("GB") | Some("UK") => UK
+      case Some(_) => NonUK
+      case _ => throw new IllegalArgumentException(s"Cannot determine RegistrationCustomerType for country: ${address.country}")
+    }
+  }
 
   val values = Seq(
-    Individual,
-    Partnership,
-    LimitedCompany
+    UK,
+    NonUK
   )
 
-  implicit val enumerable: Enumerable[RegistrationLegalStatus] =
+  implicit val enumerable: Enumerable[RegistrationCustomerType] =
     Enumerable(values.map(v => v.toString -> v): _*)
 
 }

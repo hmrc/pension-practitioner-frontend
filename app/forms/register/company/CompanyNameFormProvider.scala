@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package models.registration
+package forms.register.company
 
-import play.api.libs.json.{Format, Json}
+import javax.inject.Inject
+import forms.mappings.BusinessNameMapping
+import play.api.data.Form
 
-case class RegistrationInfo(
-                             legalStatus: RegistrationLegalStatus,
-                             sapNumber: String,
-                             noIdentifier: Boolean,
-                             customerType: RegistrationCustomerType,
-                             idType: Option[RegistrationIdType],
-                             idNumber: Option[String]
-                           )
+class CompanyNameFormProvider @Inject() extends BusinessNameMapping {
+  def apply(
+    requiredKey: String = "companyName.error.required",
+    invalidKey: String = "companyName.error.invalid",
+    lengthKey: String = "companyName.error.length"
+  ): Form[String] =
 
-object RegistrationInfo {
-  implicit lazy val formatsRegistrationInfo: Format[RegistrationInfo] = Json.format[RegistrationInfo]
+    Form("value" -> nameMapping(requiredKey, invalidKey, lengthKey))
 }
