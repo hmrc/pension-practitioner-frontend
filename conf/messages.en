@@ -405,3 +405,6 @@ country.ZM = Zambia
 country.ZW = Zimbabwe
 country.JM = Jamaica
 country.EE = Estonia
+
+tellHMRC.title = You need to update the details for before registering
+tellHMRC.heading = You need to update the details for before registering

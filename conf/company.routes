@@ -25,3 +25,6 @@ POST       /confirm-name                        controllers.register.company.Con
 
 GET        /confirm-address                  controllers.register.company.ConfirmAddressController.onPageLoad()
 POST       /confirm-address                  controllers.register.company.ConfirmAddressController.onSubmit()
+
+
+GET        /you-need-to-tell-hmrc                       controllers.register.company.TellHMRCController.onPageLoad()
