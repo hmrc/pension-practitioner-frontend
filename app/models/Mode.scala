@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.mvc.JavascriptLiteral
+import play.api.mvc.{JavascriptLiteral, PathBindable}
 
 sealed trait Mode
 

@@ -7,7 +7,7 @@
 {% from "macros/title.njk"                         import title %}
 
 {% block pageTitle %}
-  {{ title(messages("phone.title", messages(entityType)), form.errors) }}
+  {{ title(messages("phone.title", messages(viewmodel.entityType)), form.errors) }}
 {% endblock %}
 
 {% block mainContent %}
@@ -22,11 +22,11 @@
           }) }}
         {% endif %}
 
-        <h1 class="govuk-heading-xl">{{messages("phone.title", entityName)}}</h1>
+        <h1 class="govuk-heading-xl">{{messages("phone.title", viewmodel.entityName)}}</h1>
 
          <p class="govuk-body"> {{ messages("phone.hint") }} </p>
 
-        <form action="{{ submitUrl }}" method="post" novalidate>
+        <form action="{{ viewmodel.submitUrl }}" method="post" novalidate>
 
           {{ csrf() | safe }}
 

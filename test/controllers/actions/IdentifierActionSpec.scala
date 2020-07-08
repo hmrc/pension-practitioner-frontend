@@ -19,6 +19,7 @@ package controllers.actions
 import base.SpecBase
 import connectors.IdentityVerificationConnector
 import connectors.cache.UserAnswersCacheConnector
+import models.WhatTypeBusiness.{Companyorpartnership, Yourselfasindividual}
 import org.mockito.Matchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.{times, verify, when}
@@ -71,7 +72,7 @@ class IdentifierActionSpec extends SpecBase with MockitoSugar with BeforeAndAfte
     "called for Organisation user" must {
       "redirect to Manual IV " when {
         "they want to register as Individual" in {
-          val userAnswersData = Json.obj("areYouInUK" -> true, "registerAsBusiness" -> false)
+          val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Yourselfasindividual.toString)
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
           when(mockIVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
@@ -83,7 +84,8 @@ class IdentifierActionSpec extends SpecBase with MockitoSugar with BeforeAndAfte
         "journey Id is correct and in the cache but no nino returned from IV" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
           when(mockIVConnector.retrieveNinoFromIV(any())(any(), any())).thenReturn(Future(None))
-          val userAnswersData = Json.obj("areYouInUK" -> true, "registerAsBusiness" -> false, "journeyId" -> "test-journey")
+          val userAnswersData = Json.obj("areYouUKResident" -> true,
+            "whatTypeBusiness" -> Yourselfasindividual.toString, "journeyId" -> "test-journey")
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
           val result = controller.onPageLoad()(fakeRequest)
           status(result) mustBe SEE_OTHER
@@ -92,7 +94,7 @@ class IdentifierActionSpec extends SpecBase with MockitoSugar with BeforeAndAfte
 
         "journey Id is not present in url and not in the cache" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
-          val userAnswersData = Json.obj("areYouInUK" -> true, "registerAsBusiness" -> false)
+          val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Yourselfasindividual.toString)
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
           val result = controller.onPageLoad()(fakeRequest)
           status(result) mustBe SEE_OTHER
@@ -105,7 +107,8 @@ class IdentifierActionSpec extends SpecBase with MockitoSugar with BeforeAndAfte
         "journey Id is saved in user answers" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
           when(mockIVConnector.retrieveNinoFromIV(any())(any(), any())).thenReturn(Future(Some(nino)))
-          val userAnswersData = Json.obj("areYouInUK" -> true, "registerAsBusiness" -> false, "journeyId" -> "test-journey")
+          val userAnswersData = Json.obj("areYouUKResident" -> true,
+            "whatTypeBusiness" -> Yourselfasindividual.toString, "journeyId" -> "test-journey")
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
 
           val result = controller.onPageLoad()(fakeRequest)
@@ -115,7 +118,7 @@ class IdentifierActionSpec extends SpecBase with MockitoSugar with BeforeAndAfte
         "journey Id is not in user answers but present in url" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
           val journeyId = "test-journey-id"
-          val userAnswersData = Json.obj("areYouInUK" -> true, "registerAsBusiness" -> false)
+          val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Yourselfasindividual.toString)
           when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future(Json.obj()))
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
           val result = controller.onPageLoad()(FakeRequest("", s"/url?journeyId=$journeyId"))
@@ -127,7 +130,7 @@ class IdentifierActionSpec extends SpecBase with MockitoSugar with BeforeAndAfte
       "return OK" when {
         "the user is non uk user" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
-          val userAnswersData = Json.obj("areYouInUK" -> false)
+          val userAnswersData = Json.obj("areYouUKResident" -> false)
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
           val result = controller.onPageLoad()(fakeRequest)
           status(result) mustBe OK
@@ -135,7 +138,7 @@ class IdentifierActionSpec extends SpecBase with MockitoSugar with BeforeAndAfte
 
         "user is in UK and wants to register as Organisation" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
-          val userAnswersData = Json.obj("areYouInUK" -> true, "registerAsBusiness" -> true)
+          val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Companyorpartnership.toString)
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
 
           val result = controller.onPageLoad()(fakeRequest)

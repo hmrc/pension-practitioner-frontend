@@ -18,24 +18,33 @@ package controllers.individual
 
 import controllers.actions._
 import javax.inject.Inject
+import models.NormalMode
+import navigators.CompoundNavigator
+import pages.individual.WhatYouWillNeedPage
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
+import utils.annotations.AuthWithNoIV
 
 import scala.concurrent.ExecutionContext
 
 class WhatYouWillNeedController @Inject()(
                                            override val messagesApi: MessagesApi,
-                                           identify: IdentifierAction,
+                                           @AuthWithNoIV identify: IdentifierAction,
                                            getData: DataRetrievalAction,
                                            requireData: DataRequiredAction,
+                                           navigator: CompoundNavigator,
                                            val controllerComponents: MessagesControllerComponents,
                                            renderer: Renderer
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      renderer.render(template = "individual/whatYouWillNeed.njk").map(Ok(_))
+      val nextPage = navigator.nextPage(WhatYouWillNeedPage, NormalMode, request.userAnswers)
+      renderer.render(template = "individual/whatYouWillNeed.njk",
+        Json.obj(fields = "nextPage" -> nextPage.url)
+      ).map(Ok(_))
   }
 }
