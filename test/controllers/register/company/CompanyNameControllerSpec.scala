@@ -57,7 +57,7 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
     "return OK and the correct view for a GET" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
+      val application = applicationBuilder(userAnswers = Some(UserAnswers()))
         .overrides(
         )
         .build()
@@ -78,6 +78,7 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       templateCaptor.getValue mustEqual "register/company/companyName.njk"
       jsonCaptor.getValue must containJson(expectedJson)
+
 
       application.stop()
     }
