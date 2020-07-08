@@ -21,14 +21,13 @@ import config.FrontendAppConfig
 import connectors.IdentityVerificationConnector
 import connectors.cache.UserAnswersCacheConnector
 import models.UserAnswers
+import models.WhatTypeBusiness.Yourselfasindividual
 import models.requests.UserType.UserType
 import models.requests.IdentifierRequest
 import models.requests.PSPUser
 import models.requests.UserType
-import pages.AreYouInUKPage
-import pages.JourneyPage
-import pages.QuestionPage
-import pages.RegisterAsBusinessPage
+import pages.{JourneyPage, QuestionPage, WhatTypeBusinessPage}
+import pages.individual.AreYouUKResidentPage
 import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import play.api.libs.json.Reads
@@ -76,7 +75,7 @@ class AuthenticatedIdentifierActionWithIV @Inject()(override val authConnector: 
                                    enrolments: Enrolments, authRequest: IdentifierRequest[A], block: IdentifierRequest[A] => Future[Result])
                                   (implicit hc: HeaderCarrier): Future[Result] = {
 
-    getData(AreYouInUKPage).flatMap {
+    getData(AreYouUKResidentPage).flatMap {
       case _ if alreadyEnrolledInPODS(enrolments) =>
         savePspIdAndReturnAuthRequest(enrolments, authRequest, block)
       case Some(true) if affinityGroup == Organisation =>
@@ -132,8 +131,8 @@ class AuthenticatedIdentifierActionWithIV @Inject()(override val authConnector: 
   private def orgManualIV[A](enrolments: Enrolments, authRequest: IdentifierRequest[A],
                              block: IdentifierRequest[A] => Future[Result])(implicit hc: HeaderCarrier) = {
 
-    getData(RegisterAsBusinessPage).flatMap {
-      case Some(false) =>
+    getData(WhatTypeBusinessPage).flatMap {
+      case Some(Yourselfasindividual) =>
         ivConnector.startRegisterOrganisationAsIndividual(
           config.ukJourneyContinueUrl,
           failureURL = s"${config.loginContinueUrl}/unauthorised"

@@ -163,6 +163,11 @@ error.postcode.failed = There is a problem with the address finder. Try again or
 error.postcode.invalid = Enter a valid postcode
 error.postcode.noResults = There are no addresses for that postcode
 
+youNeedToTellHMRC.title = You need to update your details before registering
+youNeedToTellHMRC.heading = You need to update your details before registering
+youNeedToTellHMRC.text = If you need to update personal details, such as your name or address, you can
+youNeedToTellHMRC.link = tell HMRC about the changes you need to make
+
 country.AD = Andorra
 country.AE = United Arab Emirates
 country.AF = Afghanistan

@@ -30,14 +30,13 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthWithNoIV
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi,
                                            userAnswersCacheConnector: UserAnswersCacheConnector,
                                            navigator: CompoundNavigator,
-                                           @AuthWithNoIV identify: IdentifierAction,
+                                           identify: IdentifierAction,
                                            getData: DataRetrievalAction,
                                            requireData: DataRequiredAction,
                                            formProvider: WhatTypeBusinessFormProvider,

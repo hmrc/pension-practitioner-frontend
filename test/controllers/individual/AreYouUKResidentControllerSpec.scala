@@ -16,23 +16,31 @@
 
 package controllers.individual
 
+import config.FrontendAppConfig
+import connectors.cache.UserAnswersCacheConnector
+import controllers.actions.{DataRequiredAction, DataRequiredActionImpl, FakeIdentifierAction, IdentifierAction}
 import controllers.base.ControllerSpecBase
 import data.SampleData._
 import forms.individual.AreYouUKResidentFormProvider
 import matchers.JsonMatchers
 import models.UserAnswers
+import navigators.CompoundNavigator
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.individual.AreYouUKResidentPage
+import play.api.inject.bind
+import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
+import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import utils.annotations.AuthWithNoIV
 
 import scala.concurrent.Future
 
@@ -46,14 +54,22 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
   private def areYouUKResidentRoute: String = routes.AreYouUKResidentController.onPageLoad().url
   private def areYouUKResidentSubmitRoute: String = routes.AreYouUKResidentController.onSubmit().url
 
-  private val answers: UserAnswers = userAnswersWithPspName.set(AreYouUKResidentPage, value = true).success.value
+  override def modules: Seq[GuiceableModule] = Seq(
+    bind[DataRequiredAction].to[DataRequiredActionImpl],
+    bind[IdentifierAction].qualifiedWith(classOf[AuthWithNoIV]).to[FakeIdentifierAction],
+    bind[NunjucksRenderer].toInstance(mockRenderer),
+    bind[FrontendAppConfig].toInstance(mockAppConfig),
+    bind[UserAnswersCacheConnector].toInstance(mockUserAnswersCacheConnector),
+    bind[CompoundNavigator].toInstance(mockCompoundNavigator)
+  )
+  private val answers: UserAnswers = UserAnswers().set(AreYouUKResidentPage, value = true).success.value
 
   "AreYouUKResident Controller" must {
 
     "return OK and the correct view for a GET" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+      val application = applicationBuilder(userAnswers = Some(UserAnswers()))
         .overrides(
         )
         .build()
@@ -111,7 +127,7 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+      val application = applicationBuilder(userAnswers = Some(answers))
         .overrides(
         )
         .build()
@@ -132,7 +148,7 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
 
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithPspName))
+      val application = applicationBuilder(userAnswers = Some(answers))
         .overrides(
         )
         .build()

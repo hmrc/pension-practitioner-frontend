@@ -19,20 +19,23 @@ package controllers.individual
 import config.FrontendAppConfig
 import connectors.RegistrationConnector
 import connectors.cache.UserAnswersCacheConnector
+import controllers.Retrievals
 import controllers.actions._
 import forms.individual.IsThisYouFormProvider
 import javax.inject.Inject
-import models.Mode
+import models.{Mode, TolerantAddress}
+import models.register.TolerantIndividual
 import navigators.CompoundNavigator
 import pages.RegistrationInfoPage
 import pages.individual.{IndividualAddressPage, IndividualDetailsPage, IsThisYouPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import utils.countryOptions.CountryOptions
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,11 +47,12 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
                                     requireData: DataRequiredAction,
                                     formProvider: IsThisYouFormProvider,
                                     registrationConnector: RegistrationConnector,
+                                    countryOptions: CountryOptions,
                                     val controllerComponents: MessagesControllerComponents,
                                     config: FrontendAppConfig,
                                     renderer: Renderer
                                    )(implicit val executionContext: ExecutionContext
-                                   ) extends FrontendBaseController with I18nSupport with NunjucksSupport {
+                                   ) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
 
   private val form: Form[Boolean] = formProvider()
 
@@ -62,24 +66,26 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
 
       val json = Json.obj(
         "form" -> preparedForm,
-        "submitUrl" -> routes.AreYouUKResidentController.onSubmit().url,
+        "submitUrl" -> routes.IsThisYouController.onSubmit(mode).url,
         "radios" -> Radios.yesNo(preparedForm("value"))
       )
       (ua.get(IndividualDetailsPage), ua.get(IndividualAddressPage), ua.get(RegistrationInfoPage)) match {
         case (Some(individual), Some(address), Some(_)) =>
-          renderer.render("individual/isThisYou.njk", json).map(Ok(_))
+          renderer.render("individual/isThisYou.njk", json ++ jsonWithNameAndAddress(individual, address)).map(Ok(_))
         case _ =>
           request.user.nino match {
             case Some(nino) =>
-              (for {
-                registration <- registrationConnector.registerWithIdIndividual(nino)
-                uaWithIndvDetails <- Future.fromTry(ua.set(IndividualDetailsPage, registration.response.individual))
-                uaWithIndvAddress <- Future.fromTry(uaWithIndvDetails.set(IndividualAddressPage, registration.response.address))
-                uaWithIndvRegInfo <- Future.fromTry(uaWithIndvAddress.set(RegistrationInfoPage, registration.info))
-                _ <- userAnswersCacheConnector.save(uaWithIndvRegInfo.data)
-              } yield {
-                renderer.render("individual/isThisYou.njk", json)
-              }).map(Ok(_))
+              registrationConnector.registerWithIdIndividual(nino).flatMap { registration =>
+                Future.fromTry(ua.set(IndividualDetailsPage, registration.response.individual).flatMap(
+                  _.set(IndividualAddressPage, registration.response.address)).flatMap(
+                  _.set(RegistrationInfoPage, registration.info)
+                )).flatMap { uaWithRegInfo =>
+                  userAnswersCacheConnector.save(uaWithRegInfo.data).flatMap { _ =>
+                    renderer.render("individual/isThisYou.njk", json ++
+                      jsonWithNameAndAddress(registration.response.individual, registration.response.address)).map(Ok(_))
+                  }
+                }
+              }
             case _ =>
               Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
           }
@@ -94,12 +100,12 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
         (formWithErrors: Form[_]) => {
           val json = Json.obj(
             "form" -> formWithErrors,
-            "submitUrl" -> routes.AreYouUKResidentController.onSubmit().url,
+            "submitUrl" -> routes.IsThisYouController.onSubmit(mode).url,
             "radios" -> Radios.yesNo(form("value"))
           )
-          (ua.get(IndividualDetailsPage), ua.get(IndividualAddressPage)) match {
-            case (Some(individualDetails), Some(individualAddress)) =>
-              renderer.render("individual/isThisYou.njk", json).map(BadRequest(_))
+          (IndividualDetailsPage and IndividualAddressPage).retrieve.right.map {
+            case individual ~ address =>
+              renderer.render("individual/isThisYou.njk", jsonWithNameAndAddress(individual, address)).map(BadRequest(_))
             case _ =>
               Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
           }
@@ -110,6 +116,13 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
             _ <- userAnswersCacheConnector.save(updatedAnswers.data)
           } yield Redirect(navigator.nextPage(IsThisYouPage, mode, updatedAnswers))
       )
+  }
+
+  private def jsonWithNameAndAddress(individual: TolerantIndividual, address: TolerantAddress): JsObject = {
+    Json.obj(
+      "name" -> individual.fullName,
+      "address" -> address.lines(countryOptions)
+    )
   }
 
 }

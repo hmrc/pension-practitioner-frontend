@@ -1,8 +1,8 @@
 # microservice specific routes
 
-->          /register/company                                company.Routes
 ->         /individual                                  individual.Routes
 
+->          /register/company                                company.Routes
 GET         /                                                                                                                   controllers.IndexController.onPageLoad
 
 

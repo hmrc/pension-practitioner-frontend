@@ -26,6 +26,12 @@
 
           {{ csrf() | safe }}
 
+        <p id="individual-value">{{name}}</p>
+
+       {% for addressItem in address %}
+         <p>{{ addressItem }}</p>
+       {% endfor %}
+
           {{ govukRadios({
             classes: "govuk-radios--inline",
             name: 'value',

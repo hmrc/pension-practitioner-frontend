@@ -9,3 +9,5 @@ POST        /uk/is-this-you                            controllers.individual.Is
 GET         /uk/change/is-this-you                      controllers.individual.IsThisYouController.onPageLoad(mode: Mode = CheckMode)
 POST        /uk/change/is-this-you                      controllers.individual.IsThisYouController.onSubmit(mode: Mode = CheckMode)
 
+GET         /uk/you-need-to-tell-hmrc                  controllers.individual.YouNeedToTellHMRCController.onPageLoad()
+

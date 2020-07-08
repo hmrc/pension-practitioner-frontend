@@ -21,7 +21,7 @@ import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import models.{NormalMode, UserAnswers}
 import pages.Page
-import pages.individual.{AreYouUKResidentPage, WhatYouWillNeedPage}
+import pages.individual.{AreYouUKResidentPage, IsThisYouPage, WhatYouWillNeedPage}
 import play.api.mvc.Call
 
 class IndividualNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector, config: FrontendAppConfig)
@@ -30,6 +30,7 @@ class IndividualNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConn
   override protected def routeMap(ua: UserAnswers): PartialFunction[Page, Call] = {
     case WhatYouWillNeedPage => controllers.individual.routes.AreYouUKResidentController.onPageLoad()
     case AreYouUKResidentPage => controllers.individual.routes.IsThisYouController.onPageLoad(NormalMode)
+    case IsThisYouPage => controllers.individual.routes.YouNeedToTellHMRCController.onPageLoad()
   }
 
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {
