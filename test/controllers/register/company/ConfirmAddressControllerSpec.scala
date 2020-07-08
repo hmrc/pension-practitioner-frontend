@@ -43,13 +43,16 @@ import models.register.OrganisationRegistration
 import models.register.RegistrationCustomerType
 import models.register.RegistrationInfo
 import models.register.RegistrationLegalStatus
+import org.mockito.Matchers
 import org.mockito.Mockito.reset
 import org.scalatest.BeforeAndAfterEach
 import pages.register.BusinessTypePage
 import pages.register.company.BusinessUTRPage
+import pages.register.company.ConfirmAddressPage
 import play.api.test.FakeRequest
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import uk.gov.hmrc.viewmodels.Radios
+import utils.countryOptions.CountryOptions
 
 import scala.concurrent.Future
 
@@ -64,15 +67,18 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
   private def confirmAddressRoute = routes.ConfirmAddressController.onPageLoad().url
   private def confirmAddressSubmitRoute = routes.ConfirmAddressController.onSubmit().url
 
+  private val address = TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
   private val organisation = Organisation(pspName,BusinessType.LimitedCompany)
   private val organisationRegistration = OrganisationRegistration(
     OrganisationRegisterWithIdResponse(
       organisation,
-      TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
+      address
     ),
     RegistrationInfo(RegistrationLegalStatus.LimitedCompany,
       "", false, RegistrationCustomerType.UK, None, None)
   )
+
+  private val mockCountryOptions = mock[CountryOptions]
 
   private val mockRegistrationConnector = mock[RegistrationConnector]
 
@@ -84,20 +90,24 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
 
   override def beforeEach: Unit = {
     super.beforeEach
-    reset(mockRenderer, mockRegistrationConnector, mockUserAnswersCacheConnector)
+    reset(mockRenderer, mockRegistrationConnector, mockUserAnswersCacheConnector, mockCountryOptions)
   }
 
   "ConfirmAddress Controller" must {
     "return OK and the correct view for a GET" in {
       val application = applicationBuilder(userAnswers = Some(userAnswersWithRegistrationValues))
         .overrides(
-          bind[RegistrationConnector].toInstance(mockRegistrationConnector)
+          bind[RegistrationConnector].toInstance(mockRegistrationConnector),
+          bind[CountryOptions].toInstance(mockCountryOptions)
+
         ).build()
 
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
       when(mockRegistrationConnector.registerWithIdOrganisation(any(),any(),any())(any(),any()))
         .thenReturn(Future.successful(organisationRegistration))
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
+      when(mockCountryOptions.getCountryNameFromCode(Matchers.anyString()))
+        .thenReturn("GB")
 
       val request = FakeRequest(GET, confirmAddressRoute)
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
@@ -129,8 +139,6 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
       val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
-        .overrides(
-        )
         .build()
 
       val request =
@@ -149,9 +157,15 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
     "return a Bad Request and errors when invalid data is submitted" in {
 
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
+      when(mockCountryOptions.getCountryNameFromCode(Matchers.anyString()))
+        .thenReturn("GB")
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
+      val userAnswersWithAddress = userAnswersWithRegistrationValues
+        .setOrException(ConfirmAddressPage, address)
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithAddress))
         .overrides(
+          bind[CountryOptions].toInstance(mockCountryOptions)
         )
         .build()
       val request = FakeRequest(POST, confirmAddressRoute).withFormUrlEncodedBody(("value", ""))
