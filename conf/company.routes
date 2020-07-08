@@ -13,3 +13,8 @@ GET        /addresses/address-manual                  controllers.register.compa
 POST       /addresses/address-manual                  controllers.register.company.CompanyAddressController.onSubmit(mode: Mode = NormalMode)
 GET        /addresses/change-address-manual           controllers.register.company.CompanyAddressController.onPageLoad(mode: Mode = CheckMode)
 POST       /addresses/change-address-manual           controllers.register.company.CompanyAddressController.onSubmit(mode: Mode = CheckMode)
+
+GET        /contact-details/contact-email             controllers.register.company.CompanyEmailController.onPageLoad(mode: Mode = NormalMode)
+POST       /contact-details/contact-email             controllers.register.company.CompanyEmailController.onSubmit(mode: Mode = NormalMode)
+GET        /contact-details/change-contact-email      controllers.register.company.CompanyEmailController.onPageLoad(mode: Mode = CheckMode)
+POST       /contact-details/change-contact-email      controllers.register.company.CompanyEmailController.onSubmit(mode: Mode = CheckMode)

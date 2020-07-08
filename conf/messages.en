@@ -369,3 +369,8 @@ country.ZM = Zambia
 country.ZW = Zimbabwe
 country.JM = Jamaica
 country.EE = Estonia
+
+email.error.invalid = Enter an email address in the correct format, like name@example.com
+email.error.required = Enter {0}’s email address
+email.title = What is {0}’s email address?
+email.hint = We will only use this to contact about pension scheme practitioners.
