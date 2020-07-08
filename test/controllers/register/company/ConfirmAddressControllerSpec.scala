@@ -18,6 +18,7 @@ package controllers.register.company
 
 import connectors.RegistrationConnector
 import controllers.base.ControllerSpecBase
+import data.SampleData
 import matchers.JsonMatchers
 import play.api.inject.bind
 import org.mockito.ArgumentCaptor
@@ -67,12 +68,11 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
   private def confirmAddressRoute = routes.ConfirmAddressController.onPageLoad().url
   private def confirmAddressSubmitRoute = routes.ConfirmAddressController.onSubmit().url
 
-  private val address = TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
   private val organisation = Organisation(pspName,BusinessType.LimitedCompany)
   private val organisationRegistration = OrganisationRegistration(
     OrganisationRegisterWithIdResponse(
       organisation,
-      address
+      addressUK
     ),
     RegistrationInfo(RegistrationLegalStatus.LimitedCompany,
       "", false, RegistrationCustomerType.UK, None, None)
@@ -161,7 +161,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
         .thenReturn("GB")
 
       val userAnswersWithAddress = userAnswersWithRegistrationValues
-        .setOrException(ConfirmAddressPage, address)
+        .setOrException(ConfirmAddressPage, SampleData.addressUK)
 
       val application = applicationBuilder(userAnswers = Some(userAnswersWithAddress))
         .overrides(

@@ -16,6 +16,7 @@
 
 package data
 
+import models.TolerantAddress
 import models.UserAnswers
 import pages.register.company.CompanyNamePage
 import play.api.libs.json.Json
@@ -30,4 +31,6 @@ object SampleData {
 
   def userAnswersWithCompanyName: UserAnswers =
     UserAnswers().setOrException(CompanyNamePage, pspName)
+
+  val addressUK = TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
 }
