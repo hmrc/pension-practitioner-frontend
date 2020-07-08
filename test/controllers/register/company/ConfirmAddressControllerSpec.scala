@@ -16,10 +16,10 @@
 
 package controllers.register.company
 
+import connectors.RegistrationConnector
 import controllers.base.ControllerSpecBase
 import matchers.JsonMatchers
-import models.NormalMode
-import models.UserAnswers
+import play.api.inject.bind
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito.times
@@ -35,14 +35,25 @@ import play.api.test.Helpers._
 import play.twirl.api.Html
 import data.SampleData._
 import forms.register.company.ConfirmAddressFormProvider
-import pages.register.company.ConfirmAddressPage
+import models.TolerantAddress
+import models.register.BusinessType
+import models.register.Organisation
+import models.register.OrganisationRegisterWithIdResponse
+import models.register.OrganisationRegistration
+import models.register.RegistrationCustomerType
+import models.register.RegistrationInfo
+import models.register.RegistrationLegalStatus
+import org.mockito.Mockito.reset
+import org.scalatest.BeforeAndAfterEach
+import pages.register.BusinessTypePage
+import pages.register.company.BusinessUTRPage
 import play.api.test.FakeRequest
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import uk.gov.hmrc.viewmodels.Radios
 
 import scala.concurrent.Future
 
-class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues with BeforeAndAfterEach {
 
   def onwardRoute = Call("GET", "/foo")
 
@@ -52,24 +63,44 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
   def confirmAddressRoute = routes.ConfirmAddressController.onPageLoad().url
   def confirmAddressSubmitRoute = routes.ConfirmAddressController.onSubmit().url
 
-  // val or = OrganisationRegistration(
-  //   OrganisationRegisterWithIdResponse(
-  //     organisation,
-  //     TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
-  //   ),
-  //   RegistrationInfo(RegistrationLegalStatus.LimitedCompany, "", false, RegistrationCustomerType.UK, None, None)
-  // )
-  //
+  override def beforeEach: Unit = {
+    super.beforeEach
+    reset(mockAppConfig)
+  }
 
   "ConfirmAddress Controller" must {
 
     "return OK and the correct view for a GET" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
+      val utr = "1234567890"
+
+      val userAnswersWithRegistrationValues = userAnswersWithCompanyName
+          .setOrException(BusinessUTRPage, utr)
+        .setOrException(BusinessTypePage, BusinessType.LimitedCompany)
+
+
+      val mockRegistrationConnector = mock[RegistrationConnector]
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithRegistrationValues))
         .overrides(
+          bind[RegistrationConnector].toInstance(mockRegistrationConnector)
         )
         .build()
+      val organisation = Organisation(pspName,BusinessType.LimitedCompany)
+       val organisationRegistration = OrganisationRegistration(
+         OrganisationRegisterWithIdResponse(
+           organisation,
+           TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
+         ),
+         RegistrationInfo(RegistrationLegalStatus.LimitedCompany, "", false, RegistrationCustomerType.UK, None, None)
+       )
+
+      when(mockRegistrationConnector.registerWithIdOrganisation(any(),any(),any())(any(),any()))
+        .thenReturn(Future.successful(organisationRegistration))
+
+      when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
+
       val request = FakeRequest(GET, confirmAddressRoute)
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
@@ -79,6 +110,8 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
       status(result) mustEqual OK
 
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      verify(mockRegistrationConnector, times(1)).registerWithIdOrganisation(any(),any(),any())(any(),any())
+      verify(mockUserAnswersCacheConnector, times(1)).save(any())(any(),any())
 
       val expectedJson = Json.obj(
         "form"   -> form,
