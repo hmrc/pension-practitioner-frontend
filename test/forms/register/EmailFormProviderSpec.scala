@@ -46,7 +46,7 @@ class EmailFormProviderSpec extends StringFieldBehaviours with Constraints {
     behave like fieldWithRegex(
       form,
       fieldName,
-      Seq("ABC"),
+      "ABC",
       FormError(fieldName, keyInvalid, Seq(emailRestrictiveRegex))
     )
   }
