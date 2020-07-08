@@ -95,6 +95,9 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
        // )
        //
        // Future.successful(or).flatMap{ reg =>
+
+         println( "\n>>" + reg.response)
+
           val ua = request.userAnswers
             .setOrException(ConfirmAddressPage, reg.response.address)
             .setOrException(CompanyNamePage, reg.response.organisation.organisationName)

@@ -52,6 +52,14 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
   def confirmAddressRoute = routes.ConfirmAddressController.onPageLoad().url
   def confirmAddressSubmitRoute = routes.ConfirmAddressController.onSubmit().url
 
+  // val or = OrganisationRegistration(
+  //   OrganisationRegisterWithIdResponse(
+  //     organisation,
+  //     TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
+  //   ),
+  //   RegistrationInfo(RegistrationLegalStatus.LimitedCompany, "", false, RegistrationCustomerType.UK, None, None)
+  // )
+  //
 
   val answers: UserAnswers = userAnswersWithCompanyName.set(ConfirmAddressPage, true).success.value
 
