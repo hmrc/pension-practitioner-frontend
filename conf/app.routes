@@ -22,4 +22,6 @@ POST       /are-you-in-the-uk-company                        controllers.registe
 GET        /business-type                        controllers.register.BusinessTypeController.onPageLoad()
 POST       /business-type                        controllers.register.BusinessTypeController.onSubmit()
 
+GET        /declaration                        controllers.register.Declaration.onPageLoad
+
 
