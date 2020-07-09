@@ -21,7 +21,7 @@ import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import models.{NormalMode, UserAnswers}
 import pages.Page
-import pages.individual.{AreYouUKResidentPage, IsThisYouPage, WhatYouWillNeedPage}
+import pages.individual.{AreYouUKResidentPage, IsThisYouPage, UseAddressForContactPage, WhatYouWillNeedPage}
 import play.api.mvc.Call
 
 class IndividualNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector, config: FrontendAppConfig)
@@ -39,7 +39,7 @@ class IndividualNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConn
         case _ =>
           controllers.routes.SessionExpiredController.onPageLoad()
       }
-
+    case UseAddressForContactPage => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
   }
 
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {

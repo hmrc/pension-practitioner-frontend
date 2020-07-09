@@ -456,3 +456,7 @@ useAddressForContact.title = Can HMRC use this address to contact you?
 useAddressForContact.heading = Can HMRC use this address to contact you?
 useAddressForContact.error.required = Select yes if HMRC can use this address to contact you
 
+individual.email.title = What is your email address?
+individual.email.hint = We will only use this to contact you about pension scheme practitioners.
+individual.email.error.required = Enter your email address
+
