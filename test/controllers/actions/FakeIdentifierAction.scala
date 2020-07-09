@@ -28,7 +28,7 @@ class FakeIdentifierAction @Inject()(bodyParsers: PlayBodyParsers) extends Ident
   private val defaultUserType = UserType.Organisation
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
-    block(IdentifierRequest(request, PSPUser(defaultUserType, None, isExistingPSP = false, None, Some(defaultPspId))))
+    block(IdentifierRequest(request, PSPUser(defaultUserType, Some("test-nino"), isExistingPSP = false, None, Some(defaultPspId))))
   }
 
   override def parser: BodyParser[AnyContent] =
