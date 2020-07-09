@@ -442,3 +442,8 @@ phone.error.required = Enter the {0}’s phone number
 phone.error.invalid = Enter a phone number in the correct format
 phone.title = What is {0}’s phone number?
 phone.hint = We will only use this to contact about pension scheme practitioners.
+
+useAddressForContact.title = Can HMRC use this address to contact you?
+useAddressForContact.heading = Can HMRC use this address to contact you?
+useAddressForContact.error.required = Select yes if HMRC can use this address to contact you
+
