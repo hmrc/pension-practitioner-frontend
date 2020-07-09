@@ -59,19 +59,16 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       val ua = request.userAnswers
-      val preparedForm = ua.get(IsThisYouPage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
+      val preparedForm = ua.get(IsThisYouPage).fold(form)(form.fill)
 
       val json = Json.obj(
-        "form" -> preparedForm,
+        fields = "form" -> preparedForm,
         "submitUrl" -> routes.IsThisYouController.onSubmit(mode).url,
         "radios" -> Radios.yesNo(preparedForm("value"))
       )
       (ua.get(IndividualDetailsPage), ua.get(IndividualAddressPage), ua.get(RegistrationInfoPage)) match {
         case (Some(individual), Some(address), Some(_)) =>
-          renderer.render("individual/isThisYou.njk", json ++ jsonWithNameAndAddress(individual, address)).map(Ok(_))
+          renderer.render(template = "individual/isThisYou.njk", json ++ jsonWithNameAndAddress(individual, address)).map(Ok(_))
         case _ =>
           request.user.nino match {
             case Some(nino) =>
@@ -81,7 +78,7 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
                   _.set(RegistrationInfoPage, registration.info)
                 )).flatMap { uaWithRegInfo =>
                   userAnswersCacheConnector.save(uaWithRegInfo.data).flatMap { _ =>
-                    renderer.render("individual/isThisYou.njk", json ++
+                    renderer.render(template = "individual/isThisYou.njk", json ++
                       jsonWithNameAndAddress(registration.response.individual, registration.response.address)).map(Ok(_))
                   }
                 }
@@ -95,7 +92,6 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      val ua = request.userAnswers
       form.bindFromRequest().fold(
         (formWithErrors: Form[_]) => {
           val json = Json.obj(
@@ -105,7 +101,7 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
           )
           (IndividualDetailsPage and IndividualAddressPage).retrieve.right.map {
             case individual ~ address =>
-              renderer.render("individual/isThisYou.njk", jsonWithNameAndAddress(individual, address)).map(BadRequest(_))
+              renderer.render("individual/isThisYou.njk", json ++ jsonWithNameAndAddress(individual, address)).map(BadRequest(_))
             case _ =>
               Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
           }
