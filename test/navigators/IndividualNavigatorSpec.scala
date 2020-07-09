@@ -16,6 +16,7 @@
 
 package navigators
 
+import data.SampleData
 import models.{NormalMode, UserAnswers}
 import org.scalatest.prop.TableFor3
 import pages._
@@ -26,13 +27,17 @@ class IndividualNavigatorSpec extends NavigatorBehaviour {
 
   private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
 
+  private def uaIsThisYou(flag: Boolean) = SampleData
+    .emptyUserAnswers.setOrException(IsThisYouPage, flag)
+
   "NormalMode" must {
     def normalModeRoutes: TableFor3[Page, UserAnswers, Call] =
       Table(
         ("Id", "UserAnswers", "Next Page"),
         row(WhatYouWillNeedPage)(controllers.individual.routes.AreYouUKResidentController.onPageLoad()),
         row(AreYouUKResidentPage)(controllers.individual.routes.IsThisYouController.onPageLoad(NormalMode)),
-        row(IsThisYouPage)(controllers.individual.routes.YouNeedToTellHMRCController.onPageLoad())
+        row(IsThisYouPage)(controllers.individual.routes.YouNeedToTellHMRCController.onPageLoad(), Some(uaIsThisYou(false))),
+        row(IsThisYouPage)(controllers.individual.routes.UseAddressForContactController.onPageLoad(NormalMode), Some(uaIsThisYou(true)))
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)

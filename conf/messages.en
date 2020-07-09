@@ -451,3 +451,8 @@ cya.email = What is {0}’s email address?
 cya.change.email = {0}’s email address?
 cya.phone = What is {0}’s phone number?
 cya.change.phone = {0}’s phone number?
+
+useAddressForContact.title = Can HMRC use this address to contact you?
+useAddressForContact.heading = Can HMRC use this address to contact you?
+useAddressForContact.error.required = Select yes if HMRC can use this address to contact you
+

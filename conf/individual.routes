@@ -11,3 +11,8 @@ POST        /uk/change/is-this-you                      controllers.individual.I
 
 GET         /uk/you-need-to-tell-hmrc                  controllers.individual.YouNeedToTellHMRCController.onPageLoad()
 
+GET         /uk/use-address-for-contact                  controllers.individual.UseAddressForContactController.onPageLoad(mode: Mode = NormalMode)
+POST        /uk/use-address-for-contact                  controllers.individual.UseAddressForContactController.onPageLoad(mode: Mode = NormalMode)
+GET         /uk/change/use-address-for-contact           controllers.individual.UseAddressForContactController.onPageLoad(mode: Mode = CheckMode)
+POST        /uk/change/use-address-for-contact           controllers.individual.UseAddressForContactController.onSubmit(mode: Mode = CheckMode)
+

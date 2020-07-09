@@ -7,7 +7,7 @@
 {% from "macros/title.njk"                         import title %}
 
 {% block pageTitle %}
-  {{ title(messages("isThisYou.title"), form.errors) }}
+  {{ title(messages("useAddressForContact.title"), form.errors) }}
 {% endblock %}
 
 {% block mainContent %}
@@ -23,14 +23,12 @@
         {% endif %}
 
         <h1 class="govuk-heading-xl">
-             {{ messages("isThisYou.heading") }}
+                {{ messages("useAddressForContact.heading") }}
         </h1>
 
         <form action="{{ submitUrl }}" method="post">
 
           {{ csrf() | safe }}
-
-            <p id="individual-value" class="govuk-body">{{name}}</p>
 
             <p class="govuk-body">
                {% for addressItem in address %}

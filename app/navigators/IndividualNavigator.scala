@@ -30,7 +30,16 @@ class IndividualNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConn
   override protected def routeMap(ua: UserAnswers): PartialFunction[Page, Call] = {
     case WhatYouWillNeedPage => controllers.individual.routes.AreYouUKResidentController.onPageLoad()
     case AreYouUKResidentPage => controllers.individual.routes.IsThisYouController.onPageLoad(NormalMode)
-    case IsThisYouPage => controllers.individual.routes.YouNeedToTellHMRCController.onPageLoad()
+    case IsThisYouPage =>
+      ua.get(IsThisYouPage) match {
+        case Some(true) =>
+          controllers.individual.routes.UseAddressForContactController.onPageLoad(NormalMode)
+        case Some(false) =>
+          controllers.individual.routes.YouNeedToTellHMRCController.onPageLoad()
+        case _ =>
+          controllers.routes.SessionExpiredController.onPageLoad()
+      }
+
   }
 
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {
