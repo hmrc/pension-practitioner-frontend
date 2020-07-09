@@ -14,23 +14,32 @@
  * limitations under the License.
  */
 
-package data
+package forms.register.company
 
-import models.TolerantAddress
-import models.UserAnswers
-import pages.register.company.CompanyNamePage
-import play.api.libs.json.Json
+import forms.behaviours.BooleanFieldBehaviours
+import play.api.data.FormError
 
-object SampleData {
-  //scalastyle.off: magic.number
-  val userAnswersId = "id"
-  val psaId = "A0000000"
-  val pspName = "psp"
+class ConfirmAddressFormProviderSpec extends BooleanFieldBehaviours {
 
-  def emptyUserAnswers: UserAnswers = UserAnswers()
+  val requiredKey = "confirmAddress.error.required"
+  val invalidKey = "error.boolean"
 
-  def userAnswersWithCompanyName: UserAnswers =
-    UserAnswers().setOrException(CompanyNamePage, pspName)
+  val form = new ConfirmAddressFormProvider()()
 
-  val addressUK = TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
+  ".value" must {
+
+    val fieldName = "value"
+
+    behave like booleanField(
+      form,
+      fieldName,
+      invalidError = FormError(fieldName, invalidKey)
+    )
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
+  }
 }

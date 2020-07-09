@@ -21,7 +21,10 @@ import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import models.UserAnswers
 import pages.Page
-import pages.register.company.{BusinessUTRPage, CompanyNamePage}
+import pages.register.company.ConfirmAddressPage
+import pages.register.company.BusinessUTRPage
+import pages.register.company.CompanyNamePage
+import pages.register.company.ConfirmNamePage
 import play.api.mvc.Call
 
 class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector, config: FrontendAppConfig)
@@ -32,6 +35,17 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
       controllers.register.company.routes.CompanyNameController.onPageLoad()
     case CompanyNamePage =>
       controllers.register.company.routes.ConfirmNameController.onPageLoad()
+    case ConfirmNamePage =>
+      ua.get(ConfirmNamePage) match {
+        case Some(false) => controllers.register.company.routes.TellHMRCController.onPageLoad()
+        case _ => controllers.register.company.routes.ConfirmAddressController.onPageLoad()
+      }
+    case ConfirmAddressPage =>
+      ua.get(ConfirmAddressPage) match {
+        case None => controllers.register.company.routes.TellHMRCController.onPageLoad()
+        case _ => controllers.routes.SessionExpiredController.onPageLoad()
+      }
+
 
   }
 

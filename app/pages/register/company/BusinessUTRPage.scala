@@ -20,8 +20,7 @@ import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 case object BusinessUTRPage extends QuestionPage[String] {
+  override def path: JsPath = JsPath \ "company" \ toString
 
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "businessUTR"
+  override def toString: String = "utr"
 }

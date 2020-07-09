@@ -5,7 +5,7 @@
 ->          /register/company                                company.Routes
 GET         /                                                                                                                   controllers.IndexController.onPageLoad
 
-
+GET         /sign-out                                                                                               controllers.SignOutController.signOut()
 
 GET         /assets/*file                                                                                                       controllers.Assets.versioned(path="/public", file: Asset)
 
@@ -13,17 +13,18 @@ GET         /language/:lang                                                     
 
 GET         /this-service-has-been-reset                                                                                        controllers.SessionExpiredController.onPageLoad
 
-GET         /unauthorised                           controllers.UnauthorisedController.onPageLoad
+GET         /unauthorised                                   controllers.UnauthorisedController.onPageLoad
 
-GET        /what-type-business                          controllers.WhatTypeBusinessController.onPageLoad()
-POST       /what-type-business                          controllers.WhatTypeBusinessController.onSubmit()
+GET        /who-are-you-registering                         controllers.WhatTypeBusinessController.onPageLoad()
+POST       /who-are-you-registering                         controllers.WhatTypeBusinessController.onSubmit()
 
-GET        /what-you-will-need                          controllers.register.WhatYouWillNeedController.onPageLoad()
+GET        /what-you-will-need                              controllers.register.WhatYouWillNeedController.onPageLoad()
 
-GET        /are-you-in-the-uk-company                        controllers.register.AreYouUKCompanyController.onPageLoad()
-POST       /are-you-in-the-uk-company                        controllers.register.AreYouUKCompanyController.onSubmit()
+GET        /are-you-in-the-uk-company                       controllers.register.AreYouUKCompanyController.onPageLoad()
+POST       /are-you-in-the-uk-company                       controllers.register.AreYouUKCompanyController.onSubmit()
 
-GET        /business-type                        controllers.register.BusinessTypeController.onPageLoad()
-POST       /business-type                        controllers.register.BusinessTypeController.onSubmit()
+GET        /business-type                                   controllers.register.BusinessTypeController.onPageLoad()
+POST       /business-type                                   controllers.register.BusinessTypeController.onSubmit()
+
 
 

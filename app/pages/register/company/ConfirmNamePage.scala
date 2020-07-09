@@ -21,7 +21,7 @@ import play.api.libs.json.JsPath
 
 case object ConfirmNamePage extends QuestionPage[Boolean] {
 
-  override def path: JsPath = JsPath \ toString
+  override def path: JsPath = JsPath \ "company" \ toString
 
   override def toString: String = "confirmName"
 }

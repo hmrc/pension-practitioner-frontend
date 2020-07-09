@@ -21,8 +21,12 @@ import pages.WhatTypeBusinessPage
 import pages.register.company.{BusinessUTRPage, CompanyNamePage, ConfirmNamePage}
 import pages.register.AreYouUKCompanyPage
 import pages.register.BusinessTypePage
+import pages.register.company.ConfirmAddressPage
 
 trait PageGenerators {
+
+  implicit lazy val arbitraryConfirmAddressPage: Arbitrary[ConfirmAddressPage.type] =
+    Arbitrary(ConfirmAddressPage)
 
   implicit lazy val arbitraryConfirmNamePage: Arbitrary[ConfirmNamePage.type] =
     Arbitrary(ConfirmNamePage)

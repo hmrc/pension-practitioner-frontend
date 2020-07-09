@@ -92,7 +92,7 @@ whatTypeBusiness.limitedPartnership = Limited partnership
 whatTypeBusiness.limitedLiabilityPartnership = Limited liability partnership
 whatTypeBusiness.unlimitedCompany = Unlimited company
 
-businessUTR.title = What is the Unique Taxpayer Reference (UTR) of the Limited company you want to register?
+businessUTR.title = What is the Unique Taxpayer Reference (UTR) of the limited company you want to register?
 businessUTR.heading = What is the Unique Taxpayer Reference (UTR) of the Limited company you want to register?
 businessUTR.p1 = This is a 10-digit or 13-digit number. You can find it on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
 businessUTR.p2 = If the UTR is 13 numbers, only enter the last 10.
@@ -109,8 +109,11 @@ companyName.error.invalid = Company name must only include letters, numbers, das
 
 confirmName.title = Is this the registered name of the company?
 confirmName.heading = Is {0} the registered name of the company?
-confirmName.checkYourAnswersLabel = confirmName
 confirmName.error.required = Select yes if this is the registered name of the company
+
+confirmAddress.title = Is this {0}’s registered address?
+confirmAddress.heading = Is this {0}’s registered address?
+confirmAddress.error.required = Select yes if this is the company’s registered address
 
 postcode.error.required = Enter the address we can use to contact {0}
 postcode.error.invalid = Enter a valid address which we can use to contact {0}
@@ -405,6 +408,16 @@ country.ZM = Zambia
 country.ZW = Zimbabwe
 country.JM = Jamaica
 country.EE = Estonia
+
+tellHMRC.title = You need to update the company՚s details before registering
+tellHMRC.heading = You need to update the company՚s details before registering
+tellHMRC.p1 = You need to tell:
+tellHMRC.companiesHouse = Companies House
+tellHMRC.aboutBusiness = HMRC about changes to your business
+tellHMRC.p2 = , such as changing the business address
+tellHMRC.p3 = if it's a limited company or Limited Liability Partnership (LLP)
+tellHMRC.hmrc = HMRC
+
 
 email.error.invalid = Enter an email address in the correct format, like name@example.com
 email.error.required = Enter {0}’s email address
