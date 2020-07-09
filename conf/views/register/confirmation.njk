@@ -1,0 +1,59 @@
+{% extends "includes/layout.njk" %}
+
+{% from "macros/title.njk"                         import title %}
+{% from "govuk/components/panel/macro.njk" import govukPanel %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+
+{% block beforeContent %}
+  {% include "includes/phase-banner.njk" %}
+{% endblock %}
+
+{% block pageTitle %}
+  {{ title(messages("confirmation.title", messages(viewmodel.entityType))) }}
+{% endblock %}
+
+{% set panelH1 %}
+     {{ messages("confirmation.title", viewmodel.entityName) }}
+     {{ messages("confirmation.psp.id") }}
+     {{ pspId }}
+{% endset %}
+
+{% block mainContent %}
+
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+
+        {{ govukPanel({
+                titleText: panelH1,
+                html: panelHtml
+        }) }}
+        <p class="govuk-body">
+            {{messages("confirmation.email")}}
+            <span class="govuk-!-font-weight-bold">{{email}}</span>.
+        </p>
+
+
+        <h2 class="govuk-heading-m">{{messages("confirmation.list.header")}}</h2>
+
+         <div><ul class="govuk-list govuk-list--bullet">
+            <li>{{messages("confirmation.list.item1")}}</li>
+            <li>{{messages("confirmation.list.item2")}}</li>
+        </ul></div>
+
+        <p class="govuk-body">{{messages("confirmation.list.text")}}</p>
+
+        <h2 class="govuk-heading-m">{{messages("confirmation.saveOrPrint")}}</h2>
+
+        <p class="govuk-body"><a class="govuk-link print-this-page" href="#">{{messages("confirmation.print.page.link.text")}}</a></p>
+        <p class="govuk-body"><a class="govuk-link save-this-page" href="#">{{messages("confirmation.save.page.link.text")}}</a></p>
+
+        {{ govukButton({
+            href: viewmodel.submitUrl,
+            attributes: {id: "submit"},
+            text: messages("site.finish")
+          }) }}
+      </div>
+    </div>
+
+{% endblock %}
