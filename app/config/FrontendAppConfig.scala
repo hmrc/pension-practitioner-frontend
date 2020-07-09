@@ -76,6 +76,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   lazy val ukJourneyContinueUrl: String = configuration.get[String]("urls.ukJourneyContinue")
 
+  lazy val companiesHouseFileChangesUrl: String = configuration.get[String]("urls.companiesHouseFileChanges")
+  lazy val hmrcChangesMustReportUrl: String = configuration.get[String]("urls.hmrcChangesMustReport")
+
   lazy val loginContinueUrl: String = configuration.get[String]("urls.loginContinue")
 
   lazy val loginUrl: String = configuration.get[String]("urls.login")

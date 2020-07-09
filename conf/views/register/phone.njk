@@ -4,11 +4,10 @@
 {% from "govuk/components/input/macro.njk"         import govukInput %}
 {% from "govuk/components/button/macro.njk"        import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
-{% from "govuk/components/fieldset/macro.njk"       import govukFieldset %}
 {% from "macros/title.njk"                         import title %}
 
 {% block pageTitle %}
-  {{ title(messages("businessUTR.title"), form.errors) }}
+  {{ title(messages("phone.title", messages(entityType)), form.errors) }}
 {% endblock %}
 
 {% block mainContent %}
@@ -23,29 +22,25 @@
           }) }}
         {% endif %}
 
+        <h1 class="govuk-heading-xl">{{messages("phone.title", entityName)}}</h1>
+
+         <p class="govuk-body"> {{ messages("phone.hint") }} </p>
+
         <form action="{{ submitUrl }}" method="post">
 
           {{ csrf() | safe }}
 
-          {% call govukFieldset({
-            legend: {
-              text: messages('businessUTR.heading'),
-              classes: "govuk-fieldset__legend--l",
-              isPageHeading: true
-            }
-          }) %}
-
-          <p class="govuk-body">{{messages('businessUTR.p1')}}</p>
-          <p class="govuk-body">{{messages('businessUTR.p2')}}</p>
-          <p class="govuk-body">{{messages('businessUTR.p3')}}</p>
-
           {{ govukInput({
             label: {
-               html: '<span class="govuk-visually-hidden">' + messages("businessUTR.title") + '</span>'
+              text: messages('phone.title', entityName),
+              isPageHeading: true,
+              classes: "govuk-fieldset__legend--s govuk-visually-hidden"
             },
             id: "value",
             name: "value",
             value: form.value.value,
+            classes: "govuk-input--width-10",
+            attributes: {autocomplete: "none"},
             errorMessage: form.value.error
           }) }}
 
@@ -53,8 +48,6 @@
             text: messages("site.save_and_continue"),
             attributes: {id: "submit"}
           }) }}
-
-          {% endcall %}
 
         </form>
 

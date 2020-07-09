@@ -86,6 +86,13 @@ final case class UserAnswers(data: JsObject = Json.obj()) {
     }
   }
 
+  def removeOrException[A](page: QuestionPage[A]): UserAnswers = {
+    remove(page) match {
+      case Success(ua) => ua
+      case Failure(ex) => throw ex
+    }
+  }
+
   def remove[A](page: QuestionPage[A]): Try[UserAnswers] = {
     val updatedData = data.removeObject(page.path) match {
       case JsSuccess(jsValue, _) =>
@@ -100,6 +107,7 @@ final case class UserAnswers(data: JsObject = Json.obj()) {
         page.cleanup(None, updatedAnswers)
     }
   }
+
 }
 
 

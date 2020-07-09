@@ -16,14 +16,24 @@
 
 package navigators
 
+import data.SampleData
 import models.NormalMode
 import models.UserAnswers
 import org.scalatest.prop.TableFor3
 import pages._
-import pages.register.company.{BusinessUTRPage, CompanyNamePage}
+import pages.register.company.BusinessUTRPage
+import pages.register.company.CompanyNamePage
+import pages.register.company.ConfirmAddressPage
+import pages.register.company.ConfirmNamePage
 import play.api.mvc.Call
 
 class CompanyNavigatorSpec extends NavigatorBehaviour {
+  private val uaConfirmAddressYes = SampleData
+    .emptyUserAnswers.setOrException(ConfirmAddressPage, SampleData.addressUK)
+
+  private def uaConfirmName(v:Boolean) = SampleData
+    .emptyUserAnswers.setOrException(ConfirmNamePage, v)
+
 
   private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
 
@@ -32,7 +42,11 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
       Table(
         ("Id", "UserAnswers", "Next Page"),
         row(BusinessUTRPage)(controllers.register.company.routes.CompanyNameController.onPageLoad()),
-        row(CompanyNamePage)(controllers.register.company.routes.ConfirmNameController.onPageLoad())
+        row(CompanyNamePage)(controllers.register.company.routes.ConfirmNameController.onPageLoad()),
+        row(ConfirmNamePage)(controllers.register.company.routes.ConfirmAddressController.onPageLoad(), Some(uaConfirmName(true))),
+        row(ConfirmNamePage)(controllers.register.company.routes.TellHMRCController.onPageLoad(),Some(uaConfirmName(false))),
+        row(ConfirmAddressPage)(controllers.register.company.routes.TellHMRCController.onPageLoad()),
+        row(ConfirmAddressPage)(controllers.routes.SessionExpiredController.onPageLoad(), Some(uaConfirmAddressYes))
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)

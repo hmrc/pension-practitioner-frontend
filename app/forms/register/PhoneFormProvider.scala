@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-package data
+package forms.register
 
-import models.TolerantAddress
-import models.UserAnswers
-import pages.register.company.CompanyNamePage
-import play.api.libs.json.Json
+import forms.mappings.{Constraints, Mappings}
+import javax.inject.Inject
+import play.api.data.Form
 
-object SampleData {
-  //scalastyle.off: magic.number
-  val userAnswersId = "id"
-  val psaId = "A0000000"
-  val pspName = "psp"
+class PhoneFormProvider @Inject() extends Mappings with Constraints {
 
-  def emptyUserAnswers: UserAnswers = UserAnswers()
+  def apply(keyRequired: String): Form[String] = Form(
+    "value" -> text(keyRequired)
+      .verifying(
+          phoneNumber("phone.error.invalid")
+      )
+  )
 
-  def userAnswersWithCompanyName: UserAnswers =
-    UserAnswers().setOrException(CompanyNamePage, pspName)
-
-  val addressUK = TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
 }
