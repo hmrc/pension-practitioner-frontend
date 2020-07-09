@@ -32,6 +32,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import viewmodels.CommonViewModel
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -81,9 +82,10 @@ class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
     CompanyNamePage.retrieve.right.map { companyName =>
       val json = Json.obj(
         "form" -> form,
-        "entityType" -> messages("company"),
-        "entityName" -> companyName,
-        "submitUrl" -> routes.CompanyEmailController.onSubmit(mode).url
+        "viewmodel" -> CommonViewModel(
+          "company",
+          companyName,
+          routes.CompanyEmailController.onSubmit(mode).url)
       )
       block(json)
     }

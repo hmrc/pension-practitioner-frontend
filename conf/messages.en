@@ -428,3 +428,12 @@ phone.error.required = Enter the {0}’s phone number
 phone.error.invalid = Enter a phone number in the correct format
 phone.title = What is {0}’s phone number?
 phone.hint = We will only use this to contact about pension scheme practitioners.
+
+cya.companyName = Company name
+cya.utr = UTR
+cya.address = Contact address
+cya.change.address = Contact address
+cya.email = What is {0}’s email address?
+cya.change.email = {0}’s email address?
+cya.phone = What is {0}’s phone number?
+cya.change.phone = {0}’s phone number?

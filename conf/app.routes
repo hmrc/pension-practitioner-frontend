@@ -27,4 +27,6 @@ GET        /business-type                                   controllers.register
 POST       /business-type                                   controllers.register.BusinessTypeController.onSubmit()
 
 
+GET        /declaration                        controllers.register.DeclarationController.onPageLoad
+
 
