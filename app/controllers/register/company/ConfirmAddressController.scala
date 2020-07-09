@@ -85,14 +85,9 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
     }
   }
 
-  private def formattedAddress(tolerantAddress:TolerantAddress) = Json.obj(
-    "addr1" -> tolerantAddress.addressLine1.getOrElse[String](""),
-    "addr2" -> tolerantAddress.addressLine2.getOrElse[String](""),
-    "addr3" -> tolerantAddress.addressLine3.getOrElse[String](""),
-    "addr4" -> tolerantAddress.addressLine4.getOrElse[String](""),
-    "postcode" -> tolerantAddress.postcode.getOrElse[String](""),
-    "country" -> countryOptions.getCountryNameFromCode(tolerantAddress.country.getOrElse[String](""))
-  )
+  private def formattedAddress(tolerantAddress:TolerantAddress) =
+    Json.toJson(tolerantAddress.lines(countryOptions))
+
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       retrieveDataForRegistration { (pspName, utr, businessType) =>

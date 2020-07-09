@@ -22,15 +22,13 @@
           }) }}
         {% endif %}
 
-
         <h1 class="govuk-heading-xl">{{messages('confirmAddress.heading',pspName)}}</h1>
         <p class="govuk-body">
-        <span class="govuk-!-display-block">{{address.addr1}}</span>
-        <span class="govuk-!-display-block">{{address.addr2}}</span>
-        <span class="govuk-!-display-block">{{address.addr3}}</span>
-        <span class="govuk-!-display-block">{{address.addr4}}</span>
-        <span class="govuk-!-display-block">{{address.postcode}}</span>
+        {% for line in address %}
+            <span class="govuk-!-display-block">{{line}}</span>
+        {% endfor %}
         </p>
+
         <form action="{{ submitUrl }}" method="post">
 
           {{ csrf() | safe }}
