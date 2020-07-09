@@ -55,6 +55,7 @@ unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
 company = the company
+company.capitalised = The company
 
 whatTypeBusiness.title = Who are you registering as a scheme practitioner?
 whatTypeBusiness.heading = Who are you registering as a scheme practitioner?

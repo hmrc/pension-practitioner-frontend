@@ -23,9 +23,10 @@ import models.WhatTypeBusiness.Companyorpartnership
 import models.requests.DataRequest
 import pages.WhatTypeBusinessPage
 import pages.register.company.CompanyNamePage
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.twirl.api.Html
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
@@ -47,7 +48,7 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
       getEntityTypeAndName.map { case (entityType, name) =>
 
         val json: JsObject = Json.obj(
-          "pspId" -> "SAMPLE PSP ID",
+          "panelHtml" -> confirmationPanelText("1234567890").toString(),
           "email" -> "SAMPLE@EMAIL.COM",
           "viewmodel" -> CommonViewModel(entityType, name, controllers.routes.SignOutController.signOut().url)
         )
@@ -58,10 +59,14 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
 
   private def getEntityTypeAndName(implicit request: DataRequest[AnyContent]): Option[(String, String)] = {
         request.userAnswers.get(WhatTypeBusinessPage).flatMap {
-          case Companyorpartnership => request.userAnswers.get(CompanyNamePage).map { name => ("company", name)}
+          case Companyorpartnership => request.userAnswers.get(CompanyNamePage).map { name => ("company.capitalised", name)}
           case _ => Some(Tuple2("individual", "Individual name"))
         }
   }
 
+  private def confirmationPanelText(pspId: String)(implicit messages: Messages): Html = {
+    Html(s"""<p>${{ messages("confirmation.psp.id") }}</p>
+         |<span class="heading-large govuk-!-font-weight-bold">$pspId</span>""".stripMargin)
+  }
 
 }

@@ -50,6 +50,7 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
   private val application: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
   private val templateToBeRendered = "register/confirmation.njk"
+  private val pspId = "1234567890"
 
   val userAnswers: UserAnswers = UserAnswers()
     .set(WhatTypeBusinessPage, Companyorpartnership).toOption.value
@@ -59,7 +60,10 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
   private def submitUrl: String = controllers.routes.SignOutController.signOut().url
 
   private val jsonToPassToTemplate: JsObject =
-    Json.obj("viewmodel" -> CommonViewModel("company", companyName, submitUrl))
+    Json.obj("viewmodel" -> CommonViewModel("company.capitalised", companyName, submitUrl),
+    "panelHtml" -> Html(s"""<p>${{ messages("confirmation.psp.id") }}</p>
+                           |<span class="heading-large govuk-!-font-weight-bold">$pspId</span>""".stripMargin).toString()
+    )
 
   override def beforeEach: Unit = {
     super.beforeEach
