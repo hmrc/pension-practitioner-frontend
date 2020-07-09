@@ -19,7 +19,7 @@ package navigators
 import models.{NormalMode, UserAnswers}
 import org.scalatest.prop.TableFor3
 import pages._
-import pages.individual.WhatYouWillNeedPage
+import pages.individual.{AreYouUKResidentPage, IsThisYouPage, WhatYouWillNeedPage}
 import play.api.mvc.Call
 
 class IndividualNavigatorSpec extends NavigatorBehaviour {
@@ -30,7 +30,9 @@ class IndividualNavigatorSpec extends NavigatorBehaviour {
     def normalModeRoutes: TableFor3[Page, UserAnswers, Call] =
       Table(
         ("Id", "UserAnswers", "Next Page"),
-        row(WhatYouWillNeedPage)(controllers.individual.routes.AreYouUKResidentController.onPageLoad())
+        row(WhatYouWillNeedPage)(controllers.individual.routes.AreYouUKResidentController.onPageLoad()),
+        row(AreYouUKResidentPage)(controllers.individual.routes.IsThisYouController.onPageLoad(NormalMode)),
+        row(IsThisYouPage)(controllers.individual.routes.YouNeedToTellHMRCController.onPageLoad())
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)
