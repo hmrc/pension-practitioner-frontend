@@ -7,7 +7,7 @@
 {% from "macros/title.njk"                         import title %}
 
 {% block pageTitle %}
-  {{ title(messages("email.title", messages(entityType)), form.errors) }}
+  {{ title(messages("email.title", messages(viewmodel.entityType)), form.errors) }}
 {% endblock %}
 
 {% block mainContent %}
@@ -22,11 +22,11 @@
           }) }}
         {% endif %}
 
-        <h1 class="govuk-heading-xl">{{messages("email.title", entityName)}}</h1>
+        <h1 class="govuk-heading-xl">{{messages("email.title", viewmodel.entityName)}}</h1>
 
          <p class="govuk-body"> {{ messages("email.hint") }} </p>
 
-        <form action="{{ submitUrl }}" method="post">
+        <form action="{{ viewmodel.submitUrl }}" method="post" novalidate>
 
           {{ csrf() | safe }}
 
@@ -39,7 +39,8 @@
             id: "value",
             name: "value",
             value: form.value.value,
-            classes: "govuk-input--width-10",
+            type: "email",
+            classes: "govuk-!-width-three-quarters",
             attributes: {autocomplete: "none"},
             errorMessage: form.value.error
           }) }}

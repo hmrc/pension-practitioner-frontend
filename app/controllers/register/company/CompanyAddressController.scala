@@ -20,95 +20,62 @@ import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
+import controllers.address.ManualAddressController
 import forms.address.AddressFormProvider
 import javax.inject.Inject
 import models.requests.DataRequest
 import models.{Address, Mode}
 import navigators.CompoundNavigator
-import pages.register.company.{CompanyAddressPage, CompanyNamePage, CompanyPostcodePage}
+import pages.register.company.{CompanyAddressPage, CompanyNamePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsArray, JsObject, Json, Writes}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
-import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import viewmodels.CommonViewModel
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
-                                          userAnswersCacheConnector: UserAnswersCacheConnector,
-                                          navigator: CompoundNavigator,
-                                          identify: IdentifierAction,
-                                          getData: DataRetrievalAction,
-                                          requireData: DataRequiredAction,
-                                          formProvider: AddressFormProvider,
-                                          val controllerComponents: MessagesControllerComponents,
-                                          config: FrontendAppConfig,
-                                          renderer: Renderer
-                                         )(implicit ec: ExecutionContext) extends FrontendBaseController
+                                         val userAnswersCacheConnector: UserAnswersCacheConnector,
+                                         val navigator: CompoundNavigator,
+                                         identify: IdentifierAction,
+                                         getData: DataRetrievalAction,
+                                         requireData: DataRequiredAction,
+                                         formProvider: AddressFormProvider,
+                                         val controllerComponents: MessagesControllerComponents,
+                                         val config: FrontendAppConfig,
+                                         val renderer: Renderer
+                                         )(implicit ec: ExecutionContext) extends ManualAddressController
   with Retrievals with I18nSupport with NunjucksSupport {
 
-  private def form(implicit messages: Messages): Form[Address] = formProvider()
+  def form(implicit messages: Messages): Form[Address] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {
       implicit request =>
-        val formFilled = request.userAnswers.get(CompanyAddressPage).fold(form)(form.fill)
-        getJson(mode, formFilled) { json =>
-          renderer.render("address/manualAddress.njk", json).map(Ok(_))
-        }
+        getFormToJson(mode).retrieve.right.map(get(_, CompanyAddressPage))
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {
       implicit request =>
-        form.bindFromRequest().fold(
-          formWithErrors =>
-            getJson(mode, formWithErrors) { json =>
-              renderer.render("address/manualAddress.njk", json).map(BadRequest(_))
-            },
-          value =>
-                for {
-                  updatedAnswers <- Future.fromTry(request.userAnswers.set(CompanyAddressPage, value))
-                  _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-                } yield Redirect(navigator.nextPage(CompanyAddressPage, mode, updatedAnswers))
-        )
+        getFormToJson(mode).retrieve.right.map(post(mode, _, CompanyAddressPage))
     }
 
-  private def getJson(mode: Mode, form: Form[Address])(block: JsObject => Future[Result])
-                     (implicit w: Writes[Form[Address]], messages: Messages, request: DataRequest[AnyContent]): Future[Result] =
-    CompanyNamePage.retrieve.right.map { companyName =>
-      val json = Json.obj(
-        "form" -> form,
-        "entityType" -> messages("company"),
-        "entityName" -> companyName,
-        "submitUrl" -> routes.CompanyAddressController.onSubmit(mode).url,
-        "countries" -> jsonCountries(form.data.get("country"))(request2Messages)
-      )
-      block(json)
-    }
+  def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Address] => JsObject] =
+    Retrieval(
+      implicit request =>
+        CompanyNamePage.retrieve.right.map { companyName =>
+            form => Json.obj(
+              "form" -> form,
+              "viewmodel" -> CommonViewModel(
+                "company",
+                companyName,
+                routes.CompanyAddressController.onSubmit(mode).url),
+              "countries" -> jsonCountries(form.data.get("country"), config)(request2Messages))
+        }
+    )
 
-  private def countryJsonElement(tuple: (String, String), isSelected: Boolean): JsArray = Json.arr(
-    if (isSelected) {
-      Json.obj(
-        "value" -> tuple._1,
-        "text" -> tuple._2,
-        "selected" -> true
-      )
-    } else {
-      Json.obj(
-        "value" -> tuple._1,
-        "text" -> tuple._2
-      )
-    }
-  )
-
-  private def jsonCountries(countrySelected: Option[String])(implicit messages: Messages): JsArray =
-    config.validCountryCodes
-      .map(countryCode => (countryCode, messages(s"country.$countryCode")))
-      .sortWith(_._2 < _._2)
-      .foldLeft(JsArray(Seq(Json.obj("value" -> "", "text" -> "")))) { (acc, nextCountryTuple) =>
-        acc ++ countryJsonElement(nextCountryTuple, countrySelected.contains(nextCountryTuple._1))
-      }
 }

@@ -34,6 +34,13 @@
           {{ csrf() | safe }}
 
           {{ govukRadios({
+           fieldset: {
+                        legend: {
+                          text: messages('confirmAddress.heading',pspName),
+                          isPageHeading: false,
+                          classes: "govuk-visually-hidden"
+                        }
+                      },
             classes: "govuk-radios--inline",
             name: 'value',
             items: radios,

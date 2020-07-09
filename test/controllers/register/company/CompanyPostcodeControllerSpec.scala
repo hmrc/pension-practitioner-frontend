@@ -36,6 +36,7 @@ import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import viewmodels.CommonViewModel
 
 import scala.concurrent.Future
 
@@ -69,12 +70,7 @@ class CompanyPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
 
   private val jsonToPassToTemplate: Form[String] => JsObject =
-    form => Json.obj(
-        "form" -> form,
-        "entityType" -> messages("company"),
-        "entityName" -> companyName,
-        "submitUrl" -> submitUrl,
-        "enterManuallyUrl" -> enterManuallyUrl.url)
+    form => Json.obj("form" -> form, "viewmodel" -> CommonViewModel("company", companyName, submitUrl, Some(enterManuallyUrl.url)))
 
   override def beforeEach: Unit = {
     super.beforeEach

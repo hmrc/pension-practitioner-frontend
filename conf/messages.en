@@ -12,7 +12,7 @@ site.save_charge_and_continue = Save this charge and continue
 site.return_to_summary = Return to AFT summary
 site.service_name = Register as a pension scheme practitioner
 site.textarea.char_limit = (Limit is {0} characters)
-site.title.suffix = - Register as a pension scheme practitioner - GOV.UK
+site.title.suffix = - register as a pension scheme practitioner - GOV.UK
 site.view = View
 site.remove = Remove
 site.signOut = Sign out
@@ -442,6 +442,15 @@ phone.error.required = Enter the {0}’s phone number
 phone.error.invalid = Enter a phone number in the correct format
 phone.title = What is {0}’s phone number?
 phone.hint = We will only use this to contact about pension scheme practitioners.
+
+cya.companyName = Company name
+cya.utr = UTR
+cya.address = Contact address
+cya.change.address = Contact address
+cya.email = What is {0}’s email address?
+cya.change.email = {0}’s email address?
+cya.phone = What is {0}’s phone number?
+cya.change.phone = {0}’s phone number?
 
 useAddressForContact.title = Can HMRC use this address to contact you?
 useAddressForContact.heading = Can HMRC use this address to contact you?

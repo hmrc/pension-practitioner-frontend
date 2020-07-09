@@ -37,6 +37,7 @@ import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.InputOption
 import utils.countryOptions.CountryOptions
+import viewmodels.CommonViewModel
 
 import scala.concurrent.Future
 
@@ -77,9 +78,8 @@ class CompanyAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
   private val jsonToPassToTemplate: Form[Address] => JsObject =
     form => Json.obj(
         "form" -> form,
-        "entityType" -> messages("company"),
-        "entityName" -> companyName,
-        "submitUrl" -> submitUrl)
+      "viewmodel" -> CommonViewModel("company", companyName, submitUrl)
+    )
 
   override def beforeEach: Unit = {
     super.beforeEach
