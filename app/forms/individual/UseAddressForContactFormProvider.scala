@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package models
+package forms.individual
 
-import play.api.mvc.{JavascriptLiteral, PathBindable}
+import forms.mappings.Mappings
+import javax.inject.Inject
+import play.api.data.Form
 
-sealed trait Mode
+class UseAddressForContactFormProvider @Inject() extends Mappings {
 
-case object CheckMode extends Mode
-case object NormalMode extends Mode
-
-object Mode {
-
-  case class UnknownModeException() extends Exception
-
-  implicit val jsLiteral: JavascriptLiteral[Mode] = new JavascriptLiteral[Mode] {
-    override def to(value: Mode): String = value match {
-      case NormalMode => "NormalMode"
-      case CheckMode => "CheckMode"
-    }
-  }
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("useAddressForContact.error.required")
+    )
 }

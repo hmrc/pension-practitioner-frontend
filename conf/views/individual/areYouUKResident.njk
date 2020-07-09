@@ -1,13 +1,13 @@
 {% extends "includes/layout.njk" %}
 
 {% from "govuk/components/back-link/macro.njk"     import govukBackLink %}
-{% from "govuk/components/input/macro.njk"         import govukInput %}
+{% from "govuk/components/radios/macro.njk"        import govukRadios %}
 {% from "govuk/components/button/macro.njk"        import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "macros/title.njk"                         import title %}
 
 {% block pageTitle %}
-  {{ title(messages("phone.title", messages(viewmodel.entityType)), form.errors) }}
+  {{ title(messages("areYouUKResident.title"), form.errors) }}
 {% endblock %}
 
 {% block mainContent %}
@@ -22,26 +22,21 @@
           }) }}
         {% endif %}
 
-        <h1 class="govuk-heading-xl">{{messages("phone.title", viewmodel.entityName)}}</h1>
-
-         <p class="govuk-body"> {{ messages("phone.hint") }} </p>
-
-        <form action="{{ viewmodel.submitUrl }}" method="post" novalidate>
+        <form action="{{ submitUrl }}" method="post">
 
           {{ csrf() | safe }}
 
-          {{ govukInput({
-            label: {
-              text: messages('phone.title', entityName),
-              isPageHeading: true,
-              classes: "govuk-fieldset__legend--s govuk-visually-hidden"
+          {{ govukRadios({
+            classes: "govuk-radios--inline",
+            name: 'value',
+            fieldset: {
+              legend: {
+                text: messages('areYouUKResident.title'),
+                isPageHeading: true,
+                classes: "govuk-fieldset__legend--xl"
+              }
             },
-            id: "value",
-            name: "value",
-            value: form.value.value,
-            type: "tel",
-            classes: "govuk-input--width-20",
-            attributes: {autocomplete: "none"},
+            items: radios,
             errorMessage: form.value.error
           }) }}
 

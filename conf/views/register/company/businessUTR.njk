@@ -41,12 +41,14 @@
 
           {{ govukInput({
             label: {
-               html: '<span class="govuk-visually-hidden">' + messages("businessUTR.title") + '</span>'
+               html: '<span >' + messages("businessUTR.title") + '</span>',
+               classes: "govuk-visually-hidden"
             },
             id: "value",
             name: "value",
             value: form.value.value,
-            errorMessage: form.value.error
+            errorMessage: form.value.error,
+            classes: "govuk-input--width-10"
           }) }}
 
           {{ govukButton({

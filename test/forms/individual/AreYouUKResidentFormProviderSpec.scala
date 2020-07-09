@@ -14,13 +14,32 @@
  * limitations under the License.
  */
 
-package pages
+package forms.individual
 
-import play.api.libs.json.JsPath
+import forms.behaviours.BooleanFieldBehaviours
+import play.api.data.FormError
 
-case object AreYouInUKPage extends QuestionPage[Boolean] {
+class AreYouUKResidentFormProviderSpec extends BooleanFieldBehaviours {
 
-  override def path: JsPath = JsPath \ toString
+  val requiredKey = "areYouUKResident.error.required"
+  val invalidKey = "error.boolean"
 
-  override def toString: String = "areYouInUK"
+  val form = new AreYouUKResidentFormProvider()()
+
+  ".value" must  {
+
+    val fieldName = "value"
+
+    behave like booleanField(
+      form,
+      fieldName,
+      invalidError = FormError(fieldName, invalidKey)
+    )
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
+  }
 }

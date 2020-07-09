@@ -12,7 +12,7 @@ site.save_charge_and_continue = Save this charge and continue
 site.return_to_summary = Return to AFT summary
 site.service_name = Register as a pension scheme practitioner
 site.textarea.char_limit = (Limit is {0} characters)
-site.title.suffix = - Register as a pension scheme practitioner - GOV.UK
+site.title.suffix = - register as a pension scheme practitioner - GOV.UK
 site.view = View
 site.remove = Remove
 site.signOut = Sign out
@@ -78,6 +78,15 @@ individual.whatYouWillNeed.li2 = your contact phone number and email address
 areYouUKCompany.title = Is the company or partnership registered in the UK?
 areYouUKCompany.heading = Is the company or partnership registered in the UK?
 areYouUKCompany.error.required = Select yes if the company or partnership is registered in the UK
+
+
+areYouUKResident.error.required = Select yes if you are a UK resident
+areYouUKResident.title = Are you a UK resident?
+areYouUKResident.heading = Are you a UK resident?
+
+isThisYou.title = Is this your name and address?
+isThisYou.heading = Is this your name and address?
+isThisYou.error.required = Select yes if this is your name and address
 
 unauthorised.title = You can’t access this service with this account
 
@@ -158,6 +167,11 @@ error.postcode.nonUK.length = The postcode cannot be more than 10 characters
 error.postcode.failed = There is a problem with the address finder. Try again or enter the address manually
 error.postcode.invalid = Enter a valid postcode
 error.postcode.noResults = There are no addresses for that postcode
+
+youNeedToTellHMRC.title = You need to update your details before registering
+youNeedToTellHMRC.heading = You need to update your details before registering
+youNeedToTellHMRC.text = If you need to update personal details, such as your name or address, you can
+youNeedToTellHMRC.link = tell HMRC about the changes you need to make
 
 country.AD = Andorra
 country.AE = United Arab Emirates
@@ -439,6 +453,10 @@ cya.email = What is {0}’s email address?
 cya.change.email = {0}’s email address?
 cya.phone = What is {0}’s phone number?
 cya.change.phone = {0}’s phone number?
+
+useAddressForContact.title = Can HMRC use this address to contact you?
+useAddressForContact.heading = Can HMRC use this address to contact you?
+useAddressForContact.error.required = Select yes if HMRC can use this address to contact you
 
 declaration.title = Declaration
 declaration.text = I confirm that the details entered are correct.

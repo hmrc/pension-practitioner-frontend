@@ -83,6 +83,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   lazy val loginUrl: String = configuration.get[String]("urls.login")
 
+  lazy val tellHMRCChangesUrl: String = configuration.get[String]("urls.tellHMRCChanges")
+
   def languageMap: Map[String, Lang] = Map(
     "english" -> Lang("en"),
     "cymraeg" -> Lang("cy")
