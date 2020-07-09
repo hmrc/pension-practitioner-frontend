@@ -23,12 +23,21 @@ import org.scalacheck.Arbitrary
 import pages.WhatTypeBusinessPage
 import pages.register.BusinessTypePage
 import pages.register.AreYouUKCompanyPage
+import pages.register.company.ConfirmAddressPage
 import pages.register.company.{BusinessUTRPage, CompanyNamePage, ConfirmNamePage}
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
 
 
 trait UserAnswersEntryGenerators extends PageGenerators with ModelGenerators {
+
+  implicit lazy val arbitraryConfirmAddressUserAnswersEntry: Arbitrary[(ConfirmAddressPage.type, JsValue)] =
+    Arbitrary {
+      for {
+        page  <- arbitrary[ConfirmAddressPage.type]
+        value <- arbitrary[Boolean].map(Json.toJson(_))
+      } yield (page, value)
+    }
 
   implicit lazy val arbitraryConfirmNameUserAnswersEntry: Arbitrary[(ConfirmNamePage.type, JsValue)] =
     Arbitrary {

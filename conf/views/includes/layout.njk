@@ -31,7 +31,8 @@
     serviceName: messages("site.service_name"),
     serviceUrl: "/pension-practioner-frontend",
     containerClasses: "govuk-width-container",
-    assetsPath: "/assets"
+    assetsPath: "/assets",
+    signOutHref: routes.controllers.SignOutController.signOut(srn, startDate).url
   }) }}
 {% endblock %}
 

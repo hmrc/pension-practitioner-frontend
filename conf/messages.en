@@ -12,7 +12,7 @@ site.save_charge_and_continue = Save this charge and continue
 site.return_to_summary = Return to AFT summary
 site.service_name = Register as a pension scheme practitioner
 site.textarea.char_limit = (Limit is {0} characters)
-site.title.suffix = - register as a pension scheme practitioner - GOV.UK
+site.title.suffix = - Register as a pension scheme practitioner - GOV.UK
 site.view = View
 site.remove = Remove
 site.signOut = Sign out
@@ -67,8 +67,11 @@ whatYouWillNeed.heading = What you will need
 company.whatYouWillNeed.p1 = To register a business as a pension scheme practitioner, you will need:
 company.whatYouWillNeed.li1 = the business name and address of the business you are registering
 company.whatYouWillNeed.li2 = the phone number and email address of a contactable person within the business
-company.whatYouWillNeed.p2 = The information you enter will be saved as you progress. If you sign out, the information you have already entered will be saved for 7 days. After that time you will need to enter all of the information again.
+whatYouWillNeed.p2 = The information you enter will be saved as you progress. If you sign out, the information you have already entered will be saved for 7 days. After that time you will need to enter all of the information again.
 
+individual.whatYouWillNeed.p1 = To register as a pension scheme practitioner, you will need:
+individual.whatYouWillNeed.li1 = your name, address and National Insurance number
+individual.whatYouWillNeed.li2 = your contact phone number and email address
 
 areYouUKCompany.title = Is the company or partnership registered in the UK?
 areYouUKCompany.heading = Is the company or partnership registered in the UK?
@@ -89,7 +92,7 @@ whatTypeBusiness.limitedPartnership = Limited partnership
 whatTypeBusiness.limitedLiabilityPartnership = Limited liability partnership
 whatTypeBusiness.unlimitedCompany = Unlimited company
 
-businessUTR.title = What is the Unique Taxpayer Reference (UTR) of the Limited company you want to register?
+businessUTR.title = What is the Unique Taxpayer Reference (UTR) of the limited company you want to register?
 businessUTR.heading = What is the Unique Taxpayer Reference (UTR) of the Limited company you want to register?
 businessUTR.p1 = This is a 10-digit or 13-digit number. You can find it on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
 businessUTR.p2 = If the UTR is 13 numbers, only enter the last 10.
@@ -106,8 +109,11 @@ companyName.error.invalid = Company name must only include letters, numbers, das
 
 confirmName.title = Is this the registered name of the company?
 confirmName.heading = Is {0} the registered name of the company?
-confirmName.checkYourAnswersLabel = confirmName
 confirmName.error.required = Select yes if this is the registered name of the company
+
+confirmAddress.title = Is this {0}’s registered address?
+confirmAddress.heading = Is this {0}’s registered address?
+confirmAddress.error.required = Select yes if this is the company’s registered address
 
 postcode.error.required = Enter the address we can use to contact {0}
 postcode.error.invalid = Enter a valid address which we can use to contact {0}
@@ -402,6 +408,16 @@ country.ZM = Zambia
 country.ZW = Zimbabwe
 country.JM = Jamaica
 country.EE = Estonia
+
+tellHMRC.title = You need to update the company՚s details before registering
+tellHMRC.heading = You need to update the company՚s details before registering
+tellHMRC.p1 = You need to tell:
+tellHMRC.companiesHouse = Companies House
+tellHMRC.aboutBusiness = HMRC about changes to your business
+tellHMRC.p2 = , such as changing the business address
+tellHMRC.p3 = if it's a limited company or Limited Liability Partnership (LLP)
+tellHMRC.hmrc = HMRC
+
 
 email.error.invalid = Enter an email address in the correct format, like name@example.com
 email.error.required = Enter {0}’s email address
