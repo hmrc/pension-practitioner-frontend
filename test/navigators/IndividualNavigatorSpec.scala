@@ -20,7 +20,7 @@ import data.SampleData
 import models.{NormalMode, UserAnswers}
 import org.scalatest.prop.TableFor3
 import pages._
-import pages.individual.{AreYouUKResidentPage, IsThisYouPage, UseAddressForContactPage, WhatYouWillNeedPage}
+import pages.individual._
 import play.api.mvc.Call
 
 class IndividualNavigatorSpec extends NavigatorBehaviour {
@@ -38,7 +38,8 @@ class IndividualNavigatorSpec extends NavigatorBehaviour {
         row(AreYouUKResidentPage)(controllers.individual.routes.IsThisYouController.onPageLoad(NormalMode)),
         row(IsThisYouPage)(controllers.individual.routes.YouNeedToTellHMRCController.onPageLoad(), Some(uaIsThisYou(false))),
         row(IsThisYouPage)(controllers.individual.routes.UseAddressForContactController.onPageLoad(NormalMode), Some(uaIsThisYou(true))),
-        row(UseAddressForContactPage)(controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode))
+        row(UseAddressForContactPage)(controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)),
+        row(IndividualEmailPage)(controllers.individual.routes.IndividualPhoneController.onPageLoad(NormalMode))
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)

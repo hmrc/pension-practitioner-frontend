@@ -460,3 +460,7 @@ individual.email.title = What is your email address?
 individual.email.hint = We will only use this to contact you about pension scheme practitioners.
 individual.email.error.required = Enter your email address
 
+individual.phone.title = What is your phone number?
+individual.phone.hint = We will only use this to contact you about pension scheme practitioners.
+individual.phone.error.required = Enter your phone number
+
