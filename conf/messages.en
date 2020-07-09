@@ -82,8 +82,8 @@ areYouUKResident.error.required = Select yes if you are a UK resident
 areYouUKResident.title = Are you a UK resident?
 areYouUKResident.heading = Are you a UK resident?
 
-isThisYou.title = Is this your name and address??
-isThisYou.heading = Is this your name and address??
+isThisYou.title = Is this your name and address?
+isThisYou.heading = Is this your name and address?
 isThisYou.error.required = Select yes if this is your name and address
 
 unauthorised.title = You can’t access this service with this account

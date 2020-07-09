@@ -30,29 +30,25 @@
 
           {{ csrf() | safe }}
 
-        <p id="individual-value">{{name}}</p>
+            <p id="individual-value" class="govuk-body">{{name}}</p>
 
-       {% for addressItem in address %}
-         <p>{{ addressItem }}</p>
-       {% endfor %}
+            <p class="govuk-body">
+               {% for addressItem in address %}
+                 <span class="govuk-!-display-block">{{ addressItem }}</span>
+               {% endfor %}
+            </p>
 
-          {{ govukRadios({
-            classes: "govuk-radios--inline",
-            name: 'value',
-            fieldset: {
-              legend: {
-                text: messages('isThisYou.title'),
-                classes: "govuk-fieldset__legend--xl"
-              }
-            },
-            items: radios,
-            errorMessage: form.value.error
-          }) }}
+              {{ govukRadios({
+                classes: "govuk-radios--inline",
+                name: 'value',
+                items: radios,
+                errorMessage: form.value.error
+              }) }}
 
-          {{ govukButton({
-            text: messages("site.save_and_continue"),
-            attributes: {id: "submit"}
-          }) }}
+              {{ govukButton({
+                text: messages("site.save_and_continue"),
+                attributes: {id: "submit"}
+              }) }}
 
         </form>
 
