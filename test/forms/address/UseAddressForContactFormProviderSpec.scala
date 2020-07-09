@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package forms.individual
+package forms.address
 
 import forms.behaviours.BooleanFieldBehaviours
 import play.api.data.FormError
@@ -24,7 +24,7 @@ class UseAddressForContactFormProviderSpec extends BooleanFieldBehaviours {
   val requiredKey = "useAddressForContact.error.required"
   val invalidKey = "error.boolean"
 
-  val form = new UseAddressForContactFormProvider()()
+  val form = new UseAddressForContactFormProvider()(requiredKey)
 
   ".value" must  {
 

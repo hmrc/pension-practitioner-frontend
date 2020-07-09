@@ -54,6 +54,7 @@ unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
 company = the company
+individual.you = you
 
 whatTypeBusiness.title = Who are you registering as a scheme practitioner?
 whatTypeBusiness.heading = Who are you registering as a scheme practitioner?
@@ -452,7 +453,6 @@ cya.change.email = {0}’s email address?
 cya.phone = What is {0}’s phone number?
 cya.change.phone = {0}’s phone number?
 
-useAddressForContact.title = Can HMRC use this address to contact you?
-useAddressForContact.heading = Can HMRC use this address to contact you?
-useAddressForContact.error.required = Select yes if HMRC can use this address to contact you
+useAddressForContact.title = Can HMRC use this address to contact {0}?
+useAddressForContact.error.required = Select yes if HMRC can use this address to contact {0}
 
