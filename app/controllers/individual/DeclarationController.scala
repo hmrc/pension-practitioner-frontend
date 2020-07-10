@@ -36,7 +36,6 @@ import uk.gov.hmrc.viewmodels.NunjucksSupport
 import scala.concurrent.ExecutionContext
 
 class DeclarationController @Inject()(override val messagesApi: MessagesApi,
-                                      userAnswersCacheConnector: UserAnswersCacheConnector,
                                       navigator: CompoundNavigator,
                                       identify: IdentifierAction,
                                       getData: DataRetrievalAction,

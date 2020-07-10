@@ -16,6 +16,7 @@
 
 package controllers.individual
 
+import connectors.cache.UserAnswersCacheConnector
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import matchers.JsonMatchers
@@ -29,13 +30,14 @@ import org.mockito.Matchers
 import org.scalatest.OptionValues
 import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
-import pages.register.company.DeclarationPage
+import pages.individual.DeclarationPage
 import play.api.Application
+import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-
+import play.api.inject.bind
 import scala.concurrent.Future
 
 class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
@@ -44,10 +46,12 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
 
   private val application: Application =
-    applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
+    applicationBuilderMutableRetrievalAction(
+      mutableFakeDataRetrievalAction
+    ).build()
   private val templateToBeRendered = "individual/declaration.njk"
   private val dummyCall: Call = Call("GET", "/foo")
-  private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq("true"))
+  private val valuesValid: Map[String, Seq[String]] = Map()
 
   private def onPageLoadUrl: String = routes.DeclarationController.onPageLoad().url
   private def submitUrl: String = routes.DeclarationController.onSubmit().url
@@ -81,7 +85,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
       redirectLocation(result).value mustBe controllers.routes.SessionExpiredController.onPageLoad().url
     }
 
-    "redirect to next page when valid data is submitted" in {
+    "redirect to next page when data is present" in {
 
       when(mockCompoundNavigator.nextPage(Matchers.eq(DeclarationPage), any(), any())).thenReturn(dummyCall)
 

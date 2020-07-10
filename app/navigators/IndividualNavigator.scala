@@ -24,7 +24,7 @@ import pages.Page
 import pages.individual._
 import play.api.mvc.Call
 
-class IndividualNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector, config: FrontendAppConfig)
+class IndividualNavigator
   extends Navigator {
 
   override protected def routeMap(ua: UserAnswers): PartialFunction[Page, Call] = {

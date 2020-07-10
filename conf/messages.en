@@ -470,6 +470,8 @@ declaration.title = Declaration
 declaration.text = I confirm that the details entered are correct.
 declaration.submit = Agree and register this practitioner
 
+individual.confirmation.title = You have been registered as a pension scheme practitioner
+
 confirmation.title = {0} has been registered as a pension scheme practitioner
 confirmation.psp.id = Practitioner ID
 confirmation.email = We have sent a confirmation email to
