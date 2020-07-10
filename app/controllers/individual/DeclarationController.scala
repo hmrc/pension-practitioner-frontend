@@ -16,7 +16,6 @@
 
 package controllers.individual
 
-import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import javax.inject.Inject
