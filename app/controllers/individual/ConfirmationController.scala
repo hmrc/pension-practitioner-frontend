@@ -22,6 +22,8 @@ import javax.inject.Inject
 import models.WhatTypeBusiness.Companyorpartnership
 import models.requests.DataRequest
 import pages.WhatTypeBusinessPage
+import pages.individual.IndividualDetailsPage
+import pages.individual.IndividualEmailPage
 import pages.register.company.CompanyNamePage
 import play.api.i18n.I18nSupport
 import play.api.i18n.Messages
@@ -51,23 +53,17 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      getEntityTypeAndName.map { case (entityType, name) =>
+      request.userAnswers.get(IndividualEmailPage) match {
+        case Some(email) =>
+          val json: JsObject = Json.obj(
+            "panelHtml" -> confirmationPanelText("1234567890").toString(),
+            "email" -> email,
+            "submitUrl" -> controllers.routes.SignOutController.signOut().url
+          )
 
-        val json: JsObject = Json.obj(
-          "panelHtml" -> confirmationPanelText("1234567890").toString(),
-          "email" -> "SAMPLE@EMAIL.COM",
-          "viewmodel" -> CommonViewModel(entityType, name, controllers.routes.SignOutController.signOut().url)
-        )
-
-        renderer.render("individual/confirmation.njk", json).map(Ok(_))
-      }.getOrElse(Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad())))
-  }
-
-  private def getEntityTypeAndName(implicit request: DataRequest[AnyContent]): Option[(String, String)] = {
-        request.userAnswers.get(WhatTypeBusinessPage).flatMap {
-          case Companyorpartnership => request.userAnswers.get(CompanyNamePage).map { name => ("company.capitalised", name)}
-          case _ => Some(Tuple2("individual", "Individual name"))
-        }
+          renderer.render("individual/confirmation.njk", json).map(Ok(_))
+        case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+      }
   }
 
   private def confirmationPanelText(pspId: String)(implicit messages: Messages): Html = {
