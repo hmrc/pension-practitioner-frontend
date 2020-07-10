@@ -55,10 +55,8 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
   //scalastyle:off cyclomatic.complexity
 
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {
-
     case CompanyAddressPage => CheckYourAnswersController.onPageLoad()
     case CompanyEmailPage => CheckYourAnswersController.onPageLoad()
     case CompanyPhonePage => CheckYourAnswersController.onPageLoad()
-
   }
 }

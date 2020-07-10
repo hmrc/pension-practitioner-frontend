@@ -56,8 +56,9 @@ class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCo
       }
     case BusinessUTRPage =>
       controllers.company.routes.CompanyNameController.onPageLoad()
-
   }
 
-  override protected def editRouteMap(userAnswers: UserAnswers) = ???
+  override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {
+    case WhatTypeBusinessPage => controllers.routes.SessionExpiredController.onPageLoad()
+  }
 }
