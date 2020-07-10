@@ -17,7 +17,7 @@
 package services
 
 import models.{Address, CheckMode, UserAnswers}
-import pages.register.company._
+import pages.company._
 import play.api.i18n.Messages
 import uk.gov.hmrc.viewmodels.SummaryList.{Action, Key, Row, Value}
 import uk.gov.hmrc.viewmodels.Text.Literal
@@ -64,7 +64,7 @@ class CompanyCYAService extends CYAService {
         actions = List(
           Action(
             content = msg"site.edit",
-            href = controllers.register.company.routes.CompanyAddressController.onPageLoad(CheckMode).url,
+            href = controllers.company.routes.CompanyAddressController.onPageLoad(CheckMode).url,
             visuallyHiddenText = Some(msg"cya.change.address")
           )
         )
@@ -77,7 +77,7 @@ class CompanyCYAService extends CYAService {
       actions = List(
         Action(
           content = msg"site.edit",
-          href = controllers.register.company.routes.CompanyEmailController.onPageLoad(CheckMode).url,
+          href = controllers.company.routes.CompanyEmailController.onPageLoad(CheckMode).url,
           visuallyHiddenText = Some(msg"cya.change.email")
         )
       )
@@ -90,7 +90,7 @@ class CompanyCYAService extends CYAService {
       actions = List(
         Action(
           content = msg"site.edit",
-          href = controllers.register.company.routes.CompanyPhoneController.onPageLoad(CheckMode).url,
+          href = controllers.company.routes.CompanyPhoneController.onPageLoad(CheckMode).url,
           visuallyHiddenText = Some(msg"cya.change.phone")
         )
       )

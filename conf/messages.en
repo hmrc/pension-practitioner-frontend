@@ -40,7 +40,7 @@ phaseBanner.1 = This is a new service – your
 phaseBanner.2 = feedback
 phaseBanner.3 = will help us to improve it.
 
-checkYourAnswers.title = Check your answers - {0}
+checkYourAnswers.title = Check your answers
 checkYourAnswers.heading = Check your answers
 
 index.title = pension-practitioner-frontend

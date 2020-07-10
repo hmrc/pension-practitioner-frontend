@@ -17,37 +17,48 @@
 package navigators
 
 import com.google.inject.Inject
-import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
+import controllers.company.routes._
+import models.NormalMode
 import models.UserAnswers
 import pages.Page
-import pages.register.company.ConfirmAddressPage
-import pages.register.company.BusinessUTRPage
-import pages.register.company.CompanyNamePage
-import pages.register.company.ConfirmNamePage
+import pages.company._
 import play.api.mvc.Call
 
-class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector, config: FrontendAppConfig)
+class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector)
   extends Navigator {
 
+  //scalastyle:off cyclomatic.complexity
   override protected def routeMap(ua: UserAnswers): PartialFunction[Page, Call] = {
-    case BusinessUTRPage =>
-      controllers.register.company.routes.CompanyNameController.onPageLoad()
-    case CompanyNamePage =>
-      controllers.register.company.routes.ConfirmNameController.onPageLoad()
-    case ConfirmNamePage =>
-      ua.get(ConfirmNamePage) match {
-        case Some(false) => controllers.register.company.routes.TellHMRCController.onPageLoad()
-        case _ => controllers.register.company.routes.ConfirmAddressController.onPageLoad()
+    case BusinessUTRPage => CompanyNameController.onPageLoad()
+    case CompanyNamePage => ConfirmNameController.onPageLoad()
+    case ConfirmNamePage => ua.get(ConfirmNamePage) match {
+        case Some(false) => TellHMRCController.onPageLoad()
+        case _ => ConfirmAddressController.onPageLoad()
       }
-    case ConfirmAddressPage =>
-      ua.get(ConfirmAddressPage) match {
-        case None => controllers.register.company.routes.TellHMRCController.onPageLoad()
-        case _ => controllers.routes.SessionExpiredController.onPageLoad()
+    case ConfirmAddressPage => ua.get(ConfirmAddressPage) match {
+        case None => TellHMRCController.onPageLoad()
+        case _ => CompanyUseSameAddressController.onPageLoad()
       }
-
+    case CompanyUseSameAddressPage => ua.get(CompanyUseSameAddressPage) match {
+      case Some(true) => CompanyEmailController.onPageLoad(NormalMode)
+      case _ => CompanyPostcodeController.onPageLoad(NormalMode)
+    }
+    case CompanyPostcodePage => CompanyAddressListController.onPageLoad(NormalMode)
+    case CompanyAddressListPage => CompanyEmailController.onPageLoad(NormalMode)
+    case CompanyAddressPage => CompanyEmailController.onPageLoad(NormalMode)
+    case CompanyEmailPage => CompanyPhoneController.onPageLoad(NormalMode)
+    case CompanyPhonePage => CheckYourAnswersController.onPageLoad()
+    case DeclarationPage => controllers.company.routes.ConfirmationController.onPageLoad()
 
   }
+  //scalastyle:off cyclomatic.complexity
 
-  override protected def editRouteMap(userAnswers: UserAnswers) = ???
+  override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {
+
+    case CompanyAddressPage => CheckYourAnswersController.onPageLoad()
+    case CompanyEmailPage => CheckYourAnswersController.onPageLoad()
+    case CompanyPhonePage => CheckYourAnswersController.onPageLoad()
+
+  }
 }

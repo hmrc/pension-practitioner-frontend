@@ -30,3 +30,8 @@ GET        /declaration                                     controllers.individu
 POST       /declaration                                     controllers.individual.DeclarationController.onSubmit
 
 GET        /registration-successful                         controllers.individual.ConfirmationController.onPageLoad
+
+GET        /declaration                                     controllers.individual.DeclarationController.onPageLoad()
+POST       /declaration                                     controllers.individual.DeclarationController.onSubmit()
+
+GET        /registration-successful                         controllers.individual.ConfirmationController.onPageLoad()

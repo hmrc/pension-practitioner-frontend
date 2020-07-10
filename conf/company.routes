@@ -1,49 +1,50 @@
-GET        /is-your-registered-address-same           controllers.register.company.CompanyUseSameAddressController.onPageLoad()
-POST       /is-your-registered-address-same           controllers.register.company.CompanyUseSameAddressController.onSubmit()
+GET        /is-your-registered-address-same           controllers.company.CompanyUseSameAddressController.onPageLoad()
+POST       /is-your-registered-address-same           controllers.company.CompanyUseSameAddressController.onSubmit()
 
-GET        /addresses/postcode                        controllers.register.company.CompanyPostcodeController.onPageLoad(mode: Mode = NormalMode)
-POST       /addresses/postcode                        controllers.register.company.CompanyPostcodeController.onSubmit(mode: Mode = NormalMode)
-GET        /addresses/change-postcode                 controllers.register.company.CompanyPostcodeController.onPageLoad(mode: Mode = CheckMode)
-POST       /addresses/change-postcode                 controllers.register.company.CompanyPostcodeController.onSubmit(mode: Mode = CheckMode)
+GET        /addresses/postcode                        controllers.company.CompanyPostcodeController.onPageLoad(mode: Mode = NormalMode)
+POST       /addresses/postcode                        controllers.company.CompanyPostcodeController.onSubmit(mode: Mode = NormalMode)
+GET        /addresses/change-postcode                 controllers.company.CompanyPostcodeController.onPageLoad(mode: Mode = CheckMode)
+POST       /addresses/change-postcode                 controllers.company.CompanyPostcodeController.onSubmit(mode: Mode = CheckMode)
 
-GET        /addresses/address-results                 controllers.register.company.CompanyAddressListController.onPageLoad(mode: Mode = NormalMode)
-POST       /addresses/address-results                 controllers.register.company.CompanyAddressListController.onSubmit(mode: Mode = NormalMode)
-GET        /addresses/change-address-results          controllers.register.company.CompanyAddressListController.onPageLoad(mode: Mode = CheckMode)
-POST       /addresses/change-address-results          controllers.register.company.CompanyAddressListController.onSubmit(mode: Mode = CheckMode)
+GET        /addresses/address-results                 controllers.company.CompanyAddressListController.onPageLoad(mode: Mode = NormalMode)
+POST       /addresses/address-results                 controllers.company.CompanyAddressListController.onSubmit(mode: Mode = NormalMode)
+GET        /addresses/change-address-results          controllers.company.CompanyAddressListController.onPageLoad(mode: Mode = CheckMode)
+POST       /addresses/change-address-results          controllers.company.CompanyAddressListController.onSubmit(mode: Mode = CheckMode)
 
-GET        /addresses/address-manual                  controllers.register.company.CompanyAddressController.onPageLoad(mode: Mode = NormalMode)
-POST       /addresses/address-manual                  controllers.register.company.CompanyAddressController.onSubmit(mode: Mode = NormalMode)
-GET        /addresses/change-address-manual           controllers.register.company.CompanyAddressController.onPageLoad(mode: Mode = CheckMode)
-POST       /addresses/change-address-manual           controllers.register.company.CompanyAddressController.onSubmit(mode: Mode = CheckMode)
+GET        /addresses/address-manual                  controllers.company.CompanyAddressController.onPageLoad(mode: Mode = NormalMode)
+POST       /addresses/address-manual                  controllers.company.CompanyAddressController.onSubmit(mode: Mode = NormalMode)
+GET        /addresses/change-address-manual           controllers.company.CompanyAddressController.onPageLoad(mode: Mode = CheckMode)
+POST       /addresses/change-address-manual           controllers.company.CompanyAddressController.onSubmit(mode: Mode = CheckMode)
 
-GET        /business-utr                        controllers.register.company.BusinessUTRController.onPageLoad()
-POST       /business-utr                        controllers.register.company.BusinessUTRController.onSubmit()
+GET        /business-utr                        controllers.company.BusinessUTRController.onPageLoad()
+POST       /business-utr                        controllers.company.BusinessUTRController.onSubmit()
 
-GET        /org-name                        controllers.register.company.CompanyNameController.onPageLoad()
-POST       /org-name                        controllers.register.company.CompanyNameController.onSubmit()
+GET        /org-name                        controllers.company.CompanyNameController.onPageLoad()
+POST       /org-name                        controllers.company.CompanyNameController.onSubmit()
 
-GET        /confirm-name                        controllers.register.company.ConfirmNameController.onPageLoad()
-POST       /confirm-name                        controllers.register.company.ConfirmNameController.onSubmit()
+GET        /confirm-name                        controllers.company.ConfirmNameController.onPageLoad()
+POST       /confirm-name                        controllers.company.ConfirmNameController.onSubmit()
 
-GET        /confirm-address                  controllers.register.company.ConfirmAddressController.onPageLoad()
-POST       /confirm-address                  controllers.register.company.ConfirmAddressController.onSubmit()
+GET        /confirm-address                  controllers.company.ConfirmAddressController.onPageLoad()
+POST       /confirm-address                  controllers.company.ConfirmAddressController.onSubmit()
 
 
-GET        /you-need-to-tell-hmrc                       controllers.register.company.TellHMRCController.onPageLoad()
+GET        /you-need-to-tell-hmrc                       controllers.company.TellHMRCController.onPageLoad()
 
-GET        /contact-details/contact-email             controllers.register.company.CompanyEmailController.onPageLoad(mode: Mode = NormalMode)
-POST       /contact-details/contact-email             controllers.register.company.CompanyEmailController.onSubmit(mode: Mode = NormalMode)
-GET        /contact-details/change-contact-email      controllers.register.company.CompanyEmailController.onPageLoad(mode: Mode = CheckMode)
-POST       /contact-details/change-contact-email      controllers.register.company.CompanyEmailController.onSubmit(mode: Mode = CheckMode)
+GET        /contact-details/contact-email             controllers.company.CompanyEmailController.onPageLoad(mode: Mode = NormalMode)
+POST       /contact-details/contact-email             controllers.company.CompanyEmailController.onSubmit(mode: Mode = NormalMode)
+GET        /contact-details/change-contact-email      controllers.company.CompanyEmailController.onPageLoad(mode: Mode = CheckMode)
+POST       /contact-details/change-contact-email      controllers.company.CompanyEmailController.onSubmit(mode: Mode = CheckMode)
 
-GET        /contact-details/contact-phone             controllers.register.company.CompanyPhoneController.onPageLoad(mode: Mode = NormalMode)
-POST       /contact-details/contact-phone             controllers.register.company.CompanyPhoneController.onSubmit(mode: Mode = NormalMode)
-GET        /contact-details/change-contact-phone      controllers.register.company.CompanyPhoneController.onPageLoad(mode: Mode = CheckMode)
-POST       /contact-details/change-contact-phone      controllers.register.company.CompanyPhoneController.onSubmit(mode: Mode = CheckMode)
+GET        /contact-details/contact-phone             controllers.company.CompanyPhoneController.onPageLoad(mode: Mode = NormalMode)
+POST       /contact-details/contact-phone             controllers.company.CompanyPhoneController.onSubmit(mode: Mode = NormalMode)
+GET        /contact-details/change-contact-phone      controllers.company.CompanyPhoneController.onPageLoad(mode: Mode = CheckMode)
+POST       /contact-details/change-contact-phone      controllers.company.CompanyPhoneController.onSubmit(mode: Mode = CheckMode)
 
-GET        /check-your-answers                        controllers.register.company.CheckYourAnswersController.onPageLoad
+GET        /declaration                                     controllers.company.DeclarationController.onPageLoad
+POST       /declaration                                     controllers.company.DeclarationController.onSubmit
 
-GET        /declaration                                     controllers.register.company.DeclarationController.onPageLoad
-POST       /declaration                                     controllers.register.company.DeclarationController.onSubmit
+GET        /registration-successful                         controllers.company.ConfirmationController.onPageLoad
 
-GET        /registration-successful                         controllers.register.company.ConfirmationController.onPageLoad
+GET        /check-your-answers                        controllers.company.CheckYourAnswersController.onPageLoad
+

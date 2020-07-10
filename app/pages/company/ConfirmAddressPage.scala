@@ -14,22 +14,15 @@
  * limitations under the License.
  */
 
-package controllers
+package pages.company
 
-import models.requests.DataRequest
-import pages.company.CompanyNamePage
-import play.api.mvc.AnyContent
-import play.api.mvc.Result
-import play.api.mvc.Results.Redirect
+import models.TolerantAddress
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-import scala.concurrent.Future
+case object ConfirmAddressPage extends QuestionPage[TolerantAddress] {
 
-object DataRetrievals {
-  def retrieveCompanyName(block: String => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    request.userAnswers.get(CompanyNamePage) match {
+  override def path: JsPath = JsPath \ toString
 
-      case Some(value) => block(value)
-      case _  => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
-    }
-  }
+  override def toString: String = "address"
 }

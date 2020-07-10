@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package controllers
+package pages.company
 
-import models.requests.DataRequest
-import pages.company.CompanyNamePage
-import play.api.mvc.AnyContent
-import play.api.mvc.Result
-import play.api.mvc.Results.Redirect
+import pages.behaviours.PageBehaviours
 
-import scala.concurrent.Future
+class ConfirmNamePageSpec extends PageBehaviours {
 
-object DataRetrievals {
-  def retrieveCompanyName(block: String => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    request.userAnswers.get(CompanyNamePage) match {
+  "ConfirmNamePage" - {
 
-      case Some(value) => block(value)
-      case _  => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
-    }
+    beRetrievable[Boolean](ConfirmNamePage)
+
+    beSettable[Boolean](ConfirmNamePage)
+
+    beRemovable[Boolean](ConfirmNamePage)
   }
 }
