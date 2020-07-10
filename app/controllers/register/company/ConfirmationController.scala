@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.register
+package controllers.register.company
 
 import controllers.Retrievals
 import controllers.actions._
@@ -53,7 +53,7 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
           "viewmodel" -> CommonViewModel(entityType, name, controllers.routes.SignOutController.signOut().url)
         )
 
-        renderer.render("register/confirmation.njk", json).map(Ok(_))
+        renderer.render("register/company/confirmation.njk", json).map(Ok(_))
       }.getOrElse(Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad())))
   }
 
