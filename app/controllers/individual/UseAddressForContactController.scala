@@ -73,16 +73,9 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
         value => {
           IndividualAddressPage.retrieve.right.map { address =>
             val ua = request.userAnswers.setOrException(UseAddressForContactPage, value)
-            val updatedAnswers = if (value) {
-              getResolvedAddress(address) match {
-                case Some(validAddress) => {
-                  ua.setOrException(IndividualManualAddressPage, validAddress)
-                }
-                case None => ua
-              }
-            }
-            else {
-              ua
+            val updatedAnswers = (value, getResolvedAddress(address)) match {
+              case (true, Some(validAddress)) => ua.setOrException(IndividualManualAddressPage, validAddress)
+              case _ => ua
             }
             userAnswersCacheConnector.save(updatedAnswers.data).map { _ =>
               Redirect(navigator.nextPage(UseAddressForContactPage, NormalMode, updatedAnswers))
@@ -92,7 +85,7 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
       )
   }
 
-  private def getJson(form: Form[Boolean])(block: (JsObject) => Future[Result])
+  private def getJson(form: Form[Boolean])(block: JsObject => Future[Result])
                      (implicit request: DataRequest[AnyContent]): Future[Result] =
     IndividualAddressPage.retrieve.right.map { address =>
       val json = Json.obj(
