@@ -1,17 +1,17 @@
 # microservice specific routes
 
-->         /individual                                  individual.Routes
+->         /individual                                      individual.Routes
 
-->          /register/company                                company.Routes
-GET         /                                                                                                                   controllers.IndexController.onPageLoad
+->          /company                                        company.Routes
+GET         /                                               controllers.IndexController.onPageLoad
 
-GET         /sign-out                                                                                               controllers.SignOutController.signOut()
+GET         /sign-out                                       controllers.SignOutController.signOut()
 
-GET         /assets/*file                                                                                                       controllers.Assets.versioned(path="/public", file: Asset)
+GET         /assets/*file                                   controllers.Assets.versioned(path="/public", file: Asset)
 
-GET         /language/:lang                                                                                                     controllers.LanguageSwitchController.switchToLanguage(lang: String)
+GET         /language/:lang                                 controllers.LanguageSwitchController.switchToLanguage(lang: String)
 
-GET         /this-service-has-been-reset                                                                                        controllers.SessionExpiredController.onPageLoad
+GET         /this-service-has-been-reset                    controllers.SessionExpiredController.onPageLoad
 
 GET         /unauthorised                                   controllers.UnauthorisedController.onPageLoad
 
@@ -26,9 +26,9 @@ POST       /are-you-in-the-uk-company                       controllers.register
 GET        /business-type                                   controllers.register.BusinessTypeController.onPageLoad()
 POST       /business-type                                   controllers.register.BusinessTypeController.onSubmit()
 
-GET        /declaration                                     controllers.register.DeclarationController.onPageLoad
-POST       /declaration                                     controllers.register.DeclarationController.onSubmit
+GET        /declaration                                     controllers.register.DeclarationController.onPageLoad()
+POST       /declaration                                     controllers.register.DeclarationController.onSubmit()
 
-GET        /registration-successful                         controllers.register.ConfirmationController.onPageLoad
+GET        /registration-successful                         controllers.register.ConfirmationController.onPageLoad()
 
 

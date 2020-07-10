@@ -18,7 +18,7 @@ package data
 
 import models.TolerantAddress
 import models.UserAnswers
-import pages.register.company.CompanyNamePage
+import pages.company.CompanyNamePage
 import play.api.libs.json.Json
 
 object SampleData {

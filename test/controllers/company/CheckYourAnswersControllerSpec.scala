@@ -14,67 +14,63 @@
  * limitations under the License.
  */
 
-package controllers.register
+package controllers.company
 
-import connectors.AddressLookupConnector
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
-import forms.address.PostcodeFormProvider
 import matchers.JsonMatchers
-import models.WhatTypeBusiness.Companyorpartnership
-import models.{NormalMode, TolerantAddress, UserAnswers, WhatTypeBusiness}
+import models.UserAnswers
+import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
-import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.WhatTypeBusinessPage
-import pages.company.{CompanyNamePage, CompanyPostcodePage}
 import play.api.Application
-import play.api.data.Form
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
+import services.CompanyCYAService
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import viewmodels.CommonViewModel
+import uk.gov.hmrc.viewmodels.SummaryList.{Key, Row, Value}
+import uk.gov.hmrc.viewmodels.Text.Literal
 
 import scala.concurrent.Future
 
-class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
+  private val companyCYAService = mock[CompanyCYAService]
   private val companyName: String = "Company name"
   private val application: Application =
-    applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
-  private val templateToBeRendered = "register/confirmation.njk"
-  private val pspId = "1234567890"
+    applicationBuilderMutableRetrievalAction(
+      mutableFakeDataRetrievalAction,
+      extraModules = Seq(bind[CompanyCYAService].toInstance(companyCYAService))).build()
+  private val templateToBeRendered = "check-your-answers.njk"
 
-  val userAnswers: UserAnswers = UserAnswers()
-    .set(WhatTypeBusinessPage, Companyorpartnership).toOption.value
-    .set(CompanyNamePage, companyName).toOption.value
+  private def onPageLoadUrl: String = routes.CheckYourAnswersController.onPageLoad().url
+  private def redirectUrl: String = controllers.register.routes.DeclarationController.onPageLoad().url
 
-  private def onPageLoadUrl: String = routes.ConfirmationController.onPageLoad().url
-  private def submitUrl: String = controllers.routes.SignOutController.signOut().url
+  private val list: Seq[Row] = Seq(Row(
+    key = Key(msg"cya.companyName", classes = Seq("govuk-!-width-one-half")),
+    value = Value(Literal(companyName), classes = Seq("govuk-!-width-one-third"))
+  ))
 
-  private val jsonToPassToTemplate: JsObject =
-    Json.obj("viewmodel" -> CommonViewModel("company.capitalised", companyName, submitUrl),
-    "panelHtml" -> Html(s"""<p>${{ messages("confirmation.psp.id") }}</p>
-                           |<span class="heading-large govuk-!-font-weight-bold">$pspId</span>""".stripMargin).toString()
-    )
+  private val jsonToPassToTemplate: JsObject = Json.obj("list" -> list, "redirectUrl" -> redirectUrl)
 
   override def beforeEach: Unit = {
     super.beforeEach
-    mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
+    mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
   }
 
-  "Confirmation Controller" must {
+  "CheckYourAnswers Controller" must {
     "return OK and the correct view for a GET" in {
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+
+      when(companyCYAService.companyCya(any())(any())).thenReturn(list)
 
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 

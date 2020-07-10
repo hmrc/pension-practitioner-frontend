@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-package controllers
+package forms.company
 
-import models.requests.DataRequest
-import pages.company.CompanyNamePage
-import play.api.mvc.AnyContent
-import play.api.mvc.Result
-import play.api.mvc.Results.Redirect
+import forms.FormErrorHelper
+import forms.mappings.UtrMapping
+import play.api.data.Form
 
-import scala.concurrent.Future
+class BusinessUTRFormProvider extends FormErrorHelper with UtrMapping {
 
-object DataRetrievals {
-  def retrieveCompanyName(block: String => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    request.userAnswers.get(CompanyNamePage) match {
-
-      case Some(value) => block(value)
-      case _  => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
-    }
-  }
+  def apply: Form[String] =
+    Form(
+      "value" ->
+        utrMapping(
+          requiredKey = "businessUTR.error.required",
+          invalidKey = "businessUTR.error.invalid"
+        )
+    )
 }

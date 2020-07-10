@@ -20,9 +20,10 @@ import data.SampleData
 import models.{CheckMode, NormalMode, UserAnswers}
 import org.scalatest.prop.TableFor3
 import pages._
-import pages.register.company._
+import pages.company._
 import play.api.mvc.Call
-import controllers.register.company.routes._
+import controllers.company.routes._
+import pages.register.DeclarationPage
 
 class CompanyNavigatorSpec extends NavigatorBehaviour {
   private val uaConfirmAddressYes = SampleData
@@ -50,27 +51,15 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
         row(CompanyUseSameAddressPage)(CompanyEmailController.onPageLoad(NormalMode), Some(uaUseSameAddress(true))),
         row(CompanyUseSameAddressPage)(CompanyPostcodeController.onPageLoad(NormalMode), Some(uaUseSameAddress(false))),
         row(CompanyPostcodePage)(CompanyAddressListController.onPageLoad(NormalMode)),
-        row(CompanyAddressListPage)(CompanyAddressController.onPageLoad(NormalMode)),
+        row(CompanyAddressListPage)(CompanyEmailController.onPageLoad(NormalMode)),
         row(CompanyAddressPage)(CompanyEmailController.onPageLoad(NormalMode)),
         row(CompanyEmailPage)(CompanyPhoneController.onPageLoad(NormalMode)),
-        row(CompanyPhonePage)(CheckYourAnswersController.onPageLoad())
+        row(CompanyPhonePage)(CheckYourAnswersController.onPageLoad()),
+        row(DeclarationPage)(controllers.register.routes.ConfirmationController.onPageLoad())
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)
   }
 
-  "CheckMode" must {
-    def normalModeRoutes: TableFor3[Page, UserAnswers, Call] =
-      Table(
-        ("Id", "UserAnswers", "Next Page"),
 
-        row(CompanyPostcodePage)(CompanyAddressListController.onPageLoad(CheckMode)),
-        row(CompanyAddressListPage)(CompanyAddressController.onPageLoad(CheckMode)),
-        row(CompanyAddressPage)(CheckYourAnswersController.onPageLoad()),
-        row(CompanyEmailPage)(CheckYourAnswersController.onPageLoad()),
-        row(CompanyPhonePage)(CheckYourAnswersController.onPageLoad())
-      )
-
-    behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)
-  }
 }

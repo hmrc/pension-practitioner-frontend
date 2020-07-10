@@ -17,43 +17,45 @@
 package navigators
 
 import com.google.inject.Inject
-import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import models.{CheckMode, NormalMode, UserAnswers}
+import controllers.company.routes._
+import models.{NormalMode, UserAnswers}
 import pages.Page
-import pages.register.company._
+import pages.company._
+import pages.register.DeclarationPage
 import play.api.mvc.Call
-import controllers.register.company.routes._
 
 class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector)
   extends Navigator {
 
+  //scalastyle:off cyclomatic.complexity
   override protected def routeMap(ua: UserAnswers): PartialFunction[Page, Call] = {
     case BusinessUTRPage => CompanyNameController.onPageLoad()
     case CompanyNamePage => ConfirmNameController.onPageLoad()
-    case id@ConfirmNamePage => ua.get(id) match {
+    case ConfirmNamePage => ua.get(ConfirmNamePage) match {
         case Some(false) => TellHMRCController.onPageLoad()
         case _ => ConfirmAddressController.onPageLoad()
       }
-    case id@ConfirmAddressPage => ua.get(id) match {
+    case ConfirmAddressPage => ua.get(ConfirmAddressPage) match {
         case None => TellHMRCController.onPageLoad()
         case _ => CompanyUseSameAddressController.onPageLoad()
       }
-    case id@CompanyUseSameAddressPage => ua.get(id) match {
+    case CompanyUseSameAddressPage => ua.get(CompanyUseSameAddressPage) match {
       case Some(true) => CompanyEmailController.onPageLoad(NormalMode)
       case _ => CompanyPostcodeController.onPageLoad(NormalMode)
     }
     case CompanyPostcodePage => CompanyAddressListController.onPageLoad(NormalMode)
-    case CompanyAddressListPage => CompanyAddressController.onPageLoad(NormalMode)
+    case CompanyAddressListPage => CompanyEmailController.onPageLoad(NormalMode)
     case CompanyAddressPage => CompanyEmailController.onPageLoad(NormalMode)
     case CompanyEmailPage => CompanyPhoneController.onPageLoad(NormalMode)
     case CompanyPhonePage => CheckYourAnswersController.onPageLoad()
+    case DeclarationPage => controllers.register.routes.ConfirmationController.onPageLoad()
 
   }
+  //scalastyle:off cyclomatic.complexity
 
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {
-    case CompanyPostcodePage => CompanyAddressListController.onPageLoad(CheckMode)
-    case CompanyAddressListPage => CompanyAddressController.onPageLoad(CheckMode)
+
     case CompanyAddressPage => CheckYourAnswersController.onPageLoad()
     case CompanyEmailPage => CheckYourAnswersController.onPageLoad()
     case CompanyPhonePage => CheckYourAnswersController.onPageLoad()

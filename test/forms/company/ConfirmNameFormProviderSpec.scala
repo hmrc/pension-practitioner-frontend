@@ -14,22 +14,32 @@
  * limitations under the License.
  */
 
-package controllers
+package forms.company
 
-import models.requests.DataRequest
-import pages.company.CompanyNamePage
-import play.api.mvc.AnyContent
-import play.api.mvc.Result
-import play.api.mvc.Results.Redirect
+import forms.behaviours.BooleanFieldBehaviours
+import play.api.data.FormError
 
-import scala.concurrent.Future
+class ConfirmNameFormProviderSpec extends BooleanFieldBehaviours {
 
-object DataRetrievals {
-  def retrieveCompanyName(block: String => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    request.userAnswers.get(CompanyNamePage) match {
+  val requiredKey = "confirmName.error.required"
+  val invalidKey = "error.boolean"
 
-      case Some(value) => block(value)
-      case _  => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
-    }
+  val form = new ConfirmNameFormProvider()()
+
+  ".value" must {
+
+    val fieldName = "value"
+
+    behave like booleanField(
+      form,
+      fieldName,
+      invalidError = FormError(fieldName, invalidKey)
+    )
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
   }
 }

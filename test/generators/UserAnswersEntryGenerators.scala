@@ -23,8 +23,8 @@ import org.scalacheck.Arbitrary
 import pages.WhatTypeBusinessPage
 import pages.register.BusinessTypePage
 import pages.register.AreYouUKCompanyPage
-import pages.register.company.ConfirmAddressPage
-import pages.register.company.{BusinessUTRPage, CompanyNamePage, ConfirmNamePage}
+import pages.company.ConfirmAddressPage
+import pages.company.{BusinessUTRPage, CompanyNamePage, ConfirmNamePage}
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
 
