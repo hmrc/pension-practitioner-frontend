@@ -458,6 +458,14 @@ cya.change.phone = {0}’s phone number?
 useAddressForContact.title = Can HMRC use this address to contact {0}?
 useAddressForContact.error.required = Select yes if HMRC can use this address to contact {0}
 
+individual.email.title = What is your email address?
+individual.email.hint = We will only use this to contact you about pension scheme practitioners.
+individual.email.error.required = Enter your email address
+
+individual.phone.title = What is your phone number?
+individual.phone.hint = We will only use this to contact you about pension scheme practitioners.
+individual.phone.error.required = Enter your phone number
+
 declaration.title = Declaration
 declaration.text = I confirm that the details entered are correct.
 declaration.submit = Agree and register this practitioner

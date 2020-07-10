@@ -16,3 +16,13 @@ POST        /uk/use-address-for-contact                  controllers.individual.
 GET         /uk/change/use-address-for-contact           controllers.individual.UseAddressForContactController.onPageLoad(mode: Mode = CheckMode)
 POST        /uk/change/use-address-for-contact           controllers.individual.UseAddressForContactController.onSubmit(mode: Mode = CheckMode)
 
+GET        /uk/contact-details/contact-email             controllers.individual.IndividualEmailController.onPageLoad(mode: Mode = NormalMode)
+POST       /uk/contact-details/contact-email             controllers.individual.IndividualEmailController.onSubmit(mode: Mode = NormalMode)
+GET        /uk/contact-details/change-contact-email      controllers.individual.IndividualEmailController.onPageLoad(mode: Mode = CheckMode)
+POST       /uk/contact-details/change-contact-email      controllers.individual.IndividualEmailController.onSubmit(mode: Mode = CheckMode)
+
+GET        /uk/contact-details/contact-phone             controllers.individual.IndividualPhoneController.onPageLoad(mode: Mode = NormalMode)
+POST       /uk/contact-details/contact-phone             controllers.individual.IndividualPhoneController.onSubmit(mode: Mode = NormalMode)
+GET        /uk/contact-details/change-contact-phone      controllers.individual.IndividualPhoneController.onPageLoad(mode: Mode = CheckMode)
+POST       /uk/contact-details/change-contact-phone      controllers.individual.IndividualPhoneController.onSubmit(mode: Mode = CheckMode)
+
