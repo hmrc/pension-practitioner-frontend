@@ -47,10 +47,11 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   private val application: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
-  private val templateToBeRendered = "register/company/declaration.njk"
+  private val templateToBeRendered = "company/declaration.njk"
   private val dummyCall: Call = Call("GET", "/foo")
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq("true"))
-  private val jsonToPassToTemplate: JsObject = Json.obj("submitUrl" -> routes.DeclarationController.onSubmit().url)
+  private val jsonToPassToTemplate: JsObject = Json.obj(
+    "submitUrl" -> routes.DeclarationController.onSubmit().url)
 
   private def onPageLoadUrl: String = routes.DeclarationController.onPageLoad().url
   private def submitUrl: String = routes.DeclarationController.onSubmit().url
@@ -73,7 +74,6 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
 
       templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate)
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {
