@@ -22,7 +22,7 @@ import controllers.actions._
 import javax.inject.Inject
 import models.NormalMode
 import navigators.CompoundNavigator
-import pages.register.company.DeclarationPage
+import pages.individual.DeclarationPage
 import play.api.i18n.I18nSupport
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json

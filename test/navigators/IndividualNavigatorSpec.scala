@@ -39,7 +39,8 @@ class IndividualNavigatorSpec extends NavigatorBehaviour {
         row(IsThisYouPage)(controllers.individual.routes.YouNeedToTellHMRCController.onPageLoad(), Some(uaIsThisYou(false))),
         row(IsThisYouPage)(controllers.individual.routes.UseAddressForContactController.onPageLoad(NormalMode), Some(uaIsThisYou(true))),
         row(UseAddressForContactPage)(controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)),
-        row(IndividualEmailPage)(controllers.individual.routes.IndividualPhoneController.onPageLoad(NormalMode))
+        row(IndividualEmailPage)(controllers.individual.routes.IndividualPhoneController.onPageLoad(NormalMode)),
+        row(DeclarationPage)(controllers.individual.routes.ConfirmationController.onPageLoad())
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)

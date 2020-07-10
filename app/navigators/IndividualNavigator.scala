@@ -41,6 +41,7 @@ class IndividualNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConn
       }
     case UseAddressForContactPage => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
     case IndividualEmailPage => controllers.individual.routes.IndividualPhoneController.onPageLoad(NormalMode)
+    case DeclarationPage => controllers.individual.routes.ConfirmationController.onPageLoad()
   }
 
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {
