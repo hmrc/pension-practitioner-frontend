@@ -51,7 +51,7 @@ class IndividualAddressListControllerSpec extends ControllerSpecBase with Mockit
     ).build()
   private val templateToBeRendered = "individual/addressList.njk"
   private val form = new AddressListFormProvider()(messages("individual.addressList.error.required"))
-  private val tolerantAddress = TolerantAddress(Some("addr1"), Some("addr2"), Some("addr3"), Some("addr4"), Some("postcode"), Some("UK"))
+  private val tolerantAddress = TolerantAddress(Some("addr1"), Some("addr2"), Some("addr3"), Some("addr4"), Some("postcode"), Some("GB"))
 
   private val userAnswers: UserAnswers = UserAnswers().set(IndividualPostcodePage, Seq(tolerantAddress)).toOption.value
 

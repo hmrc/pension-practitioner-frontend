@@ -53,7 +53,7 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
     ).build()
   private val templateToBeRendered = "address/addressList.njk"
   private val form = new AddressListFormProvider()(messages("addressList.error.invalid", messages("company")))
-  private val tolerantAddress = TolerantAddress(Some("addr1"), Some("addr2"), Some("addr3"), Some("addr4"), Some("postcode"), Some("UK"))
+  private val tolerantAddress = TolerantAddress(Some("addr1"), Some("addr2"), Some("addr3"), Some("addr4"), Some("postcode"), Some("GB"))
 
   val userAnswers: UserAnswers = UserAnswers().set(CompanyNamePage, companyName).toOption.value
                                   .set(CompanyPostcodePage, Seq(tolerantAddress)).toOption.value
