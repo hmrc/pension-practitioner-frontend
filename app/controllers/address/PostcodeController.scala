@@ -59,7 +59,7 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
           addressLookupConnector.addressLookupByPostCode(value).flatMap {
             case Nil =>
               val json = formToJson(formWithError(form, errorMessage))
-                renderer.render("address/postcode.njk", json).map(BadRequest(_))
+                renderer.render(viewTemplate, json).map(BadRequest(_))
 
             case addresses =>
               for {
