@@ -54,6 +54,7 @@ unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
 company = the company
+you = you
 
 whatTypeBusiness.title = Who are you registering as a scheme practitioner?
 whatTypeBusiness.heading = Who are you registering as a scheme practitioner?
@@ -463,4 +464,13 @@ individual.email.error.required = Enter your email address
 individual.phone.title = What is your phone number?
 individual.phone.hint = We will only use this to contact you about pension scheme practitioners.
 individual.phone.error.required = Enter your phone number
+
+individual.postcode.error.required = Enter the address we can use to contact you
+individual.postcode.error.invalid = Enter a valid address which we can use to contact you
+
+individual.addressList.error.required = Select your contact address
+individual.addressList.title = Select your contact address
+
+individual.address.title = What is your address?
+
 

@@ -27,6 +27,7 @@ import play.api.mvc.Call
 class IndividualNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector, config: FrontendAppConfig)
   extends Navigator {
 
+  //scalastyle:off cyclomatic.complexity
   override protected def routeMap(ua: UserAnswers): PartialFunction[Page, Call] = {
     case WhatYouWillNeedPage => controllers.individual.routes.AreYouUKResidentController.onPageLoad()
     case AreYouUKResidentPage => controllers.individual.routes.IsThisYouController.onPageLoad(NormalMode)
@@ -39,10 +40,21 @@ class IndividualNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConn
         case _ =>
           controllers.routes.SessionExpiredController.onPageLoad()
       }
-    case UseAddressForContactPage => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+    case UseAddressForContactPage =>
+      ua.get(UseAddressForContactPage) match {
+        case Some(true) =>
+          controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+        case Some(false) =>
+          controllers.individual.routes.IndividualPostcodeController.onPageLoad(NormalMode)
+        case _ =>
+          controllers.routes.SessionExpiredController.onPageLoad()
+      }
+    case IndividualPostcodePage => controllers.individual.routes.IndividualAddressListController.onPageLoad(NormalMode)
+    case IndividualAddressListPage => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+    case IndividualManualAddressPage => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
     case IndividualEmailPage => controllers.individual.routes.IndividualPhoneController.onPageLoad(NormalMode)
   }
-
+  //scalastyle:on cyclomatic.complexity
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {
     case _ => controllers.routes.IndexController.onPageLoad()
   }

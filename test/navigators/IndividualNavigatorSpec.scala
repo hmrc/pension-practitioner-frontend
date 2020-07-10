@@ -27,8 +27,11 @@ class IndividualNavigatorSpec extends NavigatorBehaviour {
 
   private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
 
-  private def uaIsThisYou(flag: Boolean) = SampleData
+  private def uaIsThisYou(flag: Boolean): UserAnswers = SampleData
     .emptyUserAnswers.setOrException(IsThisYouPage, flag)
+
+  private def uaUseAddressForContact(flag: Boolean): UserAnswers = SampleData
+    .emptyUserAnswers.setOrException(UseAddressForContactPage, flag)
 
   "NormalMode" must {
     def normalModeRoutes: TableFor3[Page, UserAnswers, Call] =
@@ -38,7 +41,11 @@ class IndividualNavigatorSpec extends NavigatorBehaviour {
         row(AreYouUKResidentPage)(controllers.individual.routes.IsThisYouController.onPageLoad(NormalMode)),
         row(IsThisYouPage)(controllers.individual.routes.YouNeedToTellHMRCController.onPageLoad(), Some(uaIsThisYou(false))),
         row(IsThisYouPage)(controllers.individual.routes.UseAddressForContactController.onPageLoad(NormalMode), Some(uaIsThisYou(true))),
-        row(UseAddressForContactPage)(controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)),
+        row(UseAddressForContactPage)(controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode), Some(uaUseAddressForContact(true))),
+        row(UseAddressForContactPage)(controllers.individual.routes.IndividualPostcodeController.onPageLoad(NormalMode), Some(uaUseAddressForContact(false))),
+        row(IndividualPostcodePage)(controllers.individual.routes.IndividualAddressListController.onPageLoad(NormalMode)),
+        row(IndividualAddressListPage)(controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)),
+        row(IndividualManualAddressPage)(controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)),
         row(IndividualEmailPage)(controllers.individual.routes.IndividualPhoneController.onPageLoad(NormalMode))
       )
 
