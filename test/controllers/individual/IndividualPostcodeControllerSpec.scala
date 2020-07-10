@@ -36,7 +36,6 @@ import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import viewmodels.CommonViewModel
 
 import scala.concurrent.Future
 
@@ -50,7 +49,7 @@ class IndividualPostcodeControllerSpec extends ControllerSpecBase with MockitoSu
       mutableFakeDataRetrievalAction,
       extraModules = Seq(bind[AddressLookupConnector].toInstance(mockAddressLookupConnector))
     ).build()
-  private val templateToBeRendered = "address/postcode.njk"
+  private val templateToBeRendered = "individual/postcode.njk"
   private val form = new PostcodeFormProvider()(
     messages("individual.postcode.error.required"),
     messages("individual.postcode.error.invalid"))
@@ -69,7 +68,7 @@ class IndividualPostcodeControllerSpec extends ControllerSpecBase with MockitoSu
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
 
   private val jsonToPassToTemplate: Form[String] => JsObject =
-    form => Json.obj("form" -> form, "viewmodel" -> CommonViewModel("you", "you", submitUrl, Some(enterManuallyUrl.url)))
+    form => Json.obj("form" -> form, "submitUrl" -> submitUrl, "enterManuallyUrl" -> Some(enterManuallyUrl.url))
 
   override def beforeEach: Unit = {
     super.beforeEach

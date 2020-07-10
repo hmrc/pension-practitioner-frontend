@@ -33,7 +33,6 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import viewmodels.CommonViewModel
 
 import scala.concurrent.ExecutionContext
 
@@ -56,6 +55,8 @@ class IndividualPostcodeController @Inject()(override val messagesApi: MessagesA
       messages("individual.postcode.error.invalid")
     )
 
+  override def viewTemplate: String = "individual/postcode.njk"
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       get(getFormToJson(mode))
@@ -70,11 +71,8 @@ class IndividualPostcodeController @Inject()(override val messagesApi: MessagesA
     form =>
       Json.obj(
         "form" -> form,
-        "viewmodel" -> CommonViewModel(
-          "you",
-          "you",
-          routes.IndividualPostcodeController.onSubmit(mode).url,
-          Some(routes.IndividualAddressController.onPageLoad(mode).url)
-        ))
+        "submitUrl" -> routes.IndividualPostcodeController.onSubmit(mode).url,
+        "enterManuallyUrl" -> Some(routes.IndividualAddressController.onPageLoad(mode).url)
+      )
   }
 }

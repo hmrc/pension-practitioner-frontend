@@ -16,12 +16,12 @@
 
 package pages.register.company
 
-import models.Address
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object CompanyAddressPage extends QuestionPage[Address] {
+case object CompanyUseSameAddressPage extends QuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ "company" \ toString
-  override def toString: String = "contactAddress"
+
+  override def toString: String = "useSameAddress"
 }
