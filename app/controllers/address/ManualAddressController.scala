@@ -42,9 +42,7 @@ trait ManualAddressController extends FrontendBaseController with Retrievals {
 
   def get(json: Form[Address] => JsObject, addressPage: QuestionPage[Address])
          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
-    println("\n\n >>>>>>>>>>>>>>>>>>> "+request.userAnswers.get(addressPage))
     val formFilled = request.userAnswers.get(addressPage).fold(form)(form.fill)
-    println("\n\n >>>>>>>>>>>>>>>>>>>formFilled "+formFilled)
     renderer.render("address/manualAddress.njk", json(formFilled)).map(Ok(_))
   }
 
