@@ -19,7 +19,7 @@ package navigators
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import models.{NormalMode, UserAnswers}
+import models.{CheckMode, NormalMode, UserAnswers}
 import pages.Page
 import pages.individual._
 import play.api.mvc.Call
@@ -53,9 +53,14 @@ class IndividualNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConn
     case IndividualAddressListPage => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
     case IndividualManualAddressPage => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
     case IndividualEmailPage => controllers.individual.routes.IndividualPhoneController.onPageLoad(NormalMode)
+    case IndividualPhonePage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
   }
   //scalastyle:on cyclomatic.complexity
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {
-    case _ => controllers.routes.IndexController.onPageLoad()
+    case IndividualPostcodePage => controllers.individual.routes.IndividualAddressListController.onPageLoad(CheckMode)
+    case IndividualAddressListPage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
+    case IndividualManualAddressPage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
+    case IndividualEmailPage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
+    case IndividualPhonePage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
   }
 }

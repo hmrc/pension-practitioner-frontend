@@ -41,5 +41,8 @@ POST       /uk/addresses/address-manual-individual             controllers.indiv
 GET        /uk/addresses/change-address-manual-individual      controllers.individual.IndividualAddressController.onPageLoad(mode: Mode = CheckMode)
 POST       /uk/addresses/change-address-manual-individual      controllers.individual.IndividualAddressController.onSubmit(mode: Mode = CheckMode)
 
+GET        /uk/check-your-answers-individual                        controllers.individual.CheckYourAnswersController.onPageLoad
+
+
 
 
