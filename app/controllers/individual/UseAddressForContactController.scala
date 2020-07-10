@@ -20,20 +20,21 @@ import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
-import forms.individual.UseAddressForContactFormProvider
+import forms.address.UseAddressForContactFormProvider
 import javax.inject.Inject
 import models.requests.DataRequest
 import models.{Mode, NormalMode}
 import navigators.CompoundNavigator
 import pages.individual.{IndividualAddressPage, UseAddressForContactPage}
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
 import utils.countryOptions.CountryOptions
+import viewmodels.CommonViewModel
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -50,13 +51,14 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
                                                renderer: Renderer
                                               )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
 
-  private val form = formProvider()
+  private def form(implicit messages: Messages): Form[Boolean] =
+    formProvider(messages("useAddressForContact.error.required", messages("individual.you")))
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       val preparedForm = request.userAnswers.get(UseAddressForContactPage).fold(form)(form.fill)
       getJson(preparedForm) { json =>
-        renderer.render("individual/useAddressForContact.njk", json).map(Ok(_))
+        renderer.render("address/useAddressForContact.njk", json).map(Ok(_))
       }
   }
 
@@ -65,7 +67,7 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
       form.bindFromRequest().fold(
         formWithErrors => {
           getJson(formWithErrors) { json =>
-            renderer.render("individual/useAddressForContact.njk", json).map(BadRequest(_))
+            renderer.render("address/useAddressForContact.njk", json).map(BadRequest(_))
           }
         },
         value =>
@@ -76,11 +78,12 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
       )
   }
 
-  private def getJson(form: Form[Boolean])(block: JsObject => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] =
+  private def getJson(form: Form[Boolean])(block: JsObject => Future[Result])
+                     (implicit request: DataRequest[AnyContent]): Future[Result] =
     IndividualAddressPage.retrieve.right.map { address =>
       val json = Json.obj(
         "form" -> form,
-        "submitUrl" -> routes.UseAddressForContactController.onSubmit().url,
+        "viewmodel" -> CommonViewModel("individual.you", "individual.you", routes.UseAddressForContactController.onSubmit().url),
         "radios" -> Radios.yesNo(form("value")),
         "address" -> address.lines(countryOptions)
       )
