@@ -480,7 +480,7 @@ individual.phone.title = What is your phone number?
 individual.phone.hint = We will only use this to contact you about pension scheme practitioners.
 individual.phone.error.required = Enter your phone number
 
-individual.postcode.title = Which address can we use to contact {0}?
+individual.postcode.title = Which address can we use to contact you?
 individual.postcode.error.required = Enter the address we can use to contact you
 individual.postcode.error.invalid = Enter a valid address which we can use to contact you
 
