@@ -24,11 +24,11 @@ import models.WhatTypeBusiness
 import models.register.BusinessType
 import pages.Page
 import pages.WhatTypeBusinessPage
-import pages.register.company.BusinessUTRPage
+import pages.company.BusinessUTRPage
 import pages.register.{AreYouUKCompanyPage, WhatYouWillNeedPage, BusinessTypePage}
 import play.api.mvc.Call
 
-class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector, config: FrontendAppConfig)
+class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector)
   extends Navigator {
 
   override protected def routeMap(ua: UserAnswers): PartialFunction[Page, Call] = {
@@ -49,13 +49,13 @@ class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCo
     case BusinessTypePage=>
       ua.get(BusinessTypePage) match {
         case Some(BusinessType.LimitedCompany) =>
-          controllers.register.company.routes.BusinessUTRController.onPageLoad()
+          controllers.company.routes.BusinessUTRController.onPageLoad()
         case Some(BusinessType.UnlimitedCompany) =>
-          controllers.register.company.routes.BusinessUTRController.onPageLoad()
+          controllers.company.routes.BusinessUTRController.onPageLoad()
         case _ => controllers.routes.SessionExpiredController.onPageLoad()
       }
     case BusinessUTRPage =>
-      controllers.register.company.routes.CompanyNameController.onPageLoad()
+      controllers.company.routes.CompanyNameController.onPageLoad()
 
   }
 
