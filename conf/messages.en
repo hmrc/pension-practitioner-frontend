@@ -17,6 +17,7 @@ site.view = View
 site.remove = Remove
 site.signOut = Sign out
 site.agree_and_submit = Agree and submit this AFT return
+site.finish = Finish
 site.finishAndSignOut = Finish and sign out
 
 error.title.prefix = Error:
@@ -54,6 +55,7 @@ unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
 company = the company
+company.capitalised = The company
 
 whatTypeBusiness.title = Who are you registering as a scheme practitioner?
 whatTypeBusiness.heading = Who are you registering as a scheme practitioner?
@@ -456,3 +458,17 @@ useAddressForContact.title = Can HMRC use this address to contact you?
 useAddressForContact.heading = Can HMRC use this address to contact you?
 useAddressForContact.error.required = Select yes if HMRC can use this address to contact you
 
+declaration.title = Declaration
+declaration.text = I confirm that the details entered are correct.
+declaration.submit = Agree and register this practitioner
+
+confirmation.title = {0} has been registered as a pension scheme practitioner
+confirmation.psp.id = Practitioner ID
+confirmation.email = We have sent a confirmation email to
+confirmation.list.header = What to do next
+confirmation.list.item1 = Make a note of your practioner ID (for security reasons it is not included in the confirmation email)
+confirmation.list.item2 = Pass on the practioner ID to your pension scheme administrator
+confirmation.list.text = You only need one practitioner ID, even if you are a practitioner for more than one pension scheme. This ID allows you to be added to all relevant schemes using the online service.
+confirmation.saveOrPrint = Save or print
+confirmation.print.page.link.text = Print this page
+confirmation.save.page.link.text = Save this page (55KB)

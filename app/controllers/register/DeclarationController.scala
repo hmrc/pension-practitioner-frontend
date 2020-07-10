@@ -21,9 +21,10 @@ import controllers.Retrievals
 import controllers.actions._
 import forms.register.PhoneFormProvider
 import javax.inject.Inject
-import models.Mode
+import models.{Mode, NormalMode}
 import models.requests.DataRequest
 import navigators.CompoundNavigator
+import pages.register.DeclarationPage
 import pages.register.company.{CompanyNamePage, CompanyPhonePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -46,10 +47,14 @@ class DeclarationController @Inject()(override val messagesApi: MessagesApi,
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController
   with Retrievals with I18nSupport with NunjucksSupport {
 
-  def onPageLoad: Action[AnyContent] =
-    (identify andThen getData andThen requireData) {
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
       implicit request =>
-        Ok
+        renderer.render("register/declaration.njk", Json.obj()).map(Ok(_))
+    }
+
+  def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData) {
+      implicit request =>
+         Redirect(navigator.nextPage(DeclarationPage, NormalMode, request.userAnswers))
     }
 
 }
