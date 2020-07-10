@@ -26,3 +26,7 @@ POST       /uk/contact-details/contact-phone             controllers.individual.
 GET        /uk/contact-details/change-contact-phone      controllers.individual.IndividualPhoneController.onPageLoad(mode: Mode = CheckMode)
 POST       /uk/contact-details/change-contact-phone      controllers.individual.IndividualPhoneController.onSubmit(mode: Mode = CheckMode)
 
+GET        /declaration                                     controllers.individual.DeclarationController.onPageLoad
+POST       /declaration                                     controllers.individual.DeclarationController.onSubmit
+
+GET        /registration-successful                         controllers.individual.ConfirmationController.onPageLoad
