@@ -16,15 +16,12 @@
 
 package navigators
 
-import com.google.inject.Inject
-import config.FrontendAppConfig
-import connectors.cache.UserAnswersCacheConnector
 import models.{CheckMode, NormalMode, UserAnswers}
 import pages.Page
 import pages.individual._
 import play.api.mvc.Call
 
-class IndividualNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector, config: FrontendAppConfig)
+class IndividualNavigator
   extends Navigator {
 
   //scalastyle:off cyclomatic.complexity
@@ -54,6 +51,7 @@ class IndividualNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConn
     case IndividualManualAddressPage => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
     case IndividualEmailPage => controllers.individual.routes.IndividualPhoneController.onPageLoad(NormalMode)
     case IndividualPhonePage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
+    case DeclarationPage => controllers.individual.routes.ConfirmationController.onPageLoad()
   }
   //scalastyle:on cyclomatic.complexity
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {

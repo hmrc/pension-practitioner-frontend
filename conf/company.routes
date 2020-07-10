@@ -42,3 +42,8 @@ GET        /contact-details/change-contact-phone      controllers.register.compa
 POST       /contact-details/change-contact-phone      controllers.register.company.CompanyPhoneController.onSubmit(mode: Mode = CheckMode)
 
 GET        /check-your-answers                        controllers.register.company.CheckYourAnswersController.onPageLoad
+
+GET        /declaration                                     controllers.register.company.DeclarationController.onPageLoad
+POST       /declaration                                     controllers.register.company.DeclarationController.onSubmit
+
+GET        /registration-successful                         controllers.register.company.ConfirmationController.onPageLoad

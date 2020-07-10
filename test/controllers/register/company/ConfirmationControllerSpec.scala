@@ -14,27 +14,26 @@
  * limitations under the License.
  */
 
-package controllers.register
+package controllers.register.company
 
-import connectors.AddressLookupConnector
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
-import forms.address.PostcodeFormProvider
 import matchers.JsonMatchers
 import models.WhatTypeBusiness.Companyorpartnership
-import models.{NormalMode, TolerantAddress, UserAnswers, WhatTypeBusiness}
+import models.UserAnswers
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{times, verify, when}
-import org.mockito.{ArgumentCaptor, Matchers}
-import org.scalatest.{OptionValues, TryValues}
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.when
+import org.mockito.ArgumentCaptor
+import org.scalatest.OptionValues
+import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
 import pages.WhatTypeBusinessPage
-import pages.register.company.{CompanyNamePage, CompanyPostcodePage}
+import pages.register.company.CompanyNamePage
 import play.api.Application
-import play.api.data.Form
-import play.api.inject.bind
-import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.Call
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
@@ -49,7 +48,7 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
   private val companyName: String = "Company name"
   private val application: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
-  private val templateToBeRendered = "register/confirmation.njk"
+  private val templateToBeRendered = "register/company/confirmation.njk"
   private val pspId = "1234567890"
 
   val userAnswers: UserAnswers = UserAnswers()

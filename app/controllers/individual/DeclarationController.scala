@@ -14,30 +14,28 @@
  * limitations under the License.
  */
 
-package controllers.register
+package controllers.individual
 
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
-import forms.register.PhoneFormProvider
 import javax.inject.Inject
-import models.{Mode, NormalMode}
-import models.requests.DataRequest
+import models.NormalMode
 import navigators.CompoundNavigator
-import pages.register.DeclarationPage
-import pages.register.company.{CompanyNamePage, CompanyPhonePage}
-import play.api.data.Form
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, Json, Writes}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import pages.individual.DeclarationPage
+import play.api.i18n.I18nSupport
+import play.api.i18n.MessagesApi
+import play.api.libs.json.Json
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class DeclarationController @Inject()(override val messagesApi: MessagesApi,
-                                      userAnswersCacheConnector: UserAnswersCacheConnector,
                                       navigator: CompoundNavigator,
                                       identify: IdentifierAction,
                                       getData: DataRetrievalAction,
@@ -49,11 +47,12 @@ class DeclarationController @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
       implicit request =>
-        renderer.render("register/declaration.njk", Json.obj()).map(Ok(_))
+        renderer.render("individual/declaration.njk", Json.obj()).map(Ok(_))
     }
 
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData) {
       implicit request =>
+        //TODO: Add the call for psp subscription
          Redirect(navigator.nextPage(DeclarationPage, NormalMode, request.userAnswers))
     }
 

@@ -49,7 +49,7 @@ class CheckYourAnswersController @Inject()(config: FrontendAppConfig,
     (identify andThen getData andThen requireData).async { implicit request =>
 
       val json = Json.obj(
-        "redirectUrl" -> controllers.register.routes.DeclarationController.onPageLoad().url,
+        "redirectUrl" -> controllers.individual.routes.DeclarationController.onPageLoad().url,
         "list" -> individualCYAService.individualCya(request.userAnswers)
       )
 
