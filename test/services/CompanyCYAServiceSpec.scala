@@ -20,7 +20,7 @@ import base.SpecBase
 import models.{Address, CheckMode, UserAnswers}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import pages.register.company.{BusinessUTRPage, CompanyAddressPage, CompanyEmailPage, CompanyNamePage, CompanyPhonePage}
+import pages.company.{BusinessUTRPage, CompanyAddressPage, CompanyEmailPage, CompanyNamePage, CompanyPhonePage}
 import uk.gov.hmrc.viewmodels._
 import uk.gov.hmrc.viewmodels.SummaryList.{Action, Key, Row, Value}
 import uk.gov.hmrc.viewmodels.Text.Literal
@@ -56,7 +56,7 @@ class CompanyCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
       actions = List(
         Action(
           content = msg"site.edit",
-          href = controllers.register.company.routes.CompanyAddressController.onPageLoad(CheckMode).url,
+          href = controllers.company.routes.CompanyAddressController.onPageLoad(CheckMode).url,
           visuallyHiddenText = Some(msg"cya.change.address")
         )
       )
@@ -67,7 +67,7 @@ class CompanyCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
       actions = List(
         Action(
           content = msg"site.edit",
-          href = controllers.register.company.routes.CompanyEmailController.onPageLoad(CheckMode).url,
+          href = controllers.company.routes.CompanyEmailController.onPageLoad(CheckMode).url,
           visuallyHiddenText = Some(msg"cya.change.email")
         )
       )
@@ -78,7 +78,7 @@ class CompanyCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
       actions = List(
         Action(
           content = msg"site.edit",
-          href = controllers.register.company.routes.CompanyPhoneController.onPageLoad(CheckMode).url,
+          href = controllers.company.routes.CompanyPhoneController.onPageLoad(CheckMode).url,
           visuallyHiddenText = Some(msg"cya.change.phone")
         )
       )

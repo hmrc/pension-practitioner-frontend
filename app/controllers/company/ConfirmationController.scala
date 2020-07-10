@@ -14,27 +14,25 @@
  * limitations under the License.
  */
 
-package controllers.individual
+package controllers.company
 
 import controllers.Retrievals
 import controllers.actions._
 import javax.inject.Inject
-import pages.individual.IndividualEmailPage
-import play.api.i18n.I18nSupport
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesControllerComponents
+import models.WhatTypeBusiness.Companyorpartnership
+import models.requests.DataRequest
+import pages.WhatTypeBusinessPage
+import pages.company.CompanyNamePage
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import viewmodels.CommonViewModel
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
                                        identify: IdentifierAction,
@@ -47,17 +45,23 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      request.userAnswers.get(IndividualEmailPage) match {
-        case Some(email) =>
-          val json: JsObject = Json.obj(
-            "panelHtml" -> confirmationPanelText("1234567890").toString(),
-            "email" -> email,
-            "submitUrl" -> controllers.routes.SignOutController.signOut().url
-          )
+      getEntityTypeAndName.map { case (entityType, name) =>
 
-          renderer.render("individual/confirmation.njk", json).map(Ok(_))
-        case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
-      }
+        val json: JsObject = Json.obj(
+          "panelHtml" -> confirmationPanelText("1234567890").toString(),
+          "email" -> "SAMPLE@EMAIL.COM",
+          "viewmodel" -> CommonViewModel(entityType, name, controllers.routes.SignOutController.signOut().url)
+        )
+
+        renderer.render("company/confirmation.njk", json).map(Ok(_))
+      }.getOrElse(Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad())))
+  }
+
+  private def getEntityTypeAndName(implicit request: DataRequest[AnyContent]): Option[(String, String)] = {
+        request.userAnswers.get(WhatTypeBusinessPage).flatMap {
+          case Companyorpartnership => request.userAnswers.get(CompanyNamePage).map { name => ("company.capitalised", name)}
+          case _ => Some(Tuple2("individual", "Individual name"))
+        }
   }
 
   private def confirmationPanelText(pspId: String)(implicit messages: Messages): Html = {

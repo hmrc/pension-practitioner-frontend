@@ -55,7 +55,9 @@ trait ManualAddressController extends FrontendBaseController with Retrievals {
               for {
                 updatedAnswers <- Future.fromTry(request.userAnswers.set(addressPage, value))
                 _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-              } yield Redirect(navigator.nextPage(addressPage, mode, updatedAnswers))
+              } yield {
+                Redirect(navigator.nextPage(addressPage, mode, updatedAnswers))
+              }
 
         )
   }

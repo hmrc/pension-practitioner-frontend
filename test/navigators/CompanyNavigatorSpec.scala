@@ -21,11 +21,9 @@ import models.NormalMode
 import models.UserAnswers
 import org.scalatest.prop.TableFor3
 import pages._
-import pages.register.company.BusinessUTRPage
-import pages.register.company.CompanyNamePage
-import pages.register.company.ConfirmAddressPage
-import pages.register.company.ConfirmNamePage
+import pages.company._
 import play.api.mvc.Call
+import controllers.company.routes._
 
 class CompanyNavigatorSpec extends NavigatorBehaviour {
   private val uaConfirmAddressYes = SampleData
@@ -34,6 +32,9 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
   private def uaConfirmName(v:Boolean) = SampleData
     .emptyUserAnswers.setOrException(ConfirmNamePage, v)
 
+  private def uaUseSameAddress(v:Boolean) = SampleData
+    .emptyUserAnswers.setOrException(CompanyUseSameAddressPage, v)
+
 
   private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
 
@@ -41,14 +42,24 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
     def normalModeRoutes: TableFor3[Page, UserAnswers, Call] =
       Table(
         ("Id", "UserAnswers", "Next Page"),
-        row(BusinessUTRPage)(controllers.register.company.routes.CompanyNameController.onPageLoad()),
-        row(CompanyNamePage)(controllers.register.company.routes.ConfirmNameController.onPageLoad()),
-        row(ConfirmNamePage)(controllers.register.company.routes.ConfirmAddressController.onPageLoad(), Some(uaConfirmName(true))),
-        row(ConfirmNamePage)(controllers.register.company.routes.TellHMRCController.onPageLoad(),Some(uaConfirmName(false))),
-        row(ConfirmAddressPage)(controllers.register.company.routes.TellHMRCController.onPageLoad()),
-        row(ConfirmAddressPage)(controllers.routes.SessionExpiredController.onPageLoad(), Some(uaConfirmAddressYes))
+        row(BusinessUTRPage)(CompanyNameController.onPageLoad()),
+        row(CompanyNamePage)(ConfirmNameController.onPageLoad()),
+        row(ConfirmNamePage)(ConfirmAddressController.onPageLoad(), Some(uaConfirmName(true))),
+        row(ConfirmNamePage)(TellHMRCController.onPageLoad(),Some(uaConfirmName(false))),
+        row(ConfirmAddressPage)(TellHMRCController.onPageLoad()),
+        row(ConfirmAddressPage)(CompanyUseSameAddressController.onPageLoad(), Some(uaConfirmAddressYes)),
+        row(CompanyUseSameAddressPage)(CompanyEmailController.onPageLoad(NormalMode), Some(uaUseSameAddress(true))),
+        row(CompanyUseSameAddressPage)(CompanyPostcodeController.onPageLoad(NormalMode), Some(uaUseSameAddress(false))),
+        row(CompanyPostcodePage)(CompanyAddressListController.onPageLoad(NormalMode)),
+        row(CompanyAddressListPage)(CompanyEmailController.onPageLoad(NormalMode)),
+        row(CompanyAddressPage)(CompanyEmailController.onPageLoad(NormalMode)),
+        row(CompanyEmailPage)(CompanyPhoneController.onPageLoad(NormalMode)),
+        row(CompanyPhonePage)(CheckYourAnswersController.onPageLoad()),
+        row(DeclarationPage)(controllers.company.routes.ConfirmationController.onPageLoad())
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)
   }
+
+
 }
