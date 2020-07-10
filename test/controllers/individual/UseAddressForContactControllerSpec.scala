@@ -17,7 +17,7 @@
 package controllers.individual
 
 import controllers.base.ControllerSpecBase
-import forms.individual.UseAddressForContactFormProvider
+import forms.address.UseAddressForContactFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, TolerantAddress, UserAnswers}
 import org.mockito.ArgumentCaptor
@@ -35,6 +35,7 @@ import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
 import utils.countryOptions.CountryOptions
+import viewmodels.CommonViewModel
 
 import scala.concurrent.Future
 
@@ -43,7 +44,7 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
   private def onwardRoute = Call("GET", "/foo")
 
   private val formProvider = new UseAddressForContactFormProvider()
-  private val form = formProvider()
+  private val form = formProvider(messages("useAddressForContact.error.required", messages("individual.you")))
 
   private def useAddressForContactGetRoute: String = routes.UseAddressForContactController.onPageLoad(NormalMode).url
 
@@ -57,7 +58,7 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
 
   private def expectedJson(form: Form[Boolean]): JsObject = Json.obj(
     "form" -> form,
-    "submitUrl" -> useAddressForContactPostRoute,
+    "viewmodel" -> CommonViewModel("individual.you", "individual.you", useAddressForContactPostRoute),
     "radios" -> Radios.yesNo(form("value")),
     "address" -> address.lines(countryOptions)
   )
@@ -82,7 +83,7 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
 
         verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
 
-        templateCaptor.getValue mustEqual "individual/useAddressForContact.njk"
+        templateCaptor.getValue mustEqual "address/useAddressForContact.njk"
         jsonCaptor.getValue must containJson(expectedJson(form))
 
         application.stop()
@@ -101,7 +102,7 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
 
         val filledForm = form.bind(Map("value" -> "true"))
 
-        templateCaptor.getValue mustEqual "individual/useAddressForContact.njk"
+        templateCaptor.getValue mustEqual "address/useAddressForContact.njk"
         jsonCaptor.getValue must containJson(expectedJson(filledForm))
 
         application.stop()
@@ -157,7 +158,7 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
 
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
 
-      templateCaptor.getValue mustEqual "individual/useAddressForContact.njk"
+      templateCaptor.getValue mustEqual "address/useAddressForContact.njk"
       jsonCaptor.getValue must containJson(expectedJson(boundForm))
 
       application.stop()

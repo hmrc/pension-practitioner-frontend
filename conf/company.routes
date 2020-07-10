@@ -1,3 +1,5 @@
+GET        /is-your-registered-address-same           controllers.register.company.CompanyUseSameAddressController.onPageLoad()
+POST       /is-your-registered-address-same           controllers.register.company.CompanyUseSameAddressController.onSubmit()
 
 GET        /addresses/postcode                        controllers.register.company.CompanyPostcodeController.onPageLoad(mode: Mode = NormalMode)
 POST       /addresses/postcode                        controllers.register.company.CompanyPostcodeController.onSubmit(mode: Mode = NormalMode)

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package forms.individual
+package forms.address
 
 import forms.mappings.Mappings
 import javax.inject.Inject
@@ -22,8 +22,5 @@ import play.api.data.Form
 
 class UseAddressForContactFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[Boolean] =
-    Form(
-      "value" -> boolean("useAddressForContact.error.required")
-    )
+  def apply(keyRequired: String): Form[Boolean] = Form("value" -> boolean(keyRequired))
 }
