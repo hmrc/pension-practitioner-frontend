@@ -26,7 +26,7 @@ import org.mockito.Mockito.{times, verify, when}
 import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.register.company.{CompanyEmailPage, CompanyNamePage, CompanyUseSameAddressPage}
+import pages.register.company.{CompanyEmailPage, CompanyNamePage}
 import play.api.Application
 import play.api.data.Form
 import play.api.libs.json.{JsObject, Json}
@@ -82,6 +82,24 @@ class CompanyEmailControllerSpec extends ControllerSpecBase with MockitoSugar wi
 
       templateCaptor.getValue mustEqual templateToBeRendered
       jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
+    }
+
+    "populate the view correctly on a GET when the question has previously been answered" in {
+      val prepopUA: UserAnswers = userAnswers.set(CompanyEmailPage, email).toOption.value
+      mutableFakeDataRetrievalAction.setDataToReturn(Some(prepopUA))
+      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
+      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+
+      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+
+      status(result) mustEqual OK
+
+      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+
+      val filledForm = form.bind(Map("value" -> email))
+
+      templateCaptor.getValue mustEqual templateToBeRendered
+      jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(filledForm))
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {
