@@ -1,0 +1,2 @@
+GET        /business-utr                        controllers.partnership.BusinessUTRController.onPageLoad()
+POST       /business-utr                        controllers.partnership.BusinessUTRController.onSubmit()
