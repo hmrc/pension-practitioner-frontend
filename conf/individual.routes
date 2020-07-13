@@ -44,6 +44,6 @@ POST       /uk/addresses/change-address-manual-individual      controllers.indiv
 GET        /uk/check-your-answers-individual                        controllers.individual.CheckYourAnswersController.onPageLoad
 
 GET        /declaration                                     controllers.individual.DeclarationController.onPageLoad()
-GET        /declaration-on-submit                            controllers.individual.DeclarationController.onSubmit()
+POST        /declaration                            controllers.individual.DeclarationController.onSubmit()
 
 GET        /registration-successful                         controllers.individual.ConfirmationController.onPageLoad()

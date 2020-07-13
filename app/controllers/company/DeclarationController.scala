@@ -54,6 +54,7 @@ class DeclarationController @Inject()(override val messagesApi: MessagesApi,
 
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
+      //TODO: Add the call for psp subscription
       Redirect(navigator.nextPage(DeclarationPage, NormalMode, request.userAnswers))
   }
 

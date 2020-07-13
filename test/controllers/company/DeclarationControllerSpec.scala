@@ -22,7 +22,6 @@ import matchers.JsonMatchers
 import org.mockito.Matchers
 import play.api.mvc.Call
 import models.UserAnswers
-import org.mockito.{ArgumentCaptor, Matchers}
 import org.mockito.Matchers.any
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
@@ -30,8 +29,6 @@ import org.mockito.Mockito.when
 import org.mockito.ArgumentCaptor
 import org.scalatest.OptionValues
 import org.scalatest.TryValues
-import org.mockito.Mockito.{times, verify, when}
-import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.DeclarationPage
 import play.api.Application
@@ -93,7 +90,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       when(mockCompoundNavigator.nextPage(Matchers.eq(DeclarationPage), any(), any())).thenReturn(dummyCall)
 
-      val result = route(application, httpGETRequest(submitUrl)).value
+      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
       redirectLocation(result) mustBe Some(dummyCall.url)
@@ -103,7 +100,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
     "redirect to Session Expired page for a POST when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(submitUrl)).value
+      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
 
