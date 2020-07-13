@@ -30,23 +30,6 @@ case class TolerantAddress(addressLine1: Option[String],
                            postcode: Option[String],
                            country: Option[String]) {
 
-  @Deprecated
-  def lines: Seq[String] = {
-    Seq(
-      this.addressLine1,
-      this.addressLine2,
-      this.addressLine3,
-      this.addressLine4,
-      this.country,
-      this.postcode
-    ).flatten(s => s)
-  }
-
-  @Deprecated
-  def print: String = {
-    lines.mkString(", ")
-  }
-
   def lines(countryOptions: CountryOptions): Seq[String] = {
     Seq(
       this.addressLine1,
@@ -98,21 +81,21 @@ object TolerantAddress {
         case 0 =>
           Logger.warn(s"[NoAddressLinesFoundException]-$postCode,$countryCode")
           (None, None, None, None)
-        case 1 => {
+        case 1 =>
           val townOrCounty = getTownOrCounty(town, county, lines)
           (Some(lines(0)), townOrCounty._1, townOrCounty._2, None)
-        }
-        case 2 => {
+
+        case 2 =>
           val townOrCounty = getTownOrCounty(town, county, lines)
 
           (Some(lines(0)), Some(lines(1)), townOrCounty._1, townOrCounty._2)
-        }
-        case 3 => {
+
+        case 3 =>
           val townOrCounty = getTownOrCounty(town, county, lines)
           val townOrCountyValue = if (townOrCounty._2.isDefined) townOrCounty._2 else townOrCounty._1
 
           (Some(lines(0)), Some(lines(1)), Some(lines(2)), townOrCountyValue)
-        }
+
         case numberOfLines if (numberOfLines >= 4) => (Some(lines(0)), Some(lines(1)), Some(lines(2)), Some(lines(3)))
       }
     }

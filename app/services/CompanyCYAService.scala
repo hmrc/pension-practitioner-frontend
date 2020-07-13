@@ -64,7 +64,7 @@ class CompanyCYAService extends CYAService {
         actions = List(
           Action(
             content = msg"site.edit",
-            href = controllers.company.routes.CompanyAddressController.onPageLoad(CheckMode).url,
+            href = controllers.company.routes.CompanyPostcodeController.onPageLoad(CheckMode).url,
             visuallyHiddenText = Some(msg"cya.change.address")
           )
         )
