@@ -22,17 +22,19 @@ import javax.inject.Inject
 import models.WhatTypeBusiness.Companyorpartnership
 import models.requests.DataRequest
 import pages.WhatTypeBusinessPage
+import pages.company.CompanyEmailPage
 import pages.company.CompanyNamePage
+import pages.individual.IndividualEmailPage
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.libs.json.{Json, JsObject}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import play.twirl.api.Html
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import viewmodels.CommonViewModel
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
                                        identify: IdentifierAction,
@@ -45,11 +47,10 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      getEntityTypeAndName.map { case (entityType, name) =>
-
+      getEntityTypeNameAndEmail.map { case (entityType, name, email) =>
         val json: JsObject = Json.obj(
           "panelHtml" -> confirmationPanelText("1234567890").toString(),
-          "email" -> "SAMPLE@EMAIL.COM",
+          "email" -> email,
           "viewmodel" -> CommonViewModel(entityType, name, controllers.routes.SignOutController.signOut().url)
         )
 
@@ -57,11 +58,12 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
       }.getOrElse(Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad())))
   }
 
-  private def getEntityTypeAndName(implicit request: DataRequest[AnyContent]): Option[(String, String)] = {
-        request.userAnswers.get(WhatTypeBusinessPage).flatMap {
-          case Companyorpartnership => request.userAnswers.get(CompanyNamePage).map { name => ("company.capitalised", name)}
-          case _ => Some(Tuple2("individual", "Individual name"))
-        }
+  private def getEntityTypeNameAndEmail(implicit request: DataRequest[AnyContent]): Option[(String, String, String)] = {
+    (request.userAnswers.get(WhatTypeBusinessPage), request.userAnswers.get(CompanyEmailPage)) match {
+        case (Some(Companyorpartnership), Some(email)) =>
+          request.userAnswers.get(CompanyNamePage).map(name => ("company.capitalised", name, email))
+        case _ => None
+     }
   }
 
   private def confirmationPanelText(pspId: String)(implicit messages: Messages): Html = {

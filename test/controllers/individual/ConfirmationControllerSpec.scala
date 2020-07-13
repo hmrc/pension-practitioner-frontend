@@ -49,7 +49,7 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
   private val pspId = "1234567890"
 
   val userAnswers: UserAnswers = UserAnswers()
-    .set(IndividualEmailPage, email).toOption.value
+    .setOrException(IndividualEmailPage, email)
 
   private def onPageLoadUrl: String = routes.ConfirmationController.onPageLoad().url
   private def submitUrl: String = controllers.routes.SignOutController.signOut().url

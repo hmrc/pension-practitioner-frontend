@@ -30,6 +30,7 @@ import org.scalatest.OptionValues
 import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
 import pages.WhatTypeBusinessPage
+import pages.company.CompanyEmailPage
 import pages.company.CompanyNamePage
 import play.api.Application
 import play.api.libs.json.JsObject
@@ -50,19 +51,23 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
   private val templateToBeRendered = "company/confirmation.njk"
   private val pspId = "1234567890"
+  private val email = "a@a.c"
 
   val userAnswers: UserAnswers = UserAnswers()
-    .set(WhatTypeBusinessPage, Companyorpartnership).toOption.value
-    .set(CompanyNamePage, companyName).toOption.value
+    .setOrException(WhatTypeBusinessPage, Companyorpartnership)
+    .setOrException(CompanyEmailPage, email)
+    .setOrException(CompanyNamePage, companyName)
 
   private def onPageLoadUrl: String = routes.ConfirmationController.onPageLoad().url
   private def submitUrl: String = controllers.routes.SignOutController.signOut().url
 
   private val jsonToPassToTemplate: JsObject =
     Json.obj("viewmodel" -> CommonViewModel("company.capitalised", companyName, submitUrl),
+      "email" -> email,
     "panelHtml" -> Html(s"""<p>${{ messages("confirmation.psp.id") }}</p>
                            |<span class="heading-large govuk-!-font-weight-bold">$pspId</span>""".stripMargin).toString()
     )
+
 
   override def beforeEach: Unit = {
     super.beforeEach
