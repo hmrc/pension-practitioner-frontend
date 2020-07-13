@@ -51,7 +51,8 @@ trait AddressListController extends FrontendBaseController with Retrievals {
           value =>
             pages.postcodePage.retrieve.right.map { addresses =>
               for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(pages.addressPage, addresses(value).toAddress))
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(pages.addressPage,
+                  addresses(value).copy(country = Some("GB")).toAddress))
                 _ <- userAnswersCacheConnector.save(updatedAnswers.data)
               } yield Redirect(navigator.nextPage(pages.addressListPage, mode, updatedAnswers))
             }

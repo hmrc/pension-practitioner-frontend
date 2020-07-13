@@ -45,6 +45,6 @@ class IndividualNavigator
   }
 
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {
-    case _ => controllers.routes.IndexController.onPageLoad()
+    case WhatYouWillNeedPage => controllers.routes.IndexController.onPageLoad()
   }
 }

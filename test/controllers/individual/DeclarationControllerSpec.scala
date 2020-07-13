@@ -89,7 +89,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       when(mockCompoundNavigator.nextPage(Matchers.eq(DeclarationPage), any(), any())).thenReturn(dummyCall)
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(application, httpGETRequest(submitUrl)).value
 
       status(result) mustEqual SEE_OTHER
       redirectLocation(result) mustBe Some(dummyCall.url)
@@ -99,7 +99,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
     "redirect to Session Expired page for a POST when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(application, httpGETRequest(submitUrl)).value
 
       status(result) mustEqual SEE_OTHER
 

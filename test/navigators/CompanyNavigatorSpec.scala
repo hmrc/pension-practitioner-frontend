@@ -24,6 +24,7 @@ import pages._
 import pages.company._
 import play.api.mvc.Call
 import controllers.company.routes._
+import models.CheckMode
 
 class CompanyNavigatorSpec extends NavigatorBehaviour {
   private val uaConfirmAddressYes = SampleData
@@ -59,6 +60,19 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)
+  }
+
+  "CheckMode" must {
+    def checkModeRoutes: TableFor3[Page, UserAnswers, Call] =
+      Table(
+        ("Id", "UserAnswers", "Next Page"),
+
+        row(CompanyAddressPage)(CheckYourAnswersController.onPageLoad()),
+        row(CompanyEmailPage)(CheckYourAnswersController.onPageLoad()),
+        row(CompanyPhonePage)(CheckYourAnswersController.onPageLoad())
+      )
+
+    behave like navigatorWithRoutesForMode(CheckMode)(navigator, checkModeRoutes)
   }
 
 
