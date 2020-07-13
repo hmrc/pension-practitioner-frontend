@@ -22,16 +22,11 @@
         {{ messages("declaration.text") }}
       </p>
 
-      <form action="{{ submitUrl }}" method="post" novalidate>
-
-          {{ csrf() | safe }}
-
-          {{ govukButton({
-            attributes: {id: "submit"},
-            text: messages("declaration.submit")
-          }) }}
-
-      </form>
+      {{ govukButton({
+        href: submitUrl,
+        attributes: {id: "submit"},
+        text: messages("declaration.submit")
+      }) }}
 
     </div>
   </div>

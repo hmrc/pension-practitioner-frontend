@@ -46,7 +46,8 @@ class DeclarationController @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
       implicit request =>
-        renderer.render("individual/declaration.njk", Json.obj()).map(Ok(_))
+        renderer.render("individual/declaration.njk",
+          Json.obj("submitUrl" -> routes.DeclarationController.onSubmit().url)).map(Ok(_))
     }
 
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData) {
