@@ -18,28 +18,35 @@ package controllers.individual
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import controllers.actions.{DataRequiredAction, DataRequiredActionImpl, FakeIdentifierAction, IdentifierAction}
+import controllers.actions.DataRequiredAction
+import controllers.actions.DataRequiredActionImpl
+import controllers.actions.FakeIdentifierAction
+import controllers.actions.IdentifierAction
 import controllers.base.ControllerSpecBase
-import data.SampleData._
 import forms.individual.AreYouUKResidentFormProvider
 import matchers.JsonMatchers
 import models.UserAnswers
 import navigators.CompoundNavigator
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{times, verify, when}
-import org.scalatest.{OptionValues, TryValues}
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.when
+import org.scalatest.OptionValues
+import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
 import pages.individual.AreYouUKResidentPage
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import uk.gov.hmrc.viewmodels.NunjucksSupport
+import uk.gov.hmrc.viewmodels.Radios
 import utils.annotations.AuthWithNoIV
 
 import scala.concurrent.Future

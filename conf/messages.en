@@ -8,11 +8,9 @@ site.continue = Continue
 site.viewOrChange = View or change
 site.change = Change
 site.save_and_continue = Save and continue
-site.save_charge_and_continue = Save this charge and continue
-site.return_to_summary = Return to AFT summary
 site.service_name = Register as a pension scheme practitioner
 site.textarea.char_limit = (Limit is {0} characters)
-site.title.suffix = - register as a pension scheme practitioner - GOV.UK
+site.title.suffix = - Register as a pension scheme practitioner - GOV.UK
 site.view = View
 site.remove = Remove
 site.signOut = Sign out
@@ -455,6 +453,16 @@ cya.change.email = {0}’s email address?
 cya.phone = What is {0}’s phone number?
 cya.change.phone = {0}’s phone number?
 
+cya.name = Name
+cya.individual.email = What is your email address?
+cya.individual.change.email = your email address?
+cya.individual.phone = What is your phone number?
+cya.individual.change.phone = your phone number?
+
+useAddressForContact.title = Can HMRC use this address to contact {0}?
+useAddressForContact.error.required = Select yes if HMRC can use this address to contact {0}
+
+
 useAddressForContact.title = Can HMRC use this address to contact {0}?
 useAddressForContact.error.required = Select yes if HMRC can use this address to contact {0}
 
@@ -470,6 +478,8 @@ declaration.title = Declaration
 declaration.text = I confirm that the details entered are correct.
 declaration.submit = Agree and register this practitioner
 
+individual.confirmation.title = You have been registered as a pension scheme practitioner
+
 confirmation.title = {0} has been registered as a pension scheme practitioner
 confirmation.psp.id = Practitioner ID
 confirmation.email = We have sent a confirmation email to
@@ -480,3 +490,21 @@ confirmation.list.text = You only need one practitioner ID, even if you are a pr
 confirmation.saveOrPrint = Save or print
 confirmation.print.page.link.text = Print this page
 confirmation.save.page.link.text = Save this page (55KB)
+individual.email.title = What is your email address?
+individual.email.hint = We will only use this to contact you about pension scheme practitioners.
+individual.email.error.required = Enter your email address
+
+individual.phone.title = What is your phone number?
+individual.phone.hint = We will only use this to contact you about pension scheme practitioners.
+individual.phone.error.required = Enter your phone number
+
+individual.postcode.title = Which address can we use to contact you?
+individual.postcode.error.required = Enter the address we can use to contact you
+individual.postcode.error.invalid = Enter a valid address which we can use to contact you
+
+individual.addressList.error.required = Select your contact address
+individual.addressList.title = Select your contact address
+
+individual.address.title = What is your address?
+
+

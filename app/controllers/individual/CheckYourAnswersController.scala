@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.individual
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import controllers.actions.DataRequiredAction
-import controllers.actions.DataRetrievalAction
-import controllers.actions.IdentifierAction
+import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import navigators.CompoundNavigator
-import play.api.i18n.I18nSupport
-import play.api.i18n.MessagesApi
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
-import services.CompanyCYAService
+import services.IndividualCYAService
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 
@@ -44,9 +39,9 @@ class CheckYourAnswersController @Inject()(config: FrontendAppConfig,
                                            userAnswersCacheConnector: UserAnswersCacheConnector,
                                            navigator: CompoundNavigator,
                                            val controllerComponents: MessagesControllerComponents,
-                                           companyCYAService: CompanyCYAService,
+                                           individualCYAService: IndividualCYAService,
                                            renderer: Renderer)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+  extends FrontendBaseController
     with I18nSupport
     with NunjucksSupport {
 
@@ -54,10 +49,10 @@ class CheckYourAnswersController @Inject()(config: FrontendAppConfig,
     (identify andThen getData andThen requireData).async { implicit request =>
 
       val json = Json.obj(
-        "redirectUrl" -> controllers.company.routes.DeclarationController.onPageLoad().url,
-        "list" -> companyCYAService.companyCya(request.userAnswers)
-    )
+        "redirectUrl" -> controllers.individual.routes.DeclarationController.onPageLoad().url,
+        "list" -> individualCYAService.individualCya(request.userAnswers)
+      )
 
-        renderer.render("check-your-answers.njk", json).map(Ok(_))
-      }
+      renderer.render("check-your-answers.njk", json).map(Ok(_))
+    }
 }

@@ -14,84 +14,92 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.individual
 
+import connectors.cache.UserAnswersCacheConnector
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import matchers.JsonMatchers
 import models.UserAnswers
-import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.when
+import org.mockito.ArgumentCaptor
+import org.mockito.Matchers
 import org.scalatest.OptionValues
 import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
+import pages.individual.DeclarationPage
 import play.api.Application
-import play.api.inject.bind
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
+import play.api.inject.guice.GuiceableModule
+import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import services.CompanyCYAService
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import uk.gov.hmrc.viewmodels.SummaryList.Key
-import uk.gov.hmrc.viewmodels.SummaryList.Row
-import uk.gov.hmrc.viewmodels.SummaryList.Value
-import uk.gov.hmrc.viewmodels.Text.Literal
-
+import play.api.inject.bind
 import scala.concurrent.Future
 
-class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
-  private val companyCYAService = mock[CompanyCYAService]
-  private val companyName: String = "Company name"
+
   private val application: Application =
     applicationBuilderMutableRetrievalAction(
-      mutableFakeDataRetrievalAction,
-      extraModules = Seq(bind[CompanyCYAService].toInstance(companyCYAService))).build()
-  private val templateToBeRendered = "check-your-answers.njk"
+      mutableFakeDataRetrievalAction
+    ).build()
+  private val templateToBeRendered = "individual/declaration.njk"
+  private val dummyCall: Call = Call("GET", "/foo")
+  private val valuesValid: Map[String, Seq[String]] = Map()
 
-  private def onPageLoadUrl: String = routes.CheckYourAnswersController.onPageLoad().url
-  private def redirectUrl: String = controllers.company.routes.DeclarationController.onPageLoad().url
-
-  private val list: Seq[Row] = Seq(Row(
-    key = Key(msg"cya.companyName", classes = Seq("govuk-!-width-one-half")),
-    value = Value(Literal(companyName), classes = Seq("govuk-!-width-one-third"))
-  ))
-
-  private val jsonToPassToTemplate: JsObject = Json.obj("list" -> list, "redirectUrl" -> redirectUrl)
+  private def onPageLoadUrl: String = routes.DeclarationController.onPageLoad().url
+  private def submitUrl: String = routes.DeclarationController.onSubmit().url
 
   override def beforeEach: Unit = {
     super.beforeEach
-    mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
+    mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
   }
 
-  "CheckYourAnswers Controller" must {
+  "Declaration Controller" must {
     "return OK and the correct view for a GET" in {
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-
-      when(companyCYAService.companyCya(any())(any())).thenReturn(list)
 
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      verify(mockRenderer, times(1)).render(templateCaptor.capture(), any())(any())
 
       templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate)
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
+
+      status(result) mustEqual SEE_OTHER
+
+      redirectLocation(result).value mustBe controllers.routes.SessionExpiredController.onPageLoad().url
+    }
+
+    "redirect to next page when data is present" in {
+
+      when(mockCompoundNavigator.nextPage(Matchers.eq(DeclarationPage), any(), any())).thenReturn(dummyCall)
+
+      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result) mustBe Some(dummyCall.url)
+
+    }
+
+    "redirect to Session Expired page for a POST when there is no data" in {
+      mutableFakeDataRetrievalAction.setDataToReturn(None)
+
+      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
 
