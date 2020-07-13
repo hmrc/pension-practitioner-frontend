@@ -21,10 +21,10 @@ import controllers.Retrievals
 import controllers.actions._
 import forms.address.UseAddressForContactFormProvider
 import javax.inject.Inject
-import models.NormalMode
 import models.requests.DataRequest
+import models.{Address, NormalMode, TolerantAddress, UserAnswers}
 import navigators.CompoundNavigator
-import pages.company.{CompanyNamePage, CompanyUseSameAddressPage, ConfirmAddressPage}
+import pages.company.{CompanyAddressPage, CompanyNamePage, CompanyUseSameAddressPage, ConfirmAddressPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
@@ -36,6 +36,7 @@ import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModel
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class CompanyUseSameAddressController @Inject()(override val messagesApi: MessagesApi,
                                                 userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -62,18 +63,32 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
 
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      form.bindFromRequest().fold(
-        formWithErrors => {
-          getJson(formWithErrors) { json =>
-            renderer.render("address/useAddressForContact.njk", json).map(BadRequest(_))
+      ConfirmAddressPage.retrieve.right.map { address =>
+        form.bindFromRequest().fold(
+          formWithErrors => {
+            getJson(formWithErrors) { json =>
+              renderer.render("address/useAddressForContact.njk", json).map(BadRequest(_))
+            }
+          },
+          value => {
+            val updatedUserAnswersTry: Try[UserAnswers] =
+              if (value) {
+              getResolvedAddress(address) match {
+                case None => request.userAnswers.set(CompanyUseSameAddressPage, false)
+                case Some(address) => request.userAnswers.set(CompanyUseSameAddressPage, value)
+                                      .flatMap(_.set(CompanyAddressPage, address))
+              }
+            } else {
+              request.userAnswers.set(CompanyUseSameAddressPage, value)
+            }
+
+            for {
+              updatedAnswers <- Future.fromTry(updatedUserAnswersTry)
+              _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+            } yield Redirect(navigator.nextPage(CompanyUseSameAddressPage, NormalMode, updatedAnswers))
           }
-        },
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(CompanyUseSameAddressPage, value))
-            _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-          } yield Redirect(navigator.nextPage(CompanyUseSameAddressPage, NormalMode, updatedAnswers))
-      )
+        )
+      }
   }
 
   private def getJson(form: Form[Boolean])(block: JsObject => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] =
@@ -85,5 +100,23 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
         "address" -> address.lines(countryOptions)
       )
       block(json)
+    }
+
+    protected def getResolvedAddress(tolerantAddress: TolerantAddress): Option[Address] = {
+      tolerantAddress.addressLine1 match {
+        case None => None
+        case Some(aLine1) =>
+          tolerantAddress.addressLine2 match {
+            case None => None
+            case Some(aLine2) => Some(Address(
+              aLine1,
+              aLine2,
+              tolerantAddress.addressLine3,
+              tolerantAddress.addressLine4,
+              tolerantAddress.postcode,
+              tolerantAddress.country.getOrElse("GB")
+            ))
+          }
+      }
     }
 }

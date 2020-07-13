@@ -17,8 +17,7 @@
 package navigators
 
 import data.SampleData
-import models.NormalMode
-import models.UserAnswers
+import models.{CheckMode, NormalMode, UserAnswers}
 import org.scalatest.prop.TableFor3
 import pages._
 import pages.company._
@@ -59,6 +58,19 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)
+  }
+
+  "CheckMode" must {
+    def checkModeRoutes: TableFor3[Page, UserAnswers, Call] =
+      Table(
+        ("Id", "UserAnswers", "Next Page"),
+
+        row(CompanyAddressPage)(CheckYourAnswersController.onPageLoad()),
+        row(CompanyEmailPage)(CheckYourAnswersController.onPageLoad()),
+        row(CompanyPhonePage)(CheckYourAnswersController.onPageLoad())
+      )
+
+    behave like navigatorWithRoutesForMode(CheckMode)(navigator, checkModeRoutes)
   }
 
 

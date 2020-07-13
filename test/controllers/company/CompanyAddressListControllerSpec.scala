@@ -110,7 +110,7 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
       val expectedJson = Json.obj(
           CompanyNamePage.toString -> companyName,
           CompanyPostcodePage.toString -> Seq(tolerantAddress),
-          CompanyAddressPage.toString -> tolerantAddress.toAddress)
+          CompanyAddressPage.toString -> tolerantAddress.copy(country = Some("GB")).toAddress)
 
       when(mockCompoundNavigator.nextPage(Matchers.eq(CompanyAddressListPage), any(), any())).thenReturn(enterManuallyUrl)
 

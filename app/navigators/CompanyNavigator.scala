@@ -19,8 +19,7 @@ package navigators
 import com.google.inject.Inject
 import connectors.cache.UserAnswersCacheConnector
 import controllers.company.routes._
-import models.NormalMode
-import models.UserAnswers
+import models.{CheckMode, NormalMode, UserAnswers}
 import pages.Page
 import pages.company._
 import play.api.mvc.Call
@@ -55,6 +54,9 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
   //scalastyle:off cyclomatic.complexity
 
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {
+
+    case CompanyPostcodePage => CompanyAddressListController.onPageLoad(CheckMode)
+    case CompanyAddressListPage => CheckYourAnswersController.onPageLoad()
     case CompanyAddressPage => CheckYourAnswersController.onPageLoad()
     case CompanyEmailPage => CheckYourAnswersController.onPageLoad()
     case CompanyPhonePage => CheckYourAnswersController.onPageLoad()
