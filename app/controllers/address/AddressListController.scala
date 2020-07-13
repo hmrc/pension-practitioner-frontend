@@ -39,15 +39,16 @@ trait AddressListController extends FrontendBaseController with Retrievals {
   protected def userAnswersCacheConnector: UserAnswersCacheConnector
   protected def navigator: CompoundNavigator
   protected def form(implicit messages: Messages): Form[Int]
+  protected def viewTemplate = "address/addressList.njk"
 
   def get(json: Form[Int] => JsObject)(implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] =
-          renderer.render("address/addressList.njk", json(form)).map(Ok(_))
+          renderer.render(viewTemplate, json(form)).map(Ok(_))
 
   def post(mode: Mode, json: Form[Int] => JsObject, pages: AddressPages)
           (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
         form.bindFromRequest().fold(
           formWithErrors =>
-            renderer.render("address/addressList.njk", json(formWithErrors)).map(BadRequest(_)),
+            renderer.render(viewTemplate, json(formWithErrors)).map(BadRequest(_)),
           value =>
             pages.postcodePage.retrieve.right.map { addresses =>
               for {

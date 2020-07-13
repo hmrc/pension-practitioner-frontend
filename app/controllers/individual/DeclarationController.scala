@@ -28,6 +28,10 @@ import play.api.libs.json.Json
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
+import pages.individual.DeclarationPage
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.Json
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
@@ -52,7 +56,8 @@ class DeclarationController @Inject()(override val messagesApi: MessagesApi,
 
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData) {
       implicit request =>
-         Redirect(navigator.nextPage(DeclarationPage, NormalMode, request.userAnswers))
+        //TODO: Add the call for psp subscription
+      Redirect(navigator.nextPage(DeclarationPage, NormalMode, request.userAnswers))
     }
 
 }

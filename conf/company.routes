@@ -47,3 +47,4 @@ GET        /declaration                                     controllers.company.
 GET        /declaration-on-submit                            controllers.company.DeclarationController.onSubmit()
 
 GET        /registration-successful                         controllers.company.ConfirmationController.onPageLoad()
+

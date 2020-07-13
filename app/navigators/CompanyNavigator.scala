@@ -62,6 +62,5 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
     case CompanyAddressPage => CheckYourAnswersController.onPageLoad()
     case CompanyEmailPage => CheckYourAnswersController.onPageLoad()
     case CompanyPhonePage => CheckYourAnswersController.onPageLoad()
-
   }
 }

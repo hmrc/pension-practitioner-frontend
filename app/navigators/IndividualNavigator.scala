@@ -16,10 +16,7 @@
 
 package navigators
 
-import com.google.inject.Inject
-import config.FrontendAppConfig
-import connectors.cache.UserAnswersCacheConnector
-import models.{NormalMode, UserAnswers}
+import models.{CheckMode, NormalMode, UserAnswers}
 import pages.Page
 import pages.individual._
 import play.api.mvc.Call
@@ -27,6 +24,7 @@ import play.api.mvc.Call
 class IndividualNavigator
   extends Navigator {
 
+  //scalastyle:off cyclomatic.complexity
   override protected def routeMap(ua: UserAnswers): PartialFunction[Page, Call] = {
     case WhatYouWillNeedPage => controllers.individual.routes.AreYouUKResidentController.onPageLoad()
     case AreYouUKResidentPage => controllers.individual.routes.IsThisYouController.onPageLoad(NormalMode)
@@ -39,12 +37,28 @@ class IndividualNavigator
         case _ =>
           controllers.routes.SessionExpiredController.onPageLoad()
       }
-    case UseAddressForContactPage => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+    case UseAddressForContactPage =>
+      ua.get(UseAddressForContactPage) match {
+        case Some(true) =>
+          controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+        case Some(false) =>
+          controllers.individual.routes.IndividualPostcodeController.onPageLoad(NormalMode)
+        case _ =>
+          controllers.routes.SessionExpiredController.onPageLoad()
+      }
+    case IndividualPostcodePage => controllers.individual.routes.IndividualAddressListController.onPageLoad(NormalMode)
+    case IndividualAddressListPage => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
+    case IndividualManualAddressPage => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
     case IndividualEmailPage => controllers.individual.routes.IndividualPhoneController.onPageLoad(NormalMode)
+    case IndividualPhonePage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
     case DeclarationPage => controllers.individual.routes.ConfirmationController.onPageLoad()
   }
-
+  //scalastyle:on cyclomatic.complexity
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {
-    case WhatYouWillNeedPage => controllers.routes.IndexController.onPageLoad()
+    case IndividualPostcodePage => controllers.individual.routes.IndividualAddressListController.onPageLoad(CheckMode)
+    case IndividualAddressListPage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
+    case IndividualManualAddressPage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
+    case IndividualEmailPage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
+    case IndividualPhonePage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
   }
 }

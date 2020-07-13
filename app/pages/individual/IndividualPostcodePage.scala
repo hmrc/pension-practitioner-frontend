@@ -16,26 +16,12 @@
 
 package pages.individual
 
-import models.UserAnswers
+import models.TolerantAddress
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-import scala.util.Try
-
-case object UseAddressForContactPage extends QuestionPage[Boolean] {
+case object IndividualPostcodePage extends QuestionPage[Seq[TolerantAddress]] {
 
   override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "useAddressForContact"
-
-  override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] = {
-    val result = value match {
-      case Some(true) =>
-        userAnswers
-          .remove(IndividualPostcodePage).toOption.getOrElse(userAnswers)
-          .remove(IndividualAddressListPage).toOption
-      case _ => None
-    }
-    super.cleanup(value, result.getOrElse(userAnswers))
-  }
+  override def toString: String = "postcode"
 }

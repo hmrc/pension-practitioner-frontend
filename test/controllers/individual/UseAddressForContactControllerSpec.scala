@@ -19,13 +19,13 @@ package controllers.individual
 import controllers.base.ControllerSpecBase
 import forms.address.UseAddressForContactFormProvider
 import matchers.JsonMatchers
-import models.{NormalMode, TolerantAddress, UserAnswers}
+import models.{Address, NormalMode, TolerantAddress, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.individual.{IndividualAddressPage, UseAddressForContactPage}
+import pages.individual.{IndividualAddressPage, IndividualManualAddressPage, UseAddressForContactPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
@@ -51,6 +51,7 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
   private def useAddressForContactPostRoute: String = routes.UseAddressForContactController.onSubmit().url
 
   private val address = TolerantAddress(Some("line1"), Some("line2"), Some("line3"), Some("line4"), Some("post code"), Some("GB"))
+  private val manualAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("post code"), "GB")
   private val countryOptions: CountryOptions = mock[CountryOptions]
   private val templateCaptor = ArgumentCaptor.forClass(classOf[String])
   private val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
@@ -126,11 +127,11 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
 
     "on a POST" must {
 
-      "redirect to the next page when valid data is submitted" in {
+      "save the manual address and redirect to the next page when valid data of true is submitted" in {
         when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
         when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
-        val application = applicationBuilder(userAnswers = Some(UserAnswers()),
+        val application = applicationBuilder(userAnswers = Some(uaWithIndividualAddress),
           extraModules = Seq(bind[CountryOptions].toInstance(countryOptions))).overrides().build()
 
         val request = FakeRequest(POST, useAddressForContactPostRoute)
@@ -139,7 +140,30 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
+        verify(mockUserAnswersCacheConnector, times(1)).save(
+          eqTo(uaWithIndividualAddress.setOrException(UseAddressForContactPage, true).
+            setOrException(IndividualManualAddressPage, manualAddress).data))(any(), any())
 
+        redirectLocation(result).value mustEqual onwardRoute.url
+
+        application.stop()
+      }
+
+      "don't save the manual address and redirect to the next page when valid data of false is submitted" in {
+        when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
+        when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
+
+        val application = applicationBuilder(userAnswers = Some(uaWithIndividualAddress),
+          extraModules = Seq(bind[CountryOptions].toInstance(countryOptions))).overrides().build()
+
+        val request = FakeRequest(POST, useAddressForContactPostRoute)
+          .withFormUrlEncodedBody(("value", "false"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        verify(mockUserAnswersCacheConnector, times(1)).save(
+          eqTo(uaWithIndividualAddress.setOrException(UseAddressForContactPage, false).data))(any(), any())
         redirectLocation(result).value mustEqual onwardRoute.url
 
         application.stop()
