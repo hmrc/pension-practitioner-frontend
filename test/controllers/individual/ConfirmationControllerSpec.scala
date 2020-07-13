@@ -14,69 +14,64 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.individual
 
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import matchers.JsonMatchers
 import models.UserAnswers
-import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.when
+import org.mockito.ArgumentCaptor
 import org.scalatest.OptionValues
 import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
+import pages.individual.IndividualEmailPage
 import play.api.Application
-import play.api.inject.bind
 import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import services.CompanyCYAService
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import uk.gov.hmrc.viewmodels.SummaryList.Key
-import uk.gov.hmrc.viewmodels.SummaryList.Row
-import uk.gov.hmrc.viewmodels.SummaryList.Value
-import uk.gov.hmrc.viewmodels.Text.Literal
 
 import scala.concurrent.Future
 
-class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
-  private val companyCYAService = mock[CompanyCYAService]
-  private val companyName: String = "Company name"
+  private val email = "a@a.c"
   private val application: Application =
-    applicationBuilderMutableRetrievalAction(
-      mutableFakeDataRetrievalAction,
-      extraModules = Seq(bind[CompanyCYAService].toInstance(companyCYAService))).build()
-  private val templateToBeRendered = "check-your-answers.njk"
+    applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
+  private val templateToBeRendered = "individual/confirmation.njk"
+  private val pspId = "1234567890"
 
-  private def onPageLoadUrl: String = routes.CheckYourAnswersController.onPageLoad().url
-  private def redirectUrl: String = controllers.company.routes.DeclarationController.onPageLoad().url
+  val userAnswers: UserAnswers = UserAnswers()
+    .set(IndividualEmailPage, email).toOption.value
 
-  private val list: Seq[Row] = Seq(Row(
-    key = Key(msg"cya.companyName", classes = Seq("govuk-!-width-one-half")),
-    value = Value(Literal(companyName), classes = Seq("govuk-!-width-one-third"))
-  ))
+  private def onPageLoadUrl: String = routes.ConfirmationController.onPageLoad().url
+  private def submitUrl: String = controllers.routes.SignOutController.signOut().url
 
-  private val jsonToPassToTemplate: JsObject = Json.obj("list" -> list, "redirectUrl" -> redirectUrl)
+  private val jsonToPassToTemplate: JsObject =
+    Json.obj(
+      "submitUrl" -> submitUrl,
+      "email" -> email,
+    "panelHtml" -> Html(s"""<p>${{ messages("confirmation.psp.id") }}</p>
+                           |<span class="heading-large govuk-!-font-weight-bold">$pspId</span>""".stripMargin).toString()
+    )
 
   override def beforeEach: Unit = {
     super.beforeEach
-    mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
+    mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
   }
 
-  "CheckYourAnswers Controller" must {
+  "Confirmation Controller" must {
     "return OK and the correct view for a GET" in {
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-
-      when(companyCYAService.companyCya(any())(any())).thenReturn(list)
 
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 

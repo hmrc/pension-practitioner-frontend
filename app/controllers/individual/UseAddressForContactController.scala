@@ -23,9 +23,9 @@ import controllers.actions._
 import forms.address.UseAddressForContactFormProvider
 import javax.inject.Inject
 import models.requests.DataRequest
-import models.{Mode, NormalMode}
+import models.{Address, Mode, NormalMode, TolerantAddress}
 import navigators.CompoundNavigator
-import pages.individual.{IndividualAddressPage, UseAddressForContactPage}
+import pages.individual.{IndividualAddressPage, IndividualManualAddressPage, UseAddressForContactPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
@@ -70,11 +70,18 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
             renderer.render("address/useAddressForContact.njk", json).map(BadRequest(_))
           }
         },
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(UseAddressForContactPage, value))
-            _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-          } yield Redirect(navigator.nextPage(UseAddressForContactPage, NormalMode, updatedAnswers))
+        value => {
+          IndividualAddressPage.retrieve.right.map { address =>
+            val ua = request.userAnswers.setOrException(UseAddressForContactPage, value)
+            val updatedAnswers = (value, getResolvedAddress(address)) match {
+              case (true, Some(validAddress)) => ua.setOrException(IndividualManualAddressPage, validAddress)
+              case _ => ua
+            }
+            userAnswersCacheConnector.save(updatedAnswers.data).map { _ =>
+              Redirect(navigator.nextPage(UseAddressForContactPage, NormalMode, updatedAnswers))
+            }
+          }
+        }
       )
   }
 
@@ -89,4 +96,22 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
       )
       block(json)
     }
+
+  protected def getResolvedAddress(tolerantAddress: TolerantAddress): Option[Address] = {
+    tolerantAddress.addressLine1 match {
+      case None => None
+      case Some(aLine1) =>
+        tolerantAddress.addressLine2 match {
+          case None => None
+          case Some(aLine2) => Some(Address(
+            aLine1,
+            aLine2,
+            tolerantAddress.addressLine3,
+            tolerantAddress.addressLine4,
+            tolerantAddress.postcode,
+            tolerantAddress.country.getOrElse("GB")
+          ))
+        }
+    }
+  }
 }

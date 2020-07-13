@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.individual
 
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
@@ -22,23 +22,17 @@ import matchers.JsonMatchers
 import models.UserAnswers
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.when
-import org.scalatest.OptionValues
-import org.scalatest.TryValues
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import services.CompanyCYAService
+import services.IndividualCYAService
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import uk.gov.hmrc.viewmodels.SummaryList.Key
-import uk.gov.hmrc.viewmodels.SummaryList.Row
-import uk.gov.hmrc.viewmodels.SummaryList.Value
+import uk.gov.hmrc.viewmodels.SummaryList.{Key, Row, Value}
 import uk.gov.hmrc.viewmodels.Text.Literal
 
 import scala.concurrent.Future
@@ -47,20 +41,19 @@ class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSuga
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
-  private val companyCYAService = mock[CompanyCYAService]
-  private val companyName: String = "Company name"
+  private val individualCYAService = mock[IndividualCYAService]
   private val application: Application =
     applicationBuilderMutableRetrievalAction(
       mutableFakeDataRetrievalAction,
-      extraModules = Seq(bind[CompanyCYAService].toInstance(companyCYAService))).build()
+      extraModules = Seq(bind[IndividualCYAService].toInstance(individualCYAService))).build()
   private val templateToBeRendered = "check-your-answers.njk"
 
   private def onPageLoadUrl: String = routes.CheckYourAnswersController.onPageLoad().url
-  private def redirectUrl: String = controllers.company.routes.DeclarationController.onPageLoad().url
+  private def redirectUrl: String = controllers.individual.routes.DeclarationController.onPageLoad().url
 
   private val list: Seq[Row] = Seq(Row(
-    key = Key(msg"cya.companyName", classes = Seq("govuk-!-width-one-half")),
-    value = Value(Literal(companyName), classes = Seq("govuk-!-width-one-third"))
+    key = Key(msg"cya.name", classes = Seq("govuk-!-width-one-half")),
+    value = Value(Literal("first last"), classes = Seq("govuk-!-width-one-third"))
   ))
 
   private val jsonToPassToTemplate: JsObject = Json.obj("list" -> list, "redirectUrl" -> redirectUrl)
@@ -76,7 +69,7 @@ class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSuga
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
-      when(companyCYAService.companyCya(any())(any())).thenReturn(list)
+      when(individualCYAService.individualCya(any())(any())).thenReturn(list)
 
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 

@@ -22,7 +22,6 @@ import controllers.company.routes._
 import models.{CheckMode, NormalMode, UserAnswers}
 import pages.Page
 import pages.company._
-import pages.register.DeclarationPage
 import play.api.mvc.Call
 
 class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector)
@@ -49,7 +48,7 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
     case CompanyAddressPage => CompanyEmailController.onPageLoad(NormalMode)
     case CompanyEmailPage => CompanyPhoneController.onPageLoad(NormalMode)
     case CompanyPhonePage => CheckYourAnswersController.onPageLoad()
-    case DeclarationPage => controllers.register.routes.ConfirmationController.onPageLoad()
+    case DeclarationPage => controllers.company.routes.ConfirmationController.onPageLoad()
 
   }
   //scalastyle:off cyclomatic.complexity
@@ -61,6 +60,5 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
     case CompanyAddressPage => CheckYourAnswersController.onPageLoad()
     case CompanyEmailPage => CheckYourAnswersController.onPageLoad()
     case CompanyPhonePage => CheckYourAnswersController.onPageLoad()
-
   }
 }

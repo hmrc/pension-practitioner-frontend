@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.individual
 
+import connectors.AddressLookupConnector
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
-import forms.address.AddressListFormProvider
+import forms.address.PostcodeFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, TolerantAddress, UserAnswers}
-import org.mockito.Matchers.{any, eq => eqTo}
+import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.company.{CompanyAddressListPage, CompanyAddressPage, CompanyNamePage, CompanyPostcodePage}
+import pages.individual.IndividualPostcodePage
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
@@ -35,52 +36,48 @@ import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.countryOptions.CountryOptions
-import viewmodels.CommonViewModel
 
 import scala.concurrent.Future
 
-class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
-                                with JsonMatchers with OptionValues with TryValues {
+class IndividualPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+  with JsonMatchers with OptionValues with TryValues {
 
+  private val mockAddressLookupConnector = mock[AddressLookupConnector]
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
-  private val companyName: String = "Company name"
-  val countryOptions: CountryOptions = mock[CountryOptions]
   private val application: Application =
     applicationBuilderMutableRetrievalAction(
       mutableFakeDataRetrievalAction,
-      extraModules = Seq(bind[CountryOptions].toInstance(countryOptions))
+      extraModules = Seq(bind[AddressLookupConnector].toInstance(mockAddressLookupConnector))
     ).build()
-  private val templateToBeRendered = "address/addressList.njk"
-  private val form = new AddressListFormProvider()(messages("addressList.error.invalid", messages("company")))
-  private val tolerantAddress = TolerantAddress(Some("addr1"), Some("addr2"), Some("addr3"), Some("addr4"), Some("postcode"), Some("GB"))
+  private val templateToBeRendered = "individual/postcode.njk"
+  private val form = new PostcodeFormProvider()(
+    messages("individual.postcode.error.required"),
+    messages("individual.postcode.error.invalid"))
+  private val postcode = "ZZ1 1ZZ"
+  private val seqAddresses: Seq[TolerantAddress] =
+    Seq(TolerantAddress(Some("addr1"), Some("addr2"), Some("addr3"), Some("addr4"), Some("postcode"), Some("UK")))
 
-  val userAnswers: UserAnswers = UserAnswers().set(CompanyNamePage, companyName).toOption.value
-                                  .set(CompanyPostcodePage, Seq(tolerantAddress)).toOption.value
+  private def onPageLoadUrl: String = routes.IndividualPostcodeController.onPageLoad(NormalMode).url
 
-  private def onPageLoadUrl: String = routes.CompanyAddressListController.onPageLoad(NormalMode).url
-  private def enterManuallyUrl: Call = routes.CompanyAddressController.onPageLoad(NormalMode)
-  private def submitUrl: String = routes.CompanyAddressListController.onSubmit(NormalMode).url
+  private def enterManuallyUrl: Call = routes.IndividualAddressController.onPageLoad(NormalMode)
 
-  private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq("0"))
+  private def submitUrl: String = routes.IndividualPostcodeController.onSubmit(NormalMode).url
+
+  private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq(postcode))
 
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
 
-  private val jsonToPassToTemplate: Form[Int] => JsObject =
-    form => Json.obj(
-        "form" -> form,
-      "addresses" -> Json.arr(Json.obj("value" -> 0,"text" ->"addr1, addr2, addr3, addr4, postcode, United Kingdom")),
-      "viewmodel" -> CommonViewModel("company", companyName, submitUrl, Some(enterManuallyUrl.url)))
+  private val jsonToPassToTemplate: Form[String] => JsObject =
+    form => Json.obj("form" -> form, "submitUrl" -> submitUrl, "enterManuallyUrl" -> Some(enterManuallyUrl.url))
 
   override def beforeEach: Unit = {
     super.beforeEach
-    mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
+    mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-    when(countryOptions.getCountryNameFromCode(eqTo(tolerantAddress))).thenReturn(Some("United Kingdom"))
   }
 
-  "CompanyAddressList Controller" must {
+  "IndividualPostcode Controller" must {
     "return OK and the correct view for a GET" in {
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
@@ -108,11 +105,10 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
     "Save data to user answers and redirect to next page when valid data is submitted" in {
 
       val expectedJson = Json.obj(
-          CompanyNamePage.toString -> companyName,
-          CompanyPostcodePage.toString -> Seq(tolerantAddress),
-          CompanyAddressPage.toString -> tolerantAddress.copy(country = Some("GB")).toAddress)
+        IndividualPostcodePage.toString -> seqAddresses)
 
-      when(mockCompoundNavigator.nextPage(Matchers.eq(CompanyAddressListPage), any(), any())).thenReturn(enterManuallyUrl)
+      when(mockCompoundNavigator.nextPage(Matchers.eq(IndividualPostcodePage), any(), any())).thenReturn(enterManuallyUrl)
+      when(mockAddressLookupConnector.addressLookupByPostCode(any())(any(), any())).thenReturn(Future.successful(seqAddresses))
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
       val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value

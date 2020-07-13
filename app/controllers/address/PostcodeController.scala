@@ -42,23 +42,24 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
   protected def navigator: CompoundNavigator
   protected def form(implicit messages: Messages): Form[String]
   protected def addressLookupConnector: AddressLookupConnector
+  protected def viewTemplate = "address/postcode.njk"
 
   def get(json: Form[String] => JsObject)
          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
 
-    renderer.render("address/postcode.njk", json(form)).map(Ok(_))
+    renderer.render(viewTemplate, json(form)).map(Ok(_))
   }
 
   def post(mode: Mode, formToJson: Form[String] => JsObject, postcodePage: QuestionPage[Seq[TolerantAddress]], errorMessage: String)
           (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
     form.bindFromRequest().fold(
       formWithErrors =>
-        renderer.render("address/postcode.njk", formToJson(formWithErrors)).map(BadRequest(_)),
+        renderer.render(viewTemplate, formToJson(formWithErrors)).map(BadRequest(_)),
       value =>
           addressLookupConnector.addressLookupByPostCode(value).flatMap {
             case Nil =>
               val json = formToJson(formWithError(form, errorMessage))
-                renderer.render("address/postcode.njk", json).map(BadRequest(_))
+                renderer.render(viewTemplate, json).map(BadRequest(_))
 
             case addresses =>
               for {

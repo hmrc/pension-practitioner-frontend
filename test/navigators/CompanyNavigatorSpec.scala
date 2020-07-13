@@ -23,7 +23,6 @@ import pages._
 import pages.company._
 import play.api.mvc.Call
 import controllers.company.routes._
-import pages.register.DeclarationPage
 
 class CompanyNavigatorSpec extends NavigatorBehaviour {
   private val uaConfirmAddressYes = SampleData
@@ -55,7 +54,7 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
         row(CompanyAddressPage)(CompanyEmailController.onPageLoad(NormalMode)),
         row(CompanyEmailPage)(CompanyPhoneController.onPageLoad(NormalMode)),
         row(CompanyPhonePage)(CheckYourAnswersController.onPageLoad()),
-        row(DeclarationPage)(controllers.register.routes.ConfirmationController.onPageLoad())
+        row(DeclarationPage)(controllers.company.routes.ConfirmationController.onPageLoad())
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)
