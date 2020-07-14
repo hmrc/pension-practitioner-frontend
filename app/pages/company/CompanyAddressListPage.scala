@@ -16,7 +16,6 @@
 
 package pages.company
 
-import models.TolerantAddress
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
