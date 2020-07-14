@@ -26,7 +26,7 @@ import org.mockito.Mockito.{times, verify, when}
 import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.company.{CompanyEmailPage, CompanyNamePage}
+import pages.company.{BusinessNamePage, CompanyEmailPage}
 import play.api.Application
 import play.api.data.Form
 import play.api.libs.json.{JsObject, Json}
@@ -50,7 +50,7 @@ class CompanyEmailControllerSpec extends ControllerSpecBase with MockitoSugar wi
   private val email = "xyz@gmail.com"
   private val dummyCall: Call = Call("GET", "/foo")
 
-  val userAnswers: UserAnswers = UserAnswers().set(CompanyNamePage, companyName).toOption.value
+  val userAnswers: UserAnswers = UserAnswers().set(BusinessNamePage, companyName).toOption.value
 
   private def onPageLoadUrl: String = routes.CompanyEmailController.onPageLoad(NormalMode).url
   private def submitUrl: String = routes.CompanyEmailController.onSubmit(NormalMode).url
@@ -115,7 +115,7 @@ class CompanyEmailControllerSpec extends ControllerSpecBase with MockitoSugar wi
     "Save data to user answers and redirect to next page when valid data is submitted" in {
 
       val expectedJson = Json.obj(
-        CompanyNamePage.toString -> companyName,
+        BusinessNamePage.toString -> companyName,
         CompanyEmailPage.toString -> email)
 
       when(mockCompoundNavigator.nextPage(Matchers.eq(CompanyEmailPage), any(), any())).thenReturn(dummyCall)

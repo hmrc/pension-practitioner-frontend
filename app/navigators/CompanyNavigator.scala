@@ -32,7 +32,7 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
   //scalastyle:off cyclomatic.complexity
   override protected def routeMap(ua: UserAnswers): PartialFunction[Page, Call] = {
     case BusinessUTRPage => CompanyNameController.onPageLoad()
-    case CompanyNamePage => ConfirmNameController.onPageLoad()
+    case BusinessNamePage => ConfirmNameController.onPageLoad()
     case ConfirmNamePage => ua.get(ConfirmNamePage) match {
         case Some(false) => TellHMRCController.onPageLoad()
         case _ => ConfirmAddressController.onPageLoad()
@@ -51,12 +51,10 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
     case CompanyEmailPage => CompanyPhoneController.onPageLoad(NormalMode)
     case CompanyPhonePage => CheckYourAnswersController.onPageLoad()
     case DeclarationPage => controllers.company.routes.ConfirmationController.onPageLoad()
-
   }
   //scalastyle:off cyclomatic.complexity
 
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {
-
     case CompanyPostcodePage => CompanyAddressListController.onPageLoad(CheckMode)
     case CompanyAddressListPage => CheckYourAnswersController.onPageLoad()
     case CompanyAddressPage => CheckYourAnswersController.onPageLoad()

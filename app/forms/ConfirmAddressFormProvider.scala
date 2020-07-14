@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package pages.company
+package forms
 
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import forms.mappings.Mappings
+import javax.inject.Inject
+import play.api.data.Form
 
-case object CompanyAddressListPage extends QuestionPage[Int] {
+class ConfirmAddressFormProvider @Inject() extends Mappings {
 
-  override def path: JsPath = JsPath \ toString
-  override def toString: String = "addressList"
+  def apply(requiredKey: String = "confirmAddress.company.error.required"): Form[Boolean] =
+    Form(
+      "value" -> boolean(requiredKey)
+    )
 }

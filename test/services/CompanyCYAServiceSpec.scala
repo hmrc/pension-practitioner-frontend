@@ -20,7 +20,7 @@ import base.SpecBase
 import models.{Address, CheckMode, UserAnswers}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import pages.company.{BusinessUTRPage, CompanyAddressPage, CompanyEmailPage, CompanyNamePage, CompanyPhonePage}
+import pages.company._
 import uk.gov.hmrc.viewmodels._
 import uk.gov.hmrc.viewmodels.SummaryList.{Action, Key, Row, Value}
 import uk.gov.hmrc.viewmodels.Text.Literal
@@ -35,7 +35,7 @@ class CompanyCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
   private val phone: String = "1111111111"
 
   val userAnswers: UserAnswers = UserAnswers()
-    .set(CompanyNamePage, companyName).toOption.value
+    .set(BusinessNamePage, companyName).toOption.value
     .set(BusinessUTRPage, utr).toOption.value
     .set(CompanyAddressPage, address).toOption.value
     .set(CompanyEmailPage, email).toOption.value

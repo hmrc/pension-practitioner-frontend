@@ -53,6 +53,7 @@ unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
 company = the company
+partnership = the partnership
 company.capitalised = The company
 individual.you = you
 
@@ -102,28 +103,34 @@ whatTypeBusiness.limitedPartnership = Limited partnership
 whatTypeBusiness.limitedLiabilityPartnership = Limited liability partnership
 whatTypeBusiness.unlimitedCompany = Unlimited company
 
-businessUTR.title = What is the Unique Taxpayer Reference (UTR) of the limited company you want to register?
-businessUTR.heading = What is the Unique Taxpayer Reference (UTR) of the Limited company you want to register?
+businessUTR.title = What is the Unique Taxpayer Reference (UTR) of the {0} you want to register?
+businessUTR.heading = What is the Unique Taxpayer Reference (UTR) of the {0} you want to register?
 businessUTR.p1 = This is a 10-digit or 13-digit number. You can find it on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
 businessUTR.p2 = If the UTR is 13 numbers, only enter the last 10.
 businessUTR.p3 = If there is a letter ‘K’ at the end of the number, do not enter it.
 businessUTR.error.required = Enter the UTR of the company you want to register
 businessUTR.error.invalid = Enter the company’s UTR in the correct format
 
-companyName.title = What is the company’s name?
-companyName.heading = What is the company’s name?
-companyName.hint = This is the name registered with Companies House.
+businessName.title = What is {0}’s name?
+businessName.heading = What is {0}’s name?
+businessName.hint = This is the name registered with Companies House.
 companyName.error.required = Enter the company’s name
 companyName.error.length = Company name must be 105 characters or fewer
 companyName.error.invalid = Company name must only include letters, numbers, dashes, spaces, apostrophes, ampersands and slashes
 
-confirmName.title = Is this the registered name of the company?
-confirmName.heading = Is {0} the registered name of the company?
-confirmName.error.required = Select yes if this is the registered name of the company
+partnershipName.error.required = Enter the name of the partnership
+partnershipName.error.length = Partnership name must be 105 characters or fewer
+partnershipName.error.invalid = Partnership name must only include letters, numbers, dashes, spaces, apostrophes, ampersands and slashes
+
+confirmName.title = Is this the registered name of {0}?
+confirmName.heading = Is {0} the registered name of {1}?
+confirmName.partnership.error.required = Select yes if this is the registered name of the partnership
+confirmName.company.error.required = Select yes if this is the registered name of the company
 
 confirmAddress.title = Is this the company’s registered address?
 confirmAddress.heading = Is this {0}’s registered address?
-confirmAddress.error.required = Select yes if this is the company’s registered address
+confirmAddress.company.error.required = Select yes if this is the company’s registered address
+confirmAddress.partnership.error.required = Select yes if this is the partnership’s registered address
 
 postcode.error.required = Enter the address we can use to contact {0}
 postcode.error.invalid = Enter a valid address which we can use to contact {0}
@@ -424,8 +431,8 @@ country.ZW = Zimbabwe
 country.JM = Jamaica
 country.EE = Estonia
 
-tellHMRC.title = You need to update the company՚s details before registering
-tellHMRC.heading = You need to update the company՚s details before registering
+tellHMRC.title = You need to update {0}՚s details before registering
+tellHMRC.heading = You need to update {0}՚s details before registering
 tellHMRC.p1 = You need to tell:
 tellHMRC.companiesHouse = Companies House
 tellHMRC.aboutBusiness = HMRC about changes to your business

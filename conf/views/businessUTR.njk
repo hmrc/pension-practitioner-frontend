@@ -4,10 +4,11 @@
 {% from "govuk/components/input/macro.njk"         import govukInput %}
 {% from "govuk/components/button/macro.njk"        import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/fieldset/macro.njk"       import govukFieldset %}
 {% from "macros/title.njk"                         import title %}
 
 {% block pageTitle %}
-  {{ title(messages("companyName.title"), form.errors) }}
+  {{ title(messages("businessUTR.title", messages(businessType)), form.errors) }}
 {% endblock %}
 
 {% block mainContent %}
@@ -26,26 +27,36 @@
 
           {{ csrf() | safe }}
 
+          {% call govukFieldset({
+            legend: {
+              text: messages('businessUTR.heading', messages(businessType)),
+              classes: "govuk-fieldset__legend--l",
+              isPageHeading: true
+            }
+          }) %}
+
+          <p class="govuk-body">{{messages('businessUTR.p1')}}</p>
+          <p class="govuk-body">{{messages('businessUTR.p2')}}</p>
+          <p class="govuk-body">{{messages('businessUTR.p3')}}</p>
+
           {{ govukInput({
             label: {
-              text: messages('companyName.heading'),
-              isPageHeading: true,
-              classes: "govuk-label--xl"
-            },
-            hint: {
-              text: messages('companyName.hint')
+               html: '<span >' + messages("businessUTR.title") + '</span>',
+               classes: "govuk-visually-hidden"
             },
             id: "value",
             name: "value",
             value: form.value.value,
             errorMessage: form.value.error,
-            classes: "govuk-!-width-three-quarters"
+            classes: "govuk-input--width-10"
           }) }}
 
           {{ govukButton({
             text: messages("site.save_and_continue"),
             attributes: {id: "submit"}
           }) }}
+
+          {% endcall %}
 
         </form>
 

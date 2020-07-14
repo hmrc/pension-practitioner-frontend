@@ -16,15 +16,13 @@
 
 package navigators
 
+import controllers.company.routes._
 import data.SampleData
-import models.NormalMode
-import models.UserAnswers
+import models.{CheckMode, NormalMode, UserAnswers}
 import org.scalatest.prop.TableFor3
-import pages._
+import pages.Page
 import pages.company._
 import play.api.mvc.Call
-import controllers.company.routes._
-import models.CheckMode
 
 class CompanyNavigatorSpec extends NavigatorBehaviour {
   private val uaConfirmAddressYes = SampleData
@@ -44,7 +42,7 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
       Table(
         ("Id", "UserAnswers", "Next Page"),
         row(BusinessUTRPage)(CompanyNameController.onPageLoad()),
-        row(CompanyNamePage)(ConfirmNameController.onPageLoad()),
+        row(BusinessNamePage)(ConfirmNameController.onPageLoad()),
         row(ConfirmNamePage)(ConfirmAddressController.onPageLoad(), Some(uaConfirmName(true))),
         row(ConfirmNamePage)(TellHMRCController.onPageLoad(),Some(uaConfirmName(false))),
         row(ConfirmAddressPage)(TellHMRCController.onPageLoad()),

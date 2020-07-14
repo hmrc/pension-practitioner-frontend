@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package forms.company
+package forms
 
 import forms.behaviours.BooleanFieldBehaviours
 import play.api.data.FormError
 
-class ConfirmAddressFormProviderSpec extends BooleanFieldBehaviours {
+class ConfirmNameFormProviderSpec extends BooleanFieldBehaviours {
 
-  val requiredKey = "confirmAddress.error.required"
+  val requiredKey = "confirmName.company.error.required"
   val invalidKey = "error.boolean"
 
-  val form = new ConfirmAddressFormProvider()()
+  val form = new ConfirmNameFormProvider()()
 
   ".value" must {
 

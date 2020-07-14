@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package forms.company
+package pages.partnership
 
-import javax.inject.Inject
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-import forms.mappings.Mappings
-import play.api.data.Form
+case object BusinessNamePage extends QuestionPage[String] {
 
-class ConfirmNameFormProvider @Inject() extends Mappings {
-
-  def apply(): Form[Boolean] =
-    Form(
-      "value" -> boolean("confirmName.error.required")
-    )
+  override def path: JsPath = JsPath \ toString
+  override def toString: String = "name"
 }

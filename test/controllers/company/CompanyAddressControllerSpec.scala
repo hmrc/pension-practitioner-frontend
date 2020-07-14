@@ -26,7 +26,7 @@ import org.mockito.Mockito.{times, verify, when}
 import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.company.{CompanyAddressPage, CompanyNamePage}
+import pages.company.{BusinessNamePage, CompanyAddressPage}
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
@@ -57,7 +57,7 @@ class CompanyAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
   private val templateToBeRendered = "address/manualAddress.njk"
   private val form = new AddressFormProvider(countryOptions)()
 
-  val userAnswers: UserAnswers = UserAnswers().set(CompanyNamePage, companyName).toOption.value
+  val userAnswers: UserAnswers = UserAnswers().set(BusinessNamePage, companyName).toOption.value
 
   private def onPageLoadUrl: String = routes.CompanyAddressController.onPageLoad(NormalMode).url
   private def submitUrl: String = routes.CompanyAddressController.onSubmit(NormalMode).url
@@ -118,7 +118,7 @@ class CompanyAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
     "Save data to user answers and redirect to next page when valid data is submitted" in {
 
       val expectedJson = Json.obj(
-          CompanyNamePage.toString -> companyName,
+          BusinessNamePage.toString -> companyName,
           CompanyAddressPage.toString -> address)
 
       when(mockCompoundNavigator.nextPage(Matchers.eq(CompanyAddressPage), any(), any())).thenReturn(dummyCall)

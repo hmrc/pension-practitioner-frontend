@@ -14,81 +14,81 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.partnership
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
-import forms.ConfirmNameFormProvider
+import forms.BusinessUTRFormProvider
 import javax.inject.Inject
 import models.NormalMode
+import models.requests.DataRequest
 import navigators.CompoundNavigator
-import pages.company.{BusinessNamePage, ConfirmNamePage}
+import pages.partnership.BusinessUTRPage
+import pages.register.BusinessTypePage
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import uk.gov.hmrc.viewmodels.NunjucksSupport
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
+class BusinessUTRController @Inject()(override val messagesApi: MessagesApi,
                                       userAnswersCacheConnector: UserAnswersCacheConnector,
                                       navigator: CompoundNavigator,
                                       identify: IdentifierAction,
                                       getData: DataRetrievalAction,
                                       requireData: DataRequiredAction,
-                                      formProvider: ConfirmNameFormProvider,
+                                      formProvider: BusinessUTRFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
                                       config: FrontendAppConfig,
                                       renderer: Renderer
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
+                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
 
-  private val form = formProvider()
+  protected def form
+  (implicit request: DataRequest[AnyContent]): Form[String] = formProvider.apply
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      BusinessNamePage.retrieve.right.map { pspName =>
-        val preparedForm = request.userAnswers.get (ConfirmNamePage) match {
+      BusinessTypePage.retrieve.right.map { businessType =>
+        val preparedForm = request.userAnswers.get(BusinessUTRPage) match {
           case None => form
-          case Some (value) => form.fill (value)
+          case Some(value) => form.fill(value)
         }
 
         val json = Json.obj(
           "form" -> preparedForm,
-          "entityName" -> "company",
-          "pspName" -> pspName,
-          "submitUrl" -> routes.ConfirmNameController.onSubmit().url,
-          "radios" -> Radios.yesNo (preparedForm("value"))
+          "submitUrl" -> routes.BusinessUTRController.onSubmit().url,
+          "businessType" -> s"whatTypeBusiness.$businessType"
         )
 
-      renderer.render ("confirmName.njk", json).map(Ok (_))
-    }
+        renderer.render("businessUTR.njk", json).map(Ok(_))
+      }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      BusinessNamePage.retrieve.right.map { pspName =>
+      BusinessTypePage.retrieve.right.map { businessType =>
         form.bindFromRequest().fold(
           formWithErrors => {
 
             val json = Json.obj(
-              "form"   -> formWithErrors,
-              "entityName" -> "company",
-              "pspName" -> pspName,
-              "submitUrl"   -> routes.ConfirmNameController.onSubmit().url,
-              "radios" -> Radios.yesNo(formWithErrors("value"))
+              "form" -> formWithErrors,
+              "submitUrl" -> routes.BusinessUTRController.onSubmit().url,
+              "businessType" -> s"whatTypeBusiness.$businessType"
             )
 
-            renderer.render("confirmName.njk", json).map(BadRequest(_))
+            renderer.render("businessUTR.njk", json).map(BadRequest(_))
           },
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(ConfirmNamePage, value))
-              _ <- userAnswersCacheConnector.save( updatedAnswers.data)
-            } yield Redirect(navigator.nextPage(ConfirmNamePage, NormalMode, updatedAnswers))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessUTRPage, value))
+              _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+            } yield Redirect(navigator.nextPage(BusinessUTRPage, NormalMode, updatedAnswers))
         )
       }
   }

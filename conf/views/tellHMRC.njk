@@ -3,7 +3,7 @@
 {% from "macros/title.njk"                         import title %}
 
 {% block pageTitle %}
-  {{ title(messages("tellHMRC.title")) }}
+  {{ title(messages("tellHMRC.title", messages(entityType))) }}
 {% endblock %}
 
 {% block mainContent %}
@@ -12,7 +12,7 @@
       <div class="govuk-grid-column-two-thirds">
 
         <h1 class="govuk-heading-xl">
-          {{ messages("tellHMRC.heading") }}
+          {{ messages("tellHMRC.heading", messages(entityType)) }}
         </h1>
 
 

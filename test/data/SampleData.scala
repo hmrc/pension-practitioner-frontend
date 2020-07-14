@@ -16,10 +16,8 @@
 
 package data
 
-import models.TolerantAddress
-import models.UserAnswers
-import pages.company.CompanyNamePage
-import play.api.libs.json.Json
+import models.{TolerantAddress, UserAnswers}
+import pages.company.BusinessNamePage
 
 object SampleData {
   //scalastyle.off: magic.number
@@ -30,7 +28,7 @@ object SampleData {
   def emptyUserAnswers: UserAnswers = UserAnswers()
 
   def userAnswersWithCompanyName: UserAnswers =
-    UserAnswers().setOrException(CompanyNamePage, pspName)
+    UserAnswers().setOrException(BusinessNamePage, pspName)
 
   val addressUK = TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
 }

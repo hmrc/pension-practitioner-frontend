@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.partnership
 
-import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import data.SampleData._
 import forms.BusinessUTRFormProvider
@@ -28,7 +27,7 @@ import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.company.BusinessUTRPage
+import pages.partnership.BusinessUTRPage
 import pages.register.BusinessTypePage
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
@@ -50,7 +49,7 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
   private def businessUTRRoute = routes.BusinessUTRController.onPageLoad().url
   private def businessUTRSubmitRoute = routes.BusinessUTRController.onSubmit().url
 
-  private val businessType = BusinessType.LimitedCompany
+  private val businessType = BusinessType.LimitedPartnership
 
   "BusinessUTR Controller" must {
 
@@ -87,7 +86,7 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName.setOrException(BusinessTypePage, businessType).
+      val application = applicationBuilder(userAnswers = Some(UserAnswers().setOrException(BusinessTypePage, businessType).
         setOrException(BusinessUTRPage, validUTR)))
         .overrides(
         )
@@ -121,7 +120,7 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName.setOrException(BusinessTypePage, businessType)))
+      val application = applicationBuilder(userAnswers = Some(UserAnswers().setOrException(BusinessTypePage, businessType)))
         .overrides(
         )
         .build()
@@ -141,7 +140,7 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
     "return a Bad Request and errors when invalid data is submitted" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName.setOrException(BusinessTypePage, businessType)))
+      val application = applicationBuilder(userAnswers = Some(UserAnswers().setOrException(BusinessTypePage, businessType)))
         .overrides(
         )
         .build()

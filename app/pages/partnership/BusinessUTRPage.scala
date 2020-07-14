@@ -14,20 +14,13 @@
  * limitations under the License.
  */
 
-package forms.company
+package pages.partnership
 
-import forms.FormErrorHelper
-import forms.mappings.UtrMapping
-import play.api.data.Form
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-class BusinessUTRFormProvider extends FormErrorHelper with UtrMapping {
+case object BusinessUTRPage extends QuestionPage[String] {
+  override def path: JsPath = JsPath \ toString
 
-  def apply: Form[String] =
-    Form(
-      "value" ->
-        utrMapping(
-          requiredKey = "businessUTR.error.required",
-          invalidKey = "businessUTR.error.invalid"
-        )
-    )
+  override def toString: String = "utr"
 }

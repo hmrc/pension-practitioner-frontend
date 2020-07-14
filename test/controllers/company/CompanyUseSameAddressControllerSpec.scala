@@ -26,7 +26,7 @@ import org.mockito.Mockito.{times, verify, when}
 import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.company.{CompanyNamePage, CompanyUseSameAddressPage, ConfirmAddressPage}
+import pages.company.{BusinessNamePage, CompanyUseSameAddressPage, ConfirmAddressPage}
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
@@ -55,7 +55,7 @@ class CompanyUseSameAddressControllerSpec extends ControllerSpecBase with Mockit
   private val address: TolerantAddress = TolerantAddress(Some("addr1"), Some("addr2"), Some("addr3"), Some("addr4"), Some("postcode"), Some("UK"))
 
   val userAnswers: UserAnswers = UserAnswers()
-    .set(CompanyNamePage, companyName).toOption.value
+    .set(BusinessNamePage, companyName).toOption.value
     .set(ConfirmAddressPage, address).toOption.value
 
   private def onPageLoadUrl: String = routes.CompanyUseSameAddressController.onPageLoad().url
@@ -126,7 +126,7 @@ class CompanyUseSameAddressControllerSpec extends ControllerSpecBase with Mockit
     "Save data to user answers and redirect to next page when valid data is submitted" in {
 
       val expectedJson = Json.obj(
-        CompanyNamePage.toString -> companyName,
+        BusinessNamePage.toString -> companyName,
         ConfirmAddressPage.toString -> address,
         CompanyUseSameAddressPage.toString -> true)
 

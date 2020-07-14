@@ -3,6 +3,9 @@
 ->         /individual                                      individual.Routes
 
 ->          /company                                        company.Routes
+
+->          /partnership                                    partnership.Routes
+
 GET         /                                               controllers.IndexController.onPageLoad
 
 GET         /sign-out                                       controllers.SignOutController.signOut()

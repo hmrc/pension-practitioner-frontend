@@ -26,7 +26,7 @@ import org.mockito.Mockito.{times, verify, when}
 import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.company.{CompanyAddressListPage, CompanyAddressPage, CompanyNamePage, CompanyPostcodePage}
+import pages.company.{BusinessNamePage, CompanyAddressListPage, CompanyAddressPage, CompanyPostcodePage}
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
@@ -55,7 +55,7 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
   private val form = new AddressListFormProvider()(messages("addressList.error.invalid", messages("company")))
   private val tolerantAddress = TolerantAddress(Some("addr1"), Some("addr2"), Some("addr3"), Some("addr4"), Some("postcode"), Some("GB"))
 
-  val userAnswers: UserAnswers = UserAnswers().set(CompanyNamePage, companyName).toOption.value
+  val userAnswers: UserAnswers = UserAnswers().set(BusinessNamePage, companyName).toOption.value
                                   .set(CompanyPostcodePage, Seq(tolerantAddress)).toOption.value
 
   private def onPageLoadUrl: String = routes.CompanyAddressListController.onPageLoad(NormalMode).url
@@ -108,7 +108,7 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
     "Save data to user answers and redirect to next page when valid data is submitted" in {
 
       val expectedJson = Json.obj(
-          CompanyNamePage.toString -> companyName,
+          BusinessNamePage.toString -> companyName,
           CompanyPostcodePage.toString -> Seq(tolerantAddress),
           CompanyAddressPage.toString -> tolerantAddress.copy(country = Some("GB")).toAddress)
 

@@ -22,19 +22,17 @@ import javax.inject.Inject
 import models.WhatTypeBusiness.Companyorpartnership
 import models.requests.DataRequest
 import pages.WhatTypeBusinessPage
-import pages.company.CompanyEmailPage
-import pages.company.CompanyNamePage
-import pages.individual.IndividualEmailPage
+import pages.company.{BusinessNamePage, CompanyEmailPage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{Json, JsObject}
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import viewmodels.CommonViewModel
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
 class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
                                        identify: IdentifierAction,
@@ -61,7 +59,7 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
   private def getEntityTypeNameAndEmail(implicit request: DataRequest[AnyContent]): Option[(String, String, String)] = {
     (request.userAnswers.get(WhatTypeBusinessPage), request.userAnswers.get(CompanyEmailPage)) match {
         case (Some(Companyorpartnership), Some(email)) =>
-          request.userAnswers.get(CompanyNamePage).map(name => ("company.capitalised", name, email))
+          request.userAnswers.get(BusinessNamePage).map(name => ("company.capitalised", name, email))
         case _ => None
      }
   }

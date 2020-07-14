@@ -26,7 +26,8 @@ import javax.inject.Inject
 import models.requests.DataRequest
 import models.{Address, Mode}
 import navigators.CompoundNavigator
-import pages.company.{CompanyAddressPage, CompanyNamePage}
+import pages.company.CompanyAddressPage
+import pages.company.BusinessNamePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
@@ -67,7 +68,7 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
   def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Address] => JsObject] =
     Retrieval(
       implicit request =>
-        CompanyNamePage.retrieve.right.map { companyName =>
+        BusinessNamePage.retrieve.right.map { companyName =>
             form => Json.obj(
               "form" -> form,
               "viewmodel" -> CommonViewModel(

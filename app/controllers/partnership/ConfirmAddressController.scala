@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.partnership
 
 import config.FrontendAppConfig
 import connectors.RegistrationConnector
@@ -29,7 +29,7 @@ import models.requests.DataRequest
 import models.{NormalMode, TolerantAddress, UserAnswers}
 import navigators.CompoundNavigator
 import pages.RegistrationInfoPage
-import pages.company.{BusinessNamePage, BusinessUTRPage, ConfirmAddressPage}
+import pages.partnership.{BusinessNamePage, BusinessUTRPage, ConfirmAddressPage}
 import pages.register.BusinessTypePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
@@ -46,47 +46,47 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
                                          navigator: CompoundNavigator,
                                          identify: IdentifierAction,
                                          getData: DataRetrievalAction,
-                                         registrationConnector: RegistrationConnector,
+                                         registrationConnector:RegistrationConnector,
                                          requireData: DataRequiredAction,
                                          formProvider: ConfirmAddressFormProvider,
                                          val controllerComponents: MessagesControllerComponents,
                                          countryOptions: CountryOptions,
                                          config: FrontendAppConfig,
                                          renderer: Renderer
-                                        )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
+                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
 
-  private val form = formProvider()
+  private val form = formProvider("confirmAddress.partnership.error.required")
 
   private def retrieveDataForRegistration(block: (String, String, BusinessType) => Future[Result])(implicit
-                                                                                                   request: DataRequest[AnyContent]): Future[Result] = {
+    request: DataRequest[AnyContent]): Future[Result] = {
     (request.userAnswers.get(BusinessNamePage),
       request.userAnswers.get(BusinessUTRPage),
-      request.userAnswers.get(BusinessTypePage)) match {
+      request.userAnswers.get(BusinessTypePage) ) match {
       case (Some(pspName), Some(utr), Some(businessType)) =>
-        block(pspName, utr, businessType)
-      case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+          block (pspName, utr, businessType)
+      case _  => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
     }
   }
 
-  private def formattedAddress(tolerantAddress: TolerantAddress) =
+  private def formattedAddress(tolerantAddress:TolerantAddress) =
     Json.toJson(tolerantAddress.lines(countryOptions))
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       retrieveDataForRegistration { (pspName, utr, businessType) =>
         val organisation = Organisation(pspName, businessType)
-        registrationConnector.registerWithIdOrganisation(utr, organisation, LimitedCompany).flatMap { reg =>
+       registrationConnector.registerWithIdOrganisation(utr, organisation, LimitedCompany).flatMap { reg =>
 
           val ua = request.userAnswers
             .setOrException(ConfirmAddressPage, reg.response.address)
             .setOrException(BusinessNamePage, reg.response.organisation.organisationName)
             .setOrException(RegistrationInfoPage, reg.info)
 
-          userAnswersCacheConnector.save(ua.data).flatMap { _ =>
+          userAnswersCacheConnector.save(ua.data).flatMap{ _ =>
             val json = Json.obj(
               "form" -> form,
-              "entityName" -> "company",
               "pspName" -> pspName,
+              "entityName" -> "partnership",
               "address" -> formattedAddress(reg.response.address),
               "submitUrl" -> routes.ConfirmAddressController.onSubmit().url,
               "radios" -> Radios.yesNo(form("value")))
@@ -106,11 +106,11 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
             request.userAnswers.get(ConfirmAddressPage) match {
               case Some(addr) =>
                 val json = Json.obj(
-                  "form" -> formWithErrors,
-                  "entityName" -> "company",
+                  "form"   -> formWithErrors,
+                  "entityName" -> "partnership",
                   "pspName" -> pspName,
                   "address" -> formattedAddress(addr),
-                  "submitUrl" -> routes.ConfirmAddressController.onSubmit().url,
+                  "submitUrl"   -> routes.ConfirmAddressController.onSubmit().url,
                   "radios" -> Radios.yesNo(formWithErrors("value"))
                 )
 
@@ -127,9 +127,9 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
               val updatedAnswers = request.userAnswers
                 .removeOrException(ConfirmAddressPage)
                 .removeOrException(RegistrationInfoPage)
-              userAnswersCacheConnector.save(updatedAnswers.data).map { jsValue =>
-                Redirect(navigator.nextPage(ConfirmAddressPage, NormalMode, UserAnswers(jsValue.as[JsObject])))
-              }
+                userAnswersCacheConnector.save(updatedAnswers.data).map { jsValue =>
+                  Redirect(navigator.nextPage(ConfirmAddressPage, NormalMode, UserAnswers(jsValue.as[JsObject])))
+                }
           }
         )
       }

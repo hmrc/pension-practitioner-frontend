@@ -24,7 +24,8 @@ import javax.inject.Inject
 import models.requests.DataRequest
 import models.{Address, NormalMode, TolerantAddress, UserAnswers}
 import navigators.CompoundNavigator
-import pages.company.{CompanyAddressPage, CompanyNamePage, CompanyUseSameAddressPage, ConfirmAddressPage}
+import pages.company.{CompanyAddressPage, CompanyUseSameAddressPage}
+import pages.partnership.{BusinessNamePage, ConfirmAddressPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
@@ -75,8 +76,8 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
               if (value) {
               getResolvedAddress(address) match {
                 case None => request.userAnswers.set(CompanyUseSameAddressPage, false)
-                case Some(address) => request.userAnswers.set(CompanyUseSameAddressPage, value)
-                                      .flatMap(_.set(CompanyAddressPage, address))
+                case Some(resolvedAddress) => request.userAnswers.set(CompanyUseSameAddressPage, value)
+                                      .flatMap(_.set(CompanyAddressPage, resolvedAddress))
               }
             } else {
               request.userAnswers.set(CompanyUseSameAddressPage, value)
@@ -92,7 +93,7 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
   }
 
   private def getJson(form: Form[Boolean])(block: JsObject => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] =
-    (CompanyNamePage and ConfirmAddressPage).retrieve.right.map { case companyName ~ address =>
+    (BusinessNamePage and ConfirmAddressPage).retrieve.right.map { case companyName ~ address =>
       val json = Json.obj(
         "form" -> form,
         "viewmodel" -> CommonViewModel("company", companyName, routes.CompanyUseSameAddressController.onSubmit().url),

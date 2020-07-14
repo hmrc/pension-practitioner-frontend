@@ -19,22 +19,17 @@ package controllers.company
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import matchers.JsonMatchers
-import models.WhatTypeBusiness.Companyorpartnership
 import models.UserAnswers
-import org.mockito.Matchers.any
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.when
+import models.WhatTypeBusiness.Companyorpartnership
 import org.mockito.ArgumentCaptor
-import org.scalatest.OptionValues
-import org.scalatest.TryValues
+import org.mockito.Matchers.any
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.WhatTypeBusinessPage
-import pages.company.CompanyEmailPage
-import pages.company.CompanyNamePage
+import pages.company.{BusinessNamePage, CompanyEmailPage}
 import play.api.Application
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
@@ -56,7 +51,7 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
   val userAnswers: UserAnswers = UserAnswers()
     .setOrException(WhatTypeBusinessPage, Companyorpartnership)
     .setOrException(CompanyEmailPage, email)
-    .setOrException(CompanyNamePage, companyName)
+    .setOrException(BusinessNamePage, companyName)
 
   private def onPageLoadUrl: String = routes.ConfirmationController.onPageLoad().url
   private def submitUrl: String = controllers.routes.SignOutController.signOut().url

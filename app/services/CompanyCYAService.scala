@@ -27,7 +27,7 @@ class CompanyCYAService extends CYAService {
 
   def companyCya(ua: UserAnswers)(implicit messages: Messages): Seq[Row] =
     (
-      ua.get(CompanyNamePage),
+      ua.get(BusinessNamePage),
       ua.get(BusinessUTRPage),
       ua.get(CompanyAddressPage),
       ua.get(CompanyEmailPage),

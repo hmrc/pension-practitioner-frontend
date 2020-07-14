@@ -1,0 +1,16 @@
+GET        /business-utr                        controllers.partnership.BusinessUTRController.onPageLoad()
+POST       /business-utr                        controllers.partnership.BusinessUTRController.onSubmit()
+
+GET        /org-name                        controllers.partnership.PartnershipNameController.onPageLoad()
+POST       /org-name                        controllers.partnership.PartnershipNameController.onSubmit()
+
+GET        /confirm-name                        controllers.partnership.ConfirmNameController.onPageLoad()
+POST       /confirm-name                        controllers.partnership.ConfirmNameController.onSubmit()
+
+GET        /confirm-address                  controllers.partnership.ConfirmAddressController.onPageLoad()
+POST       /confirm-address                  controllers.partnership.ConfirmAddressController.onSubmit()
+
+GET        /you-need-to-tell-hmrc                       controllers.partnership.TellHMRCController.onPageLoad()
+
+
+

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.partnership
 
 import config.FrontendAppConfig
 import controllers.actions._
@@ -40,7 +40,7 @@ class TellHMRCController @Inject()(
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       val json = Json.obj(
-        "entityType" -> "company",
+        "entityType" -> "partnership",
         "companiesHouseUrl" -> config.companiesHouseFileChangesUrl,
         "hmrcUrl" -> config.hmrcChangesMustReportUrl
       )
