@@ -22,7 +22,7 @@ import javax.inject.Inject
 import models.WhatTypeBusiness.Companyorpartnership
 import models.requests.DataRequest
 import pages.WhatTypeBusinessPage
-import pages.company.CompanyNamePage
+import pages.company.BusinessNamePage
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -59,7 +59,7 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
 
   private def getEntityTypeAndName(implicit request: DataRequest[AnyContent]): Option[(String, String)] = {
         request.userAnswers.get(WhatTypeBusinessPage).flatMap {
-          case Companyorpartnership => request.userAnswers.get(CompanyNamePage).map { name => ("company.capitalised", name)}
+          case Companyorpartnership => request.userAnswers.get(BusinessNamePage).map { name => ("company.capitalised", name)}
           case _ => Some(Tuple2("individual", "Individual name"))
         }
   }

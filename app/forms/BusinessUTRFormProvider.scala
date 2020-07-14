@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package pages.company
+package forms
 
-import pages.behaviours.PageBehaviours
+import forms.mappings.UtrMapping
+import play.api.data.Form
 
+class BusinessUTRFormProvider extends FormErrorHelper with UtrMapping {
 
-class CompanyNamePageSpec extends PageBehaviours {
-
-  "CompanyNamePage" - {
-
-    beRetrievable[String](CompanyNamePage)
-
-    beSettable[String](CompanyNamePage)
-
-    beRemovable[String](CompanyNamePage)
-  }
+  def apply: Form[String] =
+    Form(
+      "value" ->
+        utrMapping(
+          requiredKey = "businessUTR.error.required",
+          invalidKey = "businessUTR.error.invalid"
+        )
+    )
 }

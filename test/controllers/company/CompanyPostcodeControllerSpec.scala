@@ -27,7 +27,7 @@ import org.mockito.Mockito.{times, verify, when}
 import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.company.{CompanyNamePage, CompanyPostcodePage}
+import pages.company.{BusinessNamePage, CompanyPostcodePage}
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
@@ -59,7 +59,7 @@ class CompanyPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar
   private val seqAddresses: Seq[TolerantAddress] =
     Seq(TolerantAddress(Some("addr1"), Some("addr2"), Some("addr3"), Some("addr4"), Some("postcode"), Some("UK")))
 
-  val userAnswers: UserAnswers = UserAnswers().set(CompanyNamePage, companyName).toOption.value
+  val userAnswers: UserAnswers = UserAnswers().set(BusinessNamePage, companyName).toOption.value
 
   private def onPageLoadUrl: String = routes.CompanyPostcodeController.onPageLoad(NormalMode).url
   private def enterManuallyUrl: Call = routes.CompanyAddressController.onPageLoad(NormalMode)
@@ -107,7 +107,7 @@ class CompanyPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar
     "Save data to user answers and redirect to next page when valid data is submitted" in {
 
       val expectedJson = Json.obj(
-          CompanyNamePage.toString -> companyName,
+          BusinessNamePage.toString -> companyName,
           CompanyPostcodePage.toString -> seqAddresses)
 
       when(mockCompoundNavigator.nextPage(Matchers.eq(CompanyPostcodePage), any(), any())).thenReturn(enterManuallyUrl)

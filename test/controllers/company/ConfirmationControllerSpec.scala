@@ -30,7 +30,7 @@ import org.scalatest.OptionValues
 import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
 import pages.WhatTypeBusinessPage
-import pages.company.CompanyNamePage
+import pages.company.BusinessNamePage
 import play.api.Application
 import play.api.libs.json.JsObject
 import play.api.libs.json.Json
@@ -53,7 +53,7 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
 
   val userAnswers: UserAnswers = UserAnswers()
     .set(WhatTypeBusinessPage, Companyorpartnership).toOption.value
-    .set(CompanyNamePage, companyName).toOption.value
+    .set(BusinessNamePage, companyName).toOption.value
 
   private def onPageLoadUrl: String = routes.ConfirmationController.onPageLoad().url
   private def submitUrl: String = controllers.routes.SignOutController.signOut().url

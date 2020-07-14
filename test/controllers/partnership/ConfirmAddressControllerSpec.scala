@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.partnership
 
 import connectors.RegistrationConnector
 import controllers.base.ControllerSpecBase
@@ -22,14 +22,14 @@ import data.SampleData
 import data.SampleData._
 import forms.ConfirmAddressFormProvider
 import matchers.JsonMatchers
-import models.{TolerantAddress, UserAnswers}
 import models.register._
-import org.mockito.{ArgumentCaptor, Matchers}
+import models.{TolerantAddress, UserAnswers}
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
+import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.{BeforeAndAfterEach, OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.company.{BusinessNamePage, BusinessUTRPage, ConfirmAddressPage}
+import pages.partnership.{BusinessNamePage, BusinessUTRPage, ConfirmAddressPage}
 import pages.register.BusinessTypePage
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
@@ -48,18 +48,18 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
   private def onwardRoute = Call("GET", "/foo")
 
   private val formProvider = new ConfirmAddressFormProvider()
-  private val form = formProvider()
+  private val form = formProvider("confirmAddress.partnership.error.required")
 
   private def confirmAddressRoute = routes.ConfirmAddressController.onPageLoad().url
   private def confirmAddressSubmitRoute = routes.ConfirmAddressController.onSubmit().url
 
-  private val organisation = Organisation(pspName,BusinessType.LimitedCompany)
+  private val organisation = Organisation(pspName,BusinessType.LimitedPartnership)
   private val organisationRegistration = OrganisationRegistration(
     OrganisationRegisterWithIdResponse(
       organisation,
       addressUK
     ),
-    RegistrationInfo(RegistrationLegalStatus.LimitedCompany,
+    RegistrationInfo(RegistrationLegalStatus.Partnership,
       "", false, RegistrationCustomerType.UK, None, None)
   )
 
@@ -69,8 +69,8 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
 
   private val utr = "1234567890"
 
-  private val userAnswersWithRegistrationValues = UserAnswers().setOrException(BusinessTypePage, BusinessType.LimitedCompany)
-    .setOrException(BusinessUTRPage, utr).setOrException(BusinessNamePage, "test-company")
+  private val userAnswersWithRegistrationValues = UserAnswers().setOrException(BusinessTypePage, BusinessType.LimitedPartnership)
+    .setOrException(BusinessUTRPage, utr).setOrException(BusinessNamePage, "test-partnership")
 
 
   override def beforeEach: Unit = {
@@ -108,6 +108,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
 
       val expectedJson = Json.obj(
         "form"   -> form,
+        "entityName" -> "partnership",
         "submitUrl" -> confirmAddressSubmitRoute,
         "radios" -> Radios.yesNo(form("value"))
       )
@@ -122,7 +123,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
+      val application = applicationBuilder(userAnswers = Some(UserAnswers().setOrException(BusinessNamePage, "test-partnership")))
         .build()
 
       val request =
@@ -164,6 +165,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
 
       val expectedJson = Json.obj(
         "form"   -> boundForm,
+        "entityName" -> "partnership",
         "submitUrl" -> confirmAddressSubmitRoute,
         "radios" -> Radios.yesNo(boundForm("value"))
       )

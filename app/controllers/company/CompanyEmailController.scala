@@ -24,7 +24,8 @@ import javax.inject.Inject
 import models.Mode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
-import pages.company.{CompanyEmailPage, CompanyNamePage}
+import pages.company.CompanyEmailPage
+import pages.company.BusinessNamePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json, Writes}
@@ -37,15 +38,15 @@ import viewmodels.CommonViewModel
 import scala.concurrent.{ExecutionContext, Future}
 
 class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
-                                          userAnswersCacheConnector: UserAnswersCacheConnector,
-                                          navigator: CompoundNavigator,
-                                          identify: IdentifierAction,
-                                          getData: DataRetrievalAction,
-                                          requireData: DataRequiredAction,
-                                          formProvider: EmailFormProvider,
-                                          val controllerComponents: MessagesControllerComponents,
-                                          renderer: Renderer
-                                         )(implicit ec: ExecutionContext) extends FrontendBaseController
+                                       userAnswersCacheConnector: UserAnswersCacheConnector,
+                                       navigator: CompoundNavigator,
+                                       identify: IdentifierAction,
+                                       getData: DataRetrievalAction,
+                                       requireData: DataRequiredAction,
+                                       formProvider: EmailFormProvider,
+                                       val controllerComponents: MessagesControllerComponents,
+                                       renderer: Renderer
+                                      )(implicit ec: ExecutionContext) extends FrontendBaseController
   with Retrievals with I18nSupport with NunjucksSupport {
 
   private def form(implicit messages: Messages): Form[String] =
@@ -79,7 +80,7 @@ class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
 
   private def getJson(mode: Mode, form: Form[String])(block: JsObject => Future[Result])
                      (implicit w: Writes[Form[String]], messages: Messages, request: DataRequest[AnyContent]): Future[Result] =
-    CompanyNamePage.retrieve.right.map { companyName =>
+    BusinessNamePage.retrieve.right.map { companyName =>
       val json = Json.obj(
         "form" -> form,
         "viewmodel" -> CommonViewModel(

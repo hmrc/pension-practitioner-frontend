@@ -24,7 +24,8 @@ import javax.inject.Inject
 import models.Mode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
-import pages.company.{CompanyNamePage, CompanyPhonePage}
+import pages.company.CompanyPhonePage
+import pages.company.BusinessNamePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json, Writes}
@@ -79,7 +80,7 @@ class CompanyPhoneController @Inject()(override val messagesApi: MessagesApi,
 
   private def getJson(mode: Mode, form: Form[String])(block: JsObject => Future[Result])
                      (implicit w: Writes[Form[String]], messages: Messages, request: DataRequest[AnyContent]): Future[Result] =
-    CompanyNamePage.retrieve.right.map { companyName =>
+    BusinessNamePage.retrieve.right.map { companyName =>
       val json = Json.obj(
         "form" -> form,
         "viewmodel" -> CommonViewModel(

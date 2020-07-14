@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-package data
+package forms
 
-import models.{TolerantAddress, UserAnswers}
-import pages.company.BusinessNamePage
+import forms.mappings.Mappings
+import javax.inject.Inject
+import play.api.data.Form
 
-object SampleData {
-  //scalastyle.off: magic.number
-  val userAnswersId = "id"
-  val psaId = "A0000000"
-  val pspName = "psp"
+class ConfirmAddressFormProvider @Inject() extends Mappings {
 
-  def emptyUserAnswers: UserAnswers = UserAnswers()
-
-  def userAnswersWithCompanyName: UserAnswers =
-    UserAnswers().setOrException(BusinessNamePage, pspName)
-
-  val addressUK = TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
+  def apply(requiredKey: String = "confirmAddress.company.error.required"): Form[Boolean] =
+    Form(
+      "value" -> boolean(requiredKey)
+    )
 }

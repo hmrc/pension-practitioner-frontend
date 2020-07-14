@@ -62,7 +62,7 @@ class TellHMRCControllerSpec extends ControllerSpecBase with MockitoSugar with J
         "companiesHouseUrl" -> companiesHouseUrl
       )
 
-      templateCaptor.getValue mustEqual "company/tellHMRC.njk"
+      templateCaptor.getValue mustEqual "tellHMRC.njk"
       jsonCaptor.getValue must containJson(expectedJson)
       application.stop()
     }

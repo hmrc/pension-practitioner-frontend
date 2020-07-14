@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.partnership
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
@@ -24,7 +24,7 @@ import forms.ConfirmNameFormProvider
 import javax.inject.Inject
 import models.NormalMode
 import navigators.CompoundNavigator
-import pages.company.{BusinessNamePage, ConfirmNamePage}
+import pages.partnership.{BusinessNamePage, ConfirmNamePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -44,28 +44,28 @@ class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
                                       val controllerComponents: MessagesControllerComponents,
                                       config: FrontendAppConfig,
                                       renderer: Renderer
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
+                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
 
-  private val form = formProvider()
+  private val form = formProvider("confirmName.partnership.error.required")
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       BusinessNamePage.retrieve.right.map { pspName =>
-        val preparedForm = request.userAnswers.get (ConfirmNamePage) match {
+        val preparedForm = request.userAnswers.get(ConfirmNamePage) match {
           case None => form
-          case Some (value) => form.fill (value)
+          case Some(value) => form.fill(value)
         }
 
         val json = Json.obj(
           "form" -> preparedForm,
-          "entityName" -> "company",
+          "entityName" -> "partnership",
           "pspName" -> pspName,
           "submitUrl" -> routes.ConfirmNameController.onSubmit().url,
-          "radios" -> Radios.yesNo (preparedForm("value"))
+          "radios" -> Radios.yesNo(preparedForm("value"))
         )
 
-      renderer.render ("confirmName.njk", json).map(Ok (_))
-    }
+        renderer.render(template = "confirmName.njk", json).map(Ok(_))
+      }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -75,19 +75,19 @@ class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
           formWithErrors => {
 
             val json = Json.obj(
-              "form"   -> formWithErrors,
-              "entityName" -> "company",
+              "form" -> formWithErrors,
+              "entityName" -> "partnership",
               "pspName" -> pspName,
-              "submitUrl"   -> routes.ConfirmNameController.onSubmit().url,
+              "submitUrl" -> routes.ConfirmNameController.onSubmit().url,
               "radios" -> Radios.yesNo(formWithErrors("value"))
             )
 
-            renderer.render("confirmName.njk", json).map(BadRequest(_))
+            renderer.render(template = "confirmName.njk", json).map(BadRequest(_))
           },
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(ConfirmNamePage, value))
-              _ <- userAnswersCacheConnector.save( updatedAnswers.data)
+              _ <- userAnswersCacheConnector.save(updatedAnswers.data)
             } yield Redirect(navigator.nextPage(ConfirmNamePage, NormalMode, updatedAnswers))
         )
       }

@@ -16,13 +16,44 @@
 
 package pages.register
 
+import models.UserAnswers
 import models.register.BusinessType
+import models.register.BusinessType.{BusinessPartnership, LimitedCompany, LimitedLiabilityPartnership, LimitedPartnership, UnlimitedCompany}
 import pages.QuestionPage
+import pages.company.{
+  BusinessNamePage => CompanyNamePage, BusinessUTRPage => CompanyUTRPage,
+  ConfirmAddressPage => ConfirmCompanyAddressPage, ConfirmNamePage => ConfirmCompanyNamePage
+}
+import pages.partnership.{
+  BusinessNamePage => PartnershipNamePage, BusinessUTRPage => PartnershipUTRPage,
+  ConfirmAddressPage => ConfirmPartnershipAddressPage, ConfirmNamePage => ConfirmPartnershipNamePage
+}
 import play.api.libs.json.JsPath
+
+import scala.util.Try
 
 case object BusinessTypePage extends QuestionPage[BusinessType] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "businessType"
+
+  override def cleanup(value: Option[BusinessType], userAnswers: UserAnswers): Try[UserAnswers] = {
+    val result = value match {
+      case Some(LimitedCompany) | Some(LimitedCompany) | Some(UnlimitedCompany) =>
+        userAnswers
+          .remove(CompanyNamePage).toOption.getOrElse(userAnswers)
+          .remove(CompanyUTRPage).toOption.getOrElse(userAnswers)
+          .remove(ConfirmCompanyNamePage).toOption.getOrElse(userAnswers)
+          .remove(ConfirmCompanyAddressPage).toOption
+      case Some(BusinessPartnership) | Some(LimitedPartnership) | Some(LimitedLiabilityPartnership) =>
+        userAnswers
+          .remove(PartnershipNamePage).toOption.getOrElse(userAnswers)
+          .remove(PartnershipUTRPage).toOption.getOrElse(userAnswers)
+          .remove(ConfirmPartnershipNamePage).toOption.getOrElse(userAnswers)
+          .remove(ConfirmPartnershipAddressPage).toOption
+      case _ => None
+    }
+    super.cleanup(value, result.getOrElse(userAnswers))
+  }
 }

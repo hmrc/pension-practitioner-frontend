@@ -7,7 +7,7 @@
 {% from "macros/title.njk"                         import title %}
 
 {% block pageTitle %}
-  {{ title(messages("confirmAddress.title",pspName), form.errors) }}
+  {{ title(messages("confirmAddress.title", messages(entityName)), form.errors) }}
 {% endblock %}
 
 {% block mainContent %}
@@ -22,7 +22,7 @@
           }) }}
         {% endif %}
 
-        <h1 class="govuk-heading-xl">{{messages('confirmAddress.heading',pspName)}}</h1>
+        <h1 class="govuk-heading-xl">{{messages('confirmAddress.heading', pspName)}}</h1>
         <p class="govuk-body">
         {% for line in address %}
             <span class="govuk-!-display-block">{{line}}</span>

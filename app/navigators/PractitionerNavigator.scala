@@ -17,15 +17,11 @@
 package navigators
 
 import com.google.inject.Inject
-import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import models.UserAnswers
-import models.WhatTypeBusiness
+import models.{UserAnswers, WhatTypeBusiness}
 import models.register.BusinessType
-import pages.Page
-import pages.WhatTypeBusinessPage
-import pages.company.BusinessUTRPage
-import pages.register.{AreYouUKCompanyPage, WhatYouWillNeedPage, BusinessTypePage}
+import pages.register.{AreYouUKCompanyPage, BusinessTypePage, WhatYouWillNeedPage}
+import pages.{Page, WhatTypeBusinessPage}
 import play.api.mvc.Call
 
 class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector)
@@ -52,10 +48,14 @@ class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCo
           controllers.company.routes.BusinessUTRController.onPageLoad()
         case Some(BusinessType.UnlimitedCompany) =>
           controllers.company.routes.BusinessUTRController.onPageLoad()
+        case Some(BusinessType.BusinessPartnership) =>
+          controllers.partnership.routes.BusinessUTRController.onPageLoad()
+        case Some(BusinessType.LimitedPartnership) =>
+          controllers.partnership.routes.BusinessUTRController.onPageLoad()
+        case Some(BusinessType.LimitedLiabilityPartnership) =>
+          controllers.partnership.routes.BusinessUTRController.onPageLoad()
         case _ => controllers.routes.SessionExpiredController.onPageLoad()
       }
-    case BusinessUTRPage =>
-      controllers.company.routes.CompanyNameController.onPageLoad()
   }
 
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {

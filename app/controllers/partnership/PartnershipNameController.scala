@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.partnership
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
@@ -23,33 +23,29 @@ import forms.BusinessNameFormProvider
 import javax.inject.Inject
 import models.NormalMode
 import navigators.CompoundNavigator
-import pages.company.BusinessNamePage
-import play.api.i18n.I18nSupport
-import play.api.i18n.MessagesApi
+import pages.partnership.BusinessNamePage
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
-                                      userAnswersCacheConnector: UserAnswersCacheConnector,
-                                      navigator: CompoundNavigator,
-                                      identify: IdentifierAction,
-                                      getData: DataRetrievalAction,
-                                      requireData: DataRequiredAction,
-                                      formProvider: BusinessNameFormProvider,
-                                      val controllerComponents: MessagesControllerComponents,
-                                      config: FrontendAppConfig,
-                                      renderer: Renderer
+class PartnershipNameController @Inject()(override val messagesApi: MessagesApi,
+                                          userAnswersCacheConnector: UserAnswersCacheConnector,
+                                          navigator: CompoundNavigator,
+                                          identify: IdentifierAction,
+                                          getData: DataRetrievalAction,
+                                          requireData: DataRequiredAction,
+                                          formProvider: BusinessNameFormProvider,
+                                          val controllerComponents: MessagesControllerComponents,
+                                          config: FrontendAppConfig,
+                                          renderer: Renderer
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
 
-  private val form = formProvider()
+  private def form = formProvider("partnershipName.error.required", "partnershipName.error.invalid", "partnershipName.error.length")
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
@@ -60,8 +56,8 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
 
         val json = Json.obj(
           "form" -> preparedForm,
-          "submitUrl" -> routes.CompanyNameController.onSubmit().url,
-          "entityName" -> "company"
+          "submitUrl" -> routes.PartnershipNameController.onSubmit().url,
+          "entityName" -> "partnership"
         )
 
         renderer.render("businessName.njk", json).map(Ok(_))
@@ -74,8 +70,8 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
 
             val json = Json.obj(
               "form" -> formWithErrors,
-              "submitUrl" -> routes.CompanyNameController.onSubmit().url,
-              "entityName" -> "company"
+              "submitUrl" -> routes.PartnershipNameController.onSubmit().url,
+              "entityName" -> "partnership"
             )
 
             renderer.render("businessName.njk", json).map(BadRequest(_))

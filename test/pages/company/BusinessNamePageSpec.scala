@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package forms.company
+package pages.company
 
-import javax.inject.Inject
+import pages.behaviours.PageBehaviours
 
-import forms.mappings.Mappings
-import play.api.data.Form
 
-class ConfirmAddressFormProvider @Inject() extends Mappings {
+class BusinessNamePageSpec extends PageBehaviours {
 
-  def apply(): Form[Boolean] =
-    Form(
-      "value" -> boolean("confirmAddress.error.required")
-    )
+  "BusinessNamePage" - {
+
+    beRetrievable[String](BusinessNamePage)
+
+    beSettable[String](BusinessNamePage)
+
+    beRemovable[String](BusinessNamePage)
+  }
 }

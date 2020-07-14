@@ -18,13 +18,15 @@ package controllers.partnership
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
+import controllers.Retrievals
 import controllers.actions._
-import forms.company.BusinessUTRFormProvider
+import forms.BusinessUTRFormProvider
 import javax.inject.Inject
 import models.NormalMode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
-import pages.company.BusinessUTRPage
+import pages.partnership.BusinessUTRPage
+import pages.register.BusinessTypePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
@@ -45,13 +47,14 @@ class BusinessUTRController @Inject()(override val messagesApi: MessagesApi,
                                       val controllerComponents: MessagesControllerComponents,
                                       config: FrontendAppConfig,
                                       renderer: Renderer
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
+                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
 
   protected def form
-    (implicit request: DataRequest[AnyContent]): Form[String] = formProvider.apply
+  (implicit request: DataRequest[AnyContent]): Form[String] = formProvider.apply
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
+      BusinessTypePage.retrieve.right.map { businessType =>
         val preparedForm = request.userAnswers.get(BusinessUTRPage) match {
           case None => form
           case Some(value) => form.fill(value)
@@ -59,29 +62,34 @@ class BusinessUTRController @Inject()(override val messagesApi: MessagesApi,
 
         val json = Json.obj(
           "form" -> preparedForm,
-          "submitUrl" -> routes.BusinessUTRController.onSubmit().url
+          "submitUrl" -> routes.BusinessUTRController.onSubmit().url,
+          "businessType" -> s"whatTypeBusiness.$businessType"
         )
 
-        renderer.render("company/businessUTR.njk", json).map(Ok(_))
+        renderer.render("businessUTR.njk", json).map(Ok(_))
+      }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
+      BusinessTypePage.retrieve.right.map { businessType =>
         form.bindFromRequest().fold(
           formWithErrors => {
 
             val json = Json.obj(
               "form" -> formWithErrors,
-              "submitUrl" -> routes.BusinessUTRController.onSubmit().url
+              "submitUrl" -> routes.BusinessUTRController.onSubmit().url,
+              "businessType" -> s"whatTypeBusiness.$businessType"
             )
 
-            renderer.render("company/businessUTR.njk", json).map(BadRequest(_))
+            renderer.render("businessUTR.njk", json).map(BadRequest(_))
           },
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessUTRPage, value))
-              _ <- userAnswersCacheConnector.save( updatedAnswers.data)
+              _ <- userAnswersCacheConnector.save(updatedAnswers.data)
             } yield Redirect(navigator.nextPage(BusinessUTRPage, NormalMode, updatedAnswers))
         )
+      }
   }
 }

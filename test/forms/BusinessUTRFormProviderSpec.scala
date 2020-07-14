@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package forms.company
+package forms
 
 import forms.behaviours.UtrBehaviour
 
