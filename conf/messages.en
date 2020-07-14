@@ -127,7 +127,7 @@ confirmName.heading = Is {0} the registered name of {1}?
 confirmName.partnership.error.required = Select yes if this is the registered name of the partnership
 confirmName.company.error.required = Select yes if this is the registered name of the company
 
-confirmAddress.title = Is this the company’s registered address?
+confirmAddress.title = Is this {0}’s registered address?
 confirmAddress.heading = Is this {0}’s registered address?
 confirmAddress.company.error.required = Select yes if this is the company’s registered address
 confirmAddress.partnership.error.required = Select yes if this is the partnership’s registered address

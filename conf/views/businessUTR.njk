@@ -8,7 +8,7 @@
 {% from "macros/title.njk"                         import title %}
 
 {% block pageTitle %}
-  {{ title(messages("businessUTR.title", messages(businessType)), form.errors) }}
+  {{ title(messages("businessUTR.title", messages(businessType).toLowerCase()), form.errors) }}
 {% endblock %}
 
 {% block mainContent %}
@@ -29,7 +29,7 @@
 
           {% call govukFieldset({
             legend: {
-              text: messages('businessUTR.heading', messages(businessType)),
+              text: messages('businessUTR.heading', messages(businessType).toLowerCase()),
               classes: "govuk-fieldset__legend--l",
               isPageHeading: true
             }
