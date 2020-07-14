@@ -127,7 +127,7 @@ confirmName.heading = Is {0} the registered name of {1}?
 confirmName.partnership.error.required = Select yes if this is the registered name of the partnership
 confirmName.company.error.required = Select yes if this is the registered name of the company
 
-confirmAddress.title = Is this {0}’s registered address?
+confirmAddress.title = Is this the company’s registered address?
 confirmAddress.heading = Is this {0}’s registered address?
 confirmAddress.company.error.required = Select yes if this is the company’s registered address
 confirmAddress.partnership.error.required = Select yes if this is the partnership’s registered address
@@ -494,7 +494,7 @@ confirmation.list.header = What to do next
 confirmation.list.item1 = Make a note of your practioner ID (for security reasons it is not included in the confirmation email)
 confirmation.list.item2 = Pass on the practioner ID to your pension scheme administrator
 confirmation.list.text = You only need one practitioner ID, even if you are a practitioner for more than one pension scheme. This ID allows you to be added to all relevant schemes using the online service.
-confirmation.saveOrPrint = Save or print
+confirmation.print = Print
 confirmation.print.page.link.text = Print this page
 confirmation.save.page.link.text = Save this page (55KB)
 individual.email.title = What is your email address?

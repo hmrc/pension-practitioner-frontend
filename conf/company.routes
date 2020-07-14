@@ -41,10 +41,10 @@ POST       /contact-details/contact-phone             controllers.company.Compan
 GET        /contact-details/change-contact-phone      controllers.company.CompanyPhoneController.onPageLoad(mode: Mode = CheckMode)
 POST       /contact-details/change-contact-phone      controllers.company.CompanyPhoneController.onSubmit(mode: Mode = CheckMode)
 
-GET        /declaration                                     controllers.company.DeclarationController.onPageLoad
-POST       /declaration                                     controllers.company.DeclarationController.onSubmit
-
-GET        /registration-successful                         controllers.company.ConfirmationController.onPageLoad
-
 GET        /check-your-answers                        controllers.company.CheckYourAnswersController.onPageLoad
+
+GET        /declaration                                     controllers.company.DeclarationController.onPageLoad()
+POST        /declaration                               controllers.company.DeclarationController.onSubmit()
+
+GET        /registration-successful                         controllers.company.ConfirmationController.onPageLoad()
 

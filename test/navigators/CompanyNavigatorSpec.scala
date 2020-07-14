@@ -16,13 +16,13 @@
 
 package navigators
 
+import controllers.company.routes._
 import data.SampleData
 import models.{CheckMode, NormalMode, UserAnswers}
 import org.scalatest.prop.TableFor3
+import pages.Page
 import pages.company._
 import play.api.mvc.Call
-import controllers.company.routes._
-import pages.Page
 
 class CompanyNavigatorSpec extends NavigatorBehaviour {
   private val uaConfirmAddressYes = SampleData

@@ -48,11 +48,13 @@ class DeclarationController @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      renderer.render("company/declaration.njk", Json.obj()).map(Ok(_))
+      renderer.render("company/declaration.njk",
+        Json.obj("submitUrl" -> routes.DeclarationController.onSubmit().url)).map(Ok(_))
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
+      //TODO: Add the call for psp subscription
       Redirect(navigator.nextPage(DeclarationPage, NormalMode, request.userAnswers))
   }
 

@@ -19,7 +19,9 @@ package navigators
 import com.google.inject.Inject
 import connectors.cache.UserAnswersCacheConnector
 import controllers.company.routes._
-import models.{CheckMode, NormalMode, UserAnswers}
+import models.CheckMode
+import models.NormalMode
+import models.UserAnswers
 import pages.Page
 import pages.company._
 import play.api.mvc.Call

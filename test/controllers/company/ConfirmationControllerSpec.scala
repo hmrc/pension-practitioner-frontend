@@ -19,21 +19,17 @@ package controllers.company
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import matchers.JsonMatchers
-import models.WhatTypeBusiness.Companyorpartnership
 import models.UserAnswers
-import org.mockito.Matchers.any
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.when
+import models.WhatTypeBusiness.Companyorpartnership
 import org.mockito.ArgumentCaptor
-import org.scalatest.OptionValues
-import org.scalatest.TryValues
+import org.mockito.Matchers.any
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.WhatTypeBusinessPage
-import pages.company.BusinessNamePage
+import pages.company.{BusinessNamePage, CompanyEmailPage}
 import play.api.Application
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
@@ -50,19 +46,23 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
   private val templateToBeRendered = "company/confirmation.njk"
   private val pspId = "1234567890"
+  private val email = "a@a.c"
 
   val userAnswers: UserAnswers = UserAnswers()
-    .set(WhatTypeBusinessPage, Companyorpartnership).toOption.value
-    .set(BusinessNamePage, companyName).toOption.value
+    .setOrException(WhatTypeBusinessPage, Companyorpartnership)
+    .setOrException(CompanyEmailPage, email)
+    .setOrException(BusinessNamePage, companyName)
 
   private def onPageLoadUrl: String = routes.ConfirmationController.onPageLoad().url
   private def submitUrl: String = controllers.routes.SignOutController.signOut().url
 
   private val jsonToPassToTemplate: JsObject =
     Json.obj("viewmodel" -> CommonViewModel("company.capitalised", companyName, submitUrl),
+      "email" -> email,
     "panelHtml" -> Html(s"""<p>${{ messages("confirmation.psp.id") }}</p>
                            |<span class="heading-large govuk-!-font-weight-bold">$pspId</span>""".stripMargin).toString()
     )
+
 
   override def beforeEach: Unit = {
     super.beforeEach
