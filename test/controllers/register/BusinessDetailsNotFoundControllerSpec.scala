@@ -18,19 +18,22 @@ package controllers.register
 
 import controllers.base.ControllerSpecBase
 import data.SampleData
+import matchers.JsonMatchers
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 
 import scala.concurrent.Future
 
-class BusinessDetailsNotFoundControllerSpec extends ControllerSpecBase with MockitoSugar {
+class BusinessDetailsNotFoundControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers {
 
   "BusinessDetailsNotFound Controller" must {
 
@@ -39,17 +42,35 @@ class BusinessDetailsNotFoundControllerSpec extends ControllerSpecBase with Mock
       when(mockRenderer.render(any(), any())(any()))
         .thenReturn(Future.successful(Html("")))
 
+      val companiesHouseUrl = "companiesHouseURL"
+      val hmrcChangesUrl = "hmrc"
+      val taxHelplineUrl = "taxHelplineUrl"
+
+      when(mockAppConfig.companiesHouseFileChangesUrl).thenReturn(companiesHouseUrl)
+      when(mockAppConfig.hmrcTaxHelplineUrl).thenReturn(taxHelplineUrl)
+      when(mockAppConfig.hmrcChangesMustReportUrl).thenReturn(hmrcChangesUrl)
+
       val application = applicationBuilder(userAnswers = Some(SampleData.emptyUserAnswers)).build()
       val request = FakeRequest(GET, routes.BusinessDetailsNotFoundController.onPageLoad().url)
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
+      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), any())(any())
+      val jsonToPassToTemplate = Json.obj(
+        "companiesHouseUrl" -> companiesHouseUrl,
+        "hmrcUrl" -> hmrcChangesUrl,
+        "hmrcTaxHelplineUrl" -> taxHelplineUrl,
+        "enterDetailsAgainUrl" -> controllers.routes.WhatTypeBusinessController.onPageLoad().url
+      )
+
+      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
 
       templateCaptor.getValue mustEqual "register/businessDetailsNotFound.njk"
+
+      jsonCaptor.getValue must containJson(jsonToPassToTemplate)
 
       application.stop()
     }

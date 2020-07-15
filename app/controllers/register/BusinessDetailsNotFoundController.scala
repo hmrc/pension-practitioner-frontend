@@ -16,10 +16,12 @@
 
 package controllers.register
 
+import config.FrontendAppConfig
 import controllers.actions._
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.libs.json.Json
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 
@@ -29,14 +31,19 @@ class BusinessDetailsNotFoundController @Inject()(
     override val messagesApi: MessagesApi,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
-    requireData: DataRequiredAction,
+  config: FrontendAppConfig,
     val controllerComponents: MessagesControllerComponents,
     renderer: Renderer
 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad: Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
-
-      renderer.render("register/businessDetailsNotFound.njk").map(Ok(_))
+      val json = Json.obj(
+        "companiesHouseUrl" -> config.companiesHouseFileChangesUrl,
+        "hmrcUrl" -> config.hmrcChangesMustReportUrl,
+        "hmrcTaxHelplineUrl" -> config.hmrcTaxHelplineUrl,
+        "enterDetailsAgainUrl" -> controllers.routes.WhatTypeBusinessController.onPageLoad().url
+      )
+      renderer.render("register/businessDetailsNotFound.njk", json).map(Ok(_))
   }
 }
