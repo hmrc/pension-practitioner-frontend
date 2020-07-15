@@ -514,4 +514,5 @@ individual.addressList.title = Select your contact address
 
 individual.address.title = What is your address?
 
-
+businessDetailsNotFound.title = Business details not found
+businessDetailsNotFound.heading = Business details not found
