@@ -37,6 +37,13 @@
             </p>
 
               {{ govukRadios({
+              fieldset: {
+                              legend: {
+                                text: messages("useAddressForContact.title", messages(viewmodel.entityName)),
+                                isPageHeading: false,
+                                classes: " govuk-visually-hidden"
+                              }
+                            },
                 classes: "govuk-radios--inline",
                 name: 'value',
                 items: radios,
