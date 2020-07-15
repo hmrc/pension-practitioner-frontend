@@ -20,12 +20,14 @@ import config.FrontendAppConfig
 import controllers.actions._
 import javax.inject.Inject
 import models.NormalMode
-import models.UserAnswers
 import navigators.CompoundNavigator
 import pages.register.BusinessDetailsNotFoundPage
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.I18nSupport
+import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 
@@ -35,20 +37,21 @@ class BusinessDetailsNotFoundController @Inject()(
     override val messagesApi: MessagesApi,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
   navigator: CompoundNavigator,
   config: FrontendAppConfig,
     val controllerComponents: MessagesControllerComponents,
     renderer: Renderer
 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData).async {
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      val enterDetailsUrl = navigator.nextPage(BusinessDetailsNotFoundPage, NormalMode, UserAnswers())
+      val enterDetailsUrl = navigator.nextPage(BusinessDetailsNotFoundPage, NormalMode, request.userAnswers).url
       val json = Json.obj(
         "companiesHouseUrl" -> config.companiesHouseFileChangesUrl,
         "hmrcUrl" -> config.hmrcChangesMustReportUrl,
         "hmrcTaxHelplineUrl" -> config.hmrcTaxHelplineUrl,
-        "enterDetailsAgainUrl" -> enterDetailsUrl.url
+        "enterDetailsAgainUrl" -> enterDetailsUrl
       )
       renderer.render("register/businessDetailsNotFound.njk", json).map(Ok(_))
   }
