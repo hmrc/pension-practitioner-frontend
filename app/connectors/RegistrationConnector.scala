@@ -93,7 +93,6 @@ class RegistrationConnectorImpl @Inject()(http: HttpClient,
         Logger.error("Unable to connect to registerWithIdOrganisation", ex)
         ex
     }
-
   }
 
   override def registerWithIdIndividual(nino: String)

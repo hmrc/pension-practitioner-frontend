@@ -19,6 +19,10 @@ package controllers.register
 import config.FrontendAppConfig
 import controllers.actions._
 import javax.inject.Inject
+import models.NormalMode
+import models.UserAnswers
+import navigators.CompoundNavigator
+import pages.register.BusinessDetailsNotFoundPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
@@ -31,6 +35,7 @@ class BusinessDetailsNotFoundController @Inject()(
     override val messagesApi: MessagesApi,
     identify: IdentifierAction,
     getData: DataRetrievalAction,
+  navigator: CompoundNavigator,
   config: FrontendAppConfig,
     val controllerComponents: MessagesControllerComponents,
     renderer: Renderer
@@ -38,11 +43,12 @@ class BusinessDetailsNotFoundController @Inject()(
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
+      val enterDetailsUrl = navigator.nextPage(BusinessDetailsNotFoundPage, NormalMode, UserAnswers())
       val json = Json.obj(
         "companiesHouseUrl" -> config.companiesHouseFileChangesUrl,
         "hmrcUrl" -> config.hmrcChangesMustReportUrl,
         "hmrcTaxHelplineUrl" -> config.hmrcTaxHelplineUrl,
-        "enterDetailsAgainUrl" -> controllers.routes.WhatTypeBusinessController.onPageLoad().url
+        "enterDetailsAgainUrl" -> enterDetailsUrl.url
       )
       renderer.render("register/businessDetailsNotFound.njk", json).map(Ok(_))
   }

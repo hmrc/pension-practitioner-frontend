@@ -27,6 +27,7 @@ import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.JsObject
 import play.api.libs.json.Json
+import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -46,9 +47,13 @@ class BusinessDetailsNotFoundControllerSpec extends ControllerSpecBase with Mock
       val hmrcChangesUrl = "hmrc"
       val taxHelplineUrl = "taxHelplineUrl"
 
+      def onwardRoute = Call("GET", "/foo")
+
       when(mockAppConfig.companiesHouseFileChangesUrl).thenReturn(companiesHouseUrl)
       when(mockAppConfig.hmrcTaxHelplineUrl).thenReturn(taxHelplineUrl)
       when(mockAppConfig.hmrcChangesMustReportUrl).thenReturn(hmrcChangesUrl)
+
+      when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
       val application = applicationBuilder(userAnswers = Some(SampleData.emptyUserAnswers)).build()
       val request = FakeRequest(GET, routes.BusinessDetailsNotFoundController.onPageLoad().url)
@@ -63,7 +68,7 @@ class BusinessDetailsNotFoundControllerSpec extends ControllerSpecBase with Mock
         "companiesHouseUrl" -> companiesHouseUrl,
         "hmrcUrl" -> hmrcChangesUrl,
         "hmrcTaxHelplineUrl" -> taxHelplineUrl,
-        "enterDetailsAgainUrl" -> controllers.routes.WhatTypeBusinessController.onPageLoad().url
+        "enterDetailsAgainUrl" -> onwardRoute.url
       )
 
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())

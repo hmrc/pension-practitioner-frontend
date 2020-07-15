@@ -25,6 +25,7 @@ import org.scalatest.prop.TableFor3
 import pages._
 import pages.register.BusinessTypePage
 import pages.register.AreYouUKCompanyPage
+import pages.register.BusinessDetailsNotFoundPage
 import pages.register.WhatYouWillNeedPage
 import play.api.mvc.Call
 
@@ -48,7 +49,8 @@ class PractitionerNavigatorSpec extends NavigatorBehaviour {
         row(WhatYouWillNeedPage)(controllers.register.routes.AreYouUKCompanyController.onPageLoad()),
         row(AreYouUKCompanyPage)(controllers.register.routes.BusinessTypeController.onPageLoad(), Some(uaInUk)),
         row(BusinessTypePage)(controllers.company.routes.BusinessUTRController.onPageLoad(), Some(uaBusinessTypeLimitedCompany)),
-        row(BusinessTypePage)(controllers.company.routes.BusinessUTRController.onPageLoad(), Some(uaBusinessTypeUnlimitedCompany))
+        row(BusinessTypePage)(controllers.company.routes.BusinessUTRController.onPageLoad(), Some(uaBusinessTypeUnlimitedCompany)),
+        row(BusinessDetailsNotFoundPage)(controllers.routes.WhatTypeBusinessController.onPageLoad())
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)
