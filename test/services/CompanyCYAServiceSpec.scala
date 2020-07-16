@@ -68,7 +68,7 @@ class CompanyCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
         Action(
           content = msg"site.edit",
           href = controllers.company.routes.CompanyEmailController.onPageLoad(CheckMode).url,
-          visuallyHiddenText = Some(msg"cya.change.email")
+          visuallyHiddenText = Some(msg"cya.change.email".withArgs(companyName))
         )
       )
     ),
@@ -79,7 +79,7 @@ class CompanyCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
         Action(
           content = msg"site.edit",
           href = controllers.company.routes.CompanyPhoneController.onPageLoad(CheckMode).url,
-          visuallyHiddenText = Some(msg"cya.change.phone")
+          visuallyHiddenText = Some(msg"cya.change.phone".withArgs(companyName))
         )
       )
     )

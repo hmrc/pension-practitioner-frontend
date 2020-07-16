@@ -41,7 +41,7 @@
 
           {{ govukInput({
             label: {
-               html: '<span >' + messages("businessUTR.title") + '</span>',
+               html: '<span >' + messages('businessUTR.heading', messages(businessType).toLowerCase()) + '</span>',
                classes: "govuk-visually-hidden"
             },
             id: "value",
