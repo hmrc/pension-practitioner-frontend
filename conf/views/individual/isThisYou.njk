@@ -39,6 +39,13 @@
             </p>
 
               {{ govukRadios({
+              fieldset: {
+                            legend: {
+                              text: messages('isThisYou.heading'),
+                              isPageHeading: false,
+                              classes: " govuk-visually-hidden"
+                            }
+                          },
                 classes: "govuk-radios--inline",
                 name: 'value',
                 items: radios,
