@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package forms.address
+package pages.register
 
-import forms.mappings.Mappings
-import javax.inject.Inject
-import play.api.data.Form
+import pages.Page
 
-class UseAddressForContactFormProvider @Inject() extends Mappings {
-
-  def apply(keyRequired: String): Form[Boolean] = Form("value" -> boolean(keyRequired))
+case object BusinessDetailsNotFoundPage extends Page {
+  override def toString: String = "businessDetailsNotFound"
 }

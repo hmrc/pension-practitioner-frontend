@@ -49,7 +49,8 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
                                                config: FrontendAppConfig,
                                                countryOptions: CountryOptions,
                                                renderer: Renderer
-                                              )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
+                                              )(implicit ec: ExecutionContext) extends FrontendBaseController
+  with I18nSupport with NunjucksSupport with Retrievals {
 
   private def form(implicit messages: Messages): Form[Boolean] =
     formProvider(messages("useAddressForContact.error.required", messages("individual.you")))

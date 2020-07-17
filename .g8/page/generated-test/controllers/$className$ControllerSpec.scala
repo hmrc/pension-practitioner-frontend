@@ -1,9 +1,8 @@
 package controllers
 
-import base.SpecBase
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.{times, when, verify}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -11,9 +10,9 @@ import play.twirl.api.Html
 
 import scala.concurrent.Future
 
-class $className$ControllerSpec extends SpecBase with MockitoSugar {
+class $className$ControllerSpec extends ControllerSpecBase with MockitoSugar {
 
-  "$className$ Controller" - {
+  "$className$ Controller" must {
 
     "return OK and the correct view for a GET" in {
 

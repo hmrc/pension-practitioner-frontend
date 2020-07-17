@@ -4,6 +4,7 @@ site.edit = Change
 site.delete.hidden = Change {0}
 site.no = No
 site.yes = Yes
+site.and = and
 site.continue = Continue
 site.viewOrChange = View or change
 site.change = Change
@@ -514,4 +515,16 @@ individual.addressList.title = Select your contact address
 
 individual.address.title = What is your address?
 
+businessDetailsNotFound.title = Business details not found
+businessDetailsNotFound.heading = Business details not found
+businessDetailsNotFound.lede = There could be a number of reasons why we cannot find your business details.
+businessDetailsNotFound.reason1.h2 = Your business name is not an exact match
+businessDetailsNotFound.reason1.p1 = Your business name should match the name written on letters you have from HMRC. Check the capital letters and spaces in your business name. You should also check if your business name uses "Limited" or "LTD".
+businessDetailsNotFound.reason2.h2 = Your business name has changed
 
+businessDetailsNotFound.reason2.p1 = If you are a company or a limited liability partnership that is registered with Companies House, you need to inform both
+businessDetailsNotFound.reason2.p2 = If you are an individual or a partnership and your details are not correct,
+businessDetailsNotFound.reason2.contactTaxHelpline = you only need to contact the Tax helpline
+businessDetailsNotFound.reason3.h2 = Your Unique Taxpayer Reference (UTR) does not match
+businessDetailsNotFound.reason3.p1 = Your Unique Taxpayer Reference is made up of 10 or 13 numbers. If it is 13, only enter the last 10.
+businessDetailsNotFound.enterAgain = Enter details again

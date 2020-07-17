@@ -1,15 +1,15 @@
 #!/bin/bash
 
 echo ""
-echo "Applying migration TellHMRC"
+echo "Applying migration BusinessDetailsNotFound"
 
 echo "Adding routes to conf/app.routes"
 echo "" >> ../conf/app.routes
-echo "GET        /tellHMRC                       controllers.TellHMRCController.onPageLoad()" >> ../conf/app.routes
+echo "GET        /businessDetailsNotFound                       controllers.BusinessDetailsNotFoundController.onPageLoad()" >> ../conf/app.routes
 
 echo "Adding messages to conf.messages"
 echo "" >> ../conf/messages.en
-echo "tellHMRC.title = tellHMRC" >> ../conf/messages.en
-echo "tellHMRC.heading = tellHMRC" >> ../conf/messages.en
+echo "businessDetailsNotFound.title = businessDetailsNotFound" >> ../conf/messages.en
+echo "businessDetailsNotFound.heading = businessDetailsNotFound" >> ../conf/messages.en
 
-echo "Migration TellHMRC completed"
+echo "Migration BusinessDetailsNotFound completed"

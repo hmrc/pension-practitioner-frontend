@@ -78,6 +78,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   lazy val companiesHouseFileChangesUrl: String = configuration.get[String]("urls.companiesHouseFileChanges")
   lazy val hmrcChangesMustReportUrl: String = configuration.get[String]("urls.hmrcChangesMustReport")
+  lazy val hmrcTaxHelplineUrl: String = configuration.get[String]("urls.hmrcTaxHelpline")
 
   lazy val loginContinueUrl: String = configuration.get[String]("urls.loginContinue")
 

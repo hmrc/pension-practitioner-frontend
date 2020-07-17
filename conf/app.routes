@@ -30,3 +30,5 @@ GET        /business-type                                   controllers.register
 POST       /business-type                                   controllers.register.BusinessTypeController.onSubmit()
 
 
+
+GET        /business-details-not-found                      controllers.register.BusinessDetailsNotFoundController.onPageLoad()

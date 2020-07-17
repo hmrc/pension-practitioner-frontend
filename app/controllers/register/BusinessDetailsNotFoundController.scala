@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.register
 
-import connectors.cache.UserAnswersCacheConnector
-import controllers.Retrievals
+import config.FrontendAppConfig
 import controllers.actions._
 import javax.inject.Inject
 import models.NormalMode
 import navigators.CompoundNavigator
-import pages.company.DeclarationPage
+import pages.register.BusinessDetailsNotFoundPage
 import play.api.i18n.I18nSupport
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
@@ -31,31 +30,29 @@ import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 
 import scala.concurrent.ExecutionContext
 
-class DeclarationController @Inject()(override val messagesApi: MessagesApi,
-  userAnswersCacheConnector: UserAnswersCacheConnector,
-  navigator: CompoundNavigator,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
+class BusinessDetailsNotFoundController @Inject()(
+    override val messagesApi: MessagesApi,
+    identify: IdentifierAction,
+    getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  val controllerComponents: MessagesControllerComponents,
-  renderer: Renderer
-)(implicit ec: ExecutionContext) extends FrontendBaseController
-  with Retrievals with I18nSupport with NunjucksSupport {
+  navigator: CompoundNavigator,
+  config: FrontendAppConfig,
+    val controllerComponents: MessagesControllerComponents,
+    renderer: Renderer
+)(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      renderer.render("company/declaration.njk",
-        Json.obj("submitUrl" -> routes.DeclarationController.onSubmit().url)).map(Ok(_))
+      val enterDetailsUrl = navigator.nextPage(BusinessDetailsNotFoundPage, NormalMode, request.userAnswers).url
+      val json = Json.obj(
+        "companiesHouseUrl" -> config.companiesHouseFileChangesUrl,
+        "hmrcUrl" -> config.hmrcChangesMustReportUrl,
+        "hmrcTaxHelplineUrl" -> config.hmrcTaxHelplineUrl,
+        "enterDetailsAgainUrl" -> enterDetailsUrl
+      )
+      renderer.render("register/businessDetailsNotFound.njk", json).map(Ok(_))
   }
-
-  def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData) {
-    implicit request =>
-      //TODO: Add the call for psp subscription
-      Redirect(navigator.nextPage(DeclarationPage, NormalMode, request.userAnswers))
-  }
-
 }

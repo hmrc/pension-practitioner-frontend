@@ -24,22 +24,35 @@ import controllers.actions._
 import forms.ConfirmAddressFormProvider
 import javax.inject.Inject
 import models.register.RegistrationLegalStatus.LimitedCompany
-import models.register.{BusinessType, Organisation}
+import models.register.BusinessType
+import models.register.Organisation
 import models.requests.DataRequest
-import models.{NormalMode, TolerantAddress, UserAnswers}
+import models.NormalMode
+import models.TolerantAddress
+import models.UserAnswers
 import navigators.CompoundNavigator
 import pages.RegistrationInfoPage
-import pages.company.{BusinessNamePage, BusinessUTRPage, ConfirmAddressPage}
+import pages.company.BusinessNamePage
+import pages.company.BusinessUTRPage
+import pages.company.ConfirmAddressPage
 import pages.register.BusinessTypePage
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.i18n.I18nSupport
+import play.api.i18n.MessagesApi
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.Result
 import renderer.Renderer
+import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import uk.gov.hmrc.viewmodels.NunjucksSupport
+import uk.gov.hmrc.viewmodels.Radios
 import utils.countryOptions.CountryOptions
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
                                          userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -93,7 +106,12 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
 
             renderer.render("confirmAddress.njk", json).map(Ok(_))
           }
+        } recoverWith {
+          case _: NotFoundException =>
+            Future.successful(Redirect(controllers.register.routes.BusinessDetailsNotFoundController.onPageLoad()))
         }
+
+
       }
   }
 
