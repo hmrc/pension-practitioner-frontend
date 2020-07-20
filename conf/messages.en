@@ -438,7 +438,7 @@ tellHMRC.p1 = You need to tell:
 tellHMRC.companiesHouse = Companies House
 tellHMRC.aboutBusiness = HMRC about changes to your business
 tellHMRC.p2 = , such as changing the business address
-tellHMRC.p3 = if it's a limited company or Limited Liability Partnership (LLP)
+tellHMRC.p3 = if it’s a limited company or Limited Liability Partnership (LLP)
 tellHMRC.hmrc = HMRC
 
 
