@@ -18,9 +18,9 @@ package navigators
 
 import com.google.inject.Inject
 import connectors.cache.UserAnswersCacheConnector
-import models.UserAnswers
+import models.{CheckMode, NormalMode, UserAnswers}
 import pages.Page
-import pages.partnership.{BusinessNamePage, BusinessUTRPage, ConfirmAddressPage, ConfirmNamePage}
+import pages.partnership._
 import play.api.mvc.Call
 
 class PartnershipNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector)
@@ -38,10 +38,23 @@ class PartnershipNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCon
       case None => controllers.partnership.routes.TellHMRCController.onPageLoad()
       case _ => controllers.partnership.routes.PartnershipUseSameAddressController.onPageLoad()
     }
+    case PartnershipUseSameAddressPage => ua.get(PartnershipUseSameAddressPage) match {
+      case Some(true) => controllers.partnership.routes.PartnershipEmailController.onPageLoad(NormalMode)
+      case _ => controllers.partnership.routes.PartnershipPostcodeController.onPageLoad(NormalMode)
+    }
+    case PartnershipPostcodePage => controllers.partnership.routes.PartnershipAddressListController.onPageLoad(NormalMode)
+    case PartnershipAddressListPage => controllers.partnership.routes.PartnershipEmailController.onPageLoad(NormalMode)
+    case PartnershipAddressPage => controllers.partnership.routes.PartnershipEmailController.onPageLoad(NormalMode)
+    case PartnershipEmailPage => controllers.partnership.routes.PartnershipPhoneController.onPageLoad(NormalMode)
+    case PartnershipPhonePage => controllers.partnership.routes.PartnershipPhoneController.onPageLoad(NormalMode)
   }
   //scalastyle:on cyclomatic.complexity
 
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {
-    case BusinessUTRPage => controllers.routes.SessionExpiredController.onPageLoad()
+    case PartnershipPostcodePage => controllers.partnership.routes.PartnershipAddressListController.onPageLoad(CheckMode)
+    /*case PartnershipAddressListPage => CheckYourAnswersController.onPageLoad()
+    case PartnershipAddressPage => CheckYourAnswersController.onPageLoad()
+    case PartnershipEmailPage => CheckYourAnswersController.onPageLoad()
+    case PartnershipPhonePage => CheckYourAnswersController.onPageLoad()*/
   }
 }

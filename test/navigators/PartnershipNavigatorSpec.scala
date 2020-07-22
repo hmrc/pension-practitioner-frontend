@@ -20,7 +20,7 @@ import controllers.partnership.routes._
 import data.SampleData
 import models.{CheckMode, NormalMode, UserAnswers}
 import org.scalatest.prop.TableFor3
-import pages.partnership.{BusinessNamePage, BusinessUTRPage, ConfirmAddressPage, ConfirmNamePage}
+import pages.partnership._
 import pages.{partnership, _}
 import play.api.mvc.Call
 
@@ -30,6 +30,9 @@ class PartnershipNavigatorSpec extends NavigatorBehaviour {
 
   private def uaConfirmName(v: Boolean): UserAnswers = SampleData
     .emptyUserAnswers.setOrException(partnership.ConfirmNamePage, v)
+
+  private def uaUseSameAddress(v:Boolean) = SampleData
+    .emptyUserAnswers.setOrException(PartnershipUseSameAddressPage, v)
 
   private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
 
@@ -42,7 +45,14 @@ class PartnershipNavigatorSpec extends NavigatorBehaviour {
         row(ConfirmNamePage)(ConfirmAddressController.onPageLoad(), Some(uaConfirmName(true))),
         row(ConfirmNamePage)(TellHMRCController.onPageLoad(), Some(uaConfirmName(false))),
         row(ConfirmAddressPage)(TellHMRCController.onPageLoad()),
-        row(ConfirmAddressPage)(PartnershipUseSameAddressController.onPageLoad(), Some(uaConfirmAddressYes))
+        row(ConfirmAddressPage)(PartnershipUseSameAddressController.onPageLoad(), Some(uaConfirmAddressYes)),
+        row(PartnershipUseSameAddressPage)(PartnershipEmailController.onPageLoad(NormalMode), Some(uaUseSameAddress(true))),
+        row(PartnershipUseSameAddressPage)(PartnershipPostcodeController.onPageLoad(NormalMode), Some(uaUseSameAddress(false))),
+        row(PartnershipPostcodePage)(PartnershipAddressListController.onPageLoad(NormalMode)),
+        row(PartnershipAddressListPage)(PartnershipEmailController.onPageLoad(NormalMode)),
+        row(PartnershipAddressPage)(PartnershipEmailController.onPageLoad(NormalMode)),
+        row(PartnershipEmailPage)(PartnershipPhoneController.onPageLoad(NormalMode)),
+        row(PartnershipPhonePage)(PartnershipPhoneController.onPageLoad(NormalMode))
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)
@@ -52,7 +62,7 @@ class PartnershipNavigatorSpec extends NavigatorBehaviour {
     def checkModeRoutes: TableFor3[Page, UserAnswers, Call] =
       Table(
         ("Id", "UserAnswers", "Next Page"),
-        row(BusinessUTRPage)(controllers.routes.SessionExpiredController.onPageLoad())
+        row(PartnershipPostcodePage)(PartnershipAddressListController.onPageLoad(CheckMode))
       )
 
     behave like navigatorWithRoutesForMode(CheckMode)(navigator, checkModeRoutes)
