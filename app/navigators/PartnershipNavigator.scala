@@ -36,7 +36,7 @@ class PartnershipNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCon
     }
     case ConfirmAddressPage => ua.get(ConfirmAddressPage) match {
       case None => controllers.partnership.routes.TellHMRCController.onPageLoad()
-      case _ => controllers.partnership.routes.TellHMRCController.onPageLoad()
+      case _ => controllers.partnership.routes.PartnershipUseSameAddressController.onPageLoad()
     }
   }
   //scalastyle:on cyclomatic.complexity

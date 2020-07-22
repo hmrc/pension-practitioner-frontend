@@ -12,5 +12,9 @@ POST       /confirm-address                  controllers.partnership.ConfirmAddr
 
 GET        /you-need-to-tell-hmrc                       controllers.partnership.TellHMRCController.onPageLoad()
 
+GET        /is-your-registered-address-same           controllers.partnership.PartnershipUseSameAddressController.onPageLoad()
+POST       /is-your-registered-address-same           controllers.partnership.PartnershipUseSameAddressController.onSubmit()
+
+
 
 

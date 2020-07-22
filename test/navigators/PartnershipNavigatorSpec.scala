@@ -42,7 +42,7 @@ class PartnershipNavigatorSpec extends NavigatorBehaviour {
         row(ConfirmNamePage)(ConfirmAddressController.onPageLoad(), Some(uaConfirmName(true))),
         row(ConfirmNamePage)(TellHMRCController.onPageLoad(), Some(uaConfirmName(false))),
         row(ConfirmAddressPage)(TellHMRCController.onPageLoad()),
-        row(ConfirmAddressPage)(TellHMRCController.onPageLoad(), Some(uaConfirmAddressYes))
+        row(ConfirmAddressPage)(PartnershipUseSameAddressController.onPageLoad(), Some(uaConfirmAddressYes))
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)
