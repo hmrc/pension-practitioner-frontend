@@ -56,6 +56,7 @@ unauthorised.heading = You can’t access this service with this account
 company = the company
 partnership = the partnership
 company.capitalised = The company
+partnership.capitalised = The partnership
 individual.you = you
 
 whatTypeBusiness.title = Who are you registering as a scheme practitioner?
@@ -466,6 +467,8 @@ cya.individual.email = What is your email address?
 cya.individual.change.email = your email address?
 cya.individual.phone = What is your phone number?
 cya.individual.change.phone = your phone number?
+
+cya.partnershipName = Partnership name
 
 useAddressForContact.title = Can HMRC use this address to contact {0}?
 useAddressForContact.error.required = Select yes if HMRC can use this address to contact {0}

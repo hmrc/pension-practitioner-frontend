@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.partnership
 
 import controllers.Retrievals
 import controllers.actions._
@@ -22,7 +22,7 @@ import javax.inject.Inject
 import models.WhatTypeBusiness.Companyorpartnership
 import models.requests.DataRequest
 import pages.WhatTypeBusinessPage
-import pages.company.{BusinessNamePage, CompanyEmailPage}
+import pages.partnership.{BusinessNamePage, PartnershipEmailPage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -57,9 +57,9 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
   }
 
   private def getEntityTypeNameAndEmail(implicit request: DataRequest[AnyContent]): Option[(String, String, String)] = {
-    (request.userAnswers.get(WhatTypeBusinessPage), request.userAnswers.get(CompanyEmailPage)) match {
+    (request.userAnswers.get(WhatTypeBusinessPage), request.userAnswers.get(PartnershipEmailPage)) match {
         case (Some(Companyorpartnership), Some(email)) =>
-          request.userAnswers.get(BusinessNamePage).map(name => ("company.capitalised", name, email))
+          request.userAnswers.get(BusinessNamePage).map(name => ("partnership.capitalised", name, email))
         case _ => None
      }
   }

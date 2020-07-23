@@ -60,7 +60,7 @@ class PartnershipPhoneControllerSpec extends ControllerSpecBase with MockitoSuga
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
 
   private val jsonToPassToTemplate: Form[String] => JsObject =
-    form => Json.obj("form" -> form, "viewmodel" -> CommonViewModel("Partnership", PartnershipName, submitUrl))
+    form => Json.obj("form" -> form, "viewmodel" -> CommonViewModel("partnership", PartnershipName, submitUrl))
 
   override def beforeEach: Unit = {
     super.beforeEach

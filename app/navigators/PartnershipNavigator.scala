@@ -46,15 +46,16 @@ class PartnershipNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCon
     case PartnershipAddressListPage => controllers.partnership.routes.PartnershipEmailController.onPageLoad(NormalMode)
     case PartnershipAddressPage => controllers.partnership.routes.PartnershipEmailController.onPageLoad(NormalMode)
     case PartnershipEmailPage => controllers.partnership.routes.PartnershipPhoneController.onPageLoad(NormalMode)
-    case PartnershipPhonePage => controllers.partnership.routes.PartnershipPhoneController.onPageLoad(NormalMode)
+    case PartnershipPhonePage => controllers.partnership.routes.CheckYourAnswersController.onPageLoad()
+    case DeclarationPage => controllers.partnership.routes.ConfirmationController.onPageLoad()
   }
   //scalastyle:on cyclomatic.complexity
 
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {
     case PartnershipPostcodePage => controllers.partnership.routes.PartnershipAddressListController.onPageLoad(CheckMode)
-    /*case PartnershipAddressListPage => CheckYourAnswersController.onPageLoad()
-    case PartnershipAddressPage => CheckYourAnswersController.onPageLoad()
-    case PartnershipEmailPage => CheckYourAnswersController.onPageLoad()
-    case PartnershipPhonePage => CheckYourAnswersController.onPageLoad()*/
+    case PartnershipAddressListPage => controllers.partnership.routes.CheckYourAnswersController.onPageLoad()
+    case PartnershipAddressPage => controllers.partnership.routes.CheckYourAnswersController.onPageLoad()
+    case PartnershipEmailPage => controllers.partnership.routes.CheckYourAnswersController.onPageLoad()
+    case PartnershipPhonePage => controllers.partnership.routes.CheckYourAnswersController.onPageLoad()
   }
 }

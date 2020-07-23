@@ -31,7 +31,7 @@ class PartnershipNavigatorSpec extends NavigatorBehaviour {
   private def uaConfirmName(v: Boolean): UserAnswers = SampleData
     .emptyUserAnswers.setOrException(partnership.ConfirmNamePage, v)
 
-  private def uaUseSameAddress(v:Boolean) = SampleData
+  private def uaUseSameAddress(v:Boolean): UserAnswers = SampleData
     .emptyUserAnswers.setOrException(PartnershipUseSameAddressPage, v)
 
   private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
@@ -52,7 +52,8 @@ class PartnershipNavigatorSpec extends NavigatorBehaviour {
         row(PartnershipAddressListPage)(PartnershipEmailController.onPageLoad(NormalMode)),
         row(PartnershipAddressPage)(PartnershipEmailController.onPageLoad(NormalMode)),
         row(PartnershipEmailPage)(PartnershipPhoneController.onPageLoad(NormalMode)),
-        row(PartnershipPhonePage)(PartnershipPhoneController.onPageLoad(NormalMode))
+        row(PartnershipPhonePage)(CheckYourAnswersController.onPageLoad()),
+        row(DeclarationPage)(controllers.partnership.routes.ConfirmationController.onPageLoad())
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)
@@ -62,7 +63,11 @@ class PartnershipNavigatorSpec extends NavigatorBehaviour {
     def checkModeRoutes: TableFor3[Page, UserAnswers, Call] =
       Table(
         ("Id", "UserAnswers", "Next Page"),
-        row(PartnershipPostcodePage)(PartnershipAddressListController.onPageLoad(CheckMode))
+        row(PartnershipPostcodePage)(PartnershipAddressListController.onPageLoad(CheckMode)),
+        row(PartnershipAddressListPage)(CheckYourAnswersController.onPageLoad()),
+        row(PartnershipAddressPage)(CheckYourAnswersController.onPageLoad()),
+        row(PartnershipEmailPage)(CheckYourAnswersController.onPageLoad()),
+        row(PartnershipPhonePage)(CheckYourAnswersController.onPageLoad())
       )
 
     behave like navigatorWithRoutesForMode(CheckMode)(navigator, checkModeRoutes)
