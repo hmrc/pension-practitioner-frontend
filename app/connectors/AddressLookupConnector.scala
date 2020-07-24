@@ -26,7 +26,7 @@ import play.api.Logger
 import play.api.http.Status._
 import play.api.libs.json.Reads
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -50,7 +50,7 @@ class AddressLookupConnector @Inject()(http: HttpClient, config: FrontendAppConf
   }
 
   private def logExceptions: PartialFunction[Throwable, Future[Seq[TolerantAddress]]] = {
-    case (t: Throwable) => {
+    case t: Throwable => {
       Logger.error("Exception in AddressLookup", t)
       Future.failed(t)
     }
