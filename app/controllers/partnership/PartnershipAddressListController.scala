@@ -52,7 +52,7 @@ class PartnershipAddressListController @Inject()(override val messagesApi: Messa
 
 
   def form(implicit messages: Messages): Form[Int] =
-    formProvider(messages("addressList.error.invalid", messages("partnership")))
+    formProvider(messages("addressList.error.required", messages("partnership")))
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {

@@ -110,8 +110,10 @@ businessUTR.heading = What is the Unique Taxpayer Reference (UTR) of the {0} you
 businessUTR.p1 = This is a 10-digit or 13-digit number. You can find it on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
 businessUTR.p2 = If the UTR is 13 numbers, only enter the last 10.
 businessUTR.p3 = If there is a letter ‘K’ at the end of the number, do not enter it.
-businessUTR.error.required = Enter the UTR of the company you want to register
-businessUTR.error.invalid = Enter the company’s UTR in the correct format
+businessUTR.company.error.required = Enter the UTR of the company you want to register
+businessUTR.company.error.invalid = Enter the company’s UTR in the correct format
+businessUTR.partnership.error.required = Enter the UTR of the partnership you want to register
+businessUTR.partnership.error.invalid = Enter the partnership’s UTR in the correct format
 
 businessName.title = What is {0}’s name?
 businessName.heading = What is {0}’s name?
@@ -148,7 +150,7 @@ addressList.select = Select the address from the list or
 
 address.title = What is {0}’s address?
 address.line1 = Address line 1
-address.line2 = Address line 2 (optional)
+address.line2 = Address line 2
 address.line3 = Address line 3 (optional)
 address.line4 = Address line 4 (optional)
 address.postcode = Postcode

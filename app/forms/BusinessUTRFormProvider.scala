@@ -21,12 +21,13 @@ import play.api.data.Form
 
 class BusinessUTRFormProvider extends FormErrorHelper with UtrMapping {
 
-  def apply: Form[String] =
+  def apply(requiredKey: String = "businessUTR.company.error.required",
+            invalidKey: String = "businessUTR.company.error.invalid"): Form[String] =
     Form(
       "value" ->
         utrMapping(
-          requiredKey = "businessUTR.error.required",
-          invalidKey = "businessUTR.error.invalid"
+          requiredKey,
+          invalidKey
         )
     )
 }
