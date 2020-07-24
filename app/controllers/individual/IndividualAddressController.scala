@@ -56,7 +56,7 @@ class IndividualAddressController @Inject()(override val messagesApi: MessagesAp
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {
       implicit request =>
-        get(getFormToJson(mode), IndividualManualAddressPage)
+        get(getFormToJson(mode))
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
@@ -65,10 +65,14 @@ class IndividualAddressController @Inject()(override val messagesApi: MessagesAp
         post(mode, getFormToJson(mode), IndividualManualAddressPage)
     }
 
-  private def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Form[Address] => JsObject =
-    form => Json.obj(
-      "form" -> form,
-      "submitUrl" -> routes.IndividualAddressController.onSubmit(mode).url,
-      "countries" -> jsonCountries(form.data.get("country"), config)(request2Messages)
-    )
+  private def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Form[Address] => JsObject = {
+        println("\n\n\n countruses: "+jsonCountries(form.data.get("country"), config)(request2Messages))
+    form =>
+      Json.obj(
+        "form" -> form,
+        "submitUrl" -> routes.IndividualAddressController.onSubmit(mode).url,
+        "countries" -> jsonCountries(form.data.get("country"), config)(request2Messages)
+
+      )
+  }
 }

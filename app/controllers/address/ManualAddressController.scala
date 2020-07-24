@@ -41,8 +41,9 @@ trait ManualAddressController extends FrontendBaseController with Retrievals {
   protected def form(implicit messages: Messages): Form[Address]
   protected def viewTemplate = "address/manualAddress.njk"
 
-  def get(json: Form[Address] => JsObject, addressPage: QuestionPage[Address])
+  def get(json: Form[Address] => JsObject)
          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
+    println("\n\n\n json: "+form)
     renderer.render(viewTemplate, json(form)).map(Ok(_))
   }
 
@@ -77,12 +78,14 @@ trait ManualAddressController extends FrontendBaseController with Retrievals {
     }
   )
 
-  def jsonCountries(countrySelected: Option[String], config: FrontendAppConfig)(implicit messages: Messages): JsArray =
+  def jsonCountries(countrySelected: Option[String], config: FrontendAppConfig)(implicit messages: Messages): JsArray = {
+    println("\n\n\n countrySelected : "+countrySelected)
     config.validCountryCodes
       .map(countryCode => (countryCode, messages(s"country.$countryCode")))
       .sortWith(_._2 < _._2)
       .foldLeft(JsArray(Seq(Json.obj("value" -> "", "text" -> "")))) { (acc, nextCountryTuple) =>
         acc ++ countryJsonElement(nextCountryTuple, countrySelected.contains(nextCountryTuple._1))
+      }
   }
 
 }

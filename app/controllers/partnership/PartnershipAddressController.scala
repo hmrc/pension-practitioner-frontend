@@ -55,7 +55,7 @@ class PartnershipAddressController @Inject()(override val messagesApi: MessagesA
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {
       implicit request =>
-        getFormToJson(mode).retrieve.right.map(get(_, PartnershipAddressPage))
+        getFormToJson(mode).retrieve.right.map(get)
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
