@@ -20,14 +20,13 @@ import java.time.LocalDate
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models._
-import models.register.{RegistrationInfo, RegistrationNoIdIndividualRequest, TolerantIndividual}
-import models.register._
+import models.register.{RegistrationInfo, RegistrationNoIdIndividualRequest, TolerantIndividual, _}
 import org.scalatest._
 import play.api.Application
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsResultException, Json}
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -35,15 +34,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class RegistrationConnectorSpec extends AsyncWordSpec with MustMatchers with OptionValues with WireMockHelper {
 
   import RegistrationConnectorSpec._
-
-//  override protected lazy val app: Application =
-//    new GuiceApplicationBuilder()
-//      .configure(
-//        portConfigKey -> server.port().toString,
-//        "auditing.enabled" -> false,
-//        "metrics.enabled" -> false
-//      )
-//      .build()
 
   override protected def portConfigKey: String = "microservice.services.pension-practitioner.port"
 
@@ -157,7 +147,7 @@ class RegistrationConnectorSpec extends AsyncWordSpec with MustMatchers with Opt
       )
 
       val connector = injector.instanceOf[RegistrationConnector]
-      recoverToSucceededIf[NotFoundException] {
+      recoverToSucceededIf[IllegalArgumentException] {
         connector.registerWithIdOrganisation(utr, organisation, legalStatus)
       }
 
@@ -212,7 +202,6 @@ class RegistrationConnectorSpec extends AsyncWordSpec with MustMatchers with Opt
 
   "registerWithIdIndividual" must {
     "return the individual and address given a valid NINO" in {
-      val postRequestBody = Json.obj("nino" -> "test-nino")
       server.stubFor(
         post(urlEqualTo(individualPath))
           .withHeader("nino", equalTo("test-nino"))
@@ -232,168 +221,168 @@ class RegistrationConnectorSpec extends AsyncWordSpec with MustMatchers with Opt
 
     }
 
-  "return the individual and address given a valid NINO when manual Iv is disabled" in {
-    lazy val appWithIvDisabled: Application = new GuiceApplicationBuilder()
-      .configure(
-        portConfigKey -> server.port().toString,
-        "auditing.enabled" -> false,
-        "metrics.enabled" -> false
-      ).build()
+    "return the individual and address given a valid NINO when manual Iv is disabled" in {
+      lazy val appWithIvDisabled: Application = new GuiceApplicationBuilder()
+        .configure(
+          portConfigKey -> server.port().toString,
+          "auditing.enabled" -> false,
+          "metrics.enabled" -> false
+        ).build()
 
-    val injector = appWithIvDisabled.injector
-    server.stubFor(
-      post(urlEqualTo(individualPath))
-        .willReturn(
-          aResponse()
-            .withStatus(Status.OK)
-            .withHeader("Content-Type", "application/json")
-            .withBody(Json.stringify(validIndividualResponse(true)))
-        )
-    )
+      val injector = appWithIvDisabled.injector
+      server.stubFor(
+        post(urlEqualTo(individualPath))
+          .willReturn(
+            aResponse()
+              .withStatus(Status.OK)
+              .withHeader("Content-Type", "application/json")
+              .withBody(Json.stringify(validIndividualResponse(true)))
+          )
+      )
 
-    val connector = injector.instanceOf[RegistrationConnector]
-    connector.registerWithIdIndividual(nino).map { registration =>
-      registration.response.individual mustBe expectedIndividual
-      registration.response.address mustBe expectedAddress(true)
-    }
-  }
-
-  "return the registration info for an individual with a UK address" in {
-
-    val info = RegistrationInfo(
-      RegistrationLegalStatus.Individual,
-      sapNumber,
-      noIdentifier = false,
-      RegistrationCustomerType.UK,
-      Some(RegistrationIdType.Nino),
-      Some(nino)
-    )
-
-    server.stubFor(
-      post(urlEqualTo(individualPath))
-        .willReturn(
-          aResponse()
-            .withStatus(Status.OK)
-            .withHeader("Content-Type", "application/json")
-            .withBody(Json.stringify(validIndividualResponse(true)))
-        )
-    )
-
-    val connector = injector.instanceOf[RegistrationConnector]
-    connector.registerWithIdIndividual(nino).map { registration =>
-      registration.info mustBe info
+      val connector = injector.instanceOf[RegistrationConnector]
+      connector.registerWithIdIndividual(nino).map { registration =>
+        registration.response.individual mustBe expectedIndividual
+        registration.response.address mustBe expectedAddress(true)
+      }
     }
 
-  }
+    "return the registration info for an individual with a UK address" in {
 
-  "return the registration info for an individual with a Non-UK address" in {
+      val info = RegistrationInfo(
+        RegistrationLegalStatus.Individual,
+        sapNumber,
+        noIdentifier = false,
+        RegistrationCustomerType.UK,
+        Some(RegistrationIdType.Nino),
+        Some(nino)
+      )
 
-    val info = RegistrationInfo(
-      RegistrationLegalStatus.Individual,
-      sapNumber,
-      noIdentifier = false,
-      RegistrationCustomerType.NonUK,
-      Some(RegistrationIdType.Nino),
-      Some(nino)
-    )
+      server.stubFor(
+        post(urlEqualTo(individualPath))
+          .willReturn(
+            aResponse()
+              .withStatus(Status.OK)
+              .withHeader("Content-Type", "application/json")
+              .withBody(Json.stringify(validIndividualResponse(true)))
+          )
+      )
 
-    server.stubFor(
-      post(urlEqualTo(individualPath))
-        .willReturn(
-          aResponse()
-            .withStatus(Status.OK)
-            .withHeader("Content-Type", "application/json")
-            .withBody(Json.stringify(validIndividualResponse(false)))
-        )
-    )
+      val connector = injector.instanceOf[RegistrationConnector]
+      connector.registerWithIdIndividual(nino).map { registration =>
+        registration.info mustBe info
+      }
 
-    val connector = injector.instanceOf[RegistrationConnector]
-    connector.registerWithIdIndividual(nino).map { registration =>
-      registration.info mustBe info
     }
 
-  }
+    "return the registration info for an individual with a Non-UK address" in {
 
-  "only accept responses with status 200 OK" in {
+      val info = RegistrationInfo(
+        RegistrationLegalStatus.Individual,
+        sapNumber,
+        noIdentifier = false,
+        RegistrationCustomerType.NonUK,
+        Some(RegistrationIdType.Nino),
+        Some(nino)
+      )
 
-    server.stubFor(
-      post(urlEqualTo(individualPath))
-        .willReturn(
-          aResponse()
-            .withStatus(Status.ACCEPTED)
-            .withHeader("Content-Type", "application/json")
-            .withBody(Json.stringify(validIndividualResponse(true)))
-        )
-    )
+      server.stubFor(
+        post(urlEqualTo(individualPath))
+          .willReturn(
+            aResponse()
+              .withStatus(Status.OK)
+              .withHeader("Content-Type", "application/json")
+              .withBody(Json.stringify(validIndividualResponse(false)))
+          )
+      )
 
-    val connector = injector.instanceOf[RegistrationConnector]
-    recoverToSucceededIf[IllegalArgumentException] {
-      connector.registerWithIdIndividual(nino)
+      val connector = injector.instanceOf[RegistrationConnector]
+      connector.registerWithIdIndividual(nino).map { registration =>
+        registration.info mustBe info
+      }
+
     }
 
-  }
+    "only accept responses with status 200 OK" in {
 
-  "propagate exceptions from HttpClient" in {
+      server.stubFor(
+        post(urlEqualTo(individualPath))
+          .willReturn(
+            aResponse()
+              .withStatus(Status.ACCEPTED)
+              .withHeader("Content-Type", "application/json")
+              .withBody(Json.stringify(validIndividualResponse(true)))
+          )
+      )
 
-    server.stubFor(
-      post(urlEqualTo(individualPath))
-        .willReturn(
-          aResponse()
-            .withStatus(Status.NOT_FOUND)
-        )
-    )
+      val connector = injector.instanceOf[RegistrationConnector]
+      recoverToSucceededIf[IllegalArgumentException] {
+        connector.registerWithIdIndividual(nino)
+      }
 
-    val connector = injector.instanceOf[RegistrationConnector]
-    recoverToSucceededIf[NotFoundException] {
-      connector.registerWithIdIndividual(nino)
     }
 
-  }
+    "propagate exceptions from HttpClient" in {
 
-  "identify JSON parse errors" in {
+      server.stubFor(
+        post(urlEqualTo(individualPath))
+          .willReturn(
+            aResponse()
+              .withStatus(Status.NOT_FOUND)
+          )
+      )
 
-    server.stubFor(
-      post(urlEqualTo(individualPath))
-        .willReturn(
-          aResponse()
-            .withStatus(Status.OK)
-            .withHeader("Content-Type", "application/json")
-            .withBody(Json.stringify(invalidResponse))
-        )
-    )
+      val connector = injector.instanceOf[RegistrationConnector]
+      recoverToSucceededIf[IllegalArgumentException] {
+        connector.registerWithIdIndividual(nino)
+      }
 
-    val connector = injector.instanceOf[RegistrationConnector]
-    recoverToSucceededIf[JsResultException] {
-      connector.registerWithIdIndividual(nino)
     }
 
-  }
+    "identify JSON parse errors" in {
 
-  "forward HTTP headers" in {
+      server.stubFor(
+        post(urlEqualTo(individualPath))
+          .willReturn(
+            aResponse()
+              .withStatus(Status.OK)
+              .withHeader("Content-Type", "application/json")
+              .withBody(Json.stringify(invalidResponse))
+          )
+      )
 
-    val headerName = "test-header-name"
-    val headerValue = "test-header-value"
+      val connector = injector.instanceOf[RegistrationConnector]
+      recoverToSucceededIf[JsResultException] {
+        connector.registerWithIdIndividual(nino)
+      }
 
-    server.stubFor(
-      post(urlEqualTo(individualPath))
-        .withHeader(headerName, equalTo(headerValue))
-        .willReturn(
-          aResponse()
-            .withStatus(Status.OK)
-            .withHeader("Content-Type", "application/json")
-            .withBody(Json.stringify(validIndividualResponse(true)))
-        )
-    )
-
-    val connector = injector.instanceOf[RegistrationConnector]
-
-    val hc: HeaderCarrier = HeaderCarrier(extraHeaders = Seq((headerName, headerValue)))
-    val executionContext: ExecutionContext = implicitly[ExecutionContext]
-
-    connector.registerWithIdIndividual(nino)(hc, executionContext).map { _ =>
-      succeed
     }
-  }
+
+    "forward HTTP headers" in {
+
+      val headerName = "test-header-name"
+      val headerValue = "test-header-value"
+
+      server.stubFor(
+        post(urlEqualTo(individualPath))
+          .withHeader(headerName, equalTo(headerValue))
+          .willReturn(
+            aResponse()
+              .withStatus(Status.OK)
+              .withHeader("Content-Type", "application/json")
+              .withBody(Json.stringify(validIndividualResponse(true)))
+          )
+      )
+
+      val connector = injector.instanceOf[RegistrationConnector]
+
+      val hc: HeaderCarrier = HeaderCarrier(extraHeaders = Seq((headerName, headerValue)))
+      val executionContext: ExecutionContext = implicitly[ExecutionContext]
+
+      connector.registerWithIdIndividual(nino)(hc, executionContext).map { _ =>
+        succeed
+      }
+    }
 
   }
 
@@ -416,58 +405,58 @@ class RegistrationConnectorSpec extends AsyncWordSpec with MustMatchers with Opt
       }
     }
 
-  "return successfully with noIdentifier set to true" in {
+    "return successfully with noIdentifier set to true" in {
 
-    server.stubFor(
-      post(urlEqualTo(noIdOrganisationPath))
-        .willReturn(
-          aResponse()
-            .withStatus(Status.OK)
-            .withHeader("Content-Type", "application/json")
-            .withBody(Json.stringify(validNonUkResponse))
-        )
-    )
+      server.stubFor(
+        post(urlEqualTo(noIdOrganisationPath))
+          .willReturn(
+            aResponse()
+              .withStatus(Status.OK)
+              .withHeader("Content-Type", "application/json")
+              .withBody(Json.stringify(validNonUkResponse))
+          )
+      )
 
-    val connector = injector.instanceOf[RegistrationConnector]
-    connector.registerWithNoIdOrganisation(organisation.organisationName, expectedAddress(uk = false).toAddress, legalStatus).map { registration =>
-      registration.noIdentifier mustBe true
-    }
-  }
-
-
-  "only accept responses with status 200 OK" in {
-
-    server.stubFor(
-      post(urlEqualTo(noIdOrganisationPath))
-        .willReturn(
-          aResponse()
-            .withStatus(Status.ACCEPTED)
-            .withHeader("Content-Type", "application/json")
-        )
-    )
-
-    val connector = injector.instanceOf[RegistrationConnector]
-    recoverToSucceededIf[IllegalArgumentException] {
-      connector.registerWithNoIdOrganisation(organisation.organisationName, expectedAddress(uk = false).toAddress, legalStatus)
+      val connector = injector.instanceOf[RegistrationConnector]
+      connector.registerWithNoIdOrganisation(organisation.organisationName, expectedAddress(uk = false).toAddress, legalStatus).map { registration =>
+        registration.noIdentifier mustBe true
+      }
     }
 
-  }
 
-  "propagate exceptions from HttpClient" in {
+    "only accept responses with status 200 OK" in {
 
-    server.stubFor(
-      post(urlEqualTo(noIdOrganisationPath))
-        .willReturn(
-          aResponse()
-            .withStatus(Status.NOT_FOUND)
-        )
-    )
+      server.stubFor(
+        post(urlEqualTo(noIdOrganisationPath))
+          .willReturn(
+            aResponse()
+              .withStatus(Status.ACCEPTED)
+              .withHeader("Content-Type", "application/json")
+          )
+      )
 
-    val connector = injector.instanceOf[RegistrationConnector]
-    recoverToSucceededIf[NotFoundException] {
-      connector.registerWithNoIdOrganisation(organisation.organisationName, expectedAddress(uk = false).toAddress, legalStatus)
+      val connector = injector.instanceOf[RegistrationConnector]
+      recoverToSucceededIf[IllegalArgumentException] {
+        connector.registerWithNoIdOrganisation(organisation.organisationName, expectedAddress(uk = false).toAddress, legalStatus)
+      }
+
     }
-  }
+
+    "propagate exceptions from HttpClient" in {
+
+      server.stubFor(
+        post(urlEqualTo(noIdOrganisationPath))
+          .willReturn(
+            aResponse()
+              .withStatus(Status.NOT_FOUND)
+          )
+      )
+
+      val connector = injector.instanceOf[RegistrationConnector]
+      recoverToSucceededIf[IllegalArgumentException] {
+        connector.registerWithNoIdOrganisation(organisation.organisationName, expectedAddress(uk = false).toAddress, legalStatus)
+      }
+    }
 
   }
 
@@ -540,7 +529,7 @@ class RegistrationConnectorSpec extends AsyncWordSpec with MustMatchers with Opt
       )
 
       val connector = injector.instanceOf[RegistrationConnector]
-      recoverToSucceededIf[NotFoundException] {
+      recoverToSucceededIf[IllegalArgumentException] {
         connector.registerWithNoIdIndividual(firstName, lastName, expectedAddress(uk = false).toAddress, individualDateOfBirth)
       }
 

@@ -16,14 +16,14 @@
 
 package connectors
 
-import com.google.inject.{ImplementedBy, Inject}
+import com.google.inject.Inject
 import config.FrontendAppConfig
 import play.api.Logger
 import play.api.http.Status
 import play.api.libs.json._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Try}
 
@@ -41,7 +41,7 @@ class IdentityVerificationConnector @Inject()(http: HttpClient, appConfig: Front
       "confidenceLevel" -> 200
     )
 
-    http.POST(appConfig.ivRegisterOrganisationAsIndividualUrl, jsonData).map { response =>
+    http.POST[JsValue, HttpResponse](appConfig.ivRegisterOrganisationAsIndividualUrl, jsonData).map { response =>
       require(response.status == Status.CREATED)
       (response.json \ "link").validate[String] match {
         case JsSuccess(value, _) => value
@@ -55,11 +55,7 @@ class IdentityVerificationConnector @Inject()(http: HttpClient, appConfig: Front
   def retrieveNinoFromIV(journeyId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] = {
     val url = s"${appConfig.identityVerification}/identity-verification/journey/$journeyId"
 
-    implicit val rds: HttpReads[HttpResponse] = new HttpReads[HttpResponse] {
-      override def read(method: String, url: String, response: HttpResponse): HttpResponse = response
-    }
-
-    http.GET(url).flatMap {
+    http.GET[HttpResponse](url).flatMap {
       case response if response.status equals Status.OK =>
         Future.successful((response.json \ "nino").asOpt[String])
       case response =>
