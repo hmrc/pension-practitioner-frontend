@@ -66,7 +66,6 @@ class IndividualAddressController @Inject()(override val messagesApi: MessagesAp
     }
 
   private def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Form[Address] => JsObject = {
-        println("\n\n\n countruses: "+jsonCountries(form.data.get("country"), config)(request2Messages))
     form =>
       Json.obj(
         "form" -> form,

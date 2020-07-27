@@ -36,31 +36,34 @@ import scala.concurrent.{ExecutionContext, Future}
 trait ManualAddressController extends FrontendBaseController with Retrievals {
 
   protected def renderer: Renderer
+
   protected def userAnswersCacheConnector: UserAnswersCacheConnector
+
   protected def navigator: CompoundNavigator
+
   protected def form(implicit messages: Messages): Form[Address]
+
   protected def viewTemplate = "address/manualAddress.njk"
 
   def get(json: Form[Address] => JsObject)
          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
-    println("\n\n\n json: "+form)
     renderer.render(viewTemplate, json(form)).map(Ok(_))
   }
 
   def post(mode: Mode, json: Form[Address] => JsObject, addressPage: QuestionPage[Address])
           (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
-        form.bindFromRequest().fold(
-          formWithErrors =>
-            renderer.render(viewTemplate, json(formWithErrors)).map(BadRequest(_)),
-          value =>
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(addressPage, value))
-                _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-              } yield {
-                Redirect(navigator.nextPage(addressPage, mode, updatedAnswers))
-              }
+    form.bindFromRequest().fold(
+      formWithErrors =>
+        renderer.render(viewTemplate, json(formWithErrors)).map(BadRequest(_)),
+      value =>
+        for {
+          updatedAnswers <- Future.fromTry(request.userAnswers.set(addressPage, value))
+          _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+        } yield {
+          Redirect(navigator.nextPage(addressPage, mode, updatedAnswers))
+        }
 
-        )
+    )
   }
 
   private def countryJsonElement(tuple: (String, String), isSelected: Boolean): JsArray = Json.arr(
@@ -79,7 +82,6 @@ trait ManualAddressController extends FrontendBaseController with Retrievals {
   )
 
   def jsonCountries(countrySelected: Option[String], config: FrontendAppConfig)(implicit messages: Messages): JsArray = {
-    println("\n\n\n countrySelected : "+countrySelected)
     config.validCountryCodes
       .map(countryCode => (countryCode, messages(s"country.$countryCode")))
       .sortWith(_._2 < _._2)
