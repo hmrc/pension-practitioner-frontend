@@ -35,15 +35,6 @@ class RegistrationConnectorSpec extends AsyncWordSpec with MustMatchers with Opt
 
   import RegistrationConnectorSpec._
 
-  //  override protected lazy val app: Application =
-  //    new GuiceApplicationBuilder()
-  //      .configure(
-  //        portConfigKey -> server.port().toString,
-  //        "auditing.enabled" -> false,
-  //        "metrics.enabled" -> false
-  //      )
-  //      .build()
-
   override protected def portConfigKey: String = "microservice.services.pension-practitioner.port"
 
   private implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
