@@ -24,7 +24,7 @@
 
         <h1 class="govuk-heading-xl">{{messages("email.title", viewmodel.entityName)}}</h1>
 
-         <p class="govuk-body"> {{ messages("email.hint") }} </p>
+         <p class="govuk-body"> {{ messages("email.hint", viewmodel.entityName) }} </p>
 
         <form action="{{ viewmodel.submitUrl }}" method="post" novalidate>
 

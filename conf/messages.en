@@ -435,8 +435,8 @@ country.ZW = Zimbabwe
 country.JM = Jamaica
 country.EE = Estonia
 
-tellHMRC.title = You need to update {0}՚s details before registering
-tellHMRC.heading = You need to update {0}՚s details before registering
+tellHMRC.title = You need to update {0}’s details before registering
+tellHMRC.heading = You need to update {0}’s details before registering
 tellHMRC.p1 = You need to tell:
 tellHMRC.companiesHouse = Companies House
 tellHMRC.aboutBusiness = HMRC about changes to your business
@@ -448,12 +448,12 @@ tellHMRC.hmrc = HMRC
 email.error.invalid = Enter an email address in the correct format, like name@example.com
 email.error.required = Enter {0}’s email address
 email.title = What is {0}’s email address?
-email.hint = We will only use this to contact about pension scheme practitioners.
+email.hint = We will only use this to contact {0} about pension scheme practitioners.
 
 phone.error.required = Enter {0}’s phone number
 phone.error.invalid = Enter a phone number in the correct format
 phone.title = What is {0}’s phone number?
-phone.hint = We will only use this to contact about pension scheme practitioners.
+phone.hint = We will only use this to contact {0} about pension scheme practitioners.
 
 cya.companyName = Company name
 cya.utr = UTR
@@ -503,9 +503,6 @@ confirmation.list.text = You only need one practitioner ID, even if you are a pr
 confirmation.print = Print
 confirmation.print.page.link.text = Print this page
 confirmation.save.page.link.text = Save this page (55KB)
-individual.email.title = What is your email address?
-individual.email.hint = We will only use this to contact you about pension scheme practitioners.
-individual.email.error.required = Enter your email address
 
 individual.phone.title = What is your phone number?
 individual.phone.hint = We will only use this to contact you about pension scheme practitioners.
