@@ -56,6 +56,7 @@ unauthorised.heading = You can’t access this service with this account
 company = the company
 partnership = the partnership
 company.capitalised = The company
+partnership.capitalised = The partnership
 individual.you = you
 
 whatTypeBusiness.title = Who are you registering as a scheme practitioner?
@@ -109,8 +110,10 @@ businessUTR.heading = What is the Unique Taxpayer Reference (UTR) of the {0} you
 businessUTR.p1 = This is a 10-digit or 13-digit number. You can find it on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
 businessUTR.p2 = If the UTR is 13 numbers, only enter the last 10.
 businessUTR.p3 = If there is a letter ‘K’ at the end of the number, do not enter it.
-businessUTR.error.required = Enter the UTR of the company you want to register
-businessUTR.error.invalid = Enter the company’s UTR in the correct format
+businessUTR.company.error.required = Enter the UTR of the company you want to register
+businessUTR.company.error.invalid = Enter the company’s UTR in the correct format
+businessUTR.partnership.error.required = Enter the UTR of the partnership you want to register
+businessUTR.partnership.error.invalid = Enter the partnership’s UTR in the correct format
 
 businessName.title = What is {0}’s name?
 businessName.heading = What is {0}’s name?
@@ -147,7 +150,7 @@ addressList.select = Select the address from the list or
 
 address.title = What is {0}’s address?
 address.line1 = Address line 1
-address.line2 = Address line 2 (optional)
+address.line2 = Address line 2
 address.line3 = Address line 3 (optional)
 address.line4 = Address line 4 (optional)
 address.postcode = Postcode
@@ -432,8 +435,8 @@ country.ZW = Zimbabwe
 country.JM = Jamaica
 country.EE = Estonia
 
-tellHMRC.title = You need to update {0}՚s details before registering
-tellHMRC.heading = You need to update {0}՚s details before registering
+tellHMRC.title = You need to update {0}’s details before registering
+tellHMRC.heading = You need to update {0}’s details before registering
 tellHMRC.p1 = You need to tell:
 tellHMRC.companiesHouse = Companies House
 tellHMRC.aboutBusiness = HMRC about changes to your business
@@ -445,12 +448,12 @@ tellHMRC.hmrc = HMRC
 email.error.invalid = Enter an email address in the correct format, like name@example.com
 email.error.required = Enter {0}’s email address
 email.title = What is {0}’s email address?
-email.hint = We will only use this to contact about pension scheme practitioners.
+email.hint = We will only use this to contact {0} about pension scheme practitioners.
 
 phone.error.required = Enter {0}’s phone number
 phone.error.invalid = Enter a phone number in the correct format
 phone.title = What is {0}’s phone number?
-phone.hint = We will only use this to contact about pension scheme practitioners.
+phone.hint = We will only use this to contact {0} about pension scheme practitioners.
 
 cya.companyName = Company name
 cya.utr = UTR
@@ -466,6 +469,8 @@ cya.individual.email = What is your email address?
 cya.individual.change.email = your email address?
 cya.individual.phone = What is your phone number?
 cya.individual.change.phone = your phone number?
+
+cya.partnershipName = Partnership name
 
 useAddressForContact.title = Can HMRC use this address to contact {0}?
 useAddressForContact.error.required = Select yes if HMRC can use this address to contact {0}
@@ -498,9 +503,6 @@ confirmation.list.text = You only need one practitioner ID, even if you are a pr
 confirmation.print = Print
 confirmation.print.page.link.text = Print this page
 confirmation.save.page.link.text = Save this page (55KB)
-individual.email.title = What is your email address?
-individual.email.hint = We will only use this to contact you about pension scheme practitioners.
-individual.email.error.required = Enter your email address
 
 individual.phone.title = What is your phone number?
 individual.phone.hint = We will only use this to contact you about pension scheme practitioners.

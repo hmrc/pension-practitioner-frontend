@@ -44,7 +44,7 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
   private val companyName: String = "Company name"
   private val application: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
-  private val templateToBeRendered = "company/confirmation.njk"
+  private val templateToBeRendered = "register/confirmation.njk"
   private val pspId = "1234567890"
   private val email = "a@a.c"
 

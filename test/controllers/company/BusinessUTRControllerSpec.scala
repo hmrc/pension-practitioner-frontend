@@ -43,7 +43,7 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
   private def onwardRoute = Call("GET", "/foo")
 
   private val formProvider = new BusinessUTRFormProvider
-  private val form = formProvider.apply
+  private val form = formProvider.apply()
 
   private val validUTR = "1234567890"
 

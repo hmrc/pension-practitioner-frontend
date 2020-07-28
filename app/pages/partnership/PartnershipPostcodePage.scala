@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-package forms
+package pages.partnership
 
-import forms.mappings.UtrMapping
-import play.api.data.Form
+import models.TolerantAddress
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-class BusinessUTRFormProvider extends FormErrorHelper with UtrMapping {
+case object PartnershipPostcodePage extends QuestionPage[Seq[TolerantAddress]] {
 
-  def apply(requiredKey: String = "businessUTR.company.error.required",
-            invalidKey: String = "businessUTR.company.error.invalid"): Form[String] =
-    Form(
-      "value" ->
-        utrMapping(
-          requiredKey,
-          invalidKey
-        )
-    )
+  override def path: JsPath = JsPath \ toString
+  override def toString: String = "postcode"
 }

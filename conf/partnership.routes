@@ -12,5 +12,46 @@ POST       /confirm-address                  controllers.partnership.ConfirmAddr
 
 GET        /you-need-to-tell-hmrc                       controllers.partnership.TellHMRCController.onPageLoad()
 
+GET        /is-your-registered-address-same           controllers.partnership.PartnershipUseSameAddressController.onPageLoad()
+POST       /is-your-registered-address-same           controllers.partnership.PartnershipUseSameAddressController.onSubmit()
+
+GET        /addresses/postcode                        controllers.partnership.PartnershipPostcodeController.onPageLoad(mode: Mode = NormalMode)
+POST       /addresses/postcode                        controllers.partnership.PartnershipPostcodeController.onSubmit(mode: Mode = NormalMode)
+GET        /addresses/change-postcode                 controllers.partnership.PartnershipPostcodeController.onPageLoad(mode: Mode = CheckMode)
+POST       /addresses/change-postcode                 controllers.partnership.PartnershipPostcodeController.onSubmit(mode: Mode = CheckMode)
+
+GET        /addresses/address-results                 controllers.partnership.PartnershipAddressListController.onPageLoad(mode: Mode = NormalMode)
+POST       /addresses/address-results                 controllers.partnership.PartnershipAddressListController.onSubmit(mode: Mode = NormalMode)
+GET        /addresses/change-address-results          controllers.partnership.PartnershipAddressListController.onPageLoad(mode: Mode = CheckMode)
+POST       /addresses/change-address-results          controllers.partnership.PartnershipAddressListController.onSubmit(mode: Mode = CheckMode)
+
+GET        /addresses/address-manual                  controllers.partnership.PartnershipAddressController.onPageLoad(mode: Mode = NormalMode)
+POST       /addresses/address-manual                  controllers.partnership.PartnershipAddressController.onSubmit(mode: Mode = NormalMode)
+GET        /addresses/change-address-manual           controllers.partnership.PartnershipAddressController.onPageLoad(mode: Mode = CheckMode)
+POST       /addresses/change-address-manual           controllers.partnership.PartnershipAddressController.onSubmit(mode: Mode = CheckMode)
+
+GET        /contact-details/contact-email             controllers.partnership.PartnershipEmailController.onPageLoad(mode: Mode = NormalMode)
+POST       /contact-details/contact-email             controllers.partnership.PartnershipEmailController.onSubmit(mode: Mode = NormalMode)
+GET        /contact-details/change-contact-email      controllers.partnership.PartnershipEmailController.onPageLoad(mode: Mode = CheckMode)
+POST       /contact-details/change-contact-email      controllers.partnership.PartnershipEmailController.onSubmit(mode: Mode = CheckMode)
+
+GET        /contact-details/contact-phone             controllers.partnership.PartnershipPhoneController.onPageLoad(mode: Mode = NormalMode)
+POST       /contact-details/contact-phone             controllers.partnership.PartnershipPhoneController.onSubmit(mode: Mode = NormalMode)
+GET        /contact-details/change-contact-phone      controllers.partnership.PartnershipPhoneController.onPageLoad(mode: Mode = CheckMode)
+POST       /contact-details/change-contact-phone      controllers.partnership.PartnershipPhoneController.onSubmit(mode: Mode = CheckMode)
+
+GET        /check-your-answers                        controllers.partnership.CheckYourAnswersController.onPageLoad
+
+GET        /declaration                                     controllers.partnership.DeclarationController.onPageLoad()
+POST        /declaration                               controllers.partnership.DeclarationController.onSubmit()
+
+GET        /registration-successful                         controllers.partnership.ConfirmationController.onPageLoad()
+
+
+
+
+
+
+
 
 

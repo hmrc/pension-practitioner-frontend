@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.partnership
 
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
@@ -25,8 +25,7 @@ import javax.inject.Inject
 import models.Mode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
-import pages.company.{CompanyAddressListPage, CompanyAddressPage, CompanyPostcodePage}
-import pages.company.BusinessNamePage
+import pages.partnership.{BusinessNamePage, PartnershipAddressListPage, PartnershipAddressPage, PartnershipPostcodePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
@@ -38,22 +37,22 @@ import viewmodels.CommonViewModel
 
 import scala.concurrent.ExecutionContext
 
-class CompanyAddressListController @Inject()(override val messagesApi: MessagesApi,
-                                             val userAnswersCacheConnector: UserAnswersCacheConnector,
-                                             val navigator: CompoundNavigator,
-                                             identify: IdentifierAction,
-                                             getData: DataRetrievalAction,
-                                             requireData: DataRequiredAction,
-                                             formProvider: AddressListFormProvider,
-                                             val controllerComponents: MessagesControllerComponents,
-                                             countryOptions: CountryOptions,
-                                             val renderer: Renderer
+class PartnershipAddressListController @Inject()(override val messagesApi: MessagesApi,
+                                                 val userAnswersCacheConnector: UserAnswersCacheConnector,
+                                                 val navigator: CompoundNavigator,
+                                                 identify: IdentifierAction,
+                                                 getData: DataRetrievalAction,
+                                                 requireData: DataRequiredAction,
+                                                 formProvider: AddressListFormProvider,
+                                                 val controllerComponents: MessagesControllerComponents,
+                                                 countryOptions: CountryOptions,
+                                                 val renderer: Renderer
                                          )(implicit ec: ExecutionContext) extends AddressListController
                                           with Retrievals with I18nSupport with NunjucksSupport {
 
 
   def form(implicit messages: Messages): Form[Int] =
-    formProvider(messages("addressList.error.required", messages("company")))
+    formProvider(messages("addressList.error.required", messages("partnership")))
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {
@@ -64,23 +63,23 @@ class CompanyAddressListController @Inject()(override val messagesApi: MessagesA
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {
       implicit request =>
-        val addressPages: AddressPages = AddressPages(CompanyPostcodePage, CompanyAddressListPage, CompanyAddressPage)
+        val addressPages: AddressPages = AddressPages(PartnershipPostcodePage, PartnershipAddressListPage, PartnershipAddressPage)
         getFormToJson(mode).retrieve.right.map(post(mode, _, addressPages))
     }
 
   def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Int] => JsObject] =
     Retrieval(
       implicit request =>
-      (BusinessNamePage and CompanyPostcodePage).retrieve.right.map {
-        case companyName ~ addresses =>
+      (BusinessNamePage and PartnershipPostcodePage).retrieve.right.map {
+        case partnershipName ~ addresses =>
           form => Json.obj(
             "form" -> form,
             "addresses" -> transformAddressesForTemplate(addresses, countryOptions),
             "viewmodel" -> CommonViewModel(
-              "company",
-              companyName,
-              routes.CompanyAddressListController.onSubmit(mode).url,
-              Some(routes.CompanyAddressController.onPageLoad(mode).url)
+              "partnership",
+              partnershipName,
+              routes.PartnershipAddressListController.onSubmit(mode).url,
+              Some(routes.PartnershipAddressController.onPageLoad(mode).url)
             ))
       }
   )

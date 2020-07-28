@@ -19,13 +19,13 @@ package forms
 import forms.behaviours.UtrBehaviour
 
 class BusinessUTRFormProviderSpec extends UtrBehaviour {
-  val requiredKey = "businessUTR.error.required"
-  val invalidKey = "businessUTR.error.invalid"
+  val requiredKey = "businessUTR.company.error.required"
+  val invalidKey = "businessUTR.company.error.invalid"
 
   private val fieldName: String = "value"
 
   "A form with a Utr" should {
-    val testForm = (new BusinessUTRFormProvider).apply
+    val testForm = (new BusinessUTRFormProvider).apply()
 
     behave like formWithUniqueTaxReference[String](
       testForm,

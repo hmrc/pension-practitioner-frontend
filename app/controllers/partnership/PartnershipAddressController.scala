@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.partnership
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
@@ -26,8 +26,7 @@ import javax.inject.Inject
 import models.requests.DataRequest
 import models.{Address, Mode}
 import navigators.CompoundNavigator
-import pages.company.CompanyAddressPage
-import pages.company.BusinessNamePage
+import pages.partnership.{BusinessNamePage, PartnershipAddressPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
@@ -38,16 +37,16 @@ import viewmodels.CommonViewModel
 
 import scala.concurrent.ExecutionContext
 
-class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
-                                         val userAnswersCacheConnector: UserAnswersCacheConnector,
-                                         val navigator: CompoundNavigator,
-                                         identify: IdentifierAction,
-                                         getData: DataRetrievalAction,
-                                         requireData: DataRequiredAction,
-                                         formProvider: AddressFormProvider,
-                                         val controllerComponents: MessagesControllerComponents,
-                                         val config: FrontendAppConfig,
-                                         val renderer: Renderer
+class PartnershipAddressController @Inject()(override val messagesApi: MessagesApi,
+                                             val userAnswersCacheConnector: UserAnswersCacheConnector,
+                                             val navigator: CompoundNavigator,
+                                             identify: IdentifierAction,
+                                             getData: DataRetrievalAction,
+                                             requireData: DataRequiredAction,
+                                             formProvider: AddressFormProvider,
+                                             val controllerComponents: MessagesControllerComponents,
+                                             val config: FrontendAppConfig,
+                                             val renderer: Renderer
                                          )(implicit ec: ExecutionContext) extends ManualAddressController
   with Retrievals with I18nSupport with NunjucksSupport {
 
@@ -62,19 +61,19 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {
       implicit request =>
-        getFormToJson(mode).retrieve.right.map(post(mode, _, CompanyAddressPage))
+        getFormToJson(mode).retrieve.right.map(post(mode, _, PartnershipAddressPage))
     }
 
   def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Address] => JsObject] =
     Retrieval(
       implicit request =>
-        BusinessNamePage.retrieve.right.map { companyName =>
+        BusinessNamePage.retrieve.right.map { partnershipName =>
             form => Json.obj(
               "form" -> form,
               "viewmodel" -> CommonViewModel(
-                "company",
-                companyName,
-                routes.CompanyAddressController.onSubmit(mode).url),
+                "partnership",
+                partnershipName,
+                routes.PartnershipAddressController.onSubmit(mode).url),
               "countries" -> jsonCountries(form.data.get("country"), config)(request2Messages))
         }
     )
