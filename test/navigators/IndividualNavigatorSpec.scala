@@ -30,6 +30,9 @@ class IndividualNavigatorSpec extends NavigatorBehaviour {
   private def uaIsThisYou(flag: Boolean): UserAnswers = SampleData
     .emptyUserAnswers.setOrException(IsThisYouPage, flag)
 
+  private def areYouUKResident(flag: Boolean): UserAnswers = SampleData
+    .emptyUserAnswers.setOrException(AreYouUKResidentPage, flag)
+
   private def uaUseAddressForContact(flag: Boolean): UserAnswers = SampleData
     .emptyUserAnswers.setOrException(UseAddressForContactPage, flag)
 
@@ -38,7 +41,9 @@ class IndividualNavigatorSpec extends NavigatorBehaviour {
       Table(
         ("Id", "UserAnswers", "Next Page"),
         row(WhatYouWillNeedPage)(controllers.individual.routes.AreYouUKResidentController.onPageLoad()),
-        row(AreYouUKResidentPage)(controllers.individual.routes.IsThisYouController.onPageLoad(NormalMode)),
+        row(AreYouUKResidentPage)(controllers.individual.routes.IsThisYouController.onPageLoad(NormalMode), Some(areYouUKResident(true))),
+        row(AreYouUKResidentPage)(controllers.individual.routes.IndividualNameController.onPageLoad(), Some(areYouUKResident(false))),
+        row(AreYouUKResidentPage)(controllers.routes.SessionExpiredController.onPageLoad(), None),
         row(IsThisYouPage)(controllers.individual.routes.YouNeedToTellHMRCController.onPageLoad(), Some(uaIsThisYou(false))),
         row(IsThisYouPage)(controllers.individual.routes.UseAddressForContactController.onPageLoad(NormalMode), Some(uaIsThisYou(true))),
         row(IsThisYouPage)(controllers.routes.SessionExpiredController.onPageLoad(), None),

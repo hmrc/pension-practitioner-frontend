@@ -27,7 +27,15 @@ class IndividualNavigator
   //scalastyle:off cyclomatic.complexity
   override protected def routeMap(ua: UserAnswers): PartialFunction[Page, Call] = {
     case WhatYouWillNeedPage => controllers.individual.routes.AreYouUKResidentController.onPageLoad()
-    case AreYouUKResidentPage => controllers.individual.routes.IsThisYouController.onPageLoad(NormalMode)
+    case AreYouUKResidentPage =>
+      ua.get(AreYouUKResidentPage) match {
+        case Some(true) =>
+          controllers.individual.routes.IsThisYouController.onPageLoad(NormalMode)
+        case Some(false) =>
+          controllers.individual.routes.IndividualNameController.onPageLoad()
+        case _ =>
+          controllers.routes.SessionExpiredController.onPageLoad()
+      }
     case IsThisYouPage =>
       ua.get(IsThisYouPage) match {
         case Some(true) =>

@@ -47,3 +47,7 @@ GET        /declaration                                     controllers.individu
 POST        /declaration                            controllers.individual.DeclarationController.onSubmit()
 
 GET        /registration-successful                         controllers.individual.ConfirmationController.onPageLoad()
+
+GET        /non-uk/what-is-your-name                      controllers.individual.IndividualNameController.onPageLoad(mode: Mode = NormalMode)
+POST       /non-uk/what-is-your-name                      controllers.individual.IndividualNameController.onSubmit(mode: Mode = NormalMode)
+

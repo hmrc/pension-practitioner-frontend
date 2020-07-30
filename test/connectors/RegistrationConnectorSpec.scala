@@ -26,6 +26,7 @@ import play.api.Application
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsResultException, Json}
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
@@ -204,7 +205,7 @@ class RegistrationConnectorSpec extends AsyncWordSpec with MustMatchers with Opt
     "return the individual and address given a valid NINO" in {
       server.stubFor(
         post(urlEqualTo(individualPath))
-          .withHeader("nino", equalTo("test-nino"))
+          .withHeader("nino", equalTo("AB100100A"))
           .willReturn(
             aResponse()
               .withStatus(Status.OK)
@@ -255,7 +256,7 @@ class RegistrationConnectorSpec extends AsyncWordSpec with MustMatchers with Opt
         noIdentifier = false,
         RegistrationCustomerType.UK,
         Some(RegistrationIdType.Nino),
-        Some(nino)
+        Some(nino.nino)
       )
 
       server.stubFor(
@@ -283,7 +284,7 @@ class RegistrationConnectorSpec extends AsyncWordSpec with MustMatchers with Opt
         noIdentifier = false,
         RegistrationCustomerType.NonUK,
         Some(RegistrationIdType.Nino),
-        Some(nino)
+        Some(nino.nino)
       )
 
       server.stubFor(
@@ -540,7 +541,7 @@ class RegistrationConnectorSpec extends AsyncWordSpec with MustMatchers with Opt
 
 object RegistrationConnectorSpec extends OptionValues {
   private val utr = "test-utr"
-  private val nino = "test-nino"
+  private val nino = Nino("AB100100A")
   private val sapNumber = "test-sap-number"
 
   private val organisationPath = "/pension-practitioner/register-with-id/organisation"

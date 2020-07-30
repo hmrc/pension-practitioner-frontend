@@ -530,3 +530,15 @@ businessDetailsNotFound.reason2.contactTaxHelpline = you only need to contact th
 businessDetailsNotFound.reason3.h2 = Your Unique Taxpayer Reference (UTR) does not match
 businessDetailsNotFound.reason3.p1 = Your Unique Taxpayer Reference is made up of 10 or 13 numbers. If it is 13, only enter the last 10.
 businessDetailsNotFound.enterAgain = Enter details again
+
+individual.firstName.error.required = Enter your first name
+individual.lastName.error.required = Enter your last name
+individual.firstName.error.length = The first name cannot be more than 35 characters
+individual.lastName.error.length = The last name cannot be more than 35 characters
+individual.firstName.error.invalid = The first name must only include letters, spaces, ampersands, dashes, grave accents, apostrophes, carets and full stops
+individual.lastName.error.invalid = The last name must only include letters, spaces, ampersands, dashes, grave accents, apostrophes, carets and full stops
+
+individual.name.title = What is your name?
+individual.firstName.label = First name
+individual.lastName.label = Last name
+

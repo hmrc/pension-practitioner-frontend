@@ -17,9 +17,10 @@
 package models.requests
 
 import models.requests.UserType.UserType
+import uk.gov.hmrc.domain.Nino
 
 case class PSPUser(userType: UserType,
-                   nino: Option[String],
+                   nino: Option[Nino],
                    isExistingPSP: Boolean,
                    existingPSPId: Option[String],
                    alreadyEnrolledPspId: Option[String] = None,
