@@ -44,6 +44,8 @@ class IndividualNavigatorSpec extends NavigatorBehaviour {
         row(AreYouUKResidentPage)(controllers.individual.routes.IsThisYouController.onPageLoad(NormalMode), Some(areYouUKResident(true))),
         row(AreYouUKResidentPage)(controllers.individual.routes.IndividualNameController.onPageLoad(), Some(areYouUKResident(false))),
         row(AreYouUKResidentPage)(controllers.routes.SessionExpiredController.onPageLoad(), None),
+        row(IndividualDetailsPage)(controllers.individual.routes.IndividualNonUKAddressController.onPageLoad(NormalMode), None),
+        row(IndividualAddressPage)(controllers.individual.routes.UseAddressForContactController.onPageLoad(NormalMode), None),
         row(IsThisYouPage)(controllers.individual.routes.YouNeedToTellHMRCController.onPageLoad(), Some(uaIsThisYou(false))),
         row(IsThisYouPage)(controllers.individual.routes.UseAddressForContactController.onPageLoad(NormalMode), Some(uaIsThisYou(true))),
         row(IsThisYouPage)(controllers.routes.SessionExpiredController.onPageLoad(), None),
@@ -68,6 +70,7 @@ class IndividualNavigatorSpec extends NavigatorBehaviour {
         row(IndividualPostcodePage)(controllers.individual.routes.IndividualAddressListController.onPageLoad(CheckMode)),
         row(IndividualAddressListPage)(controllers.individual.routes.CheckYourAnswersController.onPageLoad()),
         row(IndividualManualAddressPage)(controllers.individual.routes.CheckYourAnswersController.onPageLoad()),
+        row(IndividualAddressPage)(controllers.individual.routes.CheckYourAnswersController.onPageLoad()),
         row(IndividualEmailPage)(controllers.individual.routes.CheckYourAnswersController.onPageLoad()),
         row(IndividualPhonePage)(controllers.individual.routes.CheckYourAnswersController.onPageLoad())
       )

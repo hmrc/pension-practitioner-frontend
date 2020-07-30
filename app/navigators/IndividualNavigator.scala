@@ -36,6 +36,10 @@ class IndividualNavigator
         case _ =>
           controllers.routes.SessionExpiredController.onPageLoad()
       }
+    case IndividualDetailsPage =>
+      controllers.individual.routes.IndividualNonUKAddressController.onPageLoad(NormalMode)
+    case IndividualAddressPage =>
+      controllers.individual.routes.UseAddressForContactController.onPageLoad(NormalMode)
     case IsThisYouPage =>
       ua.get(IsThisYouPage) match {
         case Some(true) =>
@@ -66,6 +70,7 @@ class IndividualNavigator
     case IndividualPostcodePage => controllers.individual.routes.IndividualAddressListController.onPageLoad(CheckMode)
     case IndividualAddressListPage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
     case IndividualManualAddressPage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
+    case IndividualAddressPage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
     case IndividualEmailPage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
     case IndividualPhonePage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
   }

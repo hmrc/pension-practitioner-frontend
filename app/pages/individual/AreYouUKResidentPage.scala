@@ -42,6 +42,16 @@ case object AreYouUKResidentPage extends QuestionPage[Boolean] {
           .remove(IsThisYouPage).toOption.getOrElse(userAnswers)
           .remove(UseAddressForContactPage).toOption.getOrElse(userAnswers)
           .remove(IndividualPhonePage).toOption
+      case Some(true) =>
+        userAnswers
+          .remove(IndividualDetailsPage).toOption.getOrElse(userAnswers)
+          .remove(IndividualAddressPage).toOption.getOrElse(userAnswers)
+          .remove(RegistrationInfoPage).toOption.getOrElse(userAnswers)
+          .remove(IndividualManualAddressPage).toOption.getOrElse(userAnswers)
+          .remove(IndividualEmailPage).toOption.getOrElse(userAnswers)
+          .remove(IsThisYouPage).toOption.getOrElse(userAnswers)
+          .remove(UseAddressForContactPage).toOption.getOrElse(userAnswers)
+          .remove(IndividualPhonePage).toOption
       case _ => None
     }
     super.cleanup(value, result.getOrElse(userAnswers))

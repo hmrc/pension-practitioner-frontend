@@ -54,5 +54,21 @@ class AreYouUKResidentPageSpec extends PageBehaviours {
       result.get(IndividualAddressListPage) mustNot be(defined)
       result.get(IndividualManualAddressPage) mustNot be(defined)
     }
+
+    "must clean up the data for all the non uk individual" in {
+      val result = ua.set(AreYouUKResidentPage, value = true).getOrElse(UserAnswers())
+
+      result.get(IndividualDetailsPage) mustNot be(defined)
+      result.get(UseAddressForContactPage) mustNot be(defined)
+      result.get(IndividualAddressPage) mustNot be(defined)
+      result.get(IndividualEmailPage) mustNot be(defined)
+      result.get(RegistrationInfoPage) mustNot be(defined)
+      result.get(IndividualPhonePage) mustNot be(defined)
+      result.get(IsThisYouPage) mustNot be(defined)
+      result.get(IndividualManualAddressPage) mustNot be(defined)
+
+      result.get(IndividualPostcodePage) must be(defined)
+      result.get(IndividualAddressListPage) must be(defined)
+    }
   }
 }
