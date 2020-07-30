@@ -66,7 +66,7 @@ class BusinessRegistrationTypeController @Inject()(override val messagesApi: Mes
           "radios" -> BusinessRegistrationType.radios(preparedForm)
         )
 
-        renderer.render("businessRegistrationType.njk", json).map(Ok(_))
+        renderer.render("register/businessRegistrationType.njk", json).map(Ok(_))
 
   }
 
@@ -83,7 +83,7 @@ class BusinessRegistrationTypeController @Inject()(override val messagesApi: Mes
               "radios" -> BusinessRegistrationType.radios(formWithErrors)
             )
 
-            renderer.render("businessRegistrationType.njk", json).map(BadRequest(_))
+            renderer.render("register/businessRegistrationType.njk", json).map(BadRequest(_))
           },
           value =>
             for {

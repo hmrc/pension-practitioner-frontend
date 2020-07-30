@@ -41,7 +41,7 @@ class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCo
       ua.get(AreYouUKCompanyPage) match {
         case Some(true) =>
           controllers.register.routes.BusinessTypeController.onPageLoad()
-        case _ => controllers.routes.SessionExpiredController.onPageLoad()
+        case _ => controllers.register.routes.BusinessRegistrationTypeController.onPageLoad()
       }
     case BusinessTypePage=>
       ua.get(BusinessTypePage) match {

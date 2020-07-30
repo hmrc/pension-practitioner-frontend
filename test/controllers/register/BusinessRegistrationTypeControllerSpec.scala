@@ -80,7 +80,7 @@ class BusinessRegistrationTypeControllerSpec extends ControllerSpecBase with Moc
         "radios" -> BusinessRegistrationType.radios(form)
       )
 
-      templateCaptor.getValue mustEqual "businessRegistrationType.njk"
+      templateCaptor.getValue mustEqual "register/businessRegistrationType.njk"
       jsonCaptor.getValue must containJson(expectedJson)
 
       application.stop()
@@ -111,7 +111,7 @@ class BusinessRegistrationTypeControllerSpec extends ControllerSpecBase with Moc
         "radios" -> BusinessRegistrationType.radios(filledForm)
       )
 
-      templateCaptor.getValue mustEqual "businessRegistrationType.njk"
+      templateCaptor.getValue mustEqual "register/businessRegistrationType.njk"
       jsonCaptor.getValue must containJson(expectedJson)
 
       application.stop()
@@ -165,7 +165,7 @@ class BusinessRegistrationTypeControllerSpec extends ControllerSpecBase with Moc
         "radios" -> BusinessRegistrationType.radios(boundForm)
       )
 
-      templateCaptor.getValue mustEqual "businessRegistrationType.njk"
+      templateCaptor.getValue mustEqual "register/businessRegistrationType.njk"
       jsonCaptor.getValue must containJson(expectedJson)
 
       application.stop()

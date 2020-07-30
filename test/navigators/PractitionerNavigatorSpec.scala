@@ -34,7 +34,7 @@ class PractitionerNavigatorSpec extends NavigatorBehaviour {
   private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
 
   private val uaCompanyOrPartnership = SampleData.emptyUserAnswers.setOrException(WhatTypeBusinessPage, WhatTypeBusiness.Companyorpartnership)
-  private val uaInUk = SampleData.emptyUserAnswers.setOrException(AreYouUKCompanyPage, true)
+  private def uaInUk(v:Boolean):UserAnswers = SampleData.emptyUserAnswers.setOrException(AreYouUKCompanyPage, v)
   private val uaBusinessTypeLimitedCompany = SampleData.emptyUserAnswers.setOrException(BusinessTypePage, BusinessType.LimitedCompany)
   private val uaBusinessTypeUnlimitedCompany = SampleData.emptyUserAnswers.setOrException(BusinessTypePage, BusinessType.UnlimitedCompany)
   private val uaIndividual = SampleData.emptyUserAnswers.setOrException(WhatTypeBusinessPage, WhatTypeBusiness.Yourselfasindividual)
@@ -47,7 +47,8 @@ class PractitionerNavigatorSpec extends NavigatorBehaviour {
         row(WhatTypeBusinessPage)(controllers.register.routes.WhatYouWillNeedController.onPageLoad(), Some(uaCompanyOrPartnership)),
         row(WhatTypeBusinessPage)(controllers.individual.routes.WhatYouWillNeedController.onPageLoad(), Some(uaIndividual)),
         row(WhatYouWillNeedPage)(controllers.register.routes.AreYouUKCompanyController.onPageLoad()),
-        row(AreYouUKCompanyPage)(controllers.register.routes.BusinessTypeController.onPageLoad(), Some(uaInUk)),
+        row(AreYouUKCompanyPage)(controllers.register.routes.BusinessTypeController.onPageLoad(), Some(uaInUk(true))),
+        row(AreYouUKCompanyPage)(controllers.register.routes.BusinessRegistrationTypeController.onPageLoad(), Some(uaInUk(false))),
         row(BusinessTypePage)(controllers.company.routes.BusinessUTRController.onPageLoad(), Some(uaBusinessTypeLimitedCompany)),
         row(BusinessTypePage)(controllers.company.routes.BusinessUTRController.onPageLoad(), Some(uaBusinessTypeUnlimitedCompany)),
         row(BusinessDetailsNotFoundPage)(controllers.routes.WhatTypeBusinessController.onPageLoad())
