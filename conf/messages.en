@@ -536,4 +536,4 @@ businessRegistrationType.heading = What is the business registered as?
 businessRegistrationType.company = Company
 businessRegistrationType.partnership = Partnership
 businessRegistrationType.checkYourAnswersLabel = What is the business registered as?
-businessRegistrationType.error.required = Select businessRegistrationType
+businessRegistrationType.error.required = Select if the business is registered as a company or partnership
