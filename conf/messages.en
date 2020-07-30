@@ -530,3 +530,10 @@ businessDetailsNotFound.reason2.contactTaxHelpline = you only need to contact th
 businessDetailsNotFound.reason3.h2 = Your Unique Taxpayer Reference (UTR) does not match
 businessDetailsNotFound.reason3.p1 = Your Unique Taxpayer Reference is made up of 10 or 13 numbers. If it is 13, only enter the last 10.
 businessDetailsNotFound.enterAgain = Enter details again
+
+businessRegistrationType.title = What is the business registered as?
+businessRegistrationType.heading = What is the business registered as?
+businessRegistrationType.company = Company
+businessRegistrationType.partnership = Partnership
+businessRegistrationType.checkYourAnswersLabel = What is the business registered as?
+businessRegistrationType.error.required = Select businessRegistrationType

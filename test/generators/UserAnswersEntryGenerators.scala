@@ -17,6 +17,7 @@
 package generators
 
 import models.WhatTypeBusiness
+import models.register.BusinessRegistrationType
 import models.register.BusinessType
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Arbitrary
@@ -25,11 +26,20 @@ import pages.register.BusinessTypePage
 import pages.register.AreYouUKCompanyPage
 import pages.company.ConfirmAddressPage
 import pages.company.{BusinessUTRPage, BusinessNamePage, ConfirmNamePage}
+import pages.register.BusinessRegistrationTypePage
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
 
 
 trait UserAnswersEntryGenerators extends PageGenerators with ModelGenerators {
+
+  implicit lazy val arbitraryBusinessRegistrationTypeUserAnswersEntry: Arbitrary[(BusinessRegistrationTypePage.type, JsValue)] =
+    Arbitrary {
+      for {
+        page  <- arbitrary[BusinessRegistrationTypePage.type]
+        value <- arbitrary[BusinessRegistrationType].map(Json.toJson(_))
+      } yield (page, value)
+    }
 
   implicit lazy val arbitraryConfirmAddressUserAnswersEntry: Arbitrary[(ConfirmAddressPage.type, JsValue)] =
     Arbitrary {

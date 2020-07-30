@@ -24,9 +24,15 @@ import java.time.LocalDate
 import java.time.Instant
 
 import models.WhatTypeBusiness
+import models.register.BusinessRegistrationType
 import models.register.BusinessType
 
 trait ModelGenerators {
+
+  implicit lazy val arbitraryBusinessRegistrationType: Arbitrary[BusinessRegistrationType] =
+    Arbitrary {
+      Gen.oneOf(BusinessRegistrationType.values.toSeq)
+    }
 
   implicit lazy val arbitraryBusinessType: Arbitrary[BusinessType] =
     Arbitrary {

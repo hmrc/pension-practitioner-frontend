@@ -29,6 +29,7 @@ POST       /are-you-in-the-uk-company                       controllers.register
 GET        /business-type                                   controllers.register.BusinessTypeController.onPageLoad()
 POST       /business-type                                   controllers.register.BusinessTypeController.onSubmit()
 
-
-
 GET        /business-details-not-found                      controllers.register.BusinessDetailsNotFoundController.onPageLoad()
+
+GET        /what-is-business-registered-as                        controllers.register.BusinessRegistrationTypeController.onPageLoad()
+POST       /what-is-business-registered-as                        controllers.register.BusinessRegistrationTypeController.onSubmit()

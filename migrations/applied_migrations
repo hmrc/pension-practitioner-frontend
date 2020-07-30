@@ -1,15 +1,81 @@
 #!/bin/bash
 
 echo ""
-echo "Applying migration BusinessDetailsNotFound"
+echo "Applying migration BusinessRegistrationType"
 
 echo "Adding routes to conf/app.routes"
+
 echo "" >> ../conf/app.routes
-echo "GET        /businessDetailsNotFound                       controllers.BusinessDetailsNotFoundController.onPageLoad()" >> ../conf/app.routes
+echo "GET        /businessRegistrationType                        controllers.BusinessRegistrationTypeController.onPageLoad(mode: Mode = NormalMode)" >> ../conf/app.routes
+echo "POST       /businessRegistrationType                        controllers.BusinessRegistrationTypeController.onSubmit(mode: Mode = NormalMode)" >> ../conf/app.routes
+
+echo "GET        /changeBusinessRegistrationType                  controllers.BusinessRegistrationTypeController.onPageLoad(mode: Mode = CheckMode)" >> ../conf/app.routes
+echo "POST       /changeBusinessRegistrationType                  controllers.BusinessRegistrationTypeController.onSubmit(mode: Mode = CheckMode)" >> ../conf/app.routes
 
 echo "Adding messages to conf.messages"
 echo "" >> ../conf/messages.en
-echo "businessDetailsNotFound.title = businessDetailsNotFound" >> ../conf/messages.en
-echo "businessDetailsNotFound.heading = businessDetailsNotFound" >> ../conf/messages.en
+echo "businessRegistrationType.title = What is the business registered as?" >> ../conf/messages.en
+echo "businessRegistrationType.heading = What is the business registered as?" >> ../conf/messages.en
+echo "businessRegistrationType.company = Company" >> ../conf/messages.en
+echo "businessRegistrationType.partnership = Partnership" >> ../conf/messages.en
+echo "businessRegistrationType.checkYourAnswersLabel = What is the business registered as?" >> ../conf/messages.en
+echo "businessRegistrationType.error.required = Select businessRegistrationType" >> ../conf/messages.en
 
-echo "Migration BusinessDetailsNotFound completed"
+echo "Adding to UserAnswersEntryGenerators"
+awk '/trait UserAnswersEntryGenerators/ {\
+    print;\
+    print "";\
+    print "  implicit lazy val arbitraryBusinessRegistrationTypeUserAnswersEntry: Arbitrary[(BusinessRegistrationTypePage.type, JsValue)] =";\
+    print "    Arbitrary {";\
+    print "      for {";\
+    print "        page  <- arbitrary[BusinessRegistrationTypePage.type]";\
+    print "        value <- arbitrary[BusinessRegistrationType].map(Json.toJson(_))";\
+    print "      } yield (page, value)";\
+    print "    }";\
+    next }1' ../test/generators/UserAnswersEntryGenerators.scala > tmp && mv tmp ../test/generators/UserAnswersEntryGenerators.scala
+
+echo "Adding to PageGenerators"
+awk '/trait PageGenerators/ {\
+    print;\
+    print "";\
+    print "  implicit lazy val arbitraryBusinessRegistrationTypePage: Arbitrary[BusinessRegistrationTypePage.type] =";\
+    print "    Arbitrary(BusinessRegistrationTypePage)";\
+    next }1' ../test/generators/PageGenerators.scala > tmp && mv tmp ../test/generators/PageGenerators.scala
+
+echo "Adding to ModelGenerators"
+awk '/trait ModelGenerators/ {\
+    print;\
+    print "";\
+    print "  implicit lazy val arbitraryBusinessRegistrationType: Arbitrary[BusinessRegistrationType] =";\
+    print "    Arbitrary {";\
+    print "      Gen.oneOf(BusinessRegistrationType.values.toSeq)";\
+    print "    }";\
+    next }1' ../test/generators/ModelGenerators.scala > tmp && mv tmp ../test/generators/ModelGenerators.scala
+
+echo "Adding to UserAnswersGenerator"
+awk '/val generators/ {\
+    print;\
+    print "    arbitrary[(BusinessRegistrationTypePage.type, JsValue)] ::";\
+    next }1' ../test/generators/UserAnswersGenerator.scala > tmp && mv tmp ../test/generators/UserAnswersGenerator.scala
+
+echo "Adding helper method to CheckYourAnswersHelper"
+awk '/class CheckYourAnswersHelper/ {\
+     print;\
+     print "";\
+     print "  def businessRegistrationType: Option[Row] = userAnswers.get(BusinessRegistrationTypePage) map {";\
+     print "    answer =>";\
+     print "      Row(";\
+     print "        key     = Key(msg\"businessRegistrationType.checkYourAnswersLabel\", classes = Seq(\"govuk-!-width-one-half\")),";\
+     print "        value   = Value(msg\"businessRegistrationType.$answer\"),";\
+     print "        actions = List(";\
+     print "          Action(";\
+     print "            content            = msg\"site.edit\",";\
+     print "            href               = controllers.routes.BusinessRegistrationTypeController.onPageLoad(CheckMode).url,";\
+     print "            visuallyHiddenText = Some(msg\"site.edit.hidden\".withArgs(msg\"businessRegistrationType.checkYourAnswersLabel\"))";\
+     print "          )";\
+     print "        )";\
+     print "      )";\
+     print "  }";\
+     next }1' ../app/utils/CYAHelper.scala > tmp && mv tmp ../app/utils/CYAHelper.scala
+
+echo "Migration BusinessRegistrationType completed"
