@@ -18,6 +18,7 @@ package controllers.company
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
+
 import controllers.Retrievals
 import controllers.actions._
 import controllers.address.ManualAddressController
@@ -65,39 +66,38 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {
       implicit request =>
-        get(getFormToJson(mode))
+        getFormToJson(mode).retrieve.right.map(get)
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {
       implicit request =>
-        post(mode, getFormToJson(mode), CompanyAddressPage)
+        getFormToJson(mode).retrieve.right.map(post(mode, _, CompanyAddressPage))
     }
 
-  def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]):Form[Address]=>JsObject = {
-    form =>
-      (request.userAnswers.get(AreYouUKCompanyPage), request.userAnswers.get(BusinessNamePage), request.userAnswers.get(CompanyAddressPage)) match {
-        case (Some(true), Some(companyName), _) =>
-          val json =  Json.obj(
-            "form" -> form,
-            "viewmodel" -> CommonViewModel(
-              "company",
-              companyName,
-              routes.CompanyAddressController.onSubmit(mode).url),
-            "countries" -> jsonCountries(form.data.get("country"), config)(request2Messages))
-          json
-        case (Some(false), Some(companyName), optionAddress) =>
-          val filledForm = optionAddress.fold(form)(form.fill)
-          val json =
-            Json.obj(
-              "form" -> filledForm,
+  def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Address] => JsObject] =
+    Retrieval(
+      implicit request =>
+        (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
+          case true ~ companyName =>
+            form => Json.obj(
+              "form" -> form,
               "viewmodel" -> CommonViewModel(
                 "company",
                 companyName,
                 routes.CompanyAddressController.onSubmit(mode).url),
               "countries" -> jsonCountries(form.data.get("country"), config)(request2Messages))
-          json
-        case _ => Json.obj()
-      }
-  }
+          case false ~ companyName =>
+            val optionAddress = request.userAnswers.get(CompanyAddressPage)
+            val filledForm = optionAddress.fold(form)(form.fill)
+            form =>
+              Json.obj(
+                "form" -> filledForm,
+                "viewmodel" -> CommonViewModel(
+                  "company",
+                  companyName,
+                  routes.CompanyAddressController.onSubmit(mode).url),
+                "countries" -> jsonCountries(form.data.get("country"), config)(request2Messages))
+        }
+    )
 }
