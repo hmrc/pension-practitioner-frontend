@@ -38,6 +38,7 @@ import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModel
 
 import scala.concurrent.{Future, ExecutionContext}
+import scala.util.Success
 import scala.util.Try
 
 class CompanyUseSameAddressController @Inject()(override val messagesApi: MessagesApi,
@@ -64,9 +65,19 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
       }
   }
 
+  private def retrieveTolerantAddress(implicit request:DataRequest[_]):Option[TolerantAddress] = {
+    (request.userAnswers.get(AreYouUKCompanyPage), request.userAnswers.get(ConfirmAddressPage),
+      request.userAnswers.get(CompanyAddressPage)) match {
+      case (Some(true), Some(address), _) =>
+        Some(address)
+      case (Some(false), _, Some(address)) =>
+        Some(address.toTolerantAddress)
+      case _ => None
+    }
+  }
+
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      ConfirmAddressPage.retrieve.right.map { address =>
         form.bindFromRequest().fold(
           formWithErrors => {
             getJson(formWithErrors) { json =>
@@ -74,24 +85,28 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
             }
           },
           value => {
-            val updatedUserAnswersTry: Try[UserAnswers] =
-              if (value) {
-              getResolvedAddress(address) match {
-                case None => request.userAnswers.set(CompanyUseSameAddressPage, false)
-                case Some(resolvedAddress) => request.userAnswers.set(CompanyUseSameAddressPage, value)
-                                      .flatMap(_.set(CompanyAddressPage, resolvedAddress))
-              }
-            } else {
-              request.userAnswers.set(CompanyUseSameAddressPage, value)
+            retrieveTolerantAddress match {
+              case Some(address) =>
+                val updatedUserAnswersTry: Try[UserAnswers] =
+                  if (value) {
+                      getResolvedAddress(address) match {
+                        case None =>
+                          request.userAnswers.set(CompanyUseSameAddressPage, false)
+                        case Some(resolvedAddress) =>
+                          request.userAnswers.set(CompanyUseSameAddressPage, value)
+                            .flatMap(_.set(CompanyAddressPage, resolvedAddress))
+                      }
+                  } else {
+                    request.userAnswers.set(CompanyUseSameAddressPage, value)
+                  }
+                for {
+                  updatedAnswers <- Future.fromTry(updatedUserAnswersTry)
+                  _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+                } yield Redirect(navigator.nextPage(CompanyUseSameAddressPage, NormalMode, updatedAnswers))
+              case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
             }
-
-            for {
-              updatedAnswers <- Future.fromTry(updatedUserAnswersTry)
-              _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-            } yield Redirect(navigator.nextPage(CompanyUseSameAddressPage, NormalMode, updatedAnswers))
           }
         )
-      }
   }
 
   private def getJson(form: Form[Boolean])(block: JsObject => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
