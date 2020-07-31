@@ -24,6 +24,8 @@ import models.NormalMode
 import models.UserAnswers
 import pages.Page
 import pages.company._
+import pages.register.AreYouUKCompanyPage
+import play.api.libs.json.Json
 import play.api.mvc.Call
 
 class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector)
@@ -32,7 +34,12 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
   //scalastyle:off cyclomatic.complexity
   override protected def routeMap(ua: UserAnswers): PartialFunction[Page, Call] = {
     case BusinessUTRPage => CompanyNameController.onPageLoad()
-    case BusinessNamePage => ConfirmNameController.onPageLoad()
+    case BusinessNamePage =>
+      ua.get(AreYouUKCompanyPage) match {
+        case Some(true) => ConfirmNameController.onPageLoad()
+        case _ => CompanyAddressController.onPageLoad(NormalMode)
+      }
+
     case ConfirmNamePage => ua.get(ConfirmNamePage) match {
         case Some(false) => TellHMRCController.onPageLoad()
         case _ => ConfirmAddressController.onPageLoad()
@@ -47,7 +54,11 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
     }
     case CompanyPostcodePage => CompanyAddressListController.onPageLoad(NormalMode)
     case CompanyAddressListPage => CompanyEmailController.onPageLoad(NormalMode)
-    case CompanyAddressPage => CompanyEmailController.onPageLoad(NormalMode)
+    case CompanyAddressPage =>
+      ua.get(AreYouUKCompanyPage) match {
+        case Some(true) => CompanyEmailController.onPageLoad(NormalMode)
+        case _ => CompanyUseSameAddressController.onPageLoad()
+      }
     case CompanyEmailPage => CompanyPhoneController.onPageLoad(NormalMode)
     case CompanyPhonePage => CheckYourAnswersController.onPageLoad()
     case DeclarationPage => controllers.company.routes.ConfirmationController.onPageLoad()

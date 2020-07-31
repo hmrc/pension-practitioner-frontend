@@ -26,6 +26,7 @@ import pages._
 import pages.register.BusinessTypePage
 import pages.register.AreYouUKCompanyPage
 import pages.register.BusinessDetailsNotFoundPage
+import pages.register.BusinessRegistrationTypePage
 import pages.register.WhatYouWillNeedPage
 import play.api.mvc.Call
 
@@ -51,7 +52,8 @@ class PractitionerNavigatorSpec extends NavigatorBehaviour {
         row(AreYouUKCompanyPage)(controllers.register.routes.BusinessRegistrationTypeController.onPageLoad(), Some(uaInUk(false))),
         row(BusinessTypePage)(controllers.company.routes.BusinessUTRController.onPageLoad(), Some(uaBusinessTypeLimitedCompany)),
         row(BusinessTypePage)(controllers.company.routes.BusinessUTRController.onPageLoad(), Some(uaBusinessTypeUnlimitedCompany)),
-        row(BusinessDetailsNotFoundPage)(controllers.routes.WhatTypeBusinessController.onPageLoad())
+        row(BusinessDetailsNotFoundPage)(controllers.routes.WhatTypeBusinessController.onPageLoad()),
+        row(BusinessRegistrationTypePage)(controllers.company.routes.CompanyNameController.onPageLoad())
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)

@@ -21,6 +21,7 @@ import connectors.cache.UserAnswersCacheConnector
 import models.{WhatTypeBusiness, UserAnswers}
 import models.register.BusinessType
 import pages.register.BusinessDetailsNotFoundPage
+import pages.register.BusinessRegistrationTypePage
 import pages.register.{AreYouUKCompanyPage, WhatYouWillNeedPage, BusinessTypePage}
 import pages.{WhatTypeBusinessPage, Page}
 import play.api.mvc.Call
@@ -58,6 +59,8 @@ class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCo
         case _ => controllers.routes.SessionExpiredController.onPageLoad()
       }
     case BusinessDetailsNotFoundPage => controllers.routes.WhatTypeBusinessController.onPageLoad()
+    case BusinessRegistrationTypePage =>
+      controllers.company.routes.CompanyNameController.onPageLoad()
   }
 
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {

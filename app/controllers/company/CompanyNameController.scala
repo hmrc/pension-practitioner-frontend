@@ -22,8 +22,11 @@ import controllers.actions._
 import forms.BusinessNameFormProvider
 import javax.inject.Inject
 import models.NormalMode
+import models.register.BusinessRegistrationType
 import navigators.CompoundNavigator
 import pages.company.BusinessNamePage
+import pages.register.AreYouUKCompanyPage
+import pages.register.BusinessRegistrationTypePage
 import play.api.i18n.I18nSupport
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
@@ -58,11 +61,16 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
           case Some(value) => form.fill(value)
         }
 
+        val extraJson = request.userAnswers.get(AreYouUKCompanyPage) match {
+          case Some(true) => Json.obj("hintMessageKey" -> "businessName.hint")
+          case _ => Json.obj()
+        }
+
         val json = Json.obj(
           "form" -> preparedForm,
           "submitUrl" -> routes.CompanyNameController.onSubmit().url,
           "entityName" -> "company"
-        )
+        ) ++ extraJson
 
         renderer.render("businessName.njk", json).map(Ok(_))
   }

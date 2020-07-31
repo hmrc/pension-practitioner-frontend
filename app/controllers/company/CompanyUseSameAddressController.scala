@@ -22,21 +22,22 @@ import controllers.actions._
 import forms.address.UseAddressForContactFormProvider
 import javax.inject.Inject
 import models.requests.DataRequest
-import models.{Address, NormalMode, TolerantAddress, UserAnswers}
+import models.{NormalMode, TolerantAddress, Address, UserAnswers}
 import navigators.CompoundNavigator
-import pages.company.{CompanyAddressPage, CompanyUseSameAddressPage}
-import pages.partnership.{BusinessNamePage, ConfirmAddressPage}
+import pages.company.{CompanyUseSameAddressPage, CompanyAddressPage}
+import pages.partnership.{ConfirmAddressPage, BusinessNamePage}
+import pages.register.AreYouUKCompanyPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.libs.json.{Json, JsObject}
+import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
 import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModel
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 import scala.util.Try
 
 class CompanyUseSameAddressController @Inject()(override val messagesApi: MessagesApi,
@@ -93,18 +94,43 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
       }
   }
 
-  private def getJson(form: Form[Boolean])(block: JsObject => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] =
-    (BusinessNamePage and ConfirmAddressPage).retrieve.right.map { case companyName ~ address =>
-      val json = Json.obj(
-        "form" -> form,
-        "viewmodel" -> CommonViewModel("company", companyName, routes.CompanyUseSameAddressController.onSubmit().url),
-        "radios" -> Radios.yesNo(form("value")),
-        "address" -> address.lines(countryOptions)
-      )
-      block(json)
+  private def getJson(form: Form[Boolean])(block: JsObject => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
+    (request.userAnswers.get(AreYouUKCompanyPage), request.userAnswers.get(BusinessNamePage), request.userAnswers.get(ConfirmAddressPage)) match {
+      case (Some(true), Some(companyName), Some(address)) =>
+        val json = Json.obj(
+          "form" -> form,
+          "viewmodel" -> CommonViewModel("company", companyName, routes.CompanyUseSameAddressController.onSubmit().url),
+          "radios" -> Radios.yesNo(form("value")),
+          "address" -> address.lines(countryOptions)
+        )
+        block(json)
+      case (Some(false), Some(companyName), optionAddress) =>
+        val addressLines = optionAddress match {
+          case Some(tolerantAddress) => tolerantAddress.lines(countryOptions)
+          case _ => Seq.empty
+        }
+        val json = Json.obj(
+          "form" -> form,
+          "viewmodel" -> CommonViewModel("company", companyName, routes.CompanyUseSameAddressController.onSubmit().url),
+          "radios" -> Radios.yesNo(form("value")),
+          "address" -> addressLines
+        )
+        block(json)
+      case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
     }
 
-    protected def getResolvedAddress(tolerantAddress: TolerantAddress): Option[Address] = {
+    //(BusinessNamePage and ConfirmAddressPage).retrieve.right.map { case companyName ~ address =>
+    //  val json = Json.obj(
+    //    "form" -> form,
+    //    "viewmodel" -> CommonViewModel("company", companyName, routes.CompanyUseSameAddressController.onSubmit().url),
+    //    "radios" -> Radios.yesNo(form("value")),
+    //    "address" -> address.lines(countryOptions)
+    //  )
+    //  block(json)
+    //}
+  }
+
+  protected def getResolvedAddress(tolerantAddress: TolerantAddress): Option[Address] = {
       tolerantAddress.addressLine1 match {
         case None => None
         case Some(aLine1) =>

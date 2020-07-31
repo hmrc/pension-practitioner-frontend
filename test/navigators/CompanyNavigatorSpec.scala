@@ -18,10 +18,11 @@ package navigators
 
 import controllers.company.routes._
 import data.SampleData
-import models.{CheckMode, NormalMode, UserAnswers}
+import models.{NormalMode, CheckMode, UserAnswers}
 import org.scalatest.prop.TableFor3
 import pages.Page
 import pages.company._
+import pages.register.AreYouUKCompanyPage
 import play.api.mvc.Call
 
 class CompanyNavigatorSpec extends NavigatorBehaviour {
@@ -34,6 +35,9 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
   private def uaUseSameAddress(v:Boolean) = SampleData
     .emptyUserAnswers.setOrException(CompanyUseSameAddressPage, v)
 
+  private def uaAreYouUKCompany(v:Boolean) = SampleData
+    .emptyUserAnswers.setOrException(AreYouUKCompanyPage, v)
+
 
   private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
 
@@ -42,7 +46,8 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
       Table(
         ("Id", "UserAnswers", "Next Page"),
         row(BusinessUTRPage)(CompanyNameController.onPageLoad()),
-        row(BusinessNamePage)(ConfirmNameController.onPageLoad()),
+        row(BusinessNamePage)(ConfirmNameController.onPageLoad(), Some(uaAreYouUKCompany(false))),
+        row(BusinessNamePage)(CompanyAddressController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(true))),
         row(ConfirmNamePage)(ConfirmAddressController.onPageLoad(), Some(uaConfirmName(true))),
         row(ConfirmNamePage)(TellHMRCController.onPageLoad(),Some(uaConfirmName(false))),
         row(ConfirmAddressPage)(TellHMRCController.onPageLoad()),
