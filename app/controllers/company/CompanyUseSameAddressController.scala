@@ -118,16 +118,6 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
         block(json)
       case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
     }
-
-    //(BusinessNamePage and ConfirmAddressPage).retrieve.right.map { case companyName ~ address =>
-    //  val json = Json.obj(
-    //    "form" -> form,
-    //    "viewmodel" -> CommonViewModel("company", companyName, routes.CompanyUseSameAddressController.onSubmit().url),
-    //    "radios" -> Radios.yesNo(form("value")),
-    //    "address" -> address.lines(countryOptions)
-    //  )
-    //  block(json)
-    //}
   }
 
   protected def getResolvedAddress(tolerantAddress: TolerantAddress): Option[Address] = {
