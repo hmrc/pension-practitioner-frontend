@@ -20,17 +20,18 @@ import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import forms.address.AddressFormProvider
 import matchers.JsonMatchers
-import models.{Address, NormalMode, UserAnswers}
+import models.{NormalMode, Address, UserAnswers}
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{times, verify, when}
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.Mockito.{times, when, verify}
+import org.mockito.{Matchers, ArgumentCaptor}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.company.{BusinessNamePage, CompanyAddressPage}
+import pages.company.{CompanyAddressPage, BusinessNamePage}
+import pages.register.AreYouUKCompanyPage
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{Json, JsObject}
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -58,6 +59,7 @@ class CompanyAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
   private val form = new AddressFormProvider(countryOptions)()
 
   val userAnswers: UserAnswers = UserAnswers().set(BusinessNamePage, companyName).toOption.value
+    .setOrException(AreYouUKCompanyPage, true)
 
   private def onPageLoadUrl: String = routes.CompanyAddressController.onPageLoad(NormalMode).url
   private def submitUrl: String = routes.CompanyAddressController.onSubmit(NormalMode).url

@@ -95,8 +95,11 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
   }
 
   private def getJson(form: Form[Boolean])(block: JsObject => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    (request.userAnswers.get(AreYouUKCompanyPage), request.userAnswers.get(BusinessNamePage), request.userAnswers.get(ConfirmAddressPage)) match {
-      case (Some(true), Some(companyName), Some(address)) =>
+    (request.userAnswers.get(AreYouUKCompanyPage),
+      request.userAnswers.get(BusinessNamePage),
+      request.userAnswers.get(ConfirmAddressPage),
+      request.userAnswers.get(CompanyAddressPage)) match {
+      case (Some(true), Some(companyName), Some(address), _) =>
         val json = Json.obj(
           "form" -> form,
           "viewmodel" -> CommonViewModel("company", companyName, routes.CompanyUseSameAddressController.onSubmit().url),
@@ -104,18 +107,14 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
           "address" -> address.lines(countryOptions)
         )
         block(json)
-      case (Some(false), Some(companyName), optionAddress) =>
-        val addressLines = optionAddress match {
-          case Some(tolerantAddress) => tolerantAddress.lines(countryOptions)
-          case _ => Seq.empty
-        }
-        val json = Json.obj(
-          "form" -> form,
-          "viewmodel" -> CommonViewModel("company", companyName, routes.CompanyUseSameAddressController.onSubmit().url),
-          "radios" -> Radios.yesNo(form("value")),
-          "address" -> addressLines
-        )
-        block(json)
+      case (Some(false), Some(companyName), _, Some(address)) =>
+          val json = Json.obj(
+            "form" -> form,
+            "viewmodel" -> CommonViewModel("company", companyName, routes.CompanyUseSameAddressController.onSubmit().url),
+            "radios" -> Radios.yesNo(form("value")),
+            "address" -> address.lines(countryOptions)
+          )
+          block(json)
       case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
     }
   }

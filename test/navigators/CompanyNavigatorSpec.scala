@@ -46,8 +46,8 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
       Table(
         ("Id", "UserAnswers", "Next Page"),
         row(BusinessUTRPage)(CompanyNameController.onPageLoad()),
-        row(BusinessNamePage)(ConfirmNameController.onPageLoad(), Some(uaAreYouUKCompany(false))),
-        row(BusinessNamePage)(CompanyAddressController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(true))),
+        row(BusinessNamePage)(ConfirmNameController.onPageLoad(), Some(uaAreYouUKCompany(true))),
+        row(BusinessNamePage)(CompanyAddressController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(false))),
         row(ConfirmNamePage)(ConfirmAddressController.onPageLoad(), Some(uaConfirmName(true))),
         row(ConfirmNamePage)(TellHMRCController.onPageLoad(),Some(uaConfirmName(false))),
         row(ConfirmAddressPage)(TellHMRCController.onPageLoad()),
@@ -56,7 +56,7 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
         row(CompanyUseSameAddressPage)(CompanyPostcodeController.onPageLoad(NormalMode), Some(uaUseSameAddress(false))),
         row(CompanyPostcodePage)(CompanyAddressListController.onPageLoad(NormalMode)),
         row(CompanyAddressListPage)(CompanyEmailController.onPageLoad(NormalMode)),
-        row(CompanyAddressPage)(CompanyEmailController.onPageLoad(NormalMode)),
+        row(CompanyAddressPage)(CompanyEmailController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(true))),
         row(CompanyEmailPage)(CompanyPhoneController.onPageLoad(NormalMode)),
         row(CompanyPhonePage)(CheckYourAnswersController.onPageLoad()),
         row(DeclarationPage)(controllers.company.routes.ConfirmationController.onPageLoad())
