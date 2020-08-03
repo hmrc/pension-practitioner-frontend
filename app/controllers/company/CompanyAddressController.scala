@@ -82,8 +82,11 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
     (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
 
     form(messages).bind(retrieveFieldsFromRequestAndAddCountryForUK).fold(
-      formWithErrors =>
-        renderer.render(viewTemplate, json(formWithErrors)).map(BadRequest(_)),
+      formWithErrors => {
+        println("\n" + formWithErrors)
+        renderer.render(viewTemplate, json(formWithErrors)).map(BadRequest(_))
+      }
+        ,
       value =>
         for {
           updatedAnswers <- Future.fromTry(request.userAnswers.set(addressPage, value))

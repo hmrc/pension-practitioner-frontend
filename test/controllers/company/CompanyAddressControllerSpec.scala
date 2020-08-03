@@ -64,7 +64,7 @@ class CompanyAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
   private def onPageLoadUrl: String = routes.CompanyAddressController.onPageLoad(NormalMode).url
   private def submitUrl: String = routes.CompanyAddressController.onSubmit(NormalMode).url
   private val dummyCall: Call = Call("GET", "/foo")
-  private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("ZZ1 1ZZ"), "UK")
+  private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("ZZ1 1ZZ"), "GB")
 
   private val valuesValid: Map[String, Seq[String]] = Map(
     "line1" -> Seq("line1"),
@@ -88,8 +88,8 @@ class CompanyAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-    when(countryOptions.options).thenReturn(Seq(InputOption("UK", "United Kingdom")))
-    when(mockAppConfig.validCountryCodes).thenReturn(Seq("UK"))
+    when(countryOptions.options).thenReturn(Seq(InputOption("GB", "United Kingdom")))
+    when(mockAppConfig.validCountryCodes).thenReturn(Seq("GB"))
   }
 
   "CompanyAddress Controller" must {

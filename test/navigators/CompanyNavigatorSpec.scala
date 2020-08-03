@@ -47,7 +47,7 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
         ("Id", "UserAnswers", "Next Page"),
         row(BusinessUTRPage)(CompanyNameController.onPageLoad()),
         row(BusinessNamePage)(ConfirmNameController.onPageLoad(), Some(uaAreYouUKCompany(true))),
-        row(BusinessNamePage)(CompanyAddressController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(false))),
+        row(BusinessNamePage)(CompanyEnterRegisteredAddressController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(false))),
         row(ConfirmNamePage)(ConfirmAddressController.onPageLoad(), Some(uaConfirmName(true))),
         row(ConfirmNamePage)(TellHMRCController.onPageLoad(),Some(uaConfirmName(false))),
         row(ConfirmAddressPage)(TellHMRCController.onPageLoad()),
