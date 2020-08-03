@@ -66,19 +66,22 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
 
   def form(implicit messages: Messages): Form[Address] = formProvider()
 
-  private def postedFieldsWithCountry(implicit request: DataRequest[AnyContent]):Map[String, String] = {
-    val t = request.body.asFormUrlEncoded.fold(Map[String, Seq[String]]())(identity)
-      .map(f => (f._1, f._2.head))
-    request.userAnswers.get(AreYouUKCompanyPage) match {
-      case Some(true) => t ++ Map("country" -> "GB")
-      case _ => t
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify andThen getData andThen requireData).async {
+      implicit request =>
+        getFormToJsonForLoad(mode).retrieve.right.map(get)
     }
-  }
+
+  def onSubmit(mode: Mode): Action[AnyContent] =
+    (identify andThen getData andThen requireData).async {
+      implicit request =>
+        getFormToJsonSubmit(mode).retrieve.right.map(post(mode, _, CompanyAddressPage))
+    }
 
   override def post(mode: Mode, json: Form[Address] => JsObject, addressPage: QuestionPage[Address])
     (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
 
-    form(messages).bind(postedFieldsWithCountry).fold(
+    form(messages).bind(retrieveFieldsFromRequestAndAddCountryForUK).fold(
       formWithErrors =>
         renderer.render(viewTemplate, json(formWithErrors)).map(BadRequest(_)),
       value =>
@@ -91,19 +94,7 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
     )
   }
 
-  def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
-      implicit request =>
-        getFormToJsonLoad(mode).retrieve.right.map(get)
-    }
-
-  def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
-      implicit request =>
-        getFormToJsonSubmit(mode).retrieve.right.map(post(mode, _, CompanyAddressPage))
-    }
-
-  private def getFormToJsonLoad(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Address] => JsObject] =
+  private def getFormToJsonForLoad(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Address] => JsObject] =
     Retrieval(
       implicit request => {
           (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {

@@ -66,18 +66,6 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
       }
   }
 
-  private def retrieveTolerantAddress(implicit request:DataRequest[_]):Option[TolerantAddress] = {
-    (request.userAnswers.get(AreYouUKCompanyPage),
-      request.userAnswers.get(ConfirmAddressPage),
-      request.userAnswers.get(CompanyRegisteredAddressPage)) match {
-      case (Some(true), Some(address), _) =>
-        Some(address)
-      case (Some(false), _, Some(address)) =>
-        Some(address.toTolerantAddress)
-      case _ => None
-    }
-  }
-
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
         form.bindFromRequest().fold(
@@ -111,27 +99,30 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
         )
   }
 
-  private def getJson(form: Form[Boolean])(block: JsObject => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
+  private def retrieveTolerantAddress(implicit request:DataRequest[_]):Option[TolerantAddress] = {
     (request.userAnswers.get(AreYouUKCompanyPage),
-      request.userAnswers.get(BusinessNamePage),
       request.userAnswers.get(ConfirmAddressPage),
       request.userAnswers.get(CompanyRegisteredAddressPage)) match {
-      case (Some(true), Some(companyName), Some(address), _) =>
-        val json = Json.obj(
-          "form" -> form,
-          "viewmodel" -> CommonViewModel("company", companyName, routes.CompanyUseSameAddressController.onSubmit().url),
-          "radios" -> Radios.yesNo(form("value")),
-          "address" -> address.lines(countryOptions)
-        )
-        block(json)
-      case (Some(false), Some(companyName), _, Some(address)) =>
+      case (Some(true), Some(address), _) =>
+        Some(address)
+      case (Some(false), _, Some(address)) =>
+        Some(address.toTolerantAddress)
+      case _ => None
+    }
+  }
+
+  private def getJson(form: Form[Boolean])(block: JsObject => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
+    retrieveTolerantAddress match {
+      case Some(tolerantAddress) =>
+        BusinessNamePage.retrieve.right.map{ companyName =>
           val json = Json.obj(
             "form" -> form,
             "viewmodel" -> CommonViewModel("company", companyName, routes.CompanyUseSameAddressController.onSubmit().url),
             "radios" -> Radios.yesNo(form("value")),
-            "address" -> address.lines(countryOptions)
+            "address" -> tolerantAddress.lines(countryOptions)
           )
           block(json)
+        }
       case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
     }
   }

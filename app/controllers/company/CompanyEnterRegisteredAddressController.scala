@@ -68,28 +68,31 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
 
   def form(implicit messages: Messages): Form[Address] = formProvider()
 
-  private def postedFieldsWithCountry(implicit request: DataRequest[AnyContent]):Map[String, String] = {
-    val t = request.body.asFormUrlEncoded.fold(Map[String, Seq[String]]())(identity)
-      .map(f => (f._1, f._2.head))
-    request.userAnswers.get(AreYouUKCompanyPage) match {
-      case Some(true) => t ++ Map("country" -> "GB")
-      case _ => t
-    }
-  }
-
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {
-      implicit request =>
-        getFormToJson(mode).retrieve.right.map(get)
+      implicit request => getFormToJsonForLoad(mode).retrieve.right.map(get)
     }
+
+  private def getFormToJsonForLoad(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Address] => JsObject] =
+    Retrieval(
+      implicit request => {
+        BusinessNamePage.retrieve.right.map {
+          companyName =>
+            form =>
+              val filledForm = request.userAnswers.get(CompanyRegisteredAddressPage).fold(form)(form.fill)
+              commonJson(companyName, mode, filledForm.data.get("country")) ++
+                Json.obj("form" -> filledForm)
+        }
+      }
+    )
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {
       implicit request =>
         BusinessNamePage.retrieve.right.map { companyName =>
-          form.bind(postedFieldsWithCountry).fold(
+          form.bindFromRequest().fold(
             formWithErrors => {
-              val json = getJson(companyName, mode, formWithErrors.data.get("country")) ++
+              val json = commonJson(companyName, mode, formWithErrors.data.get("country")) ++
                 Json.obj("form" -> formWithErrors)
               renderer.render(viewTemplate, json).map(BadRequest(_))
             },
@@ -110,20 +113,7 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
         }
     }
 
-  private def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Address] => JsObject] =
-    Retrieval(
-      implicit request => {
-        BusinessNamePage.retrieve.right.map {
-          companyName =>
-            form =>
-              val filledForm = request.userAnswers.get(CompanyRegisteredAddressPage).fold(form)(form.fill)
-              getJson(companyName, mode, filledForm.data.get("country")) ++
-                Json.obj("form" -> filledForm)
-        }
-      }
-    )
-
-  private def getJson(companyName: String, mode: Mode, country:Option[String])(implicit request: DataRequest[AnyContent]) = {
+  private def commonJson(companyName: String, mode: Mode, country:Option[String])(implicit request: DataRequest[AnyContent]) = {
     Json.obj(
       "viewmodel" -> CommonViewModel(
         "company",
