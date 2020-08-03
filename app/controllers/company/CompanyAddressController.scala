@@ -18,7 +18,6 @@ package controllers.company
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-
 import controllers.Retrievals
 import controllers.actions._
 import controllers.address.ManualAddressController
@@ -28,6 +27,7 @@ import models.requests.DataRequest
 import models.Address
 import models.Mode
 import navigators.CompoundNavigator
+import pages.QuestionPage
 import pages.company.CompanyAddressPage
 import pages.company.BusinessNamePage
 import pages.register.AreYouUKCompanyPage
@@ -40,12 +40,15 @@ import play.api.libs.json.Json
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.Result
 import renderer.Renderer
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModel
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
                                          val userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -62,6 +65,28 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
   with Retrievals with I18nSupport with NunjucksSupport {
 
   def form(implicit messages: Messages): Form[Address] = formProvider()
+
+  private def postedFieldsWithCountry(implicit request: DataRequest[AnyContent]):Map[String, String] = {
+    val t = request.body.asFormUrlEncoded.fold(Map[String, Seq[String]]())(identity)
+      .map(f => (f._1, f._2.head))
+    if (t.exists(_._1 == "country")) t else t ++ Map("country" -> "GB")
+  }
+
+  override def post(mode: Mode, json: Form[Address] => JsObject, addressPage: QuestionPage[Address])
+    (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
+
+    form(messages).bind(postedFieldsWithCountry).fold(
+      formWithErrors =>
+        renderer.render(viewTemplate, json(formWithErrors)).map(BadRequest(_)),
+      value =>
+        for {
+          updatedAnswers <- Future.fromTry(request.userAnswers.set(addressPage, value))
+          _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+        } yield {
+          Redirect(navigator.nextPage(addressPage, mode, updatedAnswers))
+        }
+    )
+  }
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {
@@ -85,8 +110,8 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
               "viewmodel" -> CommonViewModel(
                 "company",
                 companyName,
-                routes.CompanyAddressController.onSubmit(mode).url),
-              "countries" -> jsonCountries(form.data.get("country"), config)(request2Messages))
+                routes.CompanyAddressController.onSubmit(mode).url)
+            )
           case false ~ companyName =>
             val optionAddress = request.userAnswers.get(CompanyAddressPage)
             val filledForm = optionAddress.fold(form)(form.fill)
@@ -97,7 +122,7 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
                   "company",
                   companyName,
                   routes.CompanyAddressController.onSubmit(mode).url),
-                "countries" -> jsonCountries(form.data.get("country"), config)(request2Messages))
+                "countries" -> jsonCountries(filledForm.data.get("country"), config)(request2Messages))
         }
     )
 }
