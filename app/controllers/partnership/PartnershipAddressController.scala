@@ -74,6 +74,7 @@ class PartnershipAddressController @Inject()(override val messagesApi: MessagesA
                 "partnership",
                 partnershipName,
                 routes.PartnershipAddressController.onSubmit(mode).url),
+              "postcodeEntry" -> true,
               "countries" -> jsonCountries(form.data.get("country"), config)(request2Messages))
         }
     )

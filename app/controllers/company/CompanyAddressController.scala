@@ -103,58 +103,49 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
         getFormToJsonSubmit(mode).retrieve.right.map(post(mode, _, CompanyAddressPage))
     }
 
-  def getFormToJsonLoad(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Address] => JsObject] =
+  private def getFormToJsonLoad(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Address] => JsObject] =
     Retrieval(
       implicit request => {
           (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
             case true ~ companyName =>
               form =>
-                val filledForm = request.userAnswers.get(CompanyAddressPage).fold(form)(form.fill)
-                Json.obj(
-                "form" -> filledForm,
-                "viewmodel" -> CommonViewModel(
-                  "company",
-                  companyName,
-                  routes.CompanyAddressController.onSubmit(mode).url)
-              )
+                commonJson(mode, companyName) ++
+                  Json.obj("form" -> request.userAnswers.get(CompanyAddressPage).fold(form)(form.fill))
             case false ~ companyName =>
-
               form =>
                 val filledForm = request.userAnswers.get(CompanyAddressPage).fold(form)(form.fill)
-                Json.obj(
-                  "form" -> filledForm,
-                  "viewmodel" -> CommonViewModel(
-                    "company",
-                    companyName,
-                    routes.CompanyAddressController.onSubmit(mode).url),
-                  "countries" -> jsonCountries(filledForm.data.get("country"), config)(request2Messages))
+                commonJson(mode, companyName) ++
+                  Json.obj(
+                    "form" -> filledForm,
+                    "countries" -> jsonCountries(filledForm.data.get("country"), config)(request2Messages)
+                  )
           }
         }
     )
 
-  def getFormToJsonSubmit(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Address] => JsObject] =
+  private def getFormToJsonSubmit(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Address] => JsObject] =
     Retrieval(
       implicit request => {
         (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
           case true ~ companyName =>
-            form => Json.obj(
-              "form" -> form,
-              "viewmodel" -> CommonViewModel(
-                "company",
-                companyName,
-                routes.CompanyAddressController.onSubmit(mode).url)
-            )
+            form => commonJson(mode, companyName) ++ Json.obj("form" -> form)
           case false ~ companyName =>
-
-            form =>
-              Json.obj(
-                "form" -> form,
-                "viewmodel" -> CommonViewModel(
-                  "company",
-                  companyName,
-                  routes.CompanyAddressController.onSubmit(mode).url),
-                "countries" -> jsonCountries(form.data.get("country"), config)(request2Messages))
+            form => commonJson(mode, companyName) ++
+                Json.obj(
+                  "form" -> form,
+                  "countries" -> jsonCountries(form.data.get("country"), config)(request2Messages)
+                )
         }
       }
     )
+
+  private def commonJson(mode: Mode, companyName: String)(implicit request: DataRequest[AnyContent]) = {
+    Json.obj(
+      "viewmodel" -> CommonViewModel(
+        "company",
+        companyName,
+        routes.CompanyAddressController.onSubmit(mode).url),
+      "postcodeEntry" -> true
+    )
+  }
 }

@@ -116,7 +116,8 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
                     "company",
                     companyName,
                     routes.CompanyEnterRegisteredAddressController.onSubmit(mode).url),
-                  "countries" -> jsonCountries(filledForm.data.get("country"), config)(request2Messages))
+                  "countries" -> jsonCountries(filledForm.data.get("country"), config)(request2Messages)
+                )
           }
         }
     )

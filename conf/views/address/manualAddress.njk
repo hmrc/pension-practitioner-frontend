@@ -106,7 +106,9 @@
                         }
                       }) }}
               </div>
-          {% else %}
+          {% endif %}
+
+          {% if postcodeEntry %}
               {{ govukInput({
                   label: {
                     text: messages('address.postcode'),
@@ -121,6 +123,7 @@
                   errorMessage: form.postcode.error
               }) }}
           {% endif %}
+
 
           {{ govukButton({
               text: messages("site.save_and_continue"),
