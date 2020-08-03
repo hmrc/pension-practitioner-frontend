@@ -47,11 +47,11 @@ trait ManualAddressController extends FrontendBaseController with Retrievals {
   protected def viewTemplate = "address/manualAddress.njk"
 
   protected def retrieveFieldsFromRequestAndAddCountryForUK(implicit request: DataRequest[AnyContent]):Map[String, String] = {
-    val t = request.body.asFormUrlEncoded.fold(Map[String, Seq[String]]())(identity)
-      .map(f => (f._1, f._2.head))
+    val postedFields = request.body.asFormUrlEncoded.fold(Map[String, Seq[String]]())(identity)
+      .map(field => (field._1, field._2.head))
     request.userAnswers.get(AreYouUKCompanyPage) match {
-      case Some(true) => t ++ Map("country" -> "GB")
-      case _ => t
+      case Some(true) => postedFields ++ Map("country" -> "GB")
+      case _ => postedFields
     }
   }
 
