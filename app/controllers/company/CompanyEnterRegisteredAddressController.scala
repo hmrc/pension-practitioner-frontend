@@ -17,6 +17,7 @@
 package controllers.company
 
 import config.FrontendAppConfig
+import connectors.RegistrationConnector
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
@@ -26,10 +27,12 @@ import javax.inject.Inject
 import models.requests.DataRequest
 import models.Address
 import models.Mode
+import models.register.RegistrationLegalStatus
 import navigators.CompoundNavigator
-import pages.QuestionPage
+import pages.RegistrationInfoPage
 import pages.company.CompanyRegisteredAddressPage
 import pages.company.BusinessNamePage
+import pages.company.ConfirmAddressPage
 import pages.register.AreYouUKCompanyPage
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -40,9 +43,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
-import play.api.mvc.Result
 import renderer.Renderer
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModel
@@ -51,17 +52,18 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi: MessagesApi,
-                                         val userAnswersCacheConnector: UserAnswersCacheConnector,
-                                         val navigator: CompoundNavigator,
-                                         identify: IdentifierAction,
-                                         getData: DataRetrievalAction,
-                                         requireData: DataRequiredAction,
-                                         formProvider: AddressFormProvider,
-                                         countryOptions: CountryOptions,
-                                         val controllerComponents: MessagesControllerComponents,
-                                         val config: FrontendAppConfig,
-                                         val renderer: Renderer
-                                         )(implicit ec: ExecutionContext) extends ManualAddressController
+  val userAnswersCacheConnector: UserAnswersCacheConnector,
+  val navigator: CompoundNavigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: AddressFormProvider,
+  countryOptions: CountryOptions,
+  val controllerComponents: MessagesControllerComponents,
+  val config: FrontendAppConfig,
+  val renderer: Renderer,
+  registrationConnector:RegistrationConnector
+)(implicit ec: ExecutionContext) extends ManualAddressController
   with Retrievals with I18nSupport with NunjucksSupport {
 
   def form(implicit messages: Messages): Form[Address] = formProvider()
@@ -75,67 +77,59 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
     }
   }
 
-  override def post(mode: Mode, json: Form[Address] => JsObject, addressPage: QuestionPage[Address])
-    (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
-
-    form(messages).bind(postedFieldsWithCountry).fold(
-      formWithErrors =>
-        renderer.render(viewTemplate, json(formWithErrors)).map(BadRequest(_)),
-      value =>
-        for {
-          updatedAnswers <- Future.fromTry(request.userAnswers.set(addressPage, value))
-          _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-        } yield {
-          Redirect(navigator.nextPage(addressPage, mode, updatedAnswers))
-        }
-    )
-  }
-
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {
       implicit request =>
-        getFormToJsonLoad(mode).retrieve.right.map(get)
+        getFormToJson(mode).retrieve.right.map(get)
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {
       implicit request =>
-        getFormToJsonSubmit(mode).retrieve.right.map(post(mode, _, CompanyRegisteredAddressPage))
+        BusinessNamePage.retrieve.right.map { companyName =>
+          form.bind(postedFieldsWithCountry).fold(
+            formWithErrors => {
+              val json = getJson(companyName, mode, formWithErrors.data.get("country")) ++
+                Json.obj("form" -> formWithErrors)
+              renderer.render(viewTemplate, json).map(BadRequest(_))
+            },
+            value => {
+              for {
+                reg <- registrationConnector.registerWithNoIdOrganisation(companyName, value, RegistrationLegalStatus.LimitedCompany)
+                updatedAnswers <- Future(
+                  request.userAnswers
+                    .setOrException(CompanyRegisteredAddressPage, value)
+                    .setOrException(RegistrationInfoPage, reg)
+                )
+                _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+              } yield {
+                Redirect(navigator.nextPage(CompanyRegisteredAddressPage, mode, updatedAnswers))
+              }
+            }
+          )
+        }
     }
 
-  def getFormToJsonLoad(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Address] => JsObject] =
-    Retrieval(
-      implicit request => {
-          BusinessNamePage.retrieve.right.map {
-            companyName =>
-              form =>
-                val filledForm = request.userAnswers.get(CompanyRegisteredAddressPage).fold(form)(form.fill)
-                Json.obj(
-                  "form" -> filledForm,
-                  "viewmodel" -> CommonViewModel(
-                    "company",
-                    companyName,
-                    routes.CompanyEnterRegisteredAddressController.onSubmit(mode).url),
-                  "countries" -> jsonCountries(filledForm.data.get("country"), config)(request2Messages)
-                )
-          }
-        }
-    )
-
-  def getFormToJsonSubmit(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Address] => JsObject] =
+  private def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Address] => JsObject] =
     Retrieval(
       implicit request => {
         BusinessNamePage.retrieve.right.map {
           companyName =>
             form =>
-              Json.obj(
-                "form" -> form,
-                "viewmodel" -> CommonViewModel(
-                  "company",
-                  companyName,
-                  routes.CompanyEnterRegisteredAddressController.onSubmit(mode).url),
-                "countries" -> jsonCountries(form.data.get("country"), config)(request2Messages))
+              val filledForm = request.userAnswers.get(CompanyRegisteredAddressPage).fold(form)(form.fill)
+              getJson(companyName, mode, filledForm.data.get("country")) ++
+                Json.obj("form" -> filledForm)
         }
       }
     )
+
+  private def getJson(companyName: String, mode: Mode, country:Option[String])(implicit request: DataRequest[AnyContent]) = {
+    Json.obj(
+      "viewmodel" -> CommonViewModel(
+        "company",
+        companyName,
+        routes.CompanyEnterRegisteredAddressController.onSubmit(mode).url),
+      "countries" -> jsonCountries(country, config)(request2Messages)
+    )
+  }
 }
