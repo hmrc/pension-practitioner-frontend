@@ -37,7 +37,7 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
     case BusinessNamePage =>
       ua.get(AreYouUKCompanyPage) match {
         case Some(true) => ConfirmNameController.onPageLoad()
-        case _ => CompanyAddressController.onPageLoad(NormalMode)
+        case _ => CompanyEnterRegisteredAddressController.onPageLoad(NormalMode)
       }
 
     case ConfirmNamePage => ua.get(ConfirmNamePage) match {
@@ -59,6 +59,7 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
         case Some(true) => CompanyEmailController.onPageLoad(NormalMode)
         case _ => CompanyUseSameAddressController.onPageLoad()
       }
+    case CompanyRegisteredAddressPage =>CompanyUseSameAddressController.onPageLoad()
     case CompanyEmailPage => CompanyPhoneController.onPageLoad(NormalMode)
     case CompanyPhonePage => CheckYourAnswersController.onPageLoad()
     case DeclarationPage => controllers.company.routes.ConfirmationController.onPageLoad()

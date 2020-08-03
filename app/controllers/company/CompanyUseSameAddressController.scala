@@ -24,6 +24,7 @@ import javax.inject.Inject
 import models.requests.DataRequest
 import models.{NormalMode, TolerantAddress, Address, UserAnswers}
 import navigators.CompoundNavigator
+import pages.company.CompanyRegisteredAddressPage
 import pages.company.{CompanyUseSameAddressPage, CompanyAddressPage}
 import pages.partnership.{ConfirmAddressPage, BusinessNamePage}
 import pages.register.AreYouUKCompanyPage
@@ -66,8 +67,9 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
   }
 
   private def retrieveTolerantAddress(implicit request:DataRequest[_]):Option[TolerantAddress] = {
-    (request.userAnswers.get(AreYouUKCompanyPage), request.userAnswers.get(ConfirmAddressPage),
-      request.userAnswers.get(CompanyAddressPage)) match {
+    (request.userAnswers.get(AreYouUKCompanyPage),
+      request.userAnswers.get(ConfirmAddressPage),
+      request.userAnswers.get(CompanyRegisteredAddressPage)) match {
       case (Some(true), Some(address), _) =>
         Some(address)
       case (Some(false), _, Some(address)) =>
@@ -113,7 +115,7 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
     (request.userAnswers.get(AreYouUKCompanyPage),
       request.userAnswers.get(BusinessNamePage),
       request.userAnswers.get(ConfirmAddressPage),
-      request.userAnswers.get(CompanyAddressPage)) match {
+      request.userAnswers.get(CompanyRegisteredAddressPage)) match {
       case (Some(true), Some(companyName), Some(address), _) =>
         val json = Json.obj(
           "form" -> form,
