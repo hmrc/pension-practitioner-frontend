@@ -75,18 +75,15 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {
       implicit request =>
-        getFormToJsonSubmit(mode).retrieve.right.map(post(mode, _, CompanyAddressPage))
+        getFormToJsonForSubmit(mode).retrieve.right.map(post(mode, _, CompanyAddressPage))
     }
 
   override def post(mode: Mode, json: Form[Address] => JsObject, addressPage: QuestionPage[Address])
     (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
 
     form(messages).bind(retrieveFieldsFromRequestAndAddCountryForUK).fold(
-      formWithErrors => {
-        println("\n" + formWithErrors)
-        renderer.render(viewTemplate, json(formWithErrors)).map(BadRequest(_))
-      }
-        ,
+      formWithErrors =>
+        renderer.render(viewTemplate, json(formWithErrors)).map(BadRequest(_)),
       value =>
         for {
           updatedAnswers <- Future.fromTry(request.userAnswers.set(addressPage, value))
@@ -117,7 +114,7 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
         }
     )
 
-  private def getFormToJsonSubmit(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Address] => JsObject] =
+  private def getFormToJsonForSubmit(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Address] => JsObject] =
     Retrieval(
       implicit request => {
         (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
