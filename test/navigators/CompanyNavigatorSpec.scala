@@ -32,8 +32,10 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
   private def uaConfirmName(v:Boolean) = SampleData
     .emptyUserAnswers.setOrException(ConfirmNamePage, v)
 
-  private def uaUseSameAddress(v:Boolean) = SampleData
-    .emptyUserAnswers.setOrException(CompanyUseSameAddressPage, v)
+  private def uaUseSameAddress(sameAddress:Boolean, uk:Boolean) =
+    SampleData.emptyUserAnswers
+    .setOrException(AreYouUKCompanyPage, uk)
+    .setOrException(CompanyUseSameAddressPage, sameAddress)
 
   private def uaAreYouUKCompany(v:Boolean) = SampleData
     .emptyUserAnswers.setOrException(AreYouUKCompanyPage, v)
@@ -52,13 +54,15 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
         row(ConfirmNamePage)(TellHMRCController.onPageLoad(),Some(uaConfirmName(false))),
         row(ConfirmAddressPage)(TellHMRCController.onPageLoad()),
         row(ConfirmAddressPage)(CompanyUseSameAddressController.onPageLoad(), Some(uaConfirmAddressYes)),
-        row(CompanyUseSameAddressPage)(CompanyEmailController.onPageLoad(NormalMode), Some(uaUseSameAddress(true))),
-        row(CompanyUseSameAddressPage)(CompanyPostcodeController.onPageLoad(NormalMode), Some(uaUseSameAddress(false))),
+        row(CompanyUseSameAddressPage)(CompanyEmailController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=true, uk=true))),
+        row(CompanyUseSameAddressPage)(CompanyPostcodeController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=false, uk=true))),
+        row(CompanyUseSameAddressPage)(CompanyAddressController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=false, uk=false))),
         row(CompanyPostcodePage)(CompanyAddressListController.onPageLoad(NormalMode)),
         row(CompanyAddressListPage)(CompanyEmailController.onPageLoad(NormalMode)),
         row(CompanyAddressPage)(CompanyEmailController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(true))),
         row(CompanyEmailPage)(CompanyPhoneController.onPageLoad(NormalMode)),
         row(CompanyPhonePage)(CheckYourAnswersController.onPageLoad()),
+        row(CompanyRegisteredAddressPage)(CompanyUseSameAddressController.onPageLoad()),
         row(DeclarationPage)(controllers.company.routes.ConfirmationController.onPageLoad())
       )
 
