@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.partnership
 
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
@@ -43,7 +43,7 @@ import uk.gov.hmrc.viewmodels.NunjucksSupport
 
 import scala.concurrent.Future
 
-class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class PartnershipNameControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
@@ -56,8 +56,8 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   val userAnswers: UserAnswers = UserAnswers()
 
-  private def onPageLoadUrl: String = routes.CompanyNameController.onPageLoad().url
-  private def submitUrl: String = routes.CompanyNameController.onSubmit().url
+  private def onPageLoadUrl: String = routes.PartnershipNameController.onPageLoad().url
+  private def submitUrl: String = routes.PartnershipNameController.onSubmit().url
 
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq(name))
 
@@ -66,8 +66,8 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
   private val jsonToPassToTemplate: Form[String] => JsObject =
     form => Json.obj(
     "form" -> form,
-    "submitUrl" -> routes.CompanyNameController.onSubmit().url,
-    "entityName" -> "company"
+    "submitUrl" -> routes.PartnershipNameController.onSubmit().url,
+    "entityName" -> "partnership"
     )
 
   override def beforeEach: Unit = {
@@ -77,7 +77,7 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
   }
 
-  "Company Name Controller" must {
+  "Partnership Name Controller" must {
     "return OK and the correct view for a GET" in {
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])

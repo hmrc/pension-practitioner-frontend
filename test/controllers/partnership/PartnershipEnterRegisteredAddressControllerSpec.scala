@@ -37,7 +37,6 @@ import org.scalatest.OptionValues
 import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.BusinessNamePage
-import pages.company.PartnershipRegisteredAddressPage
 import pages.partnership.PartnershipRegisteredAddressPage
 import pages.register.AreYouUKCompanyPage
 import play.api.Application
