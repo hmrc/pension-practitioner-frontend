@@ -18,9 +18,10 @@ package navigators
 
 import com.google.inject.Inject
 import connectors.cache.UserAnswersCacheConnector
-import models.{CheckMode, NormalMode, UserAnswers}
+import models.{NormalMode, CheckMode, UserAnswers}
 import pages.Page
 import pages.partnership._
+import pages.register.AreYouUKCompanyPage
 import play.api.mvc.Call
 
 class PartnershipNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector)
@@ -30,6 +31,14 @@ class PartnershipNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCon
   override protected def routeMap(ua: UserAnswers): PartialFunction[Page, Call] = {
     case BusinessUTRPage => controllers.partnership.routes.PartnershipNameController.onPageLoad()
     case BusinessNamePage => controllers.partnership.routes.ConfirmNameController.onPageLoad()
+
+
+    case BusinessNamePage =>
+      ua.get(AreYouUKCompanyPage) match {
+        case Some(true) => controllers.partnership.routes.ConfirmNameController.onPageLoad()
+        case _ => controllers.partnership.routes.PartnershipEnterRegisteredAddressController.onPageLoad(NormalMode)
+      }
+
     case ConfirmNamePage => ua.get(ConfirmNamePage) match {
       case Some(false) => controllers.partnership.routes.TellHMRCController.onPageLoad()
       case _ => controllers.partnership.routes.ConfirmAddressController.onPageLoad()
@@ -38,13 +47,16 @@ class PartnershipNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCon
       case None => controllers.partnership.routes.TellHMRCController.onPageLoad()
       case _ => controllers.partnership.routes.PartnershipUseSameAddressController.onPageLoad()
     }
-    case PartnershipUseSameAddressPage => ua.get(PartnershipUseSameAddressPage) match {
-      case Some(true) => controllers.partnership.routes.PartnershipEmailController.onPageLoad(NormalMode)
-      case _ => controllers.partnership.routes.PartnershipPostcodeController.onPageLoad(NormalMode)
-    }
+    case PartnershipUseSameAddressPage =>
+      (ua.get(AreYouUKCompanyPage), ua.get(PartnershipUseSameAddressPage)) match {
+        case (_, Some(true)) => controllers.partnership.routes.PartnershipEmailController.onPageLoad(NormalMode)
+        case (Some(false), Some(false)) => controllers.partnership.routes.PartnershipAddressController.onPageLoad(NormalMode)
+      }
+
     case PartnershipPostcodePage => controllers.partnership.routes.PartnershipAddressListController.onPageLoad(NormalMode)
     case PartnershipAddressListPage => controllers.partnership.routes.PartnershipEmailController.onPageLoad(NormalMode)
     case PartnershipAddressPage => controllers.partnership.routes.PartnershipEmailController.onPageLoad(NormalMode)
+    case PartnershipRegisteredAddressPage => controllers.partnership.routes.PartnershipUseSameAddressController.onPageLoad()
     case PartnershipEmailPage => controllers.partnership.routes.PartnershipPhoneController.onPageLoad(NormalMode)
     case PartnershipPhonePage => controllers.partnership.routes.CheckYourAnswersController.onPageLoad()
     case DeclarationPage => controllers.partnership.routes.ConfirmationController.onPageLoad()

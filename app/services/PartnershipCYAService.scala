@@ -18,32 +18,55 @@ package services
 
 import models.{Address, CheckMode, UserAnswers}
 import pages.partnership._
+import pages.register.AreYouUKCompanyPage
 import play.api.i18n.Messages
-import uk.gov.hmrc.viewmodels.SummaryList.{Action, Key, Row, Value}
+import play.api.mvc.Call
+import uk.gov.hmrc.viewmodels.SummaryList.{Key, Value, Row, Action}
 import uk.gov.hmrc.viewmodels.Text.Literal
 import uk.gov.hmrc.viewmodels._
 
 class PartnershipCYAService extends CYAService {
 
-  def partnershipCya(ua: UserAnswers)(implicit messages: Messages): Seq[Row] =
-    (
-      ua.get(BusinessNamePage),
-      ua.get(BusinessUTRPage),
-      ua.get(PartnershipAddressPage),
-      ua.get(PartnershipEmailPage),
-      ua.get(PartnershipPhonePage)
-    ) match {
-      case (Some(name), Some(utr), Some(address), Some(email), Some(phone)) =>
-          Seq(
-            partnershipName(name),
-            partnershipUtr(utr),
-            partnershipAddress(address),
-            partnershipEmail(name, email),
-            partnershipPhone(name, phone)
-          )
-      case _ => Seq.empty
-
+  def partnershipCya(ua: UserAnswers)(implicit messages: Messages): Seq[Row] = {
+    ua.get(AreYouUKCompanyPage) match {
+      case Some(true) =>
+        (
+          ua.get(BusinessNamePage),
+          ua.get(BusinessUTRPage),
+          ua.get(PartnershipAddressPage),
+          ua.get(PartnershipEmailPage),
+          ua.get(PartnershipPhonePage)
+        ) match {
+          case (Some(name), Some(utr), Some(address), Some(email), Some(phone)) =>
+              Seq(
+                partnershipName(name),
+                partnershipUtr(utr),
+                partnershipAddress(address,
+                  controllers.partnership.routes.PartnershipPostcodeController.onPageLoad(CheckMode)),
+                partnershipEmail(name, email),
+                partnershipPhone(name, phone)
+              )
+          case _ => Seq.empty
+        }
+      case Some(false) =>
+        (
+          ua.get(BusinessNamePage),
+          ua.get(PartnershipAddressPage),
+          ua.get(PartnershipEmailPage),
+          ua.get(PartnershipPhonePage)
+        ) match {
+          case (Some(name), Some(address), Some(email), Some(phone)) =>
+            Seq(
+              partnershipName(name),
+              partnershipAddress(address,
+                controllers.partnership.routes.PartnershipAddressController.onPageLoad(CheckMode)),
+              partnershipEmail(name, email),
+              partnershipPhone(name, phone)
+            )
+          case _ => Seq.empty
+        }
     }
+  }
 
   private def partnershipName(name: String): Row =
       Row(
@@ -57,14 +80,14 @@ class PartnershipCYAService extends CYAService {
         value = Value(Literal(utr), classes = Seq("govuk-!-width-one-third"))
       )
 
-  private def partnershipAddress(address: Address)(implicit messages: Messages): Row =
+  private def partnershipAddress(address: Address, href:Call)(implicit messages: Messages): Row =
       Row(
         key = Key(msg"cya.address", classes = Seq("govuk-!-width-one-half")),
         value = Value(addressAnswer(address), classes = Seq("govuk-!-width-one-third")),
         actions = List(
           Action(
             content = msg"site.edit",
-            href = controllers.partnership.routes.PartnershipPostcodeController.onPageLoad(CheckMode).url,
+            href = href.url,
             visuallyHiddenText = Some(msg"cya.change.address")
           )
         )

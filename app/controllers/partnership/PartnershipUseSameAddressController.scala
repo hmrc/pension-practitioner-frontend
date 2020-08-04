@@ -22,37 +22,53 @@ import controllers.actions._
 import forms.address.UseAddressForContactFormProvider
 import javax.inject.Inject
 import models.requests.DataRequest
-import models.{Address, NormalMode, TolerantAddress, UserAnswers}
+import models.Address
+import models.NormalMode
+import models.TolerantAddress
+import models.UserAnswers
 import navigators.CompoundNavigator
-import pages.partnership.{BusinessNamePage, ConfirmAddressPage, PartnershipAddressPage, PartnershipUseSameAddressPage}
+import pages.company.CompanyAddressPage
+import pages.partnership.BusinessNamePage
+import pages.partnership.ConfirmAddressPage
+import pages.partnership.PartnershipRegisteredAddressPage
+import pages.partnership.PartnershipUseSameAddressPage
+import pages.register.AreYouUKCompanyPage
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.i18n.I18nSupport
+import play.api.i18n.Messages
+import play.api.i18n.MessagesApi
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.Result
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import uk.gov.hmrc.viewmodels.NunjucksSupport
+import uk.gov.hmrc.viewmodels.Radios
 import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModel
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 import scala.util.Try
 
 class PartnershipUseSameAddressController @Inject()(override val messagesApi: MessagesApi,
-                                                    userAnswersCacheConnector: UserAnswersCacheConnector,
-                                                    navigator: CompoundNavigator,
-                                                    identify: IdentifierAction,
-                                                    getData: DataRetrievalAction,
-                                                    requireData: DataRequiredAction,
-                                                    formProvider: UseAddressForContactFormProvider,
-                                                    val controllerComponents: MessagesControllerComponents,
-                                                    countryOptions: CountryOptions,
-                                                    renderer: Renderer
-                                                   )(implicit ec: ExecutionContext) extends FrontendBaseController
+  userAnswersCacheConnector: UserAnswersCacheConnector,
+  navigator: CompoundNavigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: UseAddressForContactFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  countryOptions: CountryOptions,
+  renderer: Renderer
+)(implicit ec: ExecutionContext) extends FrontendBaseController
   with I18nSupport with NunjucksSupport with Retrievals {
 
   private def form(implicit messages: Messages): Form[Boolean] =
-    formProvider(messages("useAddressForContact.error.required", messages("partnership")))
+    formProvider(messages("useAddressForContact.error.required", messages("company")))
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
@@ -64,44 +80,64 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
 
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      ConfirmAddressPage.retrieve.right.map { address =>
-        form.bindFromRequest().fold(
-          formWithErrors => {
-            getJson(formWithErrors) { json =>
-              renderer.render("address/useAddressForContact.njk", json).map(BadRequest(_))
-            }
-          },
-          value => {
-            val updatedUserAnswersTry: Try[UserAnswers] =
-              if (value) {
-                getResolvedAddress(address) match {
-                  case None => request.userAnswers.set(PartnershipUseSameAddressPage, false)
-                  case Some(resolvedAddress) => request.userAnswers.set(PartnershipUseSameAddressPage, value)
-                    .flatMap(_.set(PartnershipAddressPage, resolvedAddress))
-                }
-              } else {
-                request.userAnswers.set(PartnershipUseSameAddressPage, value)
-              }
-
-            for {
-              updatedAnswers <- Future.fromTry(updatedUserAnswersTry)
-              _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-            } yield Redirect(navigator.nextPage(PartnershipUseSameAddressPage, NormalMode, updatedAnswers))
+      form.bindFromRequest().fold(
+        formWithErrors => {
+          getJson(formWithErrors) { json =>
+            renderer.render("address/useAddressForContact.njk", json).map(BadRequest(_))
           }
-        )
-      }
+        },
+        value => {
+          retrieveTolerantAddress match {
+            case Some(address) =>
+              val updatedUserAnswersTry: Try[UserAnswers] =
+                if (value) {
+                  getResolvedAddress(address) match {
+                    case None =>
+                      request.userAnswers.set(PartnershipUseSameAddressPage, false)
+                    case Some(resolvedAddress) =>
+                      request.userAnswers.set(PartnershipUseSameAddressPage, value)
+                        .flatMap(_.set(CompanyAddressPage, resolvedAddress))
+                  }
+                } else {
+                  request.userAnswers.set(PartnershipUseSameAddressPage, value)
+                }
+              for {
+                updatedAnswers <- Future.fromTry(updatedUserAnswersTry)
+                _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+              } yield Redirect(navigator.nextPage(PartnershipUseSameAddressPage, NormalMode, updatedAnswers))
+            case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+          }
+        }
+      )
   }
 
-  private def getJson(form: Form[Boolean])(block: JsObject => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] =
-    (BusinessNamePage and ConfirmAddressPage).retrieve.right.map { case partnershipName ~ address =>
-      val json = Json.obj(
-        "form" -> form,
-        "viewmodel" -> CommonViewModel("partnership", partnershipName, routes.PartnershipUseSameAddressController.onSubmit().url),
-        "radios" -> Radios.yesNo(form("value")),
-        "address" -> address.lines(countryOptions)
-      )
-      block(json)
+  private def retrieveTolerantAddress(implicit request:DataRequest[_]):Option[TolerantAddress] = {
+    (request.userAnswers.get(AreYouUKCompanyPage),
+      request.userAnswers.get(ConfirmAddressPage),
+      request.userAnswers.get(PartnershipRegisteredAddressPage)) match {
+      case (Some(true), Some(address), _) =>
+        Some(address)
+      case (Some(false), _, Some(address)) =>
+        Some(address.toTolerantAddress)
+      case _ => None
     }
+  }
+
+  private def getJson(form: Form[Boolean])(block: JsObject => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
+    retrieveTolerantAddress match {
+      case Some(tolerantAddress) =>
+        BusinessNamePage.retrieve.right.map{ companyName =>
+          val json = Json.obj(
+            "form" -> form,
+            "viewmodel" -> CommonViewModel("company", companyName, routes.PartnershipUseSameAddressController.onSubmit().url),
+            "radios" -> Radios.yesNo(form("value")),
+            "address" -> tolerantAddress.lines(countryOptions)
+          )
+          block(json)
+        }
+      case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+    }
+  }
 
   protected def getResolvedAddress(tolerantAddress: TolerantAddress): Option[Address] = {
     tolerantAddress.addressLine1 match {
