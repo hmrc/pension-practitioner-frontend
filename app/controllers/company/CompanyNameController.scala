@@ -22,11 +22,9 @@ import controllers.actions._
 import forms.BusinessNameFormProvider
 import javax.inject.Inject
 import models.NormalMode
-import models.register.BusinessRegistrationType
 import navigators.CompoundNavigator
 import pages.company.BusinessNamePage
 import pages.register.AreYouUKCompanyPage
-import pages.register.BusinessRegistrationTypePage
 import play.api.i18n.I18nSupport
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json

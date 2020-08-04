@@ -48,7 +48,7 @@ trait ManualAddressController extends FrontendBaseController with Retrievals {
 
   protected def retrieveFieldsFromRequestAndAddCountryForUK(implicit request: DataRequest[AnyContent]):Map[String, String] = {
     val postedFields = request.body.asFormUrlEncoded.fold(Map[String, Seq[String]]())(identity)
-      .map(field => (field._1, field._2.head))
+      .map(field => (field._1, field._2.headOption.getOrElse("")))
     request.userAnswers.get(AreYouUKCompanyPage) match {
       case Some(true) => postedFields ++ Map("country" -> "GB")
       case _ => postedFields
