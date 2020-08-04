@@ -90,8 +90,10 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
     (identify andThen getData andThen requireData).async {
       implicit request =>
         BusinessNamePage.retrieve.right.map { companyName =>
+          println( "\n>>>" + request.body)
           form.bindFromRequest().fold(
             formWithErrors => {
+              println("\nLL" + formWithErrors)
               val json = commonJson(companyName, mode, formWithErrors.data.get("country")) ++
                 Json.obj("form" -> formWithErrors)
               renderer.render(viewTemplate, json).map(BadRequest(_))
