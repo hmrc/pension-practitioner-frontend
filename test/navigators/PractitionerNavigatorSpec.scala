@@ -20,6 +20,7 @@ import data.SampleData
 import models.NormalMode
 import models.UserAnswers
 import models.WhatTypeBusiness
+import models.register.BusinessRegistrationType
 import models.register.BusinessType
 import org.scalatest.prop.TableFor3
 import pages._
@@ -39,7 +40,7 @@ class PractitionerNavigatorSpec extends NavigatorBehaviour {
   private val uaBusinessTypeLimitedCompany = SampleData.emptyUserAnswers.setOrException(BusinessTypePage, BusinessType.LimitedCompany)
   private val uaBusinessTypeUnlimitedCompany = SampleData.emptyUserAnswers.setOrException(BusinessTypePage, BusinessType.UnlimitedCompany)
   private val uaIndividual = SampleData.emptyUserAnswers.setOrException(WhatTypeBusinessPage, WhatTypeBusiness.Yourselfasindividual)
-
+  private val uaBusinessRegistrationTypeCompany = SampleData.emptyUserAnswers.setOrException(BusinessRegistrationTypePage, BusinessRegistrationType.Company)
 
   "NormalMode" must {
     def normalModeRoutes: TableFor3[Page, UserAnswers, Call] =
@@ -53,7 +54,8 @@ class PractitionerNavigatorSpec extends NavigatorBehaviour {
         row(BusinessTypePage)(controllers.company.routes.BusinessUTRController.onPageLoad(), Some(uaBusinessTypeLimitedCompany)),
         row(BusinessTypePage)(controllers.company.routes.BusinessUTRController.onPageLoad(), Some(uaBusinessTypeUnlimitedCompany)),
         row(BusinessDetailsNotFoundPage)(controllers.routes.WhatTypeBusinessController.onPageLoad()),
-        row(BusinessRegistrationTypePage)(controllers.company.routes.CompanyNameController.onPageLoad())
+        row(BusinessRegistrationTypePage)(controllers.company.routes.CompanyNameController.onPageLoad(), Some(uaBusinessRegistrationTypeCompany)),
+        row(BusinessRegistrationTypePage)(controllers.partnership.routes.PartnershipNameController.onPageLoad())
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)

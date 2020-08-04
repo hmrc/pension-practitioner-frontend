@@ -21,7 +21,8 @@ import models.{Address, CheckMode, UserAnswers}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.partnership._
-import uk.gov.hmrc.viewmodels.SummaryList.{Action, Key, Row, Value}
+import pages.register.AreYouUKCompanyPage
+import uk.gov.hmrc.viewmodels.SummaryList.{Key, Value, Row, Action}
 import uk.gov.hmrc.viewmodels.Text.Literal
 import uk.gov.hmrc.viewmodels._
 
@@ -34,14 +35,22 @@ class PartnershipCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAn
   private val email: String = "a@b.c"
   private val phone: String = "1111111111"
 
-  val userAnswers: UserAnswers = UserAnswers()
+  val userAnswersUK: UserAnswers = UserAnswers()
+    .setOrException(AreYouUKCompanyPage, true)
     .set(BusinessNamePage, partnershipName).toOption.value
     .set(BusinessUTRPage, utr).toOption.value
     .set(PartnershipAddressPage, address).toOption.value
     .set(PartnershipEmailPage, email).toOption.value
     .set(PartnershipPhonePage, phone).toOption.value
 
-  val expectedRows: Seq[Row] = Seq(
+  val userAnswersNonUK: UserAnswers = UserAnswers()
+    .setOrException(AreYouUKCompanyPage, false)
+    .set(BusinessNamePage, partnershipName).toOption.value
+    .set(PartnershipAddressPage, address).toOption.value
+    .set(PartnershipEmailPage, email).toOption.value
+    .set(PartnershipPhonePage, phone).toOption.value
+
+  val expectedRowsUK: Seq[Row] = Seq(
     Row(
       key = Key(msg"cya.partnershipName", classes = Seq("govuk-!-width-one-half")),
       value = Value(Literal(partnershipName), classes = Seq("govuk-!-width-one-third"))
@@ -85,11 +94,52 @@ class PartnershipCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAn
     )
   )
 
+  val expectedRowsNonUK: Seq[Row] = Seq(
+    Row(
+      key = Key(msg"cya.partnershipName", classes = Seq("govuk-!-width-one-half")),
+      value = Value(Literal(partnershipName), classes = Seq("govuk-!-width-one-third"))
+    ),
+    Row(
+      key = Key(msg"cya.address", classes = Seq("govuk-!-width-one-half")),
+      value = Value(addressAnswer(address), classes = Seq("govuk-!-width-one-third")),
+      actions = List(
+        Action(
+          content = msg"site.edit",
+          href = controllers.partnership.routes.PartnershipAddressController.onPageLoad(CheckMode).url,
+          visuallyHiddenText = Some(msg"cya.change.address")
+        )
+      )
+    ),
+    Row(
+      key = Key(msg"cya.email".withArgs(partnershipName), classes = Seq("govuk-!-width-one-half")),
+      value = Value(Literal(email), classes = Seq("govuk-!-width-one-third")),
+      actions = List(
+        Action(
+          content = msg"site.edit",
+          href = controllers.partnership.routes.PartnershipEmailController.onPageLoad(CheckMode).url,
+          visuallyHiddenText = Some(msg"cya.change.email".withArgs(partnershipName))
+        )
+      )
+    ),
+    Row(
+      key = Key(msg"cya.phone".withArgs(partnershipName), classes = Seq("govuk-!-width-one-half")),
+      value = Value(Literal(phone), classes = Seq("govuk-!-width-one-third")),
+      actions = List(
+        Action(
+          content = msg"site.edit",
+          href = controllers.partnership.routes.PartnershipPhoneController.onPageLoad(CheckMode).url,
+          visuallyHiddenText = Some(msg"cya.change.phone".withArgs(partnershipName))
+        )
+      )
+    )
+  )
+
   "partnershipCya" must {
-    "return a list of rows of partnership cya details" in {
-
-      service.partnershipCya(userAnswers) mustBe expectedRows
-
+    "return a list of rows of partnership cya details for uk" in {
+      service.partnershipCya(userAnswersUK) mustBe expectedRowsUK
+    }
+    "return a list of rows of partnership cya details for non uk" in {
+      service.partnershipCya(userAnswersNonUK) mustBe expectedRowsNonUK
     }
   }
 

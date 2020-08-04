@@ -28,7 +28,7 @@ import models.Address
 import models.Mode
 import navigators.CompoundNavigator
 import pages.QuestionPage
-import pages.company.BusinessNamePage
+import pages.partnership.BusinessNamePage
 import pages.partnership.PartnershipAddressPage
 import pages.register.AreYouUKCompanyPage
 import play.api.data.Form
@@ -133,7 +133,7 @@ class PartnershipAddressController @Inject()(override val messagesApi: MessagesA
   private def commonJson(mode: Mode, companyName: String)(implicit request: DataRequest[AnyContent]) = {
     Json.obj(
       "viewmodel" -> CommonViewModel(
-        "company",
+        "partnership",
         companyName,
         routes.PartnershipAddressController.onSubmit(mode).url),
       "postcodeEntry" -> true

@@ -129,7 +129,7 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
         BusinessNamePage.retrieve.right.map{ companyName =>
           val json = Json.obj(
             "form" -> form,
-            "viewmodel" -> CommonViewModel("company", companyName, routes.PartnershipUseSameAddressController.onSubmit().url),
+            "viewmodel" -> CommonViewModel("partnership", companyName, routes.PartnershipUseSameAddressController.onSubmit().url),
             "radios" -> Radios.yesNo(form("value")),
             "address" -> tolerantAddress.lines(countryOptions)
           )

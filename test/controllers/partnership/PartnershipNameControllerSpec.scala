@@ -30,7 +30,7 @@ import org.mockito.Matchers
 import org.scalatest.OptionValues
 import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
-import pages.company.BusinessNamePage
+import pages.partnership.BusinessNamePage
 import pages.register.AreYouUKCompanyPage
 import play.api.Application
 import play.api.data.Form
@@ -143,7 +143,6 @@ class PartnershipNameControllerSpec extends ControllerSpecBase with MockitoSugar
     }
 
     "Save data to user answers and redirect to next page when valid data is submitted" in {
-
       val expectedJson = Json.obj(
         BusinessNamePage.toString -> name)
 
