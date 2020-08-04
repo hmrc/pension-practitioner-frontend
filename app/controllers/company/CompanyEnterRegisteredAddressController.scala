@@ -90,7 +90,7 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
     (identify andThen getData andThen requireData).async {
       implicit request =>
         BusinessNamePage.retrieve.right.map { companyName =>
-          println( "\n>>>" + request.body)
+          println( "\n>>>" + request)
           form.bindFromRequest().fold(
             formWithErrors => {
               println("\nLL" + formWithErrors)

@@ -16,6 +16,7 @@
 
 package controllers.company
 
+import connectors.RegistrationConnector
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import forms.address.AddressFormProvider
@@ -23,6 +24,10 @@ import matchers.JsonMatchers
 import models.Address
 import models.NormalMode
 import models.UserAnswers
+import models.register.RegistrationCustomerType
+import models.register.RegistrationIdType
+import models.register.RegistrationInfo
+import models.register.RegistrationLegalStatus
 import org.mockito.Matchers.any
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
@@ -58,10 +63,15 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
 
   val countryOptions: CountryOptions = mock[CountryOptions]
 
+  private val mockRegistrationConnector = mock[RegistrationConnector]
+
   private val application: Application =
     applicationBuilderMutableRetrievalAction(
       mutableFakeDataRetrievalAction,
-      extraModules = Seq(bind[CountryOptions].toInstance(countryOptions))
+      extraModules = Seq(
+        bind[CountryOptions].toInstance(countryOptions),
+        bind[RegistrationConnector].to(mockRegistrationConnector)
+      )
     ).build()
   private val templateToBeRendered = "address/manualAddress.njk"
   private val form = new AddressFormProvider(countryOptions)()
@@ -101,65 +111,81 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
   }
 
   "Company Enter Registered Address Controller" must {
-    //"return OK and the correct view for a GET" in {
-    //  val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-    //  val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-    //
-    //  val result = route(application, httpGETRequest(onPageLoadUrl)).value
-    //
-    //  status(result) mustEqual OK
-    //
-    //  verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-    //
-    //  templateCaptor.getValue mustEqual templateToBeRendered
-    //  jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
-    //}
-    //
-    //"redirect to Session Expired page for a GET when there is no data" in {
-    //  mutableFakeDataRetrievalAction.setDataToReturn(None)
-    //
-    //  val result = route(application, httpGETRequest(onPageLoadUrl)).value
-    //
-    //  status(result) mustEqual SEE_OTHER
-    //
-    //  redirectLocation(result).value mustBe controllers.routes.SessionExpiredController.onPageLoad().url
-    //}
+    "return OK and the correct view for a GET" in {
+      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
+      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
-    //"Save data to user answers and redirect to next page when valid data is submitted" in {
-    //
-    //  val expectedJson = Json.obj(
-    //      BusinessNamePage.toString -> companyName,
-    //      CompanyRegisteredAddressPage.toString -> address)
-    //
-    //  when(mockCompoundNavigator.nextPage(Matchers.eq(CompanyRegisteredAddressPage), any(), any())).thenReturn(dummyCall)
-    //
-    //  val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-    //  val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
-    //
-    //  status(result) mustEqual SEE_OTHER
-    //  verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
-    //  jsonCaptor.getValue must containJson(expectedJson)
-    //  redirectLocation(result) mustBe Some(dummyCall.url)
-    //
-    //}
+      val result = route(application, httpGETRequest(onPageLoadUrl)).value
 
-    //"return a BAD REQUEST when invalid data is submitted" in {
-    //
-    //  val result = route(application, httpPOSTRequest(submitUrl, valuesInvalid)).value
-    //
-    //  status(result) mustEqual BAD_REQUEST
-    //
-    //  verify(mockUserAnswersCacheConnector, times(0)).save(any())(any(), any())
-    //}
-    //
-    //"redirect to Session Expired page for a POST when there is no data" in {
-    //  mutableFakeDataRetrievalAction.setDataToReturn(None)
-    //
-    //  val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
-    //
-    //  status(result) mustEqual SEE_OTHER
-    //
-    //  redirectLocation(result).value mustBe controllers.routes.SessionExpiredController.onPageLoad().url
-    //}
+      status(result) mustEqual OK
+
+      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+
+      templateCaptor.getValue mustEqual templateToBeRendered
+      jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
+    }
+
+    "redirect to Session Expired page for a GET when there is no data" in {
+      mutableFakeDataRetrievalAction.setDataToReturn(None)
+
+      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+
+      status(result) mustEqual SEE_OTHER
+
+      redirectLocation(result).value mustBe controllers.routes.SessionExpiredController.onPageLoad().url
+    }
+
+    "Save data to user answers and redirect to next page when valid data is submitted" in {
+
+      val expectedJson = Json.obj(
+          BusinessNamePage.toString -> companyName,
+          CompanyRegisteredAddressPage.toString -> address)
+
+      val regInfo = RegistrationInfo(
+        legalStatus = RegistrationLegalStatus.LimitedCompany,
+        sapNumber = "abc",
+        noIdentifier = false,
+        customerType = RegistrationCustomerType.NonUK,
+        idType = None,
+        idNumber = Some("psaId")
+      )
+
+      when(mockCompoundNavigator.nextPage(Matchers.eq(CompanyRegisteredAddressPage), any(), any())).thenReturn(dummyCall)
+      when(mockRegistrationConnector.registerWithNoIdOrganisation(any(),any(),any())(any(),any()))
+        .thenReturn(Future.successful(regInfo))
+
+
+      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+
+      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+
+      status(result) mustEqual SEE_OTHER
+      verify(mockUserAnswersCacheConnector, times(1))
+        .save(jsonCaptor.capture)(any(), any())
+      jsonCaptor.getValue must containJson(expectedJson)
+     redirectLocation(result) mustBe Some(dummyCall.url)
+      //verify(mockRegistrationConnector, times(1))
+      //  .registerWithNoIdOrganisation(
+
+    }
+
+    "return a BAD REQUEST when invalid data is submitted" in {
+
+      val result = route(application, httpPOSTRequest(submitUrl, valuesInvalid)).value
+
+      status(result) mustEqual BAD_REQUEST
+
+      verify(mockUserAnswersCacheConnector, times(0)).save(any())(any(), any())
+    }
+
+    "redirect to Session Expired page for a POST when there is no data" in {
+      mutableFakeDataRetrievalAction.setDataToReturn(None)
+
+      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+
+      status(result) mustEqual SEE_OTHER
+
+      redirectLocation(result).value mustBe controllers.routes.SessionExpiredController.onPageLoad().url
+    }
   }
 }
