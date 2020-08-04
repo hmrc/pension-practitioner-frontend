@@ -540,4 +540,6 @@ businessRegistrationType.error.required = Select if the business is registered a
 
 isCompanyRegisteredInUk.title = Is the company registered in the UK?
 isCompanyRegisteredInUk.heading = Is the company registered in the UK?
+isCompanyRegisteredInUk.p1 = You selected that you are not based in the UK but have given a UK address.
+isCompanyRegisteredInUk.p2 = If you are not based in the UK, you need to give an address that is not in the UK.
 isCompanyRegisteredInUk.error.required = Select yes if the company is registered in the UK

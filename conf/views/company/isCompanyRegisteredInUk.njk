@@ -22,6 +22,10 @@
           }) }}
         {% endif %}
 
+        <h1 class="govuk-heading-xl">{{ messages("isCompanyRegisteredInUk.heading") }}</h1>
+
+        <p class="govuk-body">{{ messages("isCompanyRegisteredInUk.p1") }}</p>
+        <p class="govuk-body">{{ messages("isCompanyRegisteredInUk.p2") }}</p>
         <form action="{{ submitUrl }}" method="post" novalidate>
 
           {{ csrf() | safe }}
@@ -32,8 +36,8 @@
             fieldset: {
               legend: {
                 text: messages('isCompanyRegisteredInUk.heading'),
-                isPageHeading: true,
-                classes: "govuk-fieldset__legend--xl"
+                isPageHeading: false,
+                classes: "govuk-visually-hidden"
               }
             },
             items: radios,
