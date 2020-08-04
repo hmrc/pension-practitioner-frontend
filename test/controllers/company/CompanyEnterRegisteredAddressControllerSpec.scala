@@ -135,8 +135,7 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
       redirectLocation(result).value mustBe controllers.routes.SessionExpiredController.onPageLoad().url
     }
 
-    "Save data to user answers and redirect to next page when valid data is submitted" in {
-
+    "Save data to user answers, redirect to next page when valid data is submitted and call register without id" in {
       val expectedJson = Json.obj(
           BusinessNamePage.toString -> companyName,
           CompanyRegisteredAddressPage.toString -> address)
@@ -154,7 +153,6 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
       when(mockRegistrationConnector.registerWithNoIdOrganisation(any(),any(),any())(any(),any()))
         .thenReturn(Future.successful(regInfo))
 
-
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
@@ -164,8 +162,11 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
         .save(jsonCaptor.capture)(any(), any())
       jsonCaptor.getValue must containJson(expectedJson)
      redirectLocation(result) mustBe Some(dummyCall.url)
-      //verify(mockRegistrationConnector, times(1))
-      //  .registerWithNoIdOrganisation(
+      verify(mockRegistrationConnector, times(1))
+        .registerWithNoIdOrganisation(
+          Matchers.eq(companyName),
+          Matchers.eq(address),
+          Matchers.eq(RegistrationLegalStatus.LimitedCompany))(any(),any())
 
     }
 
