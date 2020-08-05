@@ -1,0 +1,57 @@
+{% extends "includes/layout.njk" %}
+
+{% from "govuk/components/back-link/macro.njk"     import govukBackLink %}
+{% from "govuk/components/radios/macro.njk"        import govukRadios %}
+{% from "govuk/components/button/macro.njk"        import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "macros/title.njk"                         import title %}
+
+{% block pageTitle %}
+  {{ title(messages("isCompanyRegisteredInUk.title"), form.errors) }}
+{% endblock %}
+
+{% block mainContent %}
+
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+
+        {% if form.errors.length > 0 %}
+          {{ govukErrorSummary({
+            "titleText": messages("error.summary.title"),
+            "errorList": form.errors
+          }) }}
+        {% endif %}
+
+        <h1 class="govuk-heading-xl">{{ messages("isCompanyRegisteredInUk.heading") }}</h1>
+
+        <p class="govuk-body">{{ messages("isCompanyRegisteredInUk.p1") }}</p>
+        <p class="govuk-body">{{ messages("isCompanyRegisteredInUk.p2") }}</p>
+        <form action="{{ submitUrl }}" method="post" novalidate>
+
+          {{ csrf() | safe }}
+
+          {{ govukRadios({
+            classes: "govuk-radios--inline",
+            name: 'value',
+            fieldset: {
+              legend: {
+                text: messages('isCompanyRegisteredInUk.heading'),
+                isPageHeading: false,
+                classes: "govuk-visually-hidden"
+              }
+            },
+            items: radios,
+            errorMessage: form.value.error
+          }) }}
+
+          {{ govukButton({
+            text: messages("site.save_and_continue"),
+            attributes: {id: "submit"}
+          }) }}
+
+        </form>
+
+      </div>
+    </div>
+
+{% endblock %}
