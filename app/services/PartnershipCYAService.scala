@@ -65,6 +65,7 @@ class PartnershipCYAService extends CYAService {
             )
           case _ => Seq.empty
         }
+      case _ => Seq.empty
     }
   }
 
