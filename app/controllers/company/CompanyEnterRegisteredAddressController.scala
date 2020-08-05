@@ -22,6 +22,7 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import controllers.address.ManualAddressController
+import controllers.company.routes.IsCompanyRegisteredInUkController
 import forms.address.AddressFormProvider
 import javax.inject.Inject
 import models.requests.DataRequest
@@ -32,8 +33,6 @@ import navigators.CompoundNavigator
 import pages.RegistrationInfoPage
 import pages.company.CompanyRegisteredAddressPage
 import pages.company.BusinessNamePage
-import pages.company.ConfirmAddressPage
-import pages.register.AreYouUKCompanyPage
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.i18n.Messages
@@ -97,17 +96,19 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
               renderer.render(viewTemplate, json).map(BadRequest(_))
             },
             value => {
-              for {
-                reg <- registrationConnector.registerWithNoIdOrganisation(companyName, value, RegistrationLegalStatus.LimitedCompany)
-                updatedAnswers <- Future(
-                  request.userAnswers
-                    .setOrException(CompanyRegisteredAddressPage, value)
-                    .setOrException(RegistrationInfoPage, reg)
-                )
-                _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-              } yield {
-                Redirect(navigator.nextPage(CompanyRegisteredAddressPage, mode, updatedAnswers))
-              }
+              val updateUA = request.userAnswers.setOrException(CompanyRegisteredAddressPage, value)
+              val nextPage = navigator.nextPage(CompanyRegisteredAddressPage, mode, updateUA)
+              val futureUA =
+                if (nextPage == IsCompanyRegisteredInUkController.onPageLoad()) {
+                  Future(updateUA)
+                } else {
+                  registrationConnector
+                    .registerWithNoIdOrganisation(companyName, value, RegistrationLegalStatus.LimitedCompany)
+                    .map(updateUA.setOrException(RegistrationInfoPage, _))
+                }
+              futureUA
+                .flatMap(ua => userAnswersCacheConnector.save(ua.data))
+                .map(_ => Redirect(nextPage))
             }
           )
         }

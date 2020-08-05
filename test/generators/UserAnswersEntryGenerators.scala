@@ -25,6 +25,7 @@ import pages.WhatTypeBusinessPage
 import pages.register.BusinessTypePage
 import pages.register.AreYouUKCompanyPage
 import pages.company.ConfirmAddressPage
+import pages.company.IsCompanyRegisteredInUkPage
 import pages.company.{BusinessUTRPage, BusinessNamePage, ConfirmNamePage}
 import pages.register.BusinessRegistrationTypePage
 import play.api.libs.json.JsValue
@@ -32,6 +33,14 @@ import play.api.libs.json.Json
 
 
 trait UserAnswersEntryGenerators extends PageGenerators with ModelGenerators {
+
+  implicit lazy val arbitraryIsCompanyRegisteredInUkUserAnswersEntry: Arbitrary[(IsCompanyRegisteredInUkPage.type, JsValue)] =
+    Arbitrary {
+      for {
+        page  <- arbitrary[IsCompanyRegisteredInUkPage.type]
+        value <- arbitrary[Boolean].map(Json.toJson(_))
+      } yield (page, value)
+    }
 
   implicit lazy val arbitraryBusinessRegistrationTypeUserAnswersEntry: Arbitrary[(BusinessRegistrationTypePage.type, JsValue)] =
     Arbitrary {

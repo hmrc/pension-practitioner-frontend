@@ -25,6 +25,7 @@ import pages._
 import pages.register.BusinessTypePage
 import pages.register.AreYouUKCompanyPage
 import pages.company.ConfirmAddressPage
+import pages.company.IsCompanyRegisteredInUkPage
 import pages.company.{BusinessUTRPage, BusinessNamePage, ConfirmNamePage}
 import pages.register.BusinessRegistrationTypePage
 import play.api.libs.json.JsValue
@@ -34,6 +35,7 @@ trait UserAnswersGenerator extends TryValues {
   self: Generators =>
 
   val generators: Seq[Gen[(QuestionPage[_], JsValue)]] =
+    arbitrary[(IsCompanyRegisteredInUkPage.type, JsValue)] ::
     arbitrary[(BusinessRegistrationTypePage.type, JsValue)] ::
     arbitrary[(ConfirmAddressPage.type, JsValue)] ::
     arbitrary[(ConfirmNamePage.type, JsValue)] ::

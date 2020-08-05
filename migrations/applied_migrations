@@ -1,35 +1,33 @@
 #!/bin/bash
 
 echo ""
-echo "Applying migration BusinessRegistrationType"
+echo "Applying migration IsCompanyRegisteredInUk"
 
 echo "Adding routes to conf/app.routes"
 
 echo "" >> ../conf/app.routes
-echo "GET        /businessRegistrationType                        controllers.BusinessRegistrationTypeController.onPageLoad(mode: Mode = NormalMode)" >> ../conf/app.routes
-echo "POST       /businessRegistrationType                        controllers.BusinessRegistrationTypeController.onSubmit(mode: Mode = NormalMode)" >> ../conf/app.routes
+echo "GET        /isCompanyRegisteredInUk                        controllers.IsCompanyRegisteredInUkController.onPageLoad(mode: Mode = NormalMode)" >> ../conf/app.routes
+echo "POST       /isCompanyRegisteredInUk                        controllers.IsCompanyRegisteredInUkController.onSubmit(mode: Mode = NormalMode)" >> ../conf/app.routes
 
-echo "GET        /changeBusinessRegistrationType                  controllers.BusinessRegistrationTypeController.onPageLoad(mode: Mode = CheckMode)" >> ../conf/app.routes
-echo "POST       /changeBusinessRegistrationType                  controllers.BusinessRegistrationTypeController.onSubmit(mode: Mode = CheckMode)" >> ../conf/app.routes
+echo "GET        /changeIsCompanyRegisteredInUk                  controllers.IsCompanyRegisteredInUkController.onPageLoad(mode: Mode = CheckMode)" >> ../conf/app.routes
+echo "POST       /changeIsCompanyRegisteredInUk                  controllers.IsCompanyRegisteredInUkController.onSubmit(mode: Mode = CheckMode)" >> ../conf/app.routes
 
 echo "Adding messages to conf.messages"
 echo "" >> ../conf/messages.en
-echo "businessRegistrationType.title = What is the business registered as?" >> ../conf/messages.en
-echo "businessRegistrationType.heading = What is the business registered as?" >> ../conf/messages.en
-echo "businessRegistrationType.company = Company" >> ../conf/messages.en
-echo "businessRegistrationType.partnership = Partnership" >> ../conf/messages.en
-echo "businessRegistrationType.checkYourAnswersLabel = What is the business registered as?" >> ../conf/messages.en
-echo "businessRegistrationType.error.required = Select businessRegistrationType" >> ../conf/messages.en
+echo "isCompanyRegisteredInUk.title = isCompanyRegisteredInUk" >> ../conf/messages.en
+echo "isCompanyRegisteredInUk.heading = isCompanyRegisteredInUk" >> ../conf/messages.en
+echo "isCompanyRegisteredInUk.checkYourAnswersLabel = isCompanyRegisteredInUk" >> ../conf/messages.en
+echo "isCompanyRegisteredInUk.error.required = Select yes if isCompanyRegisteredInUk" >> ../conf/messages.en
 
 echo "Adding to UserAnswersEntryGenerators"
 awk '/trait UserAnswersEntryGenerators/ {\
     print;\
     print "";\
-    print "  implicit lazy val arbitraryBusinessRegistrationTypeUserAnswersEntry: Arbitrary[(BusinessRegistrationTypePage.type, JsValue)] =";\
+    print "  implicit lazy val arbitraryIsCompanyRegisteredInUkUserAnswersEntry: Arbitrary[(IsCompanyRegisteredInUkPage.type, JsValue)] =";\
     print "    Arbitrary {";\
     print "      for {";\
-    print "        page  <- arbitrary[BusinessRegistrationTypePage.type]";\
-    print "        value <- arbitrary[BusinessRegistrationType].map(Json.toJson(_))";\
+    print "        page  <- arbitrary[IsCompanyRegisteredInUkPage.type]";\
+    print "        value <- arbitrary[Boolean].map(Json.toJson(_))";\
     print "      } yield (page, value)";\
     print "    }";\
     next }1' ../test/generators/UserAnswersEntryGenerators.scala > tmp && mv tmp ../test/generators/UserAnswersEntryGenerators.scala
@@ -38,44 +36,34 @@ echo "Adding to PageGenerators"
 awk '/trait PageGenerators/ {\
     print;\
     print "";\
-    print "  implicit lazy val arbitraryBusinessRegistrationTypePage: Arbitrary[BusinessRegistrationTypePage.type] =";\
-    print "    Arbitrary(BusinessRegistrationTypePage)";\
+    print "  implicit lazy val arbitraryIsCompanyRegisteredInUkPage: Arbitrary[IsCompanyRegisteredInUkPage.type] =";\
+    print "    Arbitrary(IsCompanyRegisteredInUkPage)";\
     next }1' ../test/generators/PageGenerators.scala > tmp && mv tmp ../test/generators/PageGenerators.scala
-
-echo "Adding to ModelGenerators"
-awk '/trait ModelGenerators/ {\
-    print;\
-    print "";\
-    print "  implicit lazy val arbitraryBusinessRegistrationType: Arbitrary[BusinessRegistrationType] =";\
-    print "    Arbitrary {";\
-    print "      Gen.oneOf(BusinessRegistrationType.values.toSeq)";\
-    print "    }";\
-    next }1' ../test/generators/ModelGenerators.scala > tmp && mv tmp ../test/generators/ModelGenerators.scala
 
 echo "Adding to UserAnswersGenerator"
 awk '/val generators/ {\
     print;\
-    print "    arbitrary[(BusinessRegistrationTypePage.type, JsValue)] ::";\
+    print "    arbitrary[(IsCompanyRegisteredInUkPage.type, JsValue)] ::";\
     next }1' ../test/generators/UserAnswersGenerator.scala > tmp && mv tmp ../test/generators/UserAnswersGenerator.scala
 
 echo "Adding helper method to CheckYourAnswersHelper"
 awk '/class CheckYourAnswersHelper/ {\
      print;\
      print "";\
-     print "  def businessRegistrationType: Option[Row] = userAnswers.get(BusinessRegistrationTypePage) map {";\
+     print "  def isCompanyRegisteredInUk: Option[Row] = userAnswers.get(IsCompanyRegisteredInUkPage) map {";\
      print "    answer =>";\
      print "      Row(";\
-     print "        key     = Key(msg\"businessRegistrationType.checkYourAnswersLabel\", classes = Seq(\"govuk-!-width-one-half\")),";\
-     print "        value   = Value(msg\"businessRegistrationType.$answer\"),";\
+     print "        key     = Key(msg\"isCompanyRegisteredInUk.checkYourAnswersLabel\", classes = Seq(\"govuk-!-width-one-half\")),";\
+     print "        value   = Value(yesOrNo(answer)),";\
      print "        actions = List(";\
      print "          Action(";\
      print "            content            = msg\"site.edit\",";\
-     print "            href               = controllers.routes.BusinessRegistrationTypeController.onPageLoad(CheckMode).url,";\
-     print "            visuallyHiddenText = Some(msg\"site.edit.hidden\".withArgs(msg\"businessRegistrationType.checkYourAnswersLabel\"))";\
+     print "            href               = controllers.routes.IsCompanyRegisteredInUkController.onPageLoad(CheckMode).url,";\
+     print "            visuallyHiddenText = Some(msg\"site.edit.hidden\".withArgs(msg\"isCompanyRegisteredInUk.checkYourAnswersLabel\"))";\
      print "          )";\
      print "        )";\
      print "      )";\
      print "  }";\
      next }1' ../app/utils/CYAHelper.scala > tmp && mv tmp ../app/utils/CYAHelper.scala
 
-echo "Migration BusinessRegistrationType completed"
+echo "Migration IsCompanyRegisteredInUk completed"

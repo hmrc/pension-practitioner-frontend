@@ -64,7 +64,6 @@ trait Formatters extends Transforms with Constraints {
         case (Some(zip), Some(_)) if zip.length <= maxLengthNonUKPostcode => Right(Some(zip))
         case (Some(_), Some(_)) => Left(Seq(FormError(key, nonUkLengthKey)))
         case (Some(zip), None) => Right(Some(zip))
-        case (None, Some("GB")) => Left(Seq(FormError(key, requiredKey)))
         case _ => Right(None)
       }
     }
