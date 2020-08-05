@@ -537,3 +537,7 @@ businessRegistrationType.company = Company
 businessRegistrationType.partnership = Partnership
 businessRegistrationType.checkYourAnswersLabel = What is the business registered as?
 businessRegistrationType.error.required = Select if the business is registered as a company or partnership
+
+isCompanyRegisteredInUk.title = Is the company registered in the UK?
+isCompanyRegisteredInUk.heading = Is the company registered in the UK?
+isCompanyRegisteredInUk.error.required = Select yes if the company is registered in the UK

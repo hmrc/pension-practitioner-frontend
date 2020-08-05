@@ -57,7 +57,16 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
     case CompanyPostcodePage => CompanyAddressListController.onPageLoad(NormalMode)
     case CompanyAddressListPage => CompanyEmailController.onPageLoad(NormalMode)
     case CompanyAddressPage => CompanyEmailController.onPageLoad(NormalMode)
-    case CompanyRegisteredAddressPage =>CompanyUseSameAddressController.onPageLoad()
+    case CompanyRegisteredAddressPage =>
+      (ua.get(AreYouUKCompanyPage), ua.get(CompanyRegisteredAddressPage)) match {
+      case (Some(false), Some(addr)) if addr.country == "GB" => IsCompanyRegisteredInUkController.onPageLoad(NormalMode)
+      case _ => CompanyUseSameAddressController.onPageLoad()
+    }
+    case IsCompanyRegisteredInUkPage =>
+      ua.get(IsCompanyRegisteredInUkPage) match {
+        case Some(true) => controllers.routes.WhatTypeBusinessController.onPageLoad()
+        case _ => CompanyEnterRegisteredAddressController.onPageLoad(NormalMode)
+      }
     case CompanyEmailPage => CompanyPhoneController.onPageLoad(NormalMode)
     case CompanyPhonePage => CheckYourAnswersController.onPageLoad()
     case DeclarationPage => controllers.company.routes.ConfirmationController.onPageLoad()

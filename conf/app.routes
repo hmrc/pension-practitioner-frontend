@@ -33,3 +33,4 @@ GET        /business-details-not-found                      controllers.register
 
 GET        /what-is-business-registered-as                        controllers.register.BusinessRegistrationTypeController.onPageLoad()
 POST       /what-is-business-registered-as                        controllers.register.BusinessRegistrationTypeController.onSubmit()
+

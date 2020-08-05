@@ -52,3 +52,8 @@ GET        /addresses/enter-registered-address                  controllers.comp
 POST       /addresses/enter-registered-address                  controllers.company.CompanyEnterRegisteredAddressController.onSubmit(mode: Mode = NormalMode)
 GET        /addresses/change-enter-registered-address           controllers.company.CompanyEnterRegisteredAddressController.onPageLoad(mode: Mode = CheckMode)
 POST       /addresses/change-enter-registered-address           controllers.company.CompanyEnterRegisteredAddressController.onSubmit(mode: Mode = CheckMode)
+
+GET        /is-company-in-uk                        controllers.company.IsCompanyRegisteredInUkController.onPageLoad(mode: Mode = NormalMode)
+POST       /is-company-in-uk                        controllers.company.IsCompanyRegisteredInUkController.onSubmit(mode: Mode = NormalMode)
+GET        /change-is-company-in-uk                  controllers.company.IsCompanyRegisteredInUkController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-is-company-in-uk                  controllers.company.IsCompanyRegisteredInUkController.onSubmit(mode: Mode = CheckMode)

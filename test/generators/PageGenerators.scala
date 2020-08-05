@@ -18,12 +18,16 @@ package generators
 
 import org.scalacheck.Arbitrary
 import pages.WhatTypeBusinessPage
+import pages.company.IsCompanyRegisteredInUkPage
 import pages.company.{ConfirmAddressPage, BusinessUTRPage, BusinessNamePage, ConfirmNamePage}
 import pages.register.AreYouUKCompanyPage
 import pages.register.BusinessRegistrationTypePage
 import pages.register.BusinessTypePage
 
 trait PageGenerators {
+
+  implicit lazy val arbitraryIsCompanyRegisteredInUkPage: Arbitrary[IsCompanyRegisteredInUkPage.type] =
+    Arbitrary(IsCompanyRegisteredInUkPage)
 
   implicit lazy val arbitraryBusinessRegistrationTypePage: Arbitrary[BusinessRegistrationTypePage.type] =
     Arbitrary(BusinessRegistrationTypePage)
