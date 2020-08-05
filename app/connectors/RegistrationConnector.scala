@@ -45,7 +45,7 @@ trait RegistrationConnector {
   def registerWithNoIdOrganisation(name: String, address: Address, legalStatus: RegistrationLegalStatus)
                                   (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[RegistrationInfo]
 
-  def registerWithNoIdIndividual(firstName: String, lastName: String, address: Address, dateOfBirth: LocalDate)
+  def registerWithNoIdIndividual(firstName: String, lastName: String, address: Address)
                                 (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[RegistrationInfo]
 }
 
@@ -155,10 +155,10 @@ class RegistrationConnectorImpl @Inject()(http: HttpClient,
     }
   }
 
-  override def registerWithNoIdIndividual(firstName: String, lastName: String, address: Address, dateOfBirth: LocalDate)
+  override def registerWithNoIdIndividual(firstName: String, lastName: String, address: Address)
                                          (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[RegistrationInfo] = {
 
-    val registrant = RegistrationNoIdIndividualRequest(firstName, lastName, dateOfBirth, address)
+    val registrant = RegistrationNoIdIndividualRequest(firstName, lastName, address)
 
     http.POST[JsValue, HttpResponse](config.registerWithNoIdIndividualUrl, Json.toJson(registrant)) map { response =>
       require(response.status == Status.OK, "The only valid response to registerWithNoIdIndividual is 200 OK")

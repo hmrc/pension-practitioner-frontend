@@ -15,11 +15,20 @@
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
 
+        <h1 class="govuk-heading-xl">
+              {{ messages("areYouUKResident.title") }}
+            </h1>
+
         {% if form.errors.length > 0 %}
           {{ govukErrorSummary({
             "titleText": messages("error.summary.title"),
             "errorList": form.errors
           }) }}
+        {% endif %}
+
+        {% if isCheckMode %}
+                 <p class="govuk-body">{{ messages("areYouUKResident.check.p1") }}</p>
+                 <p class="govuk-body">{{ messages("areYouUKResident.check.p2") }}</p>
         {% endif %}
 
         <form action="{{ submitUrl }}" method="post">
@@ -32,8 +41,8 @@
             fieldset: {
               legend: {
                 text: messages('areYouUKResident.title'),
-                isPageHeading: true,
-                classes: "govuk-fieldset__legend--xl"
+                isPageHeading: false,
+                classes: "govuk-visually-hidden"
               }
             },
             items: radios,

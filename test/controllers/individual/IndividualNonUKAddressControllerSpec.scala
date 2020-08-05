@@ -16,17 +16,19 @@
 
 package controllers.individual
 
+import connectors.RegistrationConnector
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import forms.address.NonUKAddressFormProvider
 import matchers.JsonMatchers
+import models.register.{RegistrationCustomerType, RegistrationIdType, RegistrationInfo, RegistrationLegalStatus, TolerantIndividual}
 import models.{Address, NormalMode, TolerantAddress, UserAnswers}
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.individual.IndividualAddressPage
+import pages.individual.{IndividualAddressPage, IndividualDetailsPage}
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
@@ -45,11 +47,24 @@ class IndividualNonUKAddressControllerSpec extends ControllerSpecBase with Mocki
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val countryOptions: CountryOptions = mock[CountryOptions]
+  private val mockRegistrationConnector: RegistrationConnector = mock[RegistrationConnector]
+
+  val regInfo: RegistrationInfo = RegistrationInfo(
+    RegistrationLegalStatus.LimitedCompany,
+    "sapNumber",
+    noIdentifier = false,
+    RegistrationCustomerType.UK,
+    Some(RegistrationIdType.UTR),
+    Some("utr")
+  )
 
   private val application: Application =
     applicationBuilderMutableRetrievalAction(
       mutableFakeDataRetrievalAction,
-      extraModules = Seq(bind[CountryOptions].toInstance(countryOptions))
+      extraModules = Seq(
+        bind[CountryOptions].toInstance(countryOptions),
+        bind[RegistrationConnector].toInstance(mockRegistrationConnector)
+      )
     ).build()
   private val templateToBeRendered = "individual/nonUKAddress.njk"
   private val form = new NonUKAddressFormProvider(countryOptions)()
@@ -60,6 +75,7 @@ class IndividualNonUKAddressControllerSpec extends ControllerSpecBase with Mocki
 
   private val dummyCall: Call = Call("GET", "/foo")
   private val address: TolerantAddress = TolerantAddress(Some("line1"), Some("line2"), Some("line3"), Some("line4"), None, Some("IN"))
+  private val ua: UserAnswers = UserAnswers().setOrException(IndividualDetailsPage, TolerantIndividual(Some("first"), None, Some("last")))
 
   private val valuesValid: Map[String, Seq[String]] = Map(
     "line1" -> Seq("line1"),
@@ -79,8 +95,10 @@ class IndividualNonUKAddressControllerSpec extends ControllerSpecBase with Mocki
 
   override def beforeEach: Unit = {
     super.beforeEach
-    mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
+    mutableFakeDataRetrievalAction.setDataToReturn(Some(ua))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
+    when(mockRegistrationConnector.registerWithNoIdIndividual(any(), any(), any())(any(), any()))
+      .thenReturn(Future.successful(regInfo))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
     when(countryOptions.options).thenReturn(Seq(InputOption("IN", "India")))
     when(mockAppConfig.validCountryCodes).thenReturn(Seq("IN"))

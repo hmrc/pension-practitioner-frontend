@@ -25,7 +25,7 @@ import controllers.actions.IdentifierAction
 import controllers.base.ControllerSpecBase
 import forms.individual.AreYouUKResidentFormProvider
 import matchers.JsonMatchers
-import models.UserAnswers
+import models.{NormalMode, UserAnswers}
 import navigators.CompoundNavigator
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
@@ -58,8 +58,8 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
   private val formProvider = new AreYouUKResidentFormProvider()
   private val form = formProvider()
 
-  private def areYouUKResidentRoute: String = routes.AreYouUKResidentController.onPageLoad().url
-  private def areYouUKResidentSubmitRoute: String = routes.AreYouUKResidentController.onSubmit().url
+  private def areYouUKResidentRoute: String = routes.AreYouUKResidentController.onPageLoad(NormalMode).url
+  private def areYouUKResidentSubmitRoute: String = routes.AreYouUKResidentController.onSubmit(NormalMode).url
 
   override def modules: Seq[GuiceableModule] = Seq(
     bind[DataRequiredAction].to[DataRequiredActionImpl],

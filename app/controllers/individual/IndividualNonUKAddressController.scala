@@ -17,24 +17,27 @@
 package controllers.individual
 
 import config.FrontendAppConfig
+import connectors.RegistrationConnector
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import controllers.address.NonUKManualAddressController
 import forms.address.NonUKAddressFormProvider
 import javax.inject.Inject
+import models.register.RegistrationInfo
 import models.requests.DataRequest
 import models.{Address, Mode}
 import navigators.CompoundNavigator
-import pages.individual.IndividualAddressPage
+import pages.individual.{IndividualAddressPage, IndividualDetailsPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.countryOptions.CountryOptions
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class IndividualNonUKAddressController @Inject()(override val messagesApi: MessagesApi,
                                                  val userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -43,9 +46,11 @@ class IndividualNonUKAddressController @Inject()(override val messagesApi: Messa
                                                  getData: DataRetrievalAction,
                                                  requireData: DataRequiredAction,
                                                  formProvider: NonUKAddressFormProvider,
+                                                 registrationConnector: RegistrationConnector,
                                                  val controllerComponents: MessagesControllerComponents,
                                                  val config: FrontendAppConfig,
-                                                 val renderer: Renderer
+                                                 val renderer: Renderer,
+                                                 val countryOptions: CountryOptions
                                                 )(implicit ec: ExecutionContext) extends NonUKManualAddressController
   with Retrievals with I18nSupport with NunjucksSupport {
 
@@ -62,7 +67,14 @@ class IndividualNonUKAddressController @Inject()(override val messagesApi: Messa
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {
       implicit request =>
-        post(mode, getFormToJson(mode), IndividualAddressPage)
+        IndividualDetailsPage.retrieve.right.map { individual =>
+          (individual.firstName, individual.lastName) match {
+            case (Some(firstName), Some(lastName)) =>
+              val regCall: Address => Future[RegistrationInfo] = address =>
+                registrationConnector.registerWithNoIdIndividual(firstName, lastName, address)
+              post(mode, getFormToJson(mode), IndividualAddressPage, regCall)
+          }
+        }
     }
 
   private def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Form[Address] => JsObject = {

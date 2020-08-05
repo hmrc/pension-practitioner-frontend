@@ -21,7 +21,7 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import forms.individual.AreYouUKResidentFormProvider
 import javax.inject.Inject
-import models.NormalMode
+import models.{CheckMode, Mode}
 import navigators.CompoundNavigator
 import pages.individual.AreYouUKResidentPage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -48,30 +48,32 @@ class AreYouUKResidentController @Inject()(override val messagesApi: MessagesApi
 
   private val form = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       val preparedForm = request.userAnswers.get(AreYouUKResidentPage) match {
         case None => form
         case Some(value) => form.fill(value)
       }
-
+      val isCheckMode: Boolean = mode == CheckMode
       val json = Json.obj(
         "form" -> preparedForm,
-        "submitUrl" -> routes.AreYouUKResidentController.onSubmit().url,
+        "isCheckMode" -> isCheckMode,
+        "submitUrl" -> routes.AreYouUKResidentController.onSubmit(mode).url,
         "radios" -> Radios.yesNo(preparedForm("value"))
       )
 
       renderer.render("individual/areYouUKResident.njk", json).map(Ok(_))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       form.bindFromRequest().fold(
         formWithErrors => {
-
+          val isCheckMode: Boolean = mode == CheckMode
           val json = Json.obj(
             "form" -> formWithErrors,
-            "submitUrl" -> routes.AreYouUKResidentController.onSubmit().url,
+            "isCheckMode" -> isCheckMode,
+            "submitUrl" -> routes.AreYouUKResidentController.onSubmit(mode).url,
             "radios" -> Radios.yesNo(formWithErrors("value"))
           )
 
@@ -81,7 +83,7 @@ class AreYouUKResidentController @Inject()(override val messagesApi: MessagesApi
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(AreYouUKResidentPage, value))
             _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-          } yield Redirect(navigator.nextPage(AreYouUKResidentPage, NormalMode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(AreYouUKResidentPage, mode, updatedAnswers))
       )
   }
 }

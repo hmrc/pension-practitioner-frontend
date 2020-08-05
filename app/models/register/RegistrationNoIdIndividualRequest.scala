@@ -21,7 +21,7 @@ import java.time.LocalDate
 import models.Address
 import play.api.libs.json._
 
-case class RegistrationNoIdIndividualRequest(firstName: String, lastName: String, dateOfBirth: LocalDate, address: Address)
+case class RegistrationNoIdIndividualRequest(firstName: String, lastName: String, address: Address)
 
 object RegistrationNoIdIndividualRequest {
 

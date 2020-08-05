@@ -16,8 +16,7 @@
 
 package navigators
 
-import data.SampleData
-import models.{CheckMode, NormalMode, UserAnswers}
+import models.{CheckMode, NormalMode, TolerantAddress, UserAnswers}
 import org.scalatest.prop.TableFor3
 import pages._
 import pages.individual._
@@ -26,26 +25,28 @@ import play.api.mvc.Call
 class IndividualNavigatorSpec extends NavigatorBehaviour {
 
   private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
+  private def address(country: String): TolerantAddress = TolerantAddress(Some("line1"), Some("line2"), None, None, None, Some(country))
 
-  private def uaIsThisYou(flag: Boolean): UserAnswers = SampleData
-    .emptyUserAnswers.setOrException(IsThisYouPage, flag)
+  private def uaIsThisYou(flag: Boolean): UserAnswers = UserAnswers().setOrException(IsThisYouPage, flag)
 
-  private def areYouUKResident(flag: Boolean): UserAnswers = SampleData
-    .emptyUserAnswers.setOrException(AreYouUKResidentPage, flag)
+  private def uaAddress(country: String): UserAnswers = UserAnswers().setOrException(IndividualAddressPage, address(country))
 
-  private def uaUseAddressForContact(flag: Boolean): UserAnswers = SampleData
-    .emptyUserAnswers.setOrException(UseAddressForContactPage, flag)
+  private def areYouUKResident(flag: Boolean): UserAnswers = UserAnswers().setOrException(AreYouUKResidentPage, flag)
+
+  private def uaUseAddressForContact(flag: Boolean): UserAnswers = UserAnswers().setOrException(UseAddressForContactPage, flag)
 
   "NormalMode" must {
     def normalModeRoutes: TableFor3[Page, UserAnswers, Call] =
       Table(
         ("Id", "UserAnswers", "Next Page"),
-        row(WhatYouWillNeedPage)(controllers.individual.routes.AreYouUKResidentController.onPageLoad()),
+        row(WhatYouWillNeedPage)(controllers.individual.routes.AreYouUKResidentController.onPageLoad(NormalMode)),
         row(AreYouUKResidentPage)(controllers.individual.routes.IsThisYouController.onPageLoad(NormalMode), Some(areYouUKResident(true))),
         row(AreYouUKResidentPage)(controllers.individual.routes.IndividualNameController.onPageLoad(), Some(areYouUKResident(false))),
         row(AreYouUKResidentPage)(controllers.routes.SessionExpiredController.onPageLoad(), None),
         row(IndividualDetailsPage)(controllers.individual.routes.IndividualNonUKAddressController.onPageLoad(NormalMode), None),
-        row(IndividualAddressPage)(controllers.individual.routes.UseAddressForContactController.onPageLoad(NormalMode), None),
+        row(IndividualAddressPage)(controllers.individual.routes.UseAddressForContactController.onPageLoad(NormalMode), Some(uaAddress("FR"))),
+        row(IndividualAddressPage)(controllers.individual.routes.OutsideEuEeaController.onPageLoad(), Some(uaAddress("IN"))),
+        row(IndividualAddressPage)(controllers.individual.routes.AreYouUKResidentController.onPageLoad(CheckMode), Some(uaAddress("GB"))),
         row(IsThisYouPage)(controllers.individual.routes.YouNeedToTellHMRCController.onPageLoad(), Some(uaIsThisYou(false))),
         row(IsThisYouPage)(controllers.individual.routes.UseAddressForContactController.onPageLoad(NormalMode), Some(uaIsThisYou(true))),
         row(IsThisYouPage)(controllers.routes.SessionExpiredController.onPageLoad(), None),
@@ -67,6 +68,8 @@ class IndividualNavigatorSpec extends NavigatorBehaviour {
     def checkModeRoutes: TableFor3[Page, UserAnswers, Call] =
       Table(
         ("Id", "UserAnswers", "Next Page"),
+        row(AreYouUKResidentPage)(controllers.individual.routes.IsThisYouController.onPageLoad(NormalMode), Some(areYouUKResident(true))),
+        row(AreYouUKResidentPage)(controllers.individual.routes.IndividualNameController.onPageLoad(), Some(areYouUKResident(false))),
         row(IndividualPostcodePage)(controllers.individual.routes.IndividualAddressListController.onPageLoad(CheckMode)),
         row(IndividualAddressListPage)(controllers.individual.routes.CheckYourAnswersController.onPageLoad()),
         row(IndividualManualAddressPage)(controllers.individual.routes.CheckYourAnswersController.onPageLoad()),

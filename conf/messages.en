@@ -81,10 +81,11 @@ areYouUKCompany.title = Is the company or partnership registered in the UK?
 areYouUKCompany.heading = Is the company or partnership registered in the UK?
 areYouUKCompany.error.required = Select yes if the company or partnership is registered in the UK
 
-
 areYouUKResident.error.required = Select yes if you are a UK resident
 areYouUKResident.title = Are you a UK resident?
 areYouUKResident.heading = Are you a UK resident?
+areYouUKResident.check.p1 = You selected that you are not based in the UK but have given a UK address.
+areYouUKResident.check.p2 = If you are not based in the UK, you need to give an address that is not in the UK.
 
 isThisYou.title = Is this your name and address?
 isThisYou.heading = Is this your name and address?
@@ -542,3 +543,6 @@ individual.name.title = What is your name?
 individual.firstName.label = First name
 individual.lastName.label = Last name
 
+outsideEuEea.title = You cannot register as a PSP
+outsideEuEea.p1 = This is because you are based in {0} and outside of the European Union and European Economic Area.
+outsideEuEea.p2 = Only people based inside the European Union and European Economic Area can register as a PSP.

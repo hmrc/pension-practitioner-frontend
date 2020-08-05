@@ -19,24 +19,26 @@ package controllers.address
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
+import models.register.InternationalRegion.{EuEea, RestOfTheWorld}
+import models.register.RegistrationInfo
 import models.requests.DataRequest
 import models.{Address, Mode, TolerantAddress}
 import navigators.CompoundNavigator
-import pages.QuestionPage
+import pages.{QuestionPage, RegistrationInfoPage}
 import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.libs.json.{JsArray, JsObject, Json}
 import play.api.mvc.{AnyContent, Result}
 import renderer.Renderer
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
+import utils.countryOptions.CountryOptions
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait NonUKManualAddressController extends FrontendBaseController with Retrievals {
 
   protected def renderer: Renderer
-
+  protected def countryOptions: CountryOptions
   protected def userAnswersCacheConnector: UserAnswersCacheConnector
 
   protected def navigator: CompoundNavigator
@@ -51,21 +53,33 @@ trait NonUKManualAddressController extends FrontendBaseController with Retrieval
     renderer.render(viewTemplate, json(formFilled)).map(Ok(_))
   }
 
-  def post(mode: Mode, json: Form[Address] => JsObject, addressPage: QuestionPage[TolerantAddress])
-          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
+  def post(mode: Mode, json: Form[Address] => JsObject, addressPage: QuestionPage[TolerantAddress],
+           regCall: Address => Future[RegistrationInfo])
+          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
     form.bindFromRequest().fold(
       formWithErrors =>
         renderer.render(viewTemplate, json(formWithErrors)).map(BadRequest(_)),
-      value =>
+      address => {
+
+        val answersWithRegInfo = countryOptions.regions(address.country) match {
+          case RestOfTheWorld => Future.fromTry(request.userAnswers.remove(RegistrationInfoPage))
+          case EuEea => regCall(address).flatMap { registrationInfo =>
+              Future.fromTry(request.userAnswers.set(RegistrationInfoPage, registrationInfo))}
+          case _ => Future.successful(request.userAnswers)
+        }
+
         for {
-          updatedAnswers <- Future.fromTry(request.userAnswers.set(addressPage, value.toTolerantAddress))
+          answersWithReg <- answersWithRegInfo
+          updatedAnswers <- Future.fromTry(answersWithReg.set(addressPage, address.toTolerantAddress))
           _ <- userAnswersCacheConnector.save(updatedAnswers.data)
         } yield {
           Redirect(navigator.nextPage(addressPage, mode, updatedAnswers))
         }
+      }
 
     )
   }
+
 
   private def countryJsonElement(tuple: (String, String), isSelected: Boolean): JsArray = Json.arr(
     if (isSelected) {
