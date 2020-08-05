@@ -81,15 +81,15 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
   private def onPageLoadUrl: String = routes.PartnershipEnterRegisteredAddressController.onPageLoad(NormalMode).url
   private def submitUrl: String = routes.PartnershipEnterRegisteredAddressController.onSubmit(NormalMode).url
   private val dummyCall: Call = Call("GET", "/foo")
-  private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("ZZ1 1ZZ"), "GB")
+  private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), None, "FR")
 
   private val valuesValid: Map[String, Seq[String]] = Map(
     "line1" -> Seq("line1"),
     "line2" -> Seq("line2"),
     "line3" -> Seq("line3"),
     "line4" -> Seq("line4"),
-    "country" -> Seq("GB"),
-    "postcode" -> Seq("ZZ1 1ZZ")
+    "country" -> Seq("FR"),
+    "postcode" -> Seq("")
   )
 
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
@@ -105,8 +105,8 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-    when(countryOptions.options).thenReturn(Seq(InputOption("GB", "United Kingdom")))
-    when(mockAppConfig.validCountryCodes).thenReturn(Seq("GB"))
+    when(countryOptions.options).thenReturn(Seq(InputOption("FR", "France")))
+    when(mockAppConfig.validCountryCodes).thenReturn(Seq("FR"))
   }
 
   "Partnership Enter Registered Address Controller" must {
