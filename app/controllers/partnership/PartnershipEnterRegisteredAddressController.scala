@@ -23,6 +23,7 @@ import controllers.Retrievals
 import controllers.actions._
 import controllers.address.ManualAddressController
 import forms.address.AddressFormProvider
+import forms.address.RegisteredAddressFormProvider
 import javax.inject.Inject
 import models.requests.DataRequest
 import models.Address
@@ -55,7 +56,7 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: AddressFormProvider,
+  formProvider: RegisteredAddressFormProvider,
   countryOptions: CountryOptions,
   val controllerComponents: MessagesControllerComponents,
   val config: FrontendAppConfig,
