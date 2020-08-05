@@ -24,6 +24,7 @@ import controllers.actions._
 import controllers.address.ManualAddressController
 import controllers.company.routes.IsCompanyRegisteredInUkController
 import forms.address.AddressFormProvider
+import forms.address.RegisteredAddressFormProvider
 import javax.inject.Inject
 import models.requests.DataRequest
 import models.Address
@@ -56,7 +57,7 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: AddressFormProvider,
+  formProvider: RegisteredAddressFormProvider,
   countryOptions: CountryOptions,
   val controllerComponents: MessagesControllerComponents,
   val config: FrontendAppConfig,
