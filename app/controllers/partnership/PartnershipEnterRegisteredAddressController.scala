@@ -96,7 +96,7 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
             },
             value => {
               for {
-                reg <- registrationConnector.registerWithNoIdOrganisation(companyName, value, RegistrationLegalStatus.LimitedCompany)
+                reg <- registrationConnector.registerWithNoIdOrganisation(companyName, value, RegistrationLegalStatus.Partnership)
                 updatedAnswers <- Future(
                   request.userAnswers
                     .setOrException(PartnershipRegisteredAddressPage, value)

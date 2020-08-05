@@ -140,7 +140,7 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
           PartnershipRegisteredAddressPage.toString -> address)
 
       val regInfo = RegistrationInfo(
-        legalStatus = RegistrationLegalStatus.LimitedCompany,
+        legalStatus = RegistrationLegalStatus.Partnership,
         sapNumber = "abc",
         noIdentifier = false,
         customerType = RegistrationCustomerType.NonUK,
@@ -165,7 +165,7 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
         .registerWithNoIdOrganisation(
           Matchers.eq(companyName),
           Matchers.eq(address),
-          Matchers.eq(RegistrationLegalStatus.LimitedCompany))(any(),any())
+          Matchers.eq(RegistrationLegalStatus.Partnership))(any(),any())
 
     }
 
