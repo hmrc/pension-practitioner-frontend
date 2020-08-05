@@ -53,6 +53,9 @@ GET        /addresses/change-enter-registered-address           controllers.part
 POST       /addresses/change-enter-registered-address           controllers.partnership.PartnershipEnterRegisteredAddressController.onSubmit(mode: Mode = CheckMode)
 
 
+GET        /is-partnership-in-uk                        controllers.partnership.IsPartnershipRegisteredInUkController.onPageLoad()
+POST       /is-partnership-in-uk                        controllers.partnership.IsPartnershipRegisteredInUkController.onSubmit()
+
 
 
 
