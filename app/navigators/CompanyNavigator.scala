@@ -25,7 +25,6 @@ import models.UserAnswers
 import pages.Page
 import pages.company._
 import pages.register.AreYouUKCompanyPage
-import play.api.libs.json.Json
 import play.api.mvc.Call
 
 class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector)
@@ -59,7 +58,7 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
     case CompanyAddressPage => CompanyEmailController.onPageLoad(NormalMode)
     case CompanyRegisteredAddressPage =>
       (ua.get(AreYouUKCompanyPage), ua.get(CompanyRegisteredAddressPage)) match {
-      case (Some(false), Some(addr)) if addr.country == "GB" => IsCompanyRegisteredInUkController.onPageLoad(NormalMode)
+      case (Some(false), Some(addr)) if addr.country == "GB" => IsCompanyRegisteredInUkController.onPageLoad()
       case _ => CompanyUseSameAddressController.onPageLoad()
     }
     case IsCompanyRegisteredInUkPage =>

@@ -23,6 +23,7 @@ import controllers.actions._
 import forms.company.IsCompanyRegisteredInUkFormProvider
 import javax.inject.Inject
 import models.Mode
+import models.NormalMode
 import navigators.CompoundNavigator
 import pages.company.BusinessNamePage
 import pages.company.IsCompanyRegisteredInUkPage
@@ -55,44 +56,40 @@ class IsCompanyRegisteredInUkController @Inject()(override val messagesApi: Mess
 
   private val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      BusinessNamePage.retrieve.right.map { companyName =>
-        val preparedForm = request.userAnswers.get (IsCompanyRegisteredInUkPage) match {
-          case None => form
-          case Some (value) => form.fill (value)
-        }
+      val preparedForm = request.userAnswers.get (IsCompanyRegisteredInUkPage) match {
+        case None => form
+        case Some (value) => form.fill (value)
+      }
 
-        val json = Json.obj(
-          "form" -> preparedForm,
-          "submitUrl" -> routes.IsCompanyRegisteredInUkController.onSubmit(mode).url,
-          "radios" -> Radios.yesNo (preparedForm("value"))
-        )
+      val json = Json.obj(
+        "form" -> preparedForm,
+        "submitUrl" -> routes.IsCompanyRegisteredInUkController.onSubmit().url,
+        "radios" -> Radios.yesNo (preparedForm("value"))
+      )
 
-      renderer.render ("company/isCompanyRegisteredInUk.njk", json).map(Ok (_))
-    }
+    renderer.render ("company/isCompanyRegisteredInUk.njk", json).map(Ok (_))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      BusinessNamePage.retrieve.right.map { companyName =>
-        form.bindFromRequest().fold(
-          formWithErrors => {
+      form.bindFromRequest().fold(
+        formWithErrors => {
 
-            val json = Json.obj(
-              "form"   -> formWithErrors,
-              "submitUrl"   -> routes.IsCompanyRegisteredInUkController.onSubmit(mode).url,
-              "radios" -> Radios.yesNo(formWithErrors("value"))
-            )
+          val json = Json.obj(
+            "form"   -> formWithErrors,
+            "submitUrl"   -> routes.IsCompanyRegisteredInUkController.onSubmit().url,
+            "radios" -> Radios.yesNo(formWithErrors("value"))
+          )
 
-            renderer.render("company/isCompanyRegisteredInUk.njk", json).map(BadRequest(_))
-          },
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(IsCompanyRegisteredInUkPage, value))
-              _ <- userAnswersCacheConnector.save( updatedAnswers.data)
-            } yield Redirect(navigator.nextPage(IsCompanyRegisteredInUkPage, mode, updatedAnswers))
-        )
-      }
+          renderer.render("company/isCompanyRegisteredInUk.njk", json).map(BadRequest(_))
+        },
+        value =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(IsCompanyRegisteredInUkPage, value))
+            _ <- userAnswersCacheConnector.save( updatedAnswers.data)
+          } yield Redirect(navigator.nextPage(IsCompanyRegisteredInUkPage, NormalMode, updatedAnswers))
+      )
   }
 }

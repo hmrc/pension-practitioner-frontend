@@ -28,14 +28,11 @@ import javax.inject.Inject
 import models.requests.DataRequest
 import models.Address
 import models.Mode
-import models.NormalMode
 import models.register.RegistrationLegalStatus
 import navigators.CompoundNavigator
 import pages.RegistrationInfoPage
 import pages.company.CompanyRegisteredAddressPage
 import pages.company.BusinessNamePage
-import pages.company.ConfirmAddressPage
-import pages.register.AreYouUKCompanyPage
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.i18n.Messages
@@ -102,7 +99,7 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
               val updateUA = request.userAnswers.setOrException(CompanyRegisteredAddressPage, value)
               val nextPage = navigator.nextPage(CompanyRegisteredAddressPage, mode, updateUA)
               val futureUA =
-                if (nextPage == IsCompanyRegisteredInUkController.onPageLoad(NormalMode)) {
+                if (nextPage == IsCompanyRegisteredInUkController.onPageLoad()) {
                   Future(updateUA)
                 } else {
                   registrationConnector

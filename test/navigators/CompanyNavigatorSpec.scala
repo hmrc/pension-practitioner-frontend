@@ -19,7 +19,9 @@ package navigators
 import controllers.company.routes._
 import data.SampleData
 import models.Address
-import models.{NormalMode, CheckMode, UserAnswers}
+import models.CheckMode
+import models.NormalMode
+import models.UserAnswers
 import org.scalatest.prop.TableFor3
 import pages.Page
 import pages.company._
@@ -71,7 +73,7 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
         row(CompanyEmailPage)(CompanyPhoneController.onPageLoad(NormalMode)),
         row(CompanyPhonePage)(CheckYourAnswersController.onPageLoad()),
         row(CompanyRegisteredAddressPage)(CompanyUseSameAddressController.onPageLoad()),
-        row(CompanyRegisteredAddressPage)(IsCompanyRegisteredInUkController.onPageLoad(NormalMode), Some(uaNotInUKButCountryGB)),
+        row(CompanyRegisteredAddressPage)(IsCompanyRegisteredInUkController.onPageLoad(), Some(uaNotInUKButCountryGB)),
         row(IsCompanyRegisteredInUkPage)(controllers.routes.WhatTypeBusinessController.onPageLoad(), Some(uaIsCompanyRegisteredInUkPage(true))),
         row(IsCompanyRegisteredInUkPage)(CompanyEnterRegisteredAddressController.onPageLoad(NormalMode), Some(uaIsCompanyRegisteredInUkPage(false))),
         row(DeclarationPage)(controllers.company.routes.ConfirmationController.onPageLoad())

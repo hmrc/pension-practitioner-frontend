@@ -20,7 +20,6 @@ import controllers.base.ControllerSpecBase
 import data.SampleData
 import forms.company.IsCompanyRegisteredInUkFormProvider
 import matchers.JsonMatchers
-import models.NormalMode
 import models.UserAnswers
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
@@ -50,8 +49,8 @@ class IsCompanyRegisteredInUkControllerSpec extends ControllerSpecBase with Mock
   val formProvider = new IsCompanyRegisteredInUkFormProvider()
   val form = formProvider()
 
-  def isCompanyRegisteredInUkRoute = routes.IsCompanyRegisteredInUkController.onPageLoad(NormalMode).url
-  def isCompanyRegisteredInUkSubmitRoute = routes.IsCompanyRegisteredInUkController.onSubmit(NormalMode).url
+  def isCompanyRegisteredInUkRoute = routes.IsCompanyRegisteredInUkController.onPageLoad().url
+  def isCompanyRegisteredInUkSubmitRoute = routes.IsCompanyRegisteredInUkController.onSubmit().url
 
   val answers: UserAnswers = SampleData.userAnswersWithCompanyName.set(IsCompanyRegisteredInUkPage, true).success.value
 
