@@ -16,14 +16,14 @@
 
 package forms.address
 
-import forms.mappings.{AddressMappings, Mappings}
+import forms.mappings.AddressMappings
 import javax.inject.Inject
 import models.Address
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import utils.countryOptions.CountryOptions
 
-class AddressFormProvider @Inject()(countryOptions: CountryOptions) extends AddressMappings {
+class RegisteredAddressFormProvider @Inject()(countryOptions: CountryOptions) extends AddressMappings {
 
   def apply(): Form[Address] = Form(
     mapping(
@@ -46,7 +46,7 @@ class AddressFormProvider @Inject()(countryOptions: CountryOptions) extends Addr
         "error.address_line_4.invalid"),
 
       "postcode" -> optionalPostcode(
-        Some("error.postcode.required"),
+        None,
         "error.postcode.invalid",
         "error.postcode.nonUK.length",
         "country"),
