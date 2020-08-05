@@ -87,25 +87,27 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {
       implicit request =>
-        BusinessNamePage.retrieve.right.map { companyName =>
+        BusinessNamePage.retrieve.right.map { partnershipName =>
           form.bindFromRequest().fold(
             formWithErrors => {
-              val json = commonJson(companyName, mode, formWithErrors.data.get("country")) ++
+              val json = commonJson(partnershipName, mode, formWithErrors.data.get("country")) ++
                 Json.obj("form" -> formWithErrors)
               renderer.render(viewTemplate, json).map(BadRequest(_))
             },
             value => {
-              for {
-                reg <- registrationConnector.registerWithNoIdOrganisation(companyName, value, RegistrationLegalStatus.Partnership)
-                updatedAnswers <- Future(
-                  request.userAnswers
-                    .setOrException(PartnershipRegisteredAddressPage, value)
-                    .setOrException(RegistrationInfoPage, reg)
-                )
-                _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-              } yield {
-                Redirect(navigator.nextPage(PartnershipRegisteredAddressPage, mode, updatedAnswers))
-              }
+              val updateUA = request.userAnswers.setOrException(PartnershipRegisteredAddressPage, value)
+              val nextPage = navigator.nextPage(PartnershipRegisteredAddressPage, mode, updateUA)
+              val futureUA =
+                if (nextPage == controllers.partnership.routes.IsPartnershipRegisteredInUkController.onPageLoad()) {
+                  Future(updateUA)
+                } else {
+                  registrationConnector
+                    .registerWithNoIdOrganisation(partnershipName, value, RegistrationLegalStatus.Partnership)
+                    .map(updateUA.setOrException(RegistrationInfoPage, _))
+                }
+              futureUA
+                .flatMap(ua => userAnswersCacheConnector.save(ua.data))
+                .map(_ => Redirect(nextPage))
             }
           )
         }

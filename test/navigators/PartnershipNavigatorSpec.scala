@@ -18,6 +18,7 @@ package navigators
 
 import controllers.partnership.routes._
 import data.SampleData
+import models.Address
 import models.{NormalMode, CheckMode, UserAnswers}
 import org.scalatest.prop.TableFor3
 import pages.partnership._
@@ -39,6 +40,14 @@ class PartnershipNavigatorSpec extends NavigatorBehaviour {
 
   private def uaAreYouUKCompany(v:Boolean) = SampleData
     .emptyUserAnswers.setOrException(AreYouUKCompanyPage, v)
+
+  private def uaIsPartnershipRegisteredInUkPage(v:Boolean) =
+    SampleData.emptyUserAnswers.setOrException(IsPartnershipRegisteredInUkPage, v)
+
+  private def uaNotInUKButCountryGB =
+    SampleData.emptyUserAnswers
+      .setOrException(AreYouUKCompanyPage, false)
+      .setOrException(PartnershipRegisteredAddressPage, Address("addr1", "addr2", None, None, None, "GB"))
 
   private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
 
@@ -62,6 +71,10 @@ class PartnershipNavigatorSpec extends NavigatorBehaviour {
         row(PartnershipEmailPage)(PartnershipPhoneController.onPageLoad(NormalMode)),
         row(PartnershipPhonePage)(CheckYourAnswersController.onPageLoad()),
         row(PartnershipRegisteredAddressPage)(PartnershipUseSameAddressController.onPageLoad()),
+        row(PartnershipRegisteredAddressPage)(IsPartnershipRegisteredInUkController.onPageLoad(), Some(uaNotInUKButCountryGB)),
+        row(IsPartnershipRegisteredInUkPage)(controllers.routes.WhatTypeBusinessController.onPageLoad(), Some(uaIsPartnershipRegisteredInUkPage(true))),
+        row(IsPartnershipRegisteredInUkPage)(PartnershipEnterRegisteredAddressController
+          .onPageLoad(NormalMode), Some(uaIsPartnershipRegisteredInUkPage(false))),
         row(DeclarationPage)(controllers.partnership.routes.ConfirmationController.onPageLoad())
       )
 

@@ -68,7 +68,7 @@ class IsPartnershipRegisteredInUkController @Inject()(override val messagesApi: 
         "radios" -> Radios.yesNo (preparedForm("value"))
       )
 
-    renderer.render ("company/isPartnershipRegisteredInUk.njk", json).map(Ok (_))
+    renderer.render ("partnership/isPartnershipRegisteredInUk.njk", json).map(Ok (_))
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -82,7 +82,7 @@ class IsPartnershipRegisteredInUkController @Inject()(override val messagesApi: 
             "radios" -> Radios.yesNo(formWithErrors("value"))
           )
 
-          renderer.render("company/isPartnershipRegisteredInUk.njk", json).map(BadRequest(_))
+          renderer.render("partnership/isPartnershipRegisteredInUk.njk", json).map(BadRequest(_))
         },
         value =>
           for {

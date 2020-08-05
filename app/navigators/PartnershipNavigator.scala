@@ -55,7 +55,18 @@ class PartnershipNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCon
     case PartnershipPostcodePage => controllers.partnership.routes.PartnershipAddressListController.onPageLoad(NormalMode)
     case PartnershipAddressListPage => controllers.partnership.routes.PartnershipEmailController.onPageLoad(NormalMode)
     case PartnershipAddressPage => controllers.partnership.routes.PartnershipEmailController.onPageLoad(NormalMode)
-    case PartnershipRegisteredAddressPage => controllers.partnership.routes.PartnershipUseSameAddressController.onPageLoad()
+    case PartnershipRegisteredAddressPage =>
+      (ua.get(AreYouUKCompanyPage), ua.get(PartnershipRegisteredAddressPage)) match {
+        case (Some(false), Some(addr)) if addr.country == "GB" => controllers.partnership.routes.IsPartnershipRegisteredInUkController.onPageLoad()
+        case _ => controllers.partnership.routes.PartnershipUseSameAddressController.onPageLoad()
+      }
+
+    case IsPartnershipRegisteredInUkPage =>
+      ua.get(IsPartnershipRegisteredInUkPage) match {
+        case Some(true) => controllers.routes.WhatTypeBusinessController.onPageLoad()
+        case _ => controllers.partnership.routes.PartnershipEnterRegisteredAddressController.onPageLoad(NormalMode)
+      }
+
     case PartnershipEmailPage => controllers.partnership.routes.PartnershipPhoneController.onPageLoad(NormalMode)
     case PartnershipPhonePage => controllers.partnership.routes.CheckYourAnswersController.onPageLoad()
     case DeclarationPage => controllers.partnership.routes.ConfirmationController.onPageLoad()
