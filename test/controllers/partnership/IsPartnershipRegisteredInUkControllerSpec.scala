@@ -52,14 +52,14 @@ class IsPartnershipRegisteredInUkControllerSpec extends ControllerSpecBase with 
   def isPartnershipRegisteredInUkRoute = routes.IsPartnershipRegisteredInUkController.onPageLoad().url
   def isPartnershipRegisteredInUkSubmitRoute = routes.IsPartnershipRegisteredInUkController.onSubmit().url
 
-  val answers: UserAnswers = SampleData.userAnswersWithCompanyName.set(IsPartnershipRegisteredInUkPage, true).success.value
+  val answers: UserAnswers = SampleData.userAnswersWithPartnershipName.set(IsPartnershipRegisteredInUkPage, true).success.value
 
   "IsPartnershipRegisteredInUk Controller" must {
 
     "return OK and the correct view for a GET" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(SampleData.userAnswersWithCompanyName))
+      val application = applicationBuilder(userAnswers = Some(SampleData.userAnswersWithPartnershipName))
         .overrides(
         )
         .build()
@@ -120,7 +120,7 @@ class IsPartnershipRegisteredInUkControllerSpec extends ControllerSpecBase with 
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
-      val application = applicationBuilder(userAnswers = Some(SampleData.userAnswersWithCompanyName))
+      val application = applicationBuilder(userAnswers = Some(SampleData.userAnswersWithPartnershipName))
         .overrides(
         )
         .build()
@@ -142,7 +142,7 @@ class IsPartnershipRegisteredInUkControllerSpec extends ControllerSpecBase with 
 
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(SampleData.userAnswersWithCompanyName))
+      val application = applicationBuilder(userAnswers = Some(SampleData.userAnswersWithPartnershipName))
         .overrides(
         )
         .build()
