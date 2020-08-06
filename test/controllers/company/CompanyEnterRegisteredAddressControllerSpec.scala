@@ -16,6 +16,7 @@
 
 package controllers.company
 
+import connectors.RegistrationConnector
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import forms.address.AddressFormProvider
@@ -23,6 +24,10 @@ import matchers.JsonMatchers
 import models.Address
 import models.NormalMode
 import models.UserAnswers
+import models.register.RegistrationCustomerType
+import models.register.RegistrationIdType
+import models.register.RegistrationInfo
+import models.register.RegistrationLegalStatus
 import org.mockito.Matchers.any
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
@@ -33,7 +38,7 @@ import org.scalatest.OptionValues
 import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.BusinessNamePage
-import pages.company.CompanyAddressPage
+import pages.company.CompanyRegisteredAddressPage
 import pages.register.AreYouUKCompanyPage
 import play.api.Application
 import play.api.data.Form
@@ -50,7 +55,7 @@ import viewmodels.CommonViewModel
 
 import scala.concurrent.Future
 
-class CompanyAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
                                 with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
@@ -58,10 +63,15 @@ class CompanyAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
 
   val countryOptions: CountryOptions = mock[CountryOptions]
 
+  private val mockRegistrationConnector = mock[RegistrationConnector]
+
   private val application: Application =
     applicationBuilderMutableRetrievalAction(
       mutableFakeDataRetrievalAction,
-      extraModules = Seq(bind[CountryOptions].toInstance(countryOptions))
+      extraModules = Seq(
+        bind[CountryOptions].toInstance(countryOptions),
+        bind[RegistrationConnector].to(mockRegistrationConnector)
+      )
     ).build()
   private val templateToBeRendered = "address/manualAddress.njk"
   private val form = new AddressFormProvider(countryOptions)()
@@ -69,8 +79,8 @@ class CompanyAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
   val userAnswers: UserAnswers = UserAnswers().set(BusinessNamePage, companyName).toOption.value
     .setOrException(AreYouUKCompanyPage, true)
 
-  private def onPageLoadUrl: String = routes.CompanyAddressController.onPageLoad(NormalMode).url
-  private def submitUrl: String = routes.CompanyAddressController.onSubmit(NormalMode).url
+  private def onPageLoadUrl: String = routes.CompanyEnterRegisteredAddressController.onPageLoad(NormalMode).url
+  private def submitUrl: String = routes.CompanyEnterRegisteredAddressController.onSubmit(NormalMode).url
   private val dummyCall: Call = Call("GET", "/foo")
   private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("ZZ1 1ZZ"), "GB")
 
@@ -100,7 +110,7 @@ class CompanyAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
     when(mockAppConfig.validCountryCodes).thenReturn(Seq("GB"))
   }
 
-  "CompanyAddress Controller" must {
+  "Company Enter Registered Address Controller" must {
     "return OK and the correct view for a GET" in {
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
@@ -125,21 +135,38 @@ class CompanyAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
       redirectLocation(result).value mustBe controllers.routes.SessionExpiredController.onPageLoad().url
     }
 
-    "Save data to user answers and redirect to next page when valid data is submitted" in {
-
+    "Save data to user answers, redirect to next page when valid data is submitted and call register without id" in {
       val expectedJson = Json.obj(
           BusinessNamePage.toString -> companyName,
-          CompanyAddressPage.toString -> address)
+          CompanyRegisteredAddressPage.toString -> address)
 
-      when(mockCompoundNavigator.nextPage(Matchers.eq(CompanyAddressPage), any(), any())).thenReturn(dummyCall)
+      val regInfo = RegistrationInfo(
+        legalStatus = RegistrationLegalStatus.LimitedCompany,
+        sapNumber = "abc",
+        noIdentifier = false,
+        customerType = RegistrationCustomerType.NonUK,
+        idType = None,
+        idNumber = Some("psaId")
+      )
+
+      when(mockCompoundNavigator.nextPage(Matchers.eq(CompanyRegisteredAddressPage), any(), any())).thenReturn(dummyCall)
+      when(mockRegistrationConnector.registerWithNoIdOrganisation(any(),any(),any())(any(),any()))
+        .thenReturn(Future.successful(regInfo))
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+
       val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
-      verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
+      verify(mockUserAnswersCacheConnector, times(1))
+        .save(jsonCaptor.capture)(any(), any())
       jsonCaptor.getValue must containJson(expectedJson)
-      redirectLocation(result) mustBe Some(dummyCall.url)
+     redirectLocation(result) mustBe Some(dummyCall.url)
+      verify(mockRegistrationConnector, times(1))
+        .registerWithNoIdOrganisation(
+          Matchers.eq(companyName),
+          Matchers.eq(address),
+          Matchers.eq(RegistrationLegalStatus.LimitedCompany))(any(),any())
 
     }
 

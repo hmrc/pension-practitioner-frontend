@@ -24,6 +24,7 @@ import models.NormalMode
 import models.UserAnswers
 import pages.Page
 import pages.company._
+import pages.register.AreYouUKCompanyPage
 import play.api.mvc.Call
 
 class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector)
@@ -32,7 +33,12 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
   //scalastyle:off cyclomatic.complexity
   override protected def routeMap(ua: UserAnswers): PartialFunction[Page, Call] = {
     case BusinessUTRPage => CompanyNameController.onPageLoad()
-    case BusinessNamePage => ConfirmNameController.onPageLoad()
+    case BusinessNamePage =>
+      ua.get(AreYouUKCompanyPage) match {
+        case Some(true) => ConfirmNameController.onPageLoad()
+        case _ => CompanyEnterRegisteredAddressController.onPageLoad(NormalMode)
+      }
+
     case ConfirmNamePage => ua.get(ConfirmNamePage) match {
         case Some(false) => TellHMRCController.onPageLoad()
         case _ => ConfirmAddressController.onPageLoad()
@@ -41,13 +47,25 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
         case None => TellHMRCController.onPageLoad()
         case _ => CompanyUseSameAddressController.onPageLoad()
       }
-    case CompanyUseSameAddressPage => ua.get(CompanyUseSameAddressPage) match {
-      case Some(true) => CompanyEmailController.onPageLoad(NormalMode)
+    case CompanyUseSameAddressPage =>
+      (ua.get(AreYouUKCompanyPage), ua.get(CompanyUseSameAddressPage)) match {
+      case (_, Some(true)) => CompanyEmailController.onPageLoad(NormalMode)
+      case (Some(false), Some(false)) => CompanyAddressController.onPageLoad(NormalMode)
       case _ => CompanyPostcodeController.onPageLoad(NormalMode)
     }
     case CompanyPostcodePage => CompanyAddressListController.onPageLoad(NormalMode)
     case CompanyAddressListPage => CompanyEmailController.onPageLoad(NormalMode)
     case CompanyAddressPage => CompanyEmailController.onPageLoad(NormalMode)
+    case CompanyRegisteredAddressPage =>
+      (ua.get(AreYouUKCompanyPage), ua.get(CompanyRegisteredAddressPage)) match {
+      case (Some(false), Some(addr)) if addr.country == "GB" => IsCompanyRegisteredInUkController.onPageLoad()
+      case _ => CompanyUseSameAddressController.onPageLoad()
+    }
+    case IsCompanyRegisteredInUkPage =>
+      ua.get(IsCompanyRegisteredInUkPage) match {
+        case Some(true) => controllers.routes.WhatTypeBusinessController.onPageLoad()
+        case _ => CompanyEnterRegisteredAddressController.onPageLoad(NormalMode)
+      }
     case CompanyEmailPage => CompanyPhoneController.onPageLoad(NormalMode)
     case CompanyPhonePage => CheckYourAnswersController.onPageLoad()
     case DeclarationPage => controllers.company.routes.ConfirmationController.onPageLoad()

@@ -18,13 +18,15 @@ package controllers.company
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
+import controllers.Retrievals
 import controllers.actions._
-import forms.BusinessNameFormProvider
+import forms.company.IsCompanyRegisteredInUkFormProvider
 import javax.inject.Inject
+import models.Mode
 import models.NormalMode
 import navigators.CompoundNavigator
 import pages.company.BusinessNamePage
-import pages.register.AreYouUKCompanyPage
+import pages.company.IsCompanyRegisteredInUkPage
 import play.api.i18n.I18nSupport
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
@@ -34,63 +36,60 @@ import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import uk.gov.hmrc.viewmodels.Radios
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
+class IsCompanyRegisteredInUkController @Inject()(override val messagesApi: MessagesApi,
                                       userAnswersCacheConnector: UserAnswersCacheConnector,
                                       navigator: CompoundNavigator,
                                       identify: IdentifierAction,
                                       getData: DataRetrievalAction,
                                       requireData: DataRequiredAction,
-                                      formProvider: BusinessNameFormProvider,
+                                      formProvider: IsCompanyRegisteredInUkFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
                                       config: FrontendAppConfig,
                                       renderer: Renderer
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
+                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with
+  I18nSupport with NunjucksSupport with Retrievals {
 
   private val form = formProvider()
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-        val preparedForm = request.userAnswers.get(BusinessNamePage) match {
-          case None => form
-          case Some(value) => form.fill(value)
-        }
+      val preparedForm = request.userAnswers.get (IsCompanyRegisteredInUkPage) match {
+        case None => form
+        case Some (value) => form.fill (value)
+      }
 
-        val extraJson = request.userAnswers.get(AreYouUKCompanyPage) match {
-          case Some(true) => Json.obj("hintMessageKey" -> "businessName.hint")
-          case _ => Json.obj()
-        }
+      val json = Json.obj(
+        "form" -> preparedForm,
+        "submitUrl" -> routes.IsCompanyRegisteredInUkController.onSubmit().url,
+        "radios" -> Radios.yesNo (preparedForm("value"))
+      )
 
-        val json = Json.obj(
-          "form" -> preparedForm,
-          "submitUrl" -> routes.CompanyNameController.onSubmit().url,
-          "entityName" -> "company"
-        ) ++ extraJson
-
-        renderer.render("businessName.njk", json).map(Ok(_))
+    renderer.render ("company/isCompanyRegisteredInUk.njk", json).map(Ok (_))
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-        form.bindFromRequest().fold(
-          formWithErrors => {
+      form.bindFromRequest().fold(
+        formWithErrors => {
 
-            val json = Json.obj(
-              "form" -> formWithErrors,
-              "submitUrl" -> routes.CompanyNameController.onSubmit().url,
-              "entityName" -> "company"
-            )
+          val json = Json.obj(
+            "form"   -> formWithErrors,
+            "submitUrl"   -> routes.IsCompanyRegisteredInUkController.onSubmit().url,
+            "radios" -> Radios.yesNo(formWithErrors("value"))
+          )
 
-            renderer.render("businessName.njk", json).map(BadRequest(_))
-          },
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessNamePage, value))
-              _ <- userAnswersCacheConnector.save( updatedAnswers.data)
-            } yield Redirect(navigator.nextPage(BusinessNamePage, NormalMode, updatedAnswers))
-        )
+          renderer.render("company/isCompanyRegisteredInUk.njk", json).map(BadRequest(_))
+        },
+        value =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(IsCompanyRegisteredInUkPage, value))
+            _ <- userAnswersCacheConnector.save( updatedAnswers.data)
+          } yield Redirect(navigator.nextPage(IsCompanyRegisteredInUkPage, NormalMode, updatedAnswers))
+      )
   }
 }

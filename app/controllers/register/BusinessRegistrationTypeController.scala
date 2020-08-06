@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.register
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
-import forms.BusinessNameFormProvider
+import forms.register.BusinessRegistrationTypeFormProvider
 import javax.inject.Inject
 import models.NormalMode
+import models.register.BusinessRegistrationType
 import navigators.CompoundNavigator
-import pages.company.BusinessNamePage
-import pages.register.AreYouUKCompanyPage
+import pages.register.BusinessRegistrationTypePage
 import play.api.i18n.I18nSupport
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
@@ -38,13 +38,13 @@ import uk.gov.hmrc.viewmodels.NunjucksSupport
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
+class BusinessRegistrationTypeController @Inject()(override val messagesApi: MessagesApi,
                                       userAnswersCacheConnector: UserAnswersCacheConnector,
                                       navigator: CompoundNavigator,
                                       identify: IdentifierAction,
                                       getData: DataRetrievalAction,
                                       requireData: DataRequiredAction,
-                                      formProvider: BusinessNameFormProvider,
+                                      formProvider: BusinessRegistrationTypeFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
                                       config: FrontendAppConfig,
                                       renderer: Renderer
@@ -52,45 +52,45 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
 
   private val form = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-        val preparedForm = request.userAnswers.get(BusinessNamePage) match {
+        val preparedForm = request.userAnswers.get(BusinessRegistrationTypePage) match {
           case None => form
           case Some(value) => form.fill(value)
         }
 
-        val extraJson = request.userAnswers.get(AreYouUKCompanyPage) match {
-          case Some(true) => Json.obj("hintMessageKey" -> "businessName.hint")
-          case _ => Json.obj()
-        }
 
         val json = Json.obj(
           "form" -> preparedForm,
-          "submitUrl" -> routes.CompanyNameController.onSubmit().url,
-          "entityName" -> "company"
-        ) ++ extraJson
+          "submitUrl" -> routes.BusinessRegistrationTypeController.onSubmit().url,
+          "radios" -> BusinessRegistrationType.radios(preparedForm)
+        )
 
-        renderer.render("businessName.njk", json).map(Ok(_))
+        renderer.render("register/businessRegistrationType.njk", json).map(Ok(_))
+
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
+
         form.bindFromRequest().fold(
           formWithErrors => {
 
+
             val json = Json.obj(
               "form" -> formWithErrors,
-              "submitUrl" -> routes.CompanyNameController.onSubmit().url,
-              "entityName" -> "company"
+              "submitUrl" -> routes.BusinessRegistrationTypeController.onSubmit().url,
+              "radios" -> BusinessRegistrationType.radios(formWithErrors)
             )
 
-            renderer.render("businessName.njk", json).map(BadRequest(_))
+            renderer.render("register/businessRegistrationType.njk", json).map(BadRequest(_))
           },
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessNamePage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessRegistrationTypePage, value))
               _ <- userAnswersCacheConnector.save( updatedAnswers.data)
-            } yield Redirect(navigator.nextPage(BusinessNamePage, NormalMode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(BusinessRegistrationTypePage, NormalMode, updatedAnswers))
         )
+
   }
 }

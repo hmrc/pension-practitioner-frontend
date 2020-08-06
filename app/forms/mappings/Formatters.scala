@@ -48,7 +48,8 @@ trait Formatters extends Transforms with Constraints {
         Map(key -> value.getOrElse(""))
     }
 
-  private[mappings] def optionalPostcodeFormatter(requiredKey: String,
+  //scalastyle:off cyclomatic.complexity
+  private[mappings] def optionalPostcodeFormatter(requiredKey: Option[String],
                                                   invalidKey: String,
                                                   nonUkLengthKey: String,
                                                   countryFieldName: String): Formatter[Option[String]] = new Formatter[Option[String]] {
@@ -58,13 +59,13 @@ trait Formatters extends Transforms with Constraints {
       val country = countryDataTransform(data.get(countryFieldName))
       val maxLengthNonUKPostcode = 10
 
-      (postCode, country) match {
-        case (Some(zip), Some("GB")) if zip.matches(postcodeRegexp) => Right(Some(postCodeValidTransform(zip)))
-        case (Some(_), Some("GB")) => Left(Seq(FormError(key, invalidKey)))
-        case (Some(zip), Some(_)) if zip.length <= maxLengthNonUKPostcode => Right(Some(zip))
-        case (Some(_), Some(_)) => Left(Seq(FormError(key, nonUkLengthKey)))
-        case (Some(zip), None) => Right(Some(zip))
-        case (None, Some("GB")) => Left(Seq(FormError(key, requiredKey)))
+      (postCode, country, requiredKey) match {
+        case (Some(zip), Some("GB"), _) if zip.matches(postcodeRegexp) => Right(Some(postCodeValidTransform(zip)))
+        case (Some(_), Some("GB"), _) => Left(Seq(FormError(key, invalidKey)))
+        case (Some(zip), Some(_), _) if zip.length <= maxLengthNonUKPostcode => Right(Some(zip))
+        case (Some(_), Some(_), _) => Left(Seq(FormError(key, nonUkLengthKey)))
+        case (Some(zip), None, _) => Right(Some(zip))
+        case (None, Some("GB"), Some(rk)) => Left(Seq(FormError(key, rk)))
         case _ => Right(None)
       }
     }

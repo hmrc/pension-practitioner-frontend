@@ -26,21 +26,40 @@
 
           {{ csrf() | safe }}
 
-          {{ govukInput({
-            label: {
-              text: messages('businessName.heading', messages(entityName)),
-              isPageHeading: true,
-              classes: "govuk-label--xl"
-            },
-            hint: {
-              text: messages('businessName.hint')
-            },
-            id: "value",
-            name: "value",
-            value: form.value.value,
-            errorMessage: form.value.error,
-            classes: "govuk-!-width-three-quarters"
-          }) }}
+          {% if hintMessageKey %}
+
+              {{ govukInput({
+                label: {
+                  text: messages('businessName.heading', messages(entityName)),
+                  isPageHeading: true,
+                  classes: "govuk-label--xl"
+                },
+                hint: {
+                  text: messages(hintMessageKey)
+                },
+                id: "value",
+                name: "value",
+                value: form.value.value,
+                errorMessage: form.value.error,
+                classes: "govuk-!-width-three-quarters"
+              }) }}
+
+          {% else %}
+
+              {{ govukInput({
+                label: {
+                  text: messages('businessName.heading', messages(entityName)),
+                  isPageHeading: true,
+                  classes: "govuk-label--xl"
+                },
+                id: "value",
+                name: "value",
+                value: form.value.value,
+                errorMessage: form.value.error,
+                classes: "govuk-!-width-three-quarters"
+              }) }}
+
+          {% endif %}
 
           {{ govukButton({
             text: messages("site.save_and_continue"),
