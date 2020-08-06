@@ -97,7 +97,7 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
   private val jsonToPassToTemplate: Form[Address] => JsObject =
     form => Json.obj(
         "form" -> form,
-      "viewmodel" -> CommonViewModel("company", companyName, submitUrl)
+      "viewmodel" -> CommonViewModel("partnership", companyName, submitUrl)
     )
 
   override def beforeEach: Unit = {

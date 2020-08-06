@@ -122,7 +122,7 @@ companyName.error.required = Enter the company’s name
 companyName.error.length = Company name must be 105 characters or fewer
 companyName.error.invalid = Company name must only include letters, numbers, dashes, spaces, apostrophes, ampersands and slashes
 
-partnershipName.error.required = Enter the name of the partnership
+partnershipName.error.required = Enter the partnership’s name
 partnershipName.error.length = Partnership name must be 105 characters or fewer
 partnershipName.error.invalid = Partnership name must only include letters, numbers, dashes, spaces, apostrophes, ampersands and slashes
 
