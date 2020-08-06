@@ -92,7 +92,7 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
                   Future(updatedUA)
                 } else {
                   registrationConnector
-                    .registerWithNoIdOrganisation(companyName, value, RegistrationLegalStatus.LimitedCompany)
+                    .registerWithNoIdOrganisation(companyName, value, RegistrationLegalStatus.Partnership)
                     .map(updatedUA.setOrException(RegistrationInfoPage, _))
                 }
               futureUA
