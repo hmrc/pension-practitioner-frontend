@@ -7,7 +7,7 @@
 {% from "macros/title.njk"                         import title %}
 
 {% block pageTitle %}
-  {{ title(messages("isCompanyRegisteredInUk.title"), form.errors) }}
+  {{ title(messages("isPartnershipRegisteredInUk.title"), form.errors) }}
 {% endblock %}
 
 {% block mainContent %}
@@ -22,10 +22,10 @@
           }) }}
         {% endif %}
 
-        <h1 class="govuk-heading-xl">{{ messages("isCompanyRegisteredInUk.heading") }}</h1>
+        <h1 class="govuk-heading-xl">{{ messages("isPartnershipRegisteredInUk.heading") }}</h1>
 
-        <p class="govuk-body">{{ messages("isCompanyRegisteredInUk.p1") }}</p>
-        <p class="govuk-body">{{ messages("isCompanyRegisteredInUk.p2") }}</p>
+        <p class="govuk-body">{{ messages("isPartnershipRegisteredInUk.p1") }}</p>
+        <p class="govuk-body">{{ messages("isPartnershipRegisteredInUk.p2") }}</p>
         <form action="{{ submitUrl }}" method="post" novalidate>
 
           {{ csrf() | safe }}
@@ -35,7 +35,7 @@
             name: 'value',
             fieldset: {
               legend: {
-                text: messages('isCompanyRegisteredInUk.heading'),
+                text: messages('isPartnershipRegisteredInUk.heading'),
                 isPageHeading: false,
                 classes: "govuk-visually-hidden"
               }

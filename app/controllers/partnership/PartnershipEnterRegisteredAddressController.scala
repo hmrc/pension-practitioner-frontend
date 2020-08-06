@@ -117,7 +117,7 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
   private def commonJson(companyName: String, mode: Mode, country:Option[String])(implicit request: DataRequest[AnyContent]) = {
     Json.obj(
       "viewmodel" -> CommonViewModel(
-        "company",
+        "partnership",
         companyName,
         routes.PartnershipEnterRegisteredAddressController.onSubmit(mode).url),
       "countries" -> jsonCountries(country, config)(request2Messages)
