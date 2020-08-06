@@ -27,7 +27,6 @@ import models.requests.DataRequest
 import models.Address
 import models.Mode
 import navigators.CompoundNavigator
-import pages.QuestionPage
 import pages.partnership.BusinessNamePage
 import pages.partnership.PartnershipAddressPage
 import pages.register.AreYouUKCompanyPage
@@ -35,14 +34,11 @@ import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
-import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
-import play.api.mvc.Result
 import renderer.Renderer
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModel
@@ -69,66 +65,51 @@ class PartnershipAddressController @Inject()(override val messagesApi: MessagesA
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {
       implicit request =>
-        getFormToJsonForLoad(mode).retrieve.right.map(get)
-    }
-
-  def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
-      implicit request =>
-        getFormToJsonForSubmit(mode).retrieve.right.map(post(mode, _, PartnershipAddressPage))
-    }
-
-  override def post(mode: Mode, json: Form[Address] => JsObject, addressPage: QuestionPage[Address])
-    (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
-
-    form(messages).bind(retrieveFieldsFromRequestAndAddCountryForUK).fold(
-      formWithErrors =>
-        renderer.render(viewTemplate, json(formWithErrors)).map(BadRequest(_)),
-      value =>
-        for {
-          updatedAnswers <- Future.fromTry(request.userAnswers.set(addressPage, value))
-          _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-        } yield {
-          Redirect(navigator.nextPage(addressPage, mode, updatedAnswers))
-        }
-    )
-  }
-
-  private def getFormToJsonForLoad(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Address] => JsObject] =
-    Retrieval(
-      implicit request => {
-        (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
-          case true ~ companyName =>
-            form =>
+        (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map { retrievedData =>
+          val json = retrievedData match {
+            case true ~ companyName =>
               commonJson(mode, companyName) ++
                 Json.obj("form" -> request.userAnswers.get(PartnershipAddressPage).fold(form)(form.fill))
-          case false ~ companyName =>
-            form =>
+            case false ~ companyName =>
               val filledForm = request.userAnswers.get(PartnershipAddressPage).fold(form)(form.fill)
               commonJson(mode, companyName) ++
                 Json.obj(
                   "form" -> filledForm,
                   "countries" -> jsonCountries(filledForm.data.get("country"), config)(request2Messages)
                 )
+          }
+          renderer.render(viewTemplate, json).map(Ok(_))
         }
-      }
-    )
+    }
 
-  private def getFormToJsonForSubmit(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Address] => JsObject] =
-    Retrieval(
-      implicit request => {
-        (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
-          case true ~ companyName =>
-            form => commonJson(mode, companyName) ++ Json.obj("form" -> form)
-          case false ~ companyName =>
-            form => commonJson(mode, companyName) ++
-              Json.obj(
-                "form" -> form,
-                "countries" -> jsonCountries(form.data.get("country"), config)(request2Messages)
-              )
+  def onSubmit(mode: Mode): Action[AnyContent] =
+    (identify andThen getData andThen requireData).async {
+      implicit request =>
+        (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map { retrievedData =>
+          form.bind(retrieveFieldsFromRequestAndAddCountryForUK).fold(
+            formWithErrors => {
+              val json = retrievedData match {
+                case true ~ companyName =>
+                  commonJson(mode, companyName) ++ Json.obj("form" -> form)
+                case false ~ companyName =>
+                  commonJson(mode, companyName) ++
+                    Json.obj(
+                      "form" -> formWithErrors,
+                      "countries" -> jsonCountries(formWithErrors.data.get("country"), config)(request2Messages)
+                    )
+              }
+              renderer.render(viewTemplate, json).map(BadRequest(_))
+            },
+            value =>
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(PartnershipAddressPage, value))
+                _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+              } yield {
+                Redirect(navigator.nextPage(PartnershipAddressPage, mode, updatedAnswers))
+              }
+          )
         }
-      }
-    )
+    }
 
   private def commonJson(mode: Mode, companyName: String)(implicit request: DataRequest[AnyContent]) = {
     Json.obj(

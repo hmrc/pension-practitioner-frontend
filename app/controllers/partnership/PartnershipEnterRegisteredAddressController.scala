@@ -22,7 +22,6 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import controllers.address.ManualAddressController
-import forms.address.AddressFormProvider
 import forms.address.RegisteredAddressFormProvider
 import javax.inject.Inject
 import models.requests.DataRequest
@@ -31,20 +30,18 @@ import models.Mode
 import models.register.RegistrationLegalStatus
 import navigators.CompoundNavigator
 import pages.RegistrationInfoPage
-import pages.company.BusinessNamePage
+import pages.partnership.BusinessNamePage
 import pages.partnership.PartnershipRegisteredAddressPage
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
-import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModel
 
 import scala.concurrent.ExecutionContext
@@ -57,7 +54,6 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: RegisteredAddressFormProvider,
-  countryOptions: CountryOptions,
   val controllerComponents: MessagesControllerComponents,
   val config: FrontendAppConfig,
   val renderer: Renderer,
@@ -69,29 +65,22 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {
-      implicit request => getFormToJsonForLoad(mode).retrieve.right.map(get)
-    }
-
-  private def getFormToJsonForLoad(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Address] => JsObject] =
-    Retrieval(
-      implicit request => {
-        BusinessNamePage.retrieve.right.map {
-          companyName =>
-            form =>
-              val filledForm = request.userAnswers.get(PartnershipRegisteredAddressPage).fold(form)(form.fill)
-              commonJson(companyName, mode, filledForm.data.get("country")) ++
-                Json.obj("form" -> filledForm)
+      implicit request =>
+        BusinessNamePage.retrieve.right.map { companyName =>
+          val filledForm = request.userAnswers.get(PartnershipRegisteredAddressPage).fold(form)(form.fill)
+          val json = commonJson(companyName, mode, filledForm.data.get("country")) ++
+            Json.obj("form" -> filledForm)
+          renderer.render(viewTemplate, json).map(Ok(_))
         }
-      }
-    )
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async {
       implicit request =>
-        BusinessNamePage.retrieve.right.map { partnershipName =>
+        BusinessNamePage.retrieve.right.map { companyName =>
           form.bindFromRequest().fold(
             formWithErrors => {
-              val json = commonJson(partnershipName, mode, formWithErrors.data.get("country")) ++
+              val json = commonJson(companyName, mode, formWithErrors.data.get("country")) ++
                 Json.obj("form" -> formWithErrors)
               renderer.render(viewTemplate, json).map(BadRequest(_))
             },
@@ -103,7 +92,7 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
                   Future(updatedUA)
                 } else {
                   registrationConnector
-                    .registerWithNoIdOrganisation(partnershipName, value, RegistrationLegalStatus.Partnership)
+                    .registerWithNoIdOrganisation(companyName, value, RegistrationLegalStatus.LimitedCompany)
                     .map(updatedUA.setOrException(RegistrationInfoPage, _))
                 }
               futureUA
