@@ -96,15 +96,15 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
               renderer.render(viewTemplate, json).map(BadRequest(_))
             },
             value => {
-              val updateUA = request.userAnswers.setOrException(PartnershipRegisteredAddressPage, value)
-              val nextPage = navigator.nextPage(PartnershipRegisteredAddressPage, mode, updateUA)
+              val updatedUA = request.userAnswers.setOrException(PartnershipRegisteredAddressPage, value)
+              val nextPage = navigator.nextPage(PartnershipRegisteredAddressPage, mode, updatedUA)
               val futureUA =
                 if (nextPage == controllers.partnership.routes.IsPartnershipRegisteredInUkController.onPageLoad()) {
-                  Future(updateUA)
+                  Future(updatedUA)
                 } else {
                   registrationConnector
                     .registerWithNoIdOrganisation(partnershipName, value, RegistrationLegalStatus.Partnership)
-                    .map(updateUA.setOrException(RegistrationInfoPage, _))
+                    .map(updatedUA.setOrException(RegistrationInfoPage, _))
                 }
               futureUA
                 .flatMap(ua => userAnswersCacheConnector.save(ua.data))
