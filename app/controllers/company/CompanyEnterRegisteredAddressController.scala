@@ -97,15 +97,15 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
               renderer.render(viewTemplate, json).map(BadRequest(_))
             },
             value => {
-              val updateUA = request.userAnswers.setOrException(CompanyRegisteredAddressPage, value)
-              val nextPage = navigator.nextPage(CompanyRegisteredAddressPage, mode, updateUA)
+              val updatedUA = request.userAnswers.setOrException(CompanyRegisteredAddressPage, value)
+              val nextPage = navigator.nextPage(CompanyRegisteredAddressPage, mode, updatedUA)
               val futureUA =
                 if (nextPage == IsCompanyRegisteredInUkController.onPageLoad()) {
-                  Future(updateUA)
+                  Future(updatedUA)
                 } else {
                   registrationConnector
                     .registerWithNoIdOrganisation(companyName, value, RegistrationLegalStatus.LimitedCompany)
-                    .map(updateUA.setOrException(RegistrationInfoPage, _))
+                    .map(updatedUA.setOrException(RegistrationInfoPage, _))
                 }
               futureUA
                 .flatMap(ua => userAnswersCacheConnector.save(ua.data))
