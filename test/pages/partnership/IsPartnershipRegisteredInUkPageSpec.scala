@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package data
+package pages.partnership
 
-import models.{TolerantAddress, UserAnswers}
+import pages.behaviours.PageBehaviours
 
-object SampleData {
-  //scalastyle.off: magic.number
-  val userAnswersId = "id"
-  val psaId = "A0000000"
-  val pspName = "psp"
+class IsPartnershipRegisteredInUkPageSpec extends PageBehaviours {
 
-  def emptyUserAnswers: UserAnswers = UserAnswers()
+  "IsPartnershipRegisteredInUkPage" - {
 
-  def userAnswersWithCompanyName: UserAnswers =
-    UserAnswers().setOrException(pages.company.BusinessNamePage, pspName)
+    beRetrievable[Boolean](IsPartnershipRegisteredInUkPage)
 
-  def userAnswersWithPartnershipName: UserAnswers =
-    UserAnswers().setOrException(pages.partnership.BusinessNamePage, pspName)
+    beSettable[Boolean](IsPartnershipRegisteredInUkPage)
 
-  val addressUK = TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
+    beRemovable[Boolean](IsPartnershipRegisteredInUkPage)
+  }
 }

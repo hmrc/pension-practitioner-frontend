@@ -14,23 +14,14 @@
  * limitations under the License.
  */
 
-package data
+package pages.partnership
 
-import models.{TolerantAddress, UserAnswers}
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-object SampleData {
-  //scalastyle.off: magic.number
-  val userAnswersId = "id"
-  val psaId = "A0000000"
-  val pspName = "psp"
+case object IsPartnershipRegisteredInUkPage extends QuestionPage[Boolean] {
 
-  def emptyUserAnswers: UserAnswers = UserAnswers()
+  override def path: JsPath = JsPath \ toString
 
-  def userAnswersWithCompanyName: UserAnswers =
-    UserAnswers().setOrException(pages.company.BusinessNamePage, pspName)
-
-  def userAnswersWithPartnershipName: UserAnswers =
-    UserAnswers().setOrException(pages.partnership.BusinessNamePage, pspName)
-
-  val addressUK = TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
+  override def toString: String = "isPartnershipRegisteredInUk"
 }

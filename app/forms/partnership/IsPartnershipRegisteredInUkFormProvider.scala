@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package data
+package forms.partnership
 
-import models.{TolerantAddress, UserAnswers}
+import javax.inject.Inject
+import forms.mappings.Mappings
+import play.api.data.Form
 
-object SampleData {
-  //scalastyle.off: magic.number
-  val userAnswersId = "id"
-  val psaId = "A0000000"
-  val pspName = "psp"
+class IsPartnershipRegisteredInUkFormProvider @Inject() extends Mappings {
 
-  def emptyUserAnswers: UserAnswers = UserAnswers()
-
-  def userAnswersWithCompanyName: UserAnswers =
-    UserAnswers().setOrException(pages.company.BusinessNamePage, pspName)
-
-  def userAnswersWithPartnershipName: UserAnswers =
-    UserAnswers().setOrException(pages.partnership.BusinessNamePage, pspName)
-
-  val addressUK = TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("isPartnershipRegisteredInUk.error.required")
+    )
 }

@@ -24,14 +24,15 @@ import javax.inject.Inject
 import models.NormalMode
 import navigators.CompoundNavigator
 import pages.partnership.BusinessNamePage
+import pages.register.AreYouUKCompanyPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 class PartnershipNameController @Inject()(override val messagesApi: MessagesApi,
                                           userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -54,11 +55,16 @@ class PartnershipNameController @Inject()(override val messagesApi: MessagesApi,
           case Some(value) => form.fill(value)
         }
 
+      val extraJson = request.userAnswers.get(AreYouUKCompanyPage) match {
+        case Some(true) => Json.obj("hintMessageKey" -> "businessName.hint")
+        case _ => Json.obj()
+      }
+
         val json = Json.obj(
           "form" -> preparedForm,
           "submitUrl" -> routes.PartnershipNameController.onSubmit().url,
           "entityName" -> "partnership"
-        )
+        ) ++ extraJson
 
         renderer.render("businessName.njk", json).map(Ok(_))
   }
