@@ -47,6 +47,7 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
+  private val companyName: String = "Company name"
   private val application: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
   private val templateToBeRendered = "businessName.njk"
@@ -145,6 +146,7 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
     "Save data to user answers and redirect to next page when valid data is submitted" in {
 
       val expectedJson = Json.obj(
+        BusinessNamePage.toString -> companyName,
         BusinessNamePage.toString -> name)
 
       when(mockCompoundNavigator.nextPage(Matchers.eq(BusinessNamePage), any(), any())).thenReturn(dummyCall)
