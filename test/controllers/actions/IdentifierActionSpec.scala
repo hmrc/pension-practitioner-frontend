@@ -87,6 +87,7 @@ class IdentifierActionSpec extends SpecBase with MockitoSugar with BeforeAndAfte
           val userAnswersData = Json.obj("areYouUKResident" -> true,
             "whatTypeBusiness" -> Yourselfasindividual.toString, "journeyId" -> "test-journey")
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
+          when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future(userAnswersData))
           val result = controller.onPageLoad()(fakeRequest)
           status(result) mustBe SEE_OTHER
           redirectLocation(result) mustBe Some(frontendAppConfig.identityVerificationFrontend + startIVLink)
@@ -232,7 +233,7 @@ class IdentifierActionSpec extends SpecBase with MockitoSugar with BeforeAndAfte
 
 object IdentifierActionSpec {
   private val pspId = "A0000000"
-  private val nino = "test-nino"
+  private val nino = uk.gov.hmrc.domain.Nino("AB100100A")
   type authRetrievalsType = ConfidenceLevel ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials]
 
   private val enrolmentPODS = Enrolments(Set(Enrolment("HMRC-PODS-ORG", Seq(EnrolmentIdentifier("PSPID", pspId)), "")))

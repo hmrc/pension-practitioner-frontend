@@ -16,49 +16,72 @@
 
 package navigators
 
+import com.google.inject.Inject
 import models.{CheckMode, NormalMode, UserAnswers}
 import pages.Page
 import pages.individual._
 import play.api.mvc.Call
+import controllers.individual.routes._
+import models.register.InternationalRegion.{EuEea, RestOfTheWorld, UK}
+import utils.countryOptions.CountryOptions
 
-class IndividualNavigator
-  extends Navigator {
+class IndividualNavigator @Inject()(countryOptions: CountryOptions) extends Navigator {
 
   //scalastyle:off cyclomatic.complexity
   override protected def routeMap(ua: UserAnswers): PartialFunction[Page, Call] = {
-    case WhatYouWillNeedPage => controllers.individual.routes.AreYouUKResidentController.onPageLoad()
-    case AreYouUKResidentPage => controllers.individual.routes.IsThisYouController.onPageLoad(NormalMode)
+    case WhatYouWillNeedPage => AreYouUKResidentController.onPageLoad(NormalMode)
+    case AreYouUKResidentPage =>
+      ua.get(AreYouUKResidentPage) match {
+        case Some(true) => IsThisYouController.onPageLoad(NormalMode)
+        case Some(false) => IndividualNameController.onPageLoad()
+        case _ => controllers.routes.SessionExpiredController.onPageLoad()
+      }
+    case IndividualDetailsPage => IndividualNonUKAddressController.onPageLoad(NormalMode)
+    case IndividualAddressPage => regionBasedNavigation(ua)
     case IsThisYouPage =>
       ua.get(IsThisYouPage) match {
-        case Some(true) =>
-          controllers.individual.routes.UseAddressForContactController.onPageLoad(NormalMode)
-        case Some(false) =>
-          controllers.individual.routes.YouNeedToTellHMRCController.onPageLoad()
-        case _ =>
-          controllers.routes.SessionExpiredController.onPageLoad()
+        case Some(true) => UseAddressForContactController.onPageLoad(NormalMode)
+        case Some(false) => YouNeedToTellHMRCController.onPageLoad()
+        case _ => controllers.routes.SessionExpiredController.onPageLoad()
       }
     case UseAddressForContactPage =>
       ua.get(UseAddressForContactPage) match {
-        case Some(true) =>
-          controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
-        case Some(false) =>
-          controllers.individual.routes.IndividualPostcodeController.onPageLoad(NormalMode)
-        case _ =>
-          controllers.routes.SessionExpiredController.onPageLoad()
+        case Some(true) => IndividualEmailController.onPageLoad(NormalMode)
+        case Some(false) => IndividualPostcodeController.onPageLoad(NormalMode)
+        case _ => controllers.routes.SessionExpiredController.onPageLoad()
       }
-    case IndividualPostcodePage => controllers.individual.routes.IndividualAddressListController.onPageLoad(NormalMode)
-    case IndividualAddressListPage => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
-    case IndividualManualAddressPage => controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)
-    case IndividualEmailPage => controllers.individual.routes.IndividualPhoneController.onPageLoad(NormalMode)
-    case IndividualPhonePage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
-    case DeclarationPage => controllers.individual.routes.ConfirmationController.onPageLoad()
+    case IndividualPostcodePage => IndividualAddressListController.onPageLoad(NormalMode)
+    case IndividualAddressListPage => IndividualEmailController.onPageLoad(NormalMode)
+    case IndividualManualAddressPage => IndividualEmailController.onPageLoad(NormalMode)
+    case IndividualEmailPage => IndividualPhoneController.onPageLoad(NormalMode)
+    case IndividualPhonePage => CheckYourAnswersController.onPageLoad()
+    case DeclarationPage => ConfirmationController.onPageLoad()
   }
   //scalastyle:on cyclomatic.complexity
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {
-    case IndividualPostcodePage => controllers.individual.routes.IndividualAddressListController.onPageLoad(CheckMode)
-    case IndividualAddressListPage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
-    case IndividualManualAddressPage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
-    case IndividualEmailPage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
-    case IndividualPhonePage => controllers.individual.routes.CheckYourAnswersController.onPageLoad()
+    case AreYouUKResidentPage =>
+      userAnswers.get(AreYouUKResidentPage) match {
+        case Some(true) => IsThisYouController.onPageLoad(NormalMode)
+        case Some(false) => IndividualNameController.onPageLoad()
+        case _ => controllers.routes.SessionExpiredController.onPageLoad()
+      }
+    case IndividualPostcodePage => IndividualAddressListController.onPageLoad(CheckMode)
+    case IndividualAddressListPage => CheckYourAnswersController.onPageLoad()
+    case IndividualManualAddressPage => CheckYourAnswersController.onPageLoad()
+    case IndividualAddressPage => CheckYourAnswersController.onPageLoad()
+    case IndividualEmailPage => CheckYourAnswersController.onPageLoad()
+    case IndividualPhonePage => CheckYourAnswersController.onPageLoad()
+  }
+
+  private def regionBasedNavigation(answers: UserAnswers): Call = {
+    answers.get(IndividualAddressPage)
+      .fold(controllers.routes.SessionExpiredController.onPageLoad())(address =>
+      countryOptions.regions(address.country.getOrElse("")) match {
+        case UK => AreYouUKResidentController.onPageLoad(CheckMode)
+        case EuEea => UseAddressForContactController.onPageLoad(NormalMode)
+        case RestOfTheWorld => OutsideEuEeaController.onPageLoad()
+        case _ => controllers.routes.SessionExpiredController.onPageLoad()
+      }
+    )
   }
 }

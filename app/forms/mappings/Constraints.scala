@@ -26,7 +26,7 @@ import utils.countryOptions.CountryOptions
 
 trait Constraints {
   private val regexPostcode = """^[A-Z]{1,2}[0-9][0-9A-Z]?\s?[0-9][A-Z]{2}$"""
-  lazy val nameRegex: String = """^[a-zA-Z &`\-\'\.^]*$"""
+  protected val nameRegex = """^[a-zA-Z &`\-\'\.^]{1,35}$"""
   private val regexCrn = "^[A-Za-z0-9 -]{8}$"
   val addressLineRegex = """^[A-Za-z0-9 \-,.&'\/]{1,35}$"""
   protected val utrRegex = """^\d{10}$"""
@@ -218,4 +218,6 @@ trait Constraints {
           .map(_ => Valid)
           .getOrElse(Invalid(errorKey))
     }
+
+  protected def name(errorKey: String): Constraint[String] = regexp(nameRegex, errorKey)
 }

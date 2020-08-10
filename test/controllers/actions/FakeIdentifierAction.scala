@@ -19,6 +19,7 @@ package controllers.actions
 import javax.inject.Inject
 import models.requests.{IdentifierRequest, PSPUser, UserType}
 import play.api.mvc._
+import uk.gov.hmrc.domain.Nino
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -28,7 +29,7 @@ class FakeIdentifierAction @Inject()(bodyParsers: PlayBodyParsers) extends Ident
   private val defaultUserType = UserType.Organisation
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
-    block(IdentifierRequest(request, PSPUser(defaultUserType, Some("test-nino"), isExistingPSP = false, None, Some(defaultPspId))))
+    block(IdentifierRequest(request, PSPUser(defaultUserType, Some(Nino("AB100100A")), isExistingPSP = false, None, Some(defaultPspId))))
   }
 
   override def parser: BodyParser[AnyContent] =

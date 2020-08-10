@@ -25,7 +25,7 @@ case class TolerantIndividual(firstName: Option[String], middleName: Option[Stri
 
 object TolerantIndividual {
 
-  implicit lazy val formatsTolerantIndividual: Format[TolerantIndividual] = (
+  implicit val formatsTolerantIndividual: Format[TolerantIndividual] = (
     (JsPath \ "firstName").formatNullable[String] and
       (JsPath \ "middleName").formatNullable[String] and
       (JsPath \ "lastName").formatNullable[String]

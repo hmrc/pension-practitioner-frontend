@@ -81,10 +81,11 @@ areYouUKCompany.title = Is the company or partnership registered in the UK?
 areYouUKCompany.heading = Is the company or partnership registered in the UK?
 areYouUKCompany.error.required = Select yes if the company or partnership is registered in the UK
 
-
 areYouUKResident.error.required = Select yes if you are a UK resident
 areYouUKResident.title = Are you a UK resident?
 areYouUKResident.heading = Are you a UK resident?
+areYouUKResident.check.p1 = You selected that you are not based in the UK but have given a UK address.
+areYouUKResident.check.p2 = If you are not based in the UK, you need to give an address that is not in the UK.
 
 isThisYou.title = Is this your name and address?
 isThisYou.heading = Is this your name and address?
@@ -530,6 +531,21 @@ businessDetailsNotFound.reason2.contactTaxHelpline = you only need to contact th
 businessDetailsNotFound.reason3.h2 = Your Unique Taxpayer Reference (UTR) does not match
 businessDetailsNotFound.reason3.p1 = Your Unique Taxpayer Reference is made up of 10 or 13 numbers. If it is 13, only enter the last 10.
 businessDetailsNotFound.enterAgain = Enter details again
+
+individual.firstName.error.required = Enter your first name
+individual.lastName.error.required = Enter your last name
+individual.firstName.error.length = The first name cannot be more than 35 characters
+individual.lastName.error.length = The last name cannot be more than 35 characters
+individual.firstName.error.invalid = The first name must only include letters, spaces, ampersands, dashes, grave accents, apostrophes, carets and full stops
+individual.lastName.error.invalid = The last name must only include letters, spaces, ampersands, dashes, grave accents, apostrophes, carets and full stops
+
+individual.name.title = What is your name?
+individual.firstName.label = First name
+individual.lastName.label = Last name
+
+outsideEuEea.title = You cannot register as a PSP
+outsideEuEea.p1 = This is because you are based in {0} and outside of the European Union and European Economic Area.
+outsideEuEea.p2 = Only people based inside the European Union and European Economic Area can register as a PSP.
 
 businessRegistrationType.title = What is the business registered as?
 businessRegistrationType.heading = What is the business registered as?

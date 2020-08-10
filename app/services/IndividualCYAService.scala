@@ -17,7 +17,7 @@
 package services
 
 import models.{Address, CheckMode, UserAnswers}
-import pages.individual.{IndividualDetailsPage, IndividualEmailPage, IndividualManualAddressPage, IndividualPhonePage}
+import pages.individual._
 import play.api.i18n.Messages
 import uk.gov.hmrc.viewmodels.SummaryList.{Action, Key, Row, Value}
 import uk.gov.hmrc.viewmodels.Text.Literal
@@ -30,39 +30,44 @@ class IndividualCYAService extends CYAService {
       ua.get(IndividualDetailsPage),
       ua.get(IndividualManualAddressPage),
       ua.get(IndividualEmailPage),
-      ua.get(IndividualPhonePage)
+      ua.get(IndividualPhonePage),
+      ua.get(AreYouUKResidentPage)
     ) match {
-      case (Some(details), Some(address), Some(email), Some(phone)) => {
+      case (Some(details), Some(address), Some(email), Some(phone), Some(areYouUKResident)) =>
         Seq(
           individualName(details.fullName),
-          individualAddress(address),
+          individualAddress(address, areYouUKResident),
           individualEmail(email),
           individualPhone(phone)
         )
-      }
       case _ => Seq.empty
 
     }
   }
 
   private def individualName(name: String): Row =
-      Row(
-        key = Key(msg"cya.name", classes = Seq("govuk-!-width-one-half")),
-        value = Value(Literal(name), classes = Seq("govuk-!-width-one-third"))
-      )
+    Row(
+      key = Key(msg"cya.name", classes = Seq("govuk-!-width-one-half")),
+      value = Value(Literal(name), classes = Seq("govuk-!-width-one-third"))
+    )
 
-  private def individualAddress(address: Address)(implicit messages: Messages): Row =
-      Row(
-        key = Key(msg"cya.address", classes = Seq("govuk-!-width-one-half")),
-        value = Value(addressAnswer(address), classes = Seq("govuk-!-width-one-third")),
-        actions = List(
-          Action(
-            content = msg"site.edit",
-            href = controllers.individual.routes.IndividualPostcodeController.onPageLoad(CheckMode).url,
-            visuallyHiddenText = Some(msg"cya.change.address")
-          )
+  private def individualAddress(address: Address, areYouUKResident: Boolean)(implicit messages: Messages): Row =
+    Row(
+      key = Key(msg"cya.address", classes = Seq("govuk-!-width-one-half")),
+      value = Value(addressAnswer(address), classes = Seq("govuk-!-width-one-third")),
+      actions = List(
+        Action(
+          content = msg"site.edit",
+          href =
+            if (areYouUKResident) {
+              controllers.individual.routes.IndividualPostcodeController.onPageLoad(CheckMode).url
+            } else {
+              controllers.individual.routes.IndividualNonUKAddressController.onPageLoad(CheckMode).url
+            },
+          visuallyHiddenText = Some(msg"cya.change.address")
         )
       )
+    )
 
   private def individualEmail(email: String): Row =
     Row(

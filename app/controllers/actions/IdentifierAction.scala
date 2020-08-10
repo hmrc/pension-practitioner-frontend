@@ -102,33 +102,39 @@ class AuthenticatedIdentifierActionWithIV @Inject()(override val authConnector: 
     val journeyId = authRequest.request.getQueryString(key = "journeyId")
     getData(JourneyPage).flatMap {
       case Some(journey) =>
-        getNinoAndUpdateAuthRequest(journey, enrolments, block, authRequest)
+        getNinoAndUpdateAuthRequest(journey, block, authRequest)
       case _ if journeyId.nonEmpty =>
         for {
           ua <- getUa
           uaWithJourneyId <- Future.fromTry(ua.set(JourneyPage, journeyId.getOrElse("")))
           _ <- userAnswersCacheConnector.save(uaWithJourneyId.data)
-          finalAuthRequest <- getNinoAndUpdateAuthRequest(journeyId.getOrElse(""), enrolments, block, authRequest)
+          finalAuthRequest <- getNinoAndUpdateAuthRequest(journeyId.getOrElse(""), block, authRequest)
         } yield {
           finalAuthRequest
         }
       case _ =>
-        orgManualIV(enrolments, authRequest, block)
+        orgManualIV(authRequest, block)
     }
   }
 
-  private def getNinoAndUpdateAuthRequest[A](journeyId: String, enrolments: Enrolments, block: IdentifierRequest[A] => Future[Result],
+  private def getNinoAndUpdateAuthRequest[A](journeyId: String, block: IdentifierRequest[A] => Future[Result],
                                              authRequest: IdentifierRequest[A])(implicit hc: HeaderCarrier): Future[Result] = {
     ivConnector.retrieveNinoFromIV(journeyId).flatMap {
       case Some(nino) =>
         val updatedAuth = IdentifierRequest(authRequest.request, authRequest.user.copy(nino = Some(nino)))
         block(updatedAuth)
       case _ =>
-        orgManualIV(enrolments, authRequest, block)
+        getUa.flatMap { answers =>
+          Future.fromTry(answers.remove(JourneyPage)).flatMap { ua =>
+            userAnswersCacheConnector.save(ua.data).flatMap { _ =>
+              orgManualIV(authRequest, block)
+            }
+          }
+        }
     }
   }
 
-  private def orgManualIV[A](enrolments: Enrolments, authRequest: IdentifierRequest[A],
+  private def orgManualIV[A](authRequest: IdentifierRequest[A],
                              block: IdentifierRequest[A] => Future[Result])(implicit hc: HeaderCarrier) = {
 
     getData(WhatTypeBusinessPage).flatMap {
@@ -190,7 +196,7 @@ class AuthenticatedIdentifierActionWithIV @Inject()(override val authConnector: 
   }
 
   protected def pspUser(cl: ConfidenceLevel, affinityGroup: AffinityGroup,
-                        nino: Option[String], enrolments: Enrolments, userId: String): PSPUser = {
+                        nino: Option[uk.gov.hmrc.domain.Nino], enrolments: Enrolments, userId: String): PSPUser = {
     val psp = existingPSP(enrolments)
     PSPUser(userType(affinityGroup, cl), nino, psp.nonEmpty, psp, None, userId)
   }

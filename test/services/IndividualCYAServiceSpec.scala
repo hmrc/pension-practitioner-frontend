@@ -34,28 +34,32 @@ class IndividualCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
   private val phone: String = "1111111111"
   private val individualDetails = TolerantIndividual(Some("first"), None, Some("last"))
 
-  val userAnswers: UserAnswers = UserAnswers()
+  private def userAnswers(isUK: Boolean): UserAnswers = UserAnswers()
+    .set(AreYouUKResidentPage, isUK).toOption.value
     .set(IndividualDetailsPage, individualDetails).toOption.value
     .set(IndividualManualAddressPage, address).toOption.value
     .set(IndividualEmailPage, email).toOption.value
     .set(IndividualPhonePage, phone).toOption.value
 
-  val expectedRows: Seq[Row] = Seq(
+
+  private def addressRow(href: String) = Row(
+    key = Key(msg"cya.address", classes = Seq("govuk-!-width-one-half")),
+    value = Value(addressAnswer(address), classes = Seq("govuk-!-width-one-third")),
+    actions = List(
+      Action(
+        content = msg"site.edit",
+        href = href,
+        visuallyHiddenText = Some(msg"cya.change.address")
+      )
+    )
+  )
+
+  def expectedRows(addressRow: Row): Seq[Row] = Seq(
     Row(
       key = Key(msg"cya.name", classes = Seq("govuk-!-width-one-half")),
       value = Value(Literal(individualDetails.fullName), classes = Seq("govuk-!-width-one-third"))
     ),
-    Row(
-      key = Key(msg"cya.address", classes = Seq("govuk-!-width-one-half")),
-      value = Value(addressAnswer(address), classes = Seq("govuk-!-width-one-third")),
-      actions = List(
-        Action(
-          content = msg"site.edit",
-          href = controllers.individual.routes.IndividualPostcodeController.onPageLoad(CheckMode).url,
-          visuallyHiddenText = Some(msg"cya.change.address")
-        )
-      )
-    ),
+    addressRow,
     Row(
       key = Key(msg"cya.individual.email", classes = Seq("govuk-!-width-one-half")),
       value = Value(Literal(email), classes = Seq("govuk-!-width-one-third")),
@@ -81,9 +85,16 @@ class IndividualCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
   )
 
   "individualCya" must {
-    "return a list of rows of individual cya details" in {
+    "return a list of rows of individual uk cya details" in {
 
-      service.individualCya(userAnswers) mustBe expectedRows
+      service.individualCya(userAnswers(isUK = true)) mustBe expectedRows(
+        addressRow(controllers.individual.routes.IndividualPostcodeController.onPageLoad(CheckMode).url))
+
+    }
+
+    "return a list of rows of individual non uk cya details" in {
+      service.individualCya(userAnswers(isUK = false)) mustBe expectedRows(addressRow(
+        controllers.individual.routes.IndividualNonUKAddressController.onPageLoad(CheckMode).url))
 
     }
   }

@@ -26,9 +26,11 @@ import models.{register, _}
 import play.Logger
 import play.api.http.Status
 import play.api.libs.json._
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.http.HttpReads.Implicits._
+
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Failure
 
@@ -37,13 +39,13 @@ trait RegistrationConnector {
   def registerWithIdOrganisation(utr: String, organisation: Organisation, legalStatus: RegistrationLegalStatus)
                                 (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[OrganisationRegistration]
 
-  def registerWithIdIndividual(nino: String)
+  def registerWithIdIndividual(nino: Nino)
                               (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[IndividualRegistration]
 
   def registerWithNoIdOrganisation(name: String, address: Address, legalStatus: RegistrationLegalStatus)
                                   (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[RegistrationInfo]
 
-  def registerWithNoIdIndividual(firstName: String, lastName: String, address: Address, dateOfBirth: LocalDate)
+  def registerWithNoIdIndividual(firstName: String, lastName: String, address: Address)
                                 (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[RegistrationInfo]
 }
 
@@ -92,11 +94,11 @@ class RegistrationConnectorImpl @Inject()(http: HttpClient,
     }
   }
 
-  override def registerWithIdIndividual(nino: String)
+  override def registerWithIdIndividual(nino: Nino)
                                        (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[IndividualRegistration] = {
 
     val url = config.registerWithIdIndividualUrl
-    val extraHeaders = hc.withExtraHeaders("nino" -> nino)
+    val extraHeaders = hc.withExtraHeaders("nino" -> nino.nino)
 
     val postCall = http.POST[JsObject, HttpResponse](url, Json.obj())(implicitly, implicitly, extraHeaders, implicitly)
 
@@ -112,7 +114,7 @@ class RegistrationConnectorImpl @Inject()(http: HttpClient,
             RegistrationLegalStatus.Individual,
             RegistrationCustomerType.fromAddress(value.address),
             Some(RegistrationIdType.Nino),
-            Some(nino),
+            Some(nino.nino),
             noIdentifier = false
           )
           IndividualRegistration(value, info)
@@ -153,10 +155,10 @@ class RegistrationConnectorImpl @Inject()(http: HttpClient,
     }
   }
 
-  override def registerWithNoIdIndividual(firstName: String, lastName: String, address: Address, dateOfBirth: LocalDate)
+  override def registerWithNoIdIndividual(firstName: String, lastName: String, address: Address)
                                          (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[RegistrationInfo] = {
 
-    val registrant = RegistrationNoIdIndividualRequest(firstName, lastName, dateOfBirth, address)
+    val registrant = RegistrationNoIdIndividualRequest(firstName, lastName, address)
 
     http.POST[JsValue, HttpResponse](config.registerWithNoIdIndividualUrl, Json.toJson(registrant)) map { response =>
       require(response.status == Status.OK, "The only valid response to registerWithNoIdIndividual is 200 OK")

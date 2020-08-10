@@ -21,9 +21,11 @@ import config.FrontendAppConfig
 import play.api.Logger
 import play.api.http.Status
 import play.api.libs.json._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
+
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Try}
 
@@ -52,12 +54,12 @@ class IdentityVerificationConnector @Inject()(http: HttpClient, appConfig: Front
     }
   }
 
-  def retrieveNinoFromIV(journeyId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] = {
+  def retrieveNinoFromIV(journeyId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[Nino]] = {
     val url = s"${appConfig.identityVerification}/identity-verification/journey/$journeyId"
 
     http.GET[HttpResponse](url).flatMap {
       case response if response.status equals Status.OK =>
-        Future.successful((response.json \ "nino").asOpt[String])
+        Future.successful((response.json \ "nino").asOpt[Nino])
       case response =>
         Logger.debug(s"Call to retrieve Nino from IV failed with status ${response.status} and response body ${response.body}")
         Future.successful(None)
