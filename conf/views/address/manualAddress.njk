@@ -89,39 +89,41 @@
             errorMessage: form.line4.error
           }) }}
 
+         {% if countries %}
+              <div class="govuk-form-group autocomplete-wrapper govuk-body govuk-input--width-20">
+                      {{ govukSelect({
+                        label: {
+                            text: messages('address.country'),
+                            classes: "govuk-label--s"
+                        },
+                        id: "country-select",
+                        classes: "autoComplete",
+                        name: "country",
+                        items: countries,
+                        errorMessage: form.country.error,
+                        attributes: {
+                            value: form.country.value
+                        }
+                      }) }}
+              </div>
+          {% endif %}
 
-          {{ govukInput({
-              label: {
-                text: messages('address.postcode'),
-                isPageHeading: false,
-                classes: "govuk-label--s"
-              },
-              id: "postcode",
-              name: "postcode",
-              value: form.postcode.value,
-              classes: "govuk-input--width-10",
-              attributes: {autoComplete: "off"},
-              errorMessage: form.postcode.error
-            }) }}
+          {% if postcodeEntry %}
+              {{ govukInput({
+                  label: {
+                    text: messages('address.postcode'),
+                    isPageHeading: false,
+                    classes: "govuk-label--s"
+                  },
+                  id: "postcode",
+                  name: "postcode",
+                  value: form.postcode.value,
+                  classes: "govuk-input--width-10",
+                  attributes: {autoComplete: "off"},
+                  errorMessage: form.postcode.error
+              }) }}
+          {% endif %}
 
-
-
-          <div class="govuk-form-group autocomplete-wrapper govuk-body govuk-input--width-20">
-                  {{ govukSelect({
-                    label: {
-                        text: messages('address.country'),
-                        classes: "govuk-label--s"
-                    },
-                    id: "country-select",
-                    classes: "autoComplete",
-                    name: "country",
-                    items: countries,
-                    errorMessage: form.country.error,
-                    attributes: {
-                        value: form.country.value
-                    }
-                  }) }}
-          </div>
 
           {{ govukButton({
               text: messages("site.save_and_continue"),

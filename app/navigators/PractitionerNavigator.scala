@@ -18,9 +18,11 @@ package navigators
 
 import com.google.inject.Inject
 import connectors.cache.UserAnswersCacheConnector
+import models.register.BusinessRegistrationType
 import models.{WhatTypeBusiness, UserAnswers}
 import models.register.BusinessType
 import pages.register.BusinessDetailsNotFoundPage
+import pages.register.BusinessRegistrationTypePage
 import pages.register.{AreYouUKCompanyPage, WhatYouWillNeedPage, BusinessTypePage}
 import pages.{WhatTypeBusinessPage, Page}
 import play.api.mvc.Call
@@ -28,12 +30,13 @@ import play.api.mvc.Call
 class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector)
   extends Navigator {
 
+  //scalastyle:off cyclomatic.complexity
   override protected def routeMap(ua: UserAnswers): PartialFunction[Page, Call] = {
     case WhatTypeBusinessPage => ua.get(WhatTypeBusinessPage) match {
-      case Some(WhatTypeBusiness.Companyorpartnership) => controllers.register.routes
-        .WhatYouWillNeedController.onPageLoad()
-      case Some(WhatTypeBusiness.Yourselfasindividual) => controllers.individual.routes
-        .WhatYouWillNeedController.onPageLoad()
+      case Some(WhatTypeBusiness.Companyorpartnership) =>
+        controllers.register.routes.WhatYouWillNeedController.onPageLoad()
+      case Some(WhatTypeBusiness.Yourselfasindividual) =>
+        controllers.individual.routes.WhatYouWillNeedController.onPageLoad()
       case _ => controllers.routes.SessionExpiredController.onPageLoad()
     }
     case WhatYouWillNeedPage => controllers.register.routes.AreYouUKCompanyController.onPageLoad()
@@ -41,23 +44,32 @@ class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCo
       ua.get(AreYouUKCompanyPage) match {
         case Some(true) =>
           controllers.register.routes.BusinessTypeController.onPageLoad()
-        case _ => controllers.routes.SessionExpiredController.onPageLoad()
+        case _ => controllers.register.routes.BusinessRegistrationTypeController.onPageLoad()
       }
-    case BusinessTypePage=>
-      ua.get(BusinessTypePage) match {
-        case Some(BusinessType.LimitedCompany) =>
-          controllers.company.routes.BusinessUTRController.onPageLoad()
-        case Some(BusinessType.UnlimitedCompany) =>
-          controllers.company.routes.BusinessUTRController.onPageLoad()
-        case Some(BusinessType.BusinessPartnership) =>
-          controllers.partnership.routes.BusinessUTRController.onPageLoad()
-        case Some(BusinessType.LimitedPartnership) =>
-          controllers.partnership.routes.BusinessUTRController.onPageLoad()
-        case Some(BusinessType.LimitedLiabilityPartnership) =>
-          controllers.partnership.routes.BusinessUTRController.onPageLoad()
-        case _ => controllers.routes.SessionExpiredController.onPageLoad()
-      }
+    case BusinessTypePage=> businessTypeNavigation(ua)
     case BusinessDetailsNotFoundPage => controllers.routes.WhatTypeBusinessController.onPageLoad()
+    case BusinessRegistrationTypePage =>
+      ua.get(BusinessRegistrationTypePage) match {
+        case Some(BusinessRegistrationType.Company) => controllers.company.routes.CompanyNameController.onPageLoad()
+        case _ => controllers.partnership.routes.PartnershipNameController.onPageLoad()
+      }
+
+  }
+
+  private def businessTypeNavigation(ua:UserAnswers):Call = {
+    ua.get(BusinessTypePage) match {
+      case Some(BusinessType.LimitedCompany) =>
+        controllers.company.routes.BusinessUTRController.onPageLoad()
+      case Some(BusinessType.UnlimitedCompany) =>
+        controllers.company.routes.BusinessUTRController.onPageLoad()
+      case Some(BusinessType.BusinessPartnership) =>
+        controllers.partnership.routes.BusinessUTRController.onPageLoad()
+      case Some(BusinessType.LimitedPartnership) =>
+        controllers.partnership.routes.BusinessUTRController.onPageLoad()
+      case Some(BusinessType.LimitedLiabilityPartnership) =>
+        controllers.partnership.routes.BusinessUTRController.onPageLoad()
+      case _ => controllers.routes.SessionExpiredController.onPageLoad()
+    }
   }
 
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {

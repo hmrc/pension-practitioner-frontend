@@ -123,7 +123,7 @@ companyName.error.required = Enter the company’s name
 companyName.error.length = Company name must be 105 characters or fewer
 companyName.error.invalid = Company name must only include letters, numbers, dashes, spaces, apostrophes, ampersands and slashes
 
-partnershipName.error.required = Enter the name of the partnership
+partnershipName.error.required = Enter the partnership’s name
 partnershipName.error.length = Partnership name must be 105 characters or fewer
 partnershipName.error.invalid = Partnership name must only include letters, numbers, dashes, spaces, apostrophes, ampersands and slashes
 
@@ -546,3 +546,22 @@ individual.lastName.label = Last name
 outsideEuEea.title = You cannot register as a PSP
 outsideEuEea.p1 = This is because you are based in {0} and outside of the European Union and European Economic Area.
 outsideEuEea.p2 = Only people based inside the European Union and European Economic Area can register as a PSP.
+
+businessRegistrationType.title = What is the business registered as?
+businessRegistrationType.heading = What is the business registered as?
+businessRegistrationType.company = Company
+businessRegistrationType.partnership = Partnership
+businessRegistrationType.checkYourAnswersLabel = What is the business registered as?
+businessRegistrationType.error.required = Select if the business is registered as a company or partnership
+
+isCompanyRegisteredInUk.title = Is the company registered in the UK?
+isCompanyRegisteredInUk.heading = Is the company registered in the UK?
+isCompanyRegisteredInUk.p1 = You selected that you are not based in the UK but have given a UK address.
+isCompanyRegisteredInUk.p2 = If you are not based in the UK, you need to give an address that is not in the UK.
+isCompanyRegisteredInUk.error.required = Select yes if the company is registered in the UK
+
+isPartnershipRegisteredInUk.title = Is the partnership registered in the UK?
+isPartnershipRegisteredInUk.heading = Is the partnership registered in the UK?
+isPartnershipRegisteredInUk.p1 = You selected that you are not based in the UK but have given a UK address.
+isPartnershipRegisteredInUk.p2 = If you are not based in the UK, you need to give an address that is not in the UK.
+isPartnershipRegisteredInUk.error.required = Select yes if the partnership is registered in the UK

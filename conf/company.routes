@@ -1,5 +1,5 @@
-GET        /is-your-registered-address-same           controllers.company.CompanyUseSameAddressController.onPageLoad()
-POST       /is-your-registered-address-same           controllers.company.CompanyUseSameAddressController.onSubmit()
+GET        /can-hmrc-use-this-address           controllers.company.CompanyUseSameAddressController.onPageLoad()
+POST       /can-hmrc-use-this-address           controllers.company.CompanyUseSameAddressController.onSubmit()
 
 GET        /addresses/postcode                        controllers.company.CompanyPostcodeController.onPageLoad(mode: Mode = NormalMode)
 POST       /addresses/postcode                        controllers.company.CompanyPostcodeController.onSubmit(mode: Mode = NormalMode)
@@ -11,10 +11,10 @@ POST       /addresses/address-results                 controllers.company.Compan
 GET        /addresses/change-address-results          controllers.company.CompanyAddressListController.onPageLoad(mode: Mode = CheckMode)
 POST       /addresses/change-address-results          controllers.company.CompanyAddressListController.onSubmit(mode: Mode = CheckMode)
 
-GET        /addresses/address-manual                  controllers.company.CompanyAddressController.onPageLoad(mode: Mode = NormalMode)
-POST       /addresses/address-manual                  controllers.company.CompanyAddressController.onSubmit(mode: Mode = NormalMode)
-GET        /addresses/change-address-manual           controllers.company.CompanyAddressController.onPageLoad(mode: Mode = CheckMode)
-POST       /addresses/change-address-manual           controllers.company.CompanyAddressController.onSubmit(mode: Mode = CheckMode)
+GET        /addresses/enter-contact-address                  controllers.company.CompanyAddressController.onPageLoad(mode: Mode = NormalMode)
+POST       /addresses/enter-contact-address                  controllers.company.CompanyAddressController.onSubmit(mode: Mode = NormalMode)
+GET        /addresses/change-contact-address           controllers.company.CompanyAddressController.onPageLoad(mode: Mode = CheckMode)
+POST       /addresses/change-contact-address           controllers.company.CompanyAddressController.onSubmit(mode: Mode = CheckMode)
 
 GET        /business-utr                        controllers.company.BusinessUTRController.onPageLoad()
 POST       /business-utr                        controllers.company.BusinessUTRController.onSubmit()
@@ -48,3 +48,10 @@ POST        /declaration                               controllers.company.Decla
 
 GET        /registration-successful                         controllers.company.ConfirmationController.onPageLoad()
 
+GET        /addresses/enter-registered-address                  controllers.company.CompanyEnterRegisteredAddressController.onPageLoad(mode: Mode = NormalMode)
+POST       /addresses/enter-registered-address                  controllers.company.CompanyEnterRegisteredAddressController.onSubmit(mode: Mode = NormalMode)
+GET        /addresses/change-enter-registered-address           controllers.company.CompanyEnterRegisteredAddressController.onPageLoad(mode: Mode = CheckMode)
+POST       /addresses/change-enter-registered-address           controllers.company.CompanyEnterRegisteredAddressController.onSubmit(mode: Mode = CheckMode)
+
+GET        /is-company-in-uk                        controllers.company.IsCompanyRegisteredInUkController.onPageLoad()
+POST       /is-company-in-uk                        controllers.company.IsCompanyRegisteredInUkController.onSubmit()

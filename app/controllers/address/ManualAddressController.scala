@@ -20,18 +20,19 @@ import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import models.requests.DataRequest
-import models.{Address, Mode}
+import models.{Mode, Address}
 import navigators.CompoundNavigator
 import pages.QuestionPage
+import pages.register.AreYouUKCompanyPage
 import play.api.data.Form
 import play.api.i18n.Messages
-import play.api.libs.json.{JsArray, JsObject, Json}
-import play.api.mvc.{AnyContent, Result}
+import play.api.libs.json.{JsArray, Json, JsObject}
+import play.api.mvc.{Result, AnyContent}
 import renderer.Renderer
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 trait ManualAddressController extends FrontendBaseController with Retrievals {
 
@@ -44,6 +45,15 @@ trait ManualAddressController extends FrontendBaseController with Retrievals {
   protected def form(implicit messages: Messages): Form[Address]
 
   protected def viewTemplate = "address/manualAddress.njk"
+
+  protected def retrieveFieldsFromRequestAndAddCountryForUK(implicit request: DataRequest[AnyContent]):Map[String, String] = {
+    val postedFields = request.body.asFormUrlEncoded.fold(Map[String, Seq[String]]())(identity)
+      .map(field => (field._1, field._2.headOption.getOrElse("")))
+    request.userAnswers.get(AreYouUKCompanyPage) match {
+      case Some(true) => postedFields ++ Map("country" -> "GB")
+      case _ => postedFields
+    }
+  }
 
   def get(json: Form[Address] => JsObject)
          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {

@@ -18,32 +18,55 @@ package services
 
 import models.{Address, CheckMode, UserAnswers}
 import pages.company._
+import pages.register.AreYouUKCompanyPage
 import play.api.i18n.Messages
-import uk.gov.hmrc.viewmodels.SummaryList.{Action, Key, Row, Value}
+import play.api.mvc.Call
+import uk.gov.hmrc.viewmodels.SummaryList.{Key, Value, Row, Action}
 import uk.gov.hmrc.viewmodels.Text.Literal
 import uk.gov.hmrc.viewmodels._
 
 class CompanyCYAService extends CYAService {
 
-  def companyCya(ua: UserAnswers)(implicit messages: Messages): Seq[Row] =
-    (
-      ua.get(BusinessNamePage),
-      ua.get(BusinessUTRPage),
-      ua.get(CompanyAddressPage),
-      ua.get(CompanyEmailPage),
-      ua.get(CompanyPhonePage)
-    ) match {
-      case (Some(name), Some(utr), Some(address), Some(email), Some(phone)) =>
-          Seq(
-            companyName(name),
-            companyUtr(utr),
-            companyAddress(address),
-            companyEmail(name, email),
-            companyPhone(name, phone)
-          )
+  def companyCya(ua: UserAnswers)(implicit messages: Messages): Seq[Row] = {
+    ua.get(AreYouUKCompanyPage) match {
+      case Some(true) =>
+        (
+          ua.get(BusinessNamePage),
+          ua.get(BusinessUTRPage),
+          ua.get(CompanyAddressPage),
+          ua.get(CompanyEmailPage),
+          ua.get(CompanyPhonePage)
+        ) match {
+          case (Some(name), Some(utr), Some(address), Some(email), Some(phone)) =>
+            Seq(
+              companyName(name),
+              companyUtr(utr),
+              companyAddress(address, controllers.company.routes.CompanyPostcodeController.onPageLoad(CheckMode)),
+              companyEmail(name, email),
+              companyPhone(name, phone)
+            )
+          case _ => Seq.empty
+        }
+      case Some(false) =>
+        (
+          ua.get(BusinessNamePage),
+          ua.get(CompanyAddressPage),
+          ua.get(CompanyEmailPage),
+          ua.get(CompanyPhonePage)
+        ) match {
+          case (Some(name), Some(address), Some(email), Some(phone)) =>
+            Seq(
+              companyName(name),
+              companyAddress(address, controllers.company.routes.CompanyAddressController.onPageLoad(CheckMode)),
+              companyEmail(name, email),
+              companyPhone(name, phone)
+            )
+          case _ => Seq.empty
+        }
       case _ => Seq.empty
-
     }
+
+  }
 
   private def companyName(name: String): Row =
       Row(
@@ -57,14 +80,14 @@ class CompanyCYAService extends CYAService {
         value = Value(Literal(utr), classes = Seq("govuk-!-width-one-third"))
       )
 
-  private def companyAddress(address: Address)(implicit messages: Messages): Row =
+  private def companyAddress(address: Address, href:Call)(implicit messages: Messages): Row =
       Row(
         key = Key(msg"cya.address", classes = Seq("govuk-!-width-one-half")),
         value = Value(addressAnswer(address), classes = Seq("govuk-!-width-one-third")),
         actions = List(
           Action(
             content = msg"site.edit",
-            href = controllers.company.routes.CompanyPostcodeController.onPageLoad(CheckMode).url,
+            href = href.url,
             visuallyHiddenText = Some(msg"cya.change.address")
           )
         )

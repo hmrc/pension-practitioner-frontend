@@ -22,15 +22,16 @@ import forms.address.UseAddressForContactFormProvider
 import matchers.JsonMatchers
 import models.{TolerantAddress, UserAnswers}
 import org.mockito.Matchers.{any, eq => eqTo}
-import org.mockito.Mockito.{times, verify, when}
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.Mockito.{times, when, verify}
+import org.mockito.{Matchers, ArgumentCaptor}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.partnership.{BusinessNamePage, ConfirmAddressPage, PartnershipUseSameAddressPage}
+import pages.partnership.{ConfirmAddressPage, BusinessNamePage, PartnershipUseSameAddressPage}
+import pages.register.AreYouUKCompanyPage
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{Json, JsObject}
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -55,8 +56,9 @@ class PartnershipUseSameAddressControllerSpec extends ControllerSpecBase with Mo
   private val address: TolerantAddress = TolerantAddress(Some("addr1"), Some("addr2"), Some("addr3"), Some("addr4"), Some("postcode"), Some("UK"))
 
   val userAnswers: UserAnswers = UserAnswers()
-    .set(BusinessNamePage, partnershipName).toOption.value
-    .set(ConfirmAddressPage, address).toOption.value
+    .setOrException(BusinessNamePage, partnershipName)
+    .setOrException(ConfirmAddressPage, address)
+    .setOrException(AreYouUKCompanyPage, true)
 
   private def onPageLoadUrl: String = routes.PartnershipUseSameAddressController.onPageLoad().url
   private def submitUrl: String = routes.PartnershipUseSameAddressController.onSubmit().url

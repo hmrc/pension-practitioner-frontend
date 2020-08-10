@@ -18,10 +18,14 @@ package navigators
 
 import controllers.company.routes._
 import data.SampleData
-import models.{CheckMode, NormalMode, UserAnswers}
+import models.Address
+import models.CheckMode
+import models.NormalMode
+import models.UserAnswers
 import org.scalatest.prop.TableFor3
 import pages.Page
 import pages.company._
+import pages.register.AreYouUKCompanyPage
 import play.api.mvc.Call
 
 class CompanyNavigatorSpec extends NavigatorBehaviour {
@@ -31,9 +35,21 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
   private def uaConfirmName(v:Boolean) = SampleData
     .emptyUserAnswers.setOrException(ConfirmNamePage, v)
 
-  private def uaUseSameAddress(v:Boolean) = SampleData
-    .emptyUserAnswers.setOrException(CompanyUseSameAddressPage, v)
+  private def uaUseSameAddress(sameAddress:Boolean, uk:Boolean) =
+    SampleData.emptyUserAnswers
+    .setOrException(AreYouUKCompanyPage, uk)
+    .setOrException(CompanyUseSameAddressPage, sameAddress)
 
+  private def uaAreYouUKCompany(v:Boolean) = SampleData
+    .emptyUserAnswers.setOrException(AreYouUKCompanyPage, v)
+
+  private def uaIsCompanyRegisteredInUkPage(v:Boolean) =
+    SampleData.emptyUserAnswers.setOrException(IsCompanyRegisteredInUkPage, v)
+
+  private def uaNotInUKButCountryGB =
+    SampleData.emptyUserAnswers
+      .setOrException(AreYouUKCompanyPage, false)
+    .setOrException(CompanyRegisteredAddressPage, Address("addr1", "addr2", None, None, None, "GB"))
 
   private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
 
@@ -42,18 +58,24 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
       Table(
         ("Id", "UserAnswers", "Next Page"),
         row(BusinessUTRPage)(CompanyNameController.onPageLoad()),
-        row(BusinessNamePage)(ConfirmNameController.onPageLoad()),
+        row(BusinessNamePage)(ConfirmNameController.onPageLoad(), Some(uaAreYouUKCompany(true))),
+        row(BusinessNamePage)(CompanyEnterRegisteredAddressController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(false))),
         row(ConfirmNamePage)(ConfirmAddressController.onPageLoad(), Some(uaConfirmName(true))),
         row(ConfirmNamePage)(TellHMRCController.onPageLoad(),Some(uaConfirmName(false))),
         row(ConfirmAddressPage)(TellHMRCController.onPageLoad()),
         row(ConfirmAddressPage)(CompanyUseSameAddressController.onPageLoad(), Some(uaConfirmAddressYes)),
-        row(CompanyUseSameAddressPage)(CompanyEmailController.onPageLoad(NormalMode), Some(uaUseSameAddress(true))),
-        row(CompanyUseSameAddressPage)(CompanyPostcodeController.onPageLoad(NormalMode), Some(uaUseSameAddress(false))),
+        row(CompanyUseSameAddressPage)(CompanyEmailController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=true, uk=true))),
+        row(CompanyUseSameAddressPage)(CompanyPostcodeController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=false, uk=true))),
+        row(CompanyUseSameAddressPage)(CompanyAddressController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=false, uk=false))),
         row(CompanyPostcodePage)(CompanyAddressListController.onPageLoad(NormalMode)),
         row(CompanyAddressListPage)(CompanyEmailController.onPageLoad(NormalMode)),
-        row(CompanyAddressPage)(CompanyEmailController.onPageLoad(NormalMode)),
+        row(CompanyAddressPage)(CompanyEmailController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(true))),
         row(CompanyEmailPage)(CompanyPhoneController.onPageLoad(NormalMode)),
         row(CompanyPhonePage)(CheckYourAnswersController.onPageLoad()),
+        row(CompanyRegisteredAddressPage)(CompanyUseSameAddressController.onPageLoad()),
+        row(CompanyRegisteredAddressPage)(IsCompanyRegisteredInUkController.onPageLoad(), Some(uaNotInUKButCountryGB)),
+        row(IsCompanyRegisteredInUkPage)(controllers.routes.WhatTypeBusinessController.onPageLoad(), Some(uaIsCompanyRegisteredInUkPage(true))),
+        row(IsCompanyRegisteredInUkPage)(CompanyEnterRegisteredAddressController.onPageLoad(NormalMode), Some(uaIsCompanyRegisteredInUkPage(false))),
         row(DeclarationPage)(controllers.company.routes.ConfirmationController.onPageLoad())
       )
 

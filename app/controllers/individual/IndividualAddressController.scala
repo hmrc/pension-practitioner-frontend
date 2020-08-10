@@ -70,6 +70,7 @@ class IndividualAddressController @Inject()(override val messagesApi: MessagesAp
       Json.obj(
         "form" -> form,
         "submitUrl" -> routes.IndividualAddressController.onSubmit(mode).url,
+        "postcodeEntry" -> true,
         "countries" -> jsonCountries(form.data.get("country"), config)(request2Messages)
 
       )

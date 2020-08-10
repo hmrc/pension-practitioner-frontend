@@ -17,9 +17,10 @@
 package pages.register
 
 import models.UserAnswers
-import pages.company.{CompanyAddressListPage, CompanyAddressPage, CompanyEmailPage, CompanyPhonePage, CompanyPostcodePage, CompanyUseSameAddressPage, BusinessNamePage => CompanyNamePage, BusinessUTRPage => CompanyUTRPage, ConfirmAddressPage => ConfirmCompanyAddressPage, ConfirmNamePage => ConfirmCompanyNamePage}
-import pages.partnership.{BusinessNamePage => PartnershipNamePage, BusinessUTRPage => PartnershipUTRPage, ConfirmAddressPage => ConfirmPartnershipAddressPage, ConfirmNamePage => ConfirmPartnershipNamePage}
-import pages.{QuestionPage, RegistrationInfoPage}
+import pages.company.CompanyRegisteredAddressPage
+import pages.company.{CompanyEmailPage, CompanyUseSameAddressPage, CompanyAddressListPage, CompanyPhonePage, CompanyAddressPage, CompanyPostcodePage, ConfirmNamePage => ConfirmCompanyNamePage, ConfirmAddressPage => ConfirmCompanyAddressPage, BusinessNamePage => CompanyNamePage, BusinessUTRPage => CompanyUTRPage}
+import pages.partnership.{ConfirmNamePage => ConfirmPartnershipNamePage, ConfirmAddressPage => ConfirmPartnershipAddressPage, BusinessNamePage => PartnershipNamePage, BusinessUTRPage => PartnershipUTRPage}
+import pages.{RegistrationInfoPage, QuestionPage}
 import play.api.libs.json.JsPath
 
 import scala.util.Try
@@ -34,24 +35,28 @@ case object AreYouUKCompanyPage extends QuestionPage[Boolean] {
     val result = value match {
       case Some(false) =>
         userAnswers
-          .remove(BusinessTypePage).toOption.getOrElse(userAnswers)
-          .remove(PartnershipNamePage).toOption.getOrElse(userAnswers)
-          .remove(PartnershipUTRPage).toOption.getOrElse(userAnswers)
-          .remove(ConfirmPartnershipNamePage).toOption.getOrElse(userAnswers)
-          .remove(ConfirmPartnershipAddressPage).toOption.getOrElse(userAnswers)
-          .remove(RegistrationInfoPage).toOption.getOrElse(userAnswers)
-          .remove(CompanyNamePage).toOption.getOrElse(userAnswers)
-          .remove(CompanyUTRPage).toOption.getOrElse(userAnswers)
-          .remove(ConfirmCompanyNamePage).toOption.getOrElse(userAnswers)
-          .remove(ConfirmCompanyAddressPage).toOption.getOrElse(userAnswers)
-          .remove(CompanyAddressListPage).toOption.getOrElse(userAnswers)
-          .remove(CompanyAddressPage).toOption.getOrElse(userAnswers)
-          .remove(CompanyEmailPage).toOption.getOrElse(userAnswers)
-          .remove(CompanyPhonePage).toOption.getOrElse(userAnswers)
-          .remove(CompanyPostcodePage).toOption.getOrElse(userAnswers)
-          .remove(CompanyUseSameAddressPage).toOption
-      case _ => None
+          .removeOrException(BusinessTypePage)
+          .removeOrException(PartnershipNamePage)
+          .removeOrException(PartnershipUTRPage)
+          .removeOrException(ConfirmPartnershipNamePage)
+          .removeOrException(ConfirmPartnershipAddressPage)
+          .removeOrException(RegistrationInfoPage)
+          .removeOrException(CompanyNamePage)
+          .removeOrException(CompanyUTRPage)
+          .removeOrException(ConfirmCompanyNamePage)
+          .removeOrException(ConfirmCompanyAddressPage)
+          .removeOrException(CompanyAddressListPage)
+          .removeOrException(CompanyAddressPage)
+          .removeOrException(CompanyEmailPage)
+          .removeOrException(CompanyPhonePage)
+          .removeOrException(CompanyPostcodePage)
+          .removeOrException(CompanyUseSameAddressPage)
+      case Some(true) =>
+        userAnswers
+          .removeOrException(BusinessRegistrationTypePage)
+          .removeOrException(CompanyRegisteredAddressPage)
+      case _ => userAnswers
     }
-    super.cleanup(value, result.getOrElse(userAnswers))
+    super.cleanup(value, result)
   }
 }
