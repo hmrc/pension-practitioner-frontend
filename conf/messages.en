@@ -71,6 +71,7 @@ whatYouWillNeed.heading = What you will need
 company.whatYouWillNeed.p1 = To register a business as a pension scheme practitioner, you will need:
 company.whatYouWillNeed.li1 = the business name and address of the business you are registering
 company.whatYouWillNeed.li2 = the phone number and email address of a contactable person within the business
+company.whatYouWillNeed.li3 = the Unique Taxpayer Reference (UTR) of the business if it is registered in the UK
 whatYouWillNeed.p2 = The information you enter will be saved as you progress. If you sign out, the information you have already entered will be saved for 7 days. After that time you will need to enter all of the information again.
 
 individual.whatYouWillNeed.p1 = To register as a pension scheme practitioner, you will need:
