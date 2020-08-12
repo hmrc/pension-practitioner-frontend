@@ -29,7 +29,7 @@
 
         <h1 class="govuk-heading-xl">{{messages('individual.address.title')}}</h1>
 
-        <form action="{{ submitUrl }}" method="post" autoComplete="off">
+        <form action="{{ submitUrl }}" method="post" autocomplete="off">
 
           {{ csrf() | safe }}
 
@@ -43,7 +43,6 @@
             name: "line1",
             value: form.line1.value,
             classes: "govuk-input--width-20",
-            attributes: {autoComplete: "off"},
             errorMessage: form.line1.error
           }) }}
 
@@ -57,7 +56,6 @@
             name: "line2",
             value: form.line2.value,
             classes: "govuk-input--width-20",
-            attributes: {autoComplete: "off"},
             errorMessage: form.line2.error
           }) }}
 
@@ -71,7 +69,6 @@
             name: "line3",
             value: form.line3.value,
             classes: "govuk-input--width-20",
-            attributes: {autoComplete: "off"},
             errorMessage: form.line3.error
           }) }}
 
@@ -85,7 +82,6 @@
             name: "line4",
             value: form.line4.value,
             classes: "govuk-input--width-20",
-            attributes: {autoComplete: "off"},
             errorMessage: form.line4.error
           }) }}
 
