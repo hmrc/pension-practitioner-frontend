@@ -90,7 +90,7 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
             formWithErrors => {
               val json = retrievedData match {
                 case true ~ companyName =>
-                  commonJson(mode, companyName) ++ Json.obj("form" -> form)
+                  commonJson(mode, companyName) ++ Json.obj("form" -> formWithErrors)
                 case false ~ companyName =>
                   commonJson(mode, companyName) ++
                     Json.obj(
