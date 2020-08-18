@@ -28,7 +28,7 @@
             {{ messages("postcode.youCan") }} <a href="{{ enterManuallyUrl }}" class="govuk-link">{{ messages("address.linkText.enterManually") }}</a>.
          </p>
 
-        <form action="{{ submitUrl }}" method="post">
+        <form action="{{ submitUrl }}" method="post" autocomplete="off">
 
           {{ csrf() | safe }}
 
@@ -42,7 +42,6 @@
             name: "value",
             value: form.value.value,
             classes: "govuk-input--width-10",
-            attributes: {autocomplete: "none"},
             errorMessage: form.value.error
           }) }}
 

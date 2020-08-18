@@ -26,7 +26,7 @@
 
          <p class="govuk-body"> {{ messages("individual.phone.hint") }} </p>
 
-        <form action="{{ submitUrl }}" method="post" novalidate>
+        <form action="{{ submitUrl }}" method="post" novalidate autocomplete="off">
 
           {{ csrf() | safe }}
 
@@ -41,7 +41,6 @@
             value: form.value.value,
             type: "tel",
             classes: "govuk-input--width-20",
-            attributes: {autocomplete: "none"},
             errorMessage: form.value.error
           }) }}
 

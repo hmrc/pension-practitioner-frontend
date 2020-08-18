@@ -28,7 +28,7 @@
           {{ messages("addressList.select") }} <a href="{{ viewmodel.enterManuallyUrl }}" class="govuk-link">{{ messages("address.linkText.enterManually") }}</a>.
         </p>
 
-        <form action="{{ viewmodel.submitUrl }}" method="post">
+        <form action="{{ viewmodel.submitUrl }}" method="post" autocomplete="off">
 
           {{ csrf() | safe }}
 

@@ -26,7 +26,7 @@
 
         <p class="govuk-body">{{ messages("isPartnershipRegisteredInUk.p1") }}</p>
         <p class="govuk-body">{{ messages("isPartnershipRegisteredInUk.p2") }}</p>
-        <form action="{{ submitUrl }}" method="post" novalidate>
+        <form action="{{ submitUrl }}" method="post" autocomplete="off" novalidate>
 
           {{ csrf() | safe }}
 

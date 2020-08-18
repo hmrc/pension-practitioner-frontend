@@ -24,7 +24,7 @@
 
         <h1 class="govuk-heading-xl">{{messages("individual.name.title")}}</h1>
 
-        <form action="{{ submitUrl }}" method="post" novalidate>
+        <form action="{{ submitUrl }}" method="post" autocomplete="off" novalidate>
 
           {{ csrf() | safe }}
 
@@ -37,8 +37,7 @@
             id: "firstName",
             name: "firstName",
             value: form.firstName.value,
-            classes: "govuk-!-width-three-quarters",
-            attributes: {autocomplete: "none"},
+            classes: "govuk-!-width-one-half",
             errorMessage: form.firstName.error
           }) }}
 
@@ -51,8 +50,7 @@
                       id: "lastName",
                       name: "lastName",
                       value: form.lastName.value,
-                      classes: "govuk-!-width-three-quarters",
-                      attributes: {autocomplete: "none"},
+                      classes: "govuk-!-width-one-half",
                       errorMessage: form.lastName.error
                     }) }}
 
