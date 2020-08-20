@@ -1,8 +1,8 @@
 // initialise GovUK lib
 GOVUKFrontend.initAll();
-if (document.querySelector('#country-select') != null) {
+if (document.querySelector('#country') != null) {
     openregisterLocationPicker({
-        selectElement: document.getElementById('country-select'),
+        selectElement: document.getElementById('country'),
         url: '/register-as-pension-scheme-practitioner/assets/javascripts/autocomplete/location-autocomplete-graph.json'
     })
 }
