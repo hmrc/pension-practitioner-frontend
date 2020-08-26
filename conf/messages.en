@@ -491,7 +491,7 @@ individual.phone.error.required = Enter your phone number
 
 declaration.title = Declaration
 declaration.text = I confirm that the details entered are correct.
-declaration.submit = Agree and register this practitioner
+declaration.submit = Agree and register as a practitioner
 
 individual.confirmation.title = You have been registered as a pension scheme practitioner
 
