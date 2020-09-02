@@ -19,55 +19,50 @@ package models
 import pages._
 import play.api.libs.json._
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 
 final case class UserAnswers(data: JsObject = Json.obj()) {
 
-  def get[A](page: QuestionPage[A])(implicit rds: Reads[A]): Option[A] =
-    Reads.optionNoError(Reads.at(page.path)).reads(data).getOrElse(None)
+  def get[A](page: QuestionPage[A])(implicit rds: Reads[A]): Option[A] = Reads.optionNoError(Reads.at(page.path)).reads(data).getOrElse(None)
 
-  def get(path: JsPath)(implicit rds: Reads[JsValue]): Option[JsValue] =
-    Reads.optionNoError(Reads.at(path)).reads(data).getOrElse(None)
+  def get(path: JsPath)(implicit rds: Reads[JsValue]): Option[JsValue] = Reads.optionNoError(Reads.at(path)).reads(data).getOrElse(None)
 
   def getOrException[A](page: QuestionPage[A])(implicit rds: Reads[A]): A =
     get(page).getOrElse(throw new RuntimeException("Expected a value but none found for " + page))
 
-  def set[A](page: QuestionPage[A], value: A)(implicit writes: Writes[A], rds: Reads[A]): Try[UserAnswers] = {
+  def set[A](page: QuestionPage[A], value: A)(implicit writes: Writes[A]): Try[UserAnswers] = {
 
     val updatedData = data.setObject(page.path, Json.toJson(value)) match {
-      case JsSuccess(jsValue, _) =>
-        Success(jsValue)
-      case JsError(errors) =>
-        Failure(JsResultException(errors))
+      case JsSuccess(jsValue, _) => Success(jsValue)
+      case JsError(errors) => Failure(JsResultException(errors))
     }
-    val oldValue = get(page)
-    println(s"\n\n\n\n\n old value here $oldValue")
 
-    updatedData.flatMap {
-      d =>
-        println(s"\n\n\n\n value here $value")
-        println(s"\n\n\n\n data here $data")
-        val updatedAnswers = copy(data = d)
-        oldValue match {
-          case Some(o) if o == value => Success(updatedAnswers)
-          case _ => page.cleanup(Some(value), updatedAnswers)
-        }
+    updatedData.flatMap { d =>
+      val updatedAnswers = copy(data = d)
+      oldValueAsString(page) match {
+        case Some(o) if o == value.toString => Try(updatedAnswers)
+        case _ => page.cleanup(Some(value), updatedAnswers)
+      }
     }
+  }
+
+  def oldValueAsString[A](page: QuestionPage[A]): Option[String] = page.path.asSingleJsResult(data).asOpt match {
+    case x@Some(_) => x.map(_.as[String])
+    case _ => None
   }
 
   def set(path: JsPath, value: JsValue): Try[UserAnswers] = {
 
     val updatedData = data.setObject(path, Json.toJson(value)) match {
-      case JsSuccess(jsValue, _) =>
-        Success(jsValue)
-      case JsError(errors) =>
-        Failure(JsResultException(errors))
+      case JsSuccess(jsValue, _) => Success(jsValue)
+      case JsError(errors) => Failure(JsResultException(errors))
     }
 
-    updatedData.flatMap {
-      d =>
-        val updatedAnswers = copy(data = d)
-        Success(updatedAnswers)
+    updatedData.flatMap { d =>
+      val updatedAnswers = copy(data = d)
+      Success(updatedAnswers)
     }
   }
 
@@ -86,10 +81,8 @@ final case class UserAnswers(data: JsObject = Json.obj()) {
 
   def removeWithPath(path: JsPath): UserAnswers = {
     data.removeObject(path) match {
-      case JsSuccess(jsValue, _) =>
-        UserAnswers(jsValue)
-      case JsError(_) =>
-        throw new RuntimeException("Unable to remove with path: " + path)
+      case JsSuccess(jsValue, _) => UserAnswers(jsValue)
+      case JsError(_) => throw new RuntimeException("Unable to remove with path: " + path)
     }
   }
 
@@ -102,16 +95,13 @@ final case class UserAnswers(data: JsObject = Json.obj()) {
 
   def remove[A](page: QuestionPage[A]): Try[UserAnswers] = {
     val updatedData = data.removeObject(page.path) match {
-      case JsSuccess(jsValue, _) =>
-        Success(jsValue)
-      case JsError(_) =>
-        throw new RuntimeException("Unable to remove page: " + page)
+      case JsSuccess(jsValue, _) => Success(jsValue)
+      case JsError(_) => throw new RuntimeException("Unable to remove page: " + page)
     }
 
-    updatedData.flatMap {
-      d =>
-        val updatedAnswers = copy(data = d)
-        page.cleanup(None, updatedAnswers)
+    updatedData.flatMap { d =>
+      val updatedAnswers = copy(data = d)
+      page.cleanup(None, updatedAnswers)
     }
   }
 
