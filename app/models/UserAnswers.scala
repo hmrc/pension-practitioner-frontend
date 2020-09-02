@@ -32,7 +32,7 @@ final case class UserAnswers(data: JsObject = Json.obj()) {
   def getOrException[A](page: QuestionPage[A])(implicit rds: Reads[A]): A =
     get(page).getOrElse(throw new RuntimeException("Expected a value but none found for " + page))
 
-  def set[A](page: QuestionPage[A], value: A)(implicit writes: Writes[A]): Try[UserAnswers] = {
+  def set[A](page: QuestionPage[A], value: A)(implicit writes: Writes[A], rds: Reads[A]): Try[UserAnswers] = {
 
     val updatedData = data.setObject(page.path, Json.toJson(value)) match {
       case JsSuccess(jsValue, _) =>
@@ -40,11 +40,18 @@ final case class UserAnswers(data: JsObject = Json.obj()) {
       case JsError(errors) =>
         Failure(JsResultException(errors))
     }
+    val oldValue = get(page)
+    println(s"\n\n\n\n\n old value here $oldValue")
 
     updatedData.flatMap {
       d =>
+        println(s"\n\n\n\n value here $value")
+        println(s"\n\n\n\n data here $data")
         val updatedAnswers = copy(data = d)
-        page.cleanup(Some(value), updatedAnswers)
+        oldValue match {
+          case Some(o) if o == value => Success(updatedAnswers)
+          case _ => page.cleanup(Some(value), updatedAnswers)
+        }
     }
   }
 
@@ -70,7 +77,7 @@ final case class UserAnswers(data: JsObject = Json.obj()) {
   }
 
 
-  def setOrException[A](page: QuestionPage[A], value: A)(implicit writes: Writes[A]): UserAnswers = {
+  def setOrException[A](page: QuestionPage[A], value: A)(implicit writes: Writes[A], rds: Reads[A]): UserAnswers = {
     set(page, value) match {
       case Success(ua) => ua
       case Failure(ex) => throw ex
