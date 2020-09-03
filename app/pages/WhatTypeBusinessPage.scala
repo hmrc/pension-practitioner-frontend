@@ -53,7 +53,7 @@ case object WhatTypeBusinessPage extends QuestionPage[WhatTypeBusiness] {
           .remove(CompanyPostcodePage).toOption.getOrElse(userAnswers)
           .remove(CompanyUseSameAddressPage).toOption.getOrElse(userAnswers)
           .remove(RegistrationInfoPage).toOption
-      case Some(companyorpartnership) =>
+      case Some(Companyorpartnership) =>
         userAnswers
           .remove(AreYouUKResidentPage).toOption.getOrElse(userAnswers)
           .remove(IndividualDetailsPage).toOption.getOrElse(userAnswers)

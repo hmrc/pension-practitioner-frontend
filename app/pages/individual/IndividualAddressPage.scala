@@ -24,5 +24,5 @@ case object IndividualAddressPage extends QuestionPage[TolerantAddress] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "individualAddress"
+  override def toString: String = "registeredAddress"
 }
