@@ -81,9 +81,9 @@ final case class UserAnswers(data: JsObject = Json.obj()) {
     }
   }
 
-  def removeAllPages(pages: Seq[Gettable[_]]): UserAnswers = {
+  def removeAllPages(pages: Set[Gettable[_]]): UserAnswers = {
     @scala.annotation.tailrec
-    def removeNext(pages: Seq[Gettable[_]], ua: UserAnswers): UserAnswers = {
+    def removeNext(pages: Set[Gettable[_]], ua: UserAnswers): UserAnswers = {
       if (pages.isEmpty) {
         ua
       } else {

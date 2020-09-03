@@ -138,7 +138,7 @@ class UserAnswersSpec extends FreeSpec {
         .setOrException(DummyStringPage, "one")
         .setOrException(DummyBooleanPage, true)
         .setOrException(DummyModelPage, dummyModelA)
-        .removeAllPages(Seq(DummyStringPage, DummyModelPage))
+        .removeAllPages(Set(DummyStringPage, DummyModelPage))
       result.get(DummyStringPage) shouldBe None
       result.get(DummyBooleanPage) shouldBe Some(true)
       result.get(DummyModelPage) shouldBe None

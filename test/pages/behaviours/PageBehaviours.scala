@@ -28,8 +28,17 @@ import queries.Gettable
 
 trait PageBehaviours extends FreeSpec with MustMatchers with ScalaCheckPropertyChecks with Generators with OptionValues with TryValues {
 
-  def areAllPagesEmpty(userAnswers: UserAnswers, pages:Seq[Gettable[_]]):Boolean =
-    pages.flatMap(_.path.asSingleJsResult(userAnswers.data).asOpt.toSeq).isEmpty
+  def areAllPagesEmpty(userAnswers: UserAnswers, pages:Set[Gettable[_]]):Boolean = {
+    val xx = pages.flatMap(_.path.asSingleJsResult(userAnswers.data).asOpt.toSeq)
+    //println( "\n>>>>" + xx)
+    xx.isEmpty
+  }
+
+  def areAllPagesNonEmpty(userAnswers: UserAnswers, pages:Set[Gettable[_]]):Boolean = {
+    val xx = pages.flatMap(_.path.asSingleJsResult(userAnswers.data).asOpt.toSeq)
+    //println( "\n>>>>" + xx)
+    xx.nonEmpty
+  }
 
   class BeRetrievable[A] {
     def apply[P <: QuestionPage[A]](genP: Gen[P])(implicit ev1: Arbitrary[A], ev2: Format[A]): Unit = {

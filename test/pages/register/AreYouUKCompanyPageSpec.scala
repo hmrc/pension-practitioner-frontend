@@ -45,11 +45,32 @@ class AreYouUKCompanyPageSpec extends PageBehaviours {
       areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualNonUK) must be (true)
     }
 
-    "must clean up when set to true when have completed a company UK journey" in {
-      val result = SampleData.userAnswersFullJourneyCompanyUK.setOrException(AreYouUKCompanyPage, false)
+    "must NOT clean up when set to true when have completed a company UK journey (because value not changed)" in {
+      val result = SampleData.userAnswersFullJourneyCompanyUK.setOrException(AreYouUKCompanyPage, true)
       result.get(WhatTypeBusinessPage).isDefined must be(true)
       result.getOrException(AreYouUKCompanyPage) must be(true)
-      areAllPagesEmpty(result, PageConstants.pagesFullJourneyCompanyUK) must be (true)
+      areAllPagesNonEmpty(result, PageConstants.pagesFullJourneyCompanyUK) must be (true)
+    }
+
+    "must NOT clean up when set to true when have completed a partnership UK journey (because value not changed)" in {
+      val result = SampleData.userAnswersFullJourneyPartnershipUK.setOrException(AreYouUKCompanyPage, true)
+      result.get(WhatTypeBusinessPage).isDefined must be(true)
+      result.getOrException(AreYouUKCompanyPage) must be(true)
+      areAllPagesNonEmpty(result, PageConstants.pagesFullJourneyCompanyUK) must be (true)
+    }
+
+    "must clean up when set to true when have completed a company non-UK journey" in {
+      val result = SampleData.userAnswersFullJourneyCompanyNonUK.setOrException(AreYouUKCompanyPage, true)
+      result.get(WhatTypeBusinessPage).isDefined must be(true)
+      result.getOrException(AreYouUKCompanyPage) must be(true)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyCompanyNonUK - AreYouUKCompanyPage) must be (true)
+    }
+
+    "must clean up when set to true when have completed a partnership non-UK journey" in {
+      val result = SampleData.userAnswersFullJourneyPartnershipNonUK.setOrException(AreYouUKCompanyPage, true)
+      result.get(WhatTypeBusinessPage).isDefined must be(true)
+      result.getOrException(AreYouUKCompanyPage) must be(true)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyPartnershipNonUK - AreYouUKCompanyPage) must be (true)
     }
   }
 }
