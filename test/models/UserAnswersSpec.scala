@@ -20,15 +20,20 @@ import org.scalatest.FreeSpec
 import org.scalatest.Matchers.convertToAnyShouldWrapper
 import pages.QuestionPage
 import pages.company.CompanyEmailPage
+import play.api.libs.json.Format
 import play.api.libs.json.JsPath
+import play.api.libs.json.Json
 
-import scala.util.{Success, Try}
+import scala.util.Success
+import scala.util.Try
 
 class UserAnswersSpec extends FreeSpec {
 
   private case object DummyStringPage extends QuestionPage[String] {
     override def path: JsPath = JsPath \ toString
+
     override def toString: String = "xyz"
+
     override def cleanup(value: Option[String], userAnswers: UserAnswers): Try[UserAnswers] = {
       val result = userAnswers.remove(CompanyEmailPage) match {
         case Success(ua) => ua
@@ -40,7 +45,9 @@ class UserAnswersSpec extends FreeSpec {
 
   private case object DummyBooleanPage extends QuestionPage[Boolean] {
     override def path: JsPath = JsPath \ toString
+
     override def toString: String = "abc"
+
     override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] = {
       val result = userAnswers.remove(CompanyEmailPage) match {
         case Success(ua) => ua
@@ -50,22 +57,41 @@ class UserAnswersSpec extends FreeSpec {
     }
   }
 
+  private case class DummyModel(a: String, b: Int, c: BigDecimal)
+
+  private object DummyModel {
+    implicit lazy val formats: Format[DummyModel] = Json.format[DummyModel]
+  }
+
+  private case object DummyModelPage extends QuestionPage[DummyModel] {
+    override def path: JsPath = JsPath \ toString
+
+    override def toString: String = "def"
+
+    override def cleanup(value: Option[DummyModel], userAnswers: UserAnswers): Try[UserAnswers] = {
+      val result = userAnswers.remove(CompanyEmailPage) match {
+        case Success(ua) => ua
+        case _ => userAnswers
+      }
+      super.cleanup(value, result)
+    }
+  }
+
+  //scalastyle.off: magic.number
+  private val dummyModelA = new DummyModel("", 8, BigDecimal(5.55))
+  private val dummyModelB = new DummyModel("", 8, BigDecimal(5.55))
+  private val dummyModelC = new DummyModel("", 9, BigDecimal(5.55))
+
   "set with a string value" - {
     "must NOT cleanup relevant previous values when value not changed" in {
-
-      val ua = UserAnswers()
-        .setOrException(DummyStringPage, "hello")
-        .setOrException(CompanyEmailPage, "email")
+      val ua = UserAnswers().setOrException(DummyStringPage, "hello").setOrException(CompanyEmailPage, "email")
 
       val result = ua.set(DummyStringPage, "hello").toOption.get
       result.get(CompanyEmailPage) shouldBe Some("email")
     }
 
     "must cleanup relevant previous values when value changed" in {
-
-      val ua = UserAnswers()
-        .setOrException(DummyStringPage, "hello")
-        .setOrException(CompanyEmailPage, "email")
+      val ua = UserAnswers().setOrException(DummyStringPage, "hello").setOrException(CompanyEmailPage, "email")
 
       val result = ua.set(DummyStringPage, "goodbye").toOption.get
       result.get(CompanyEmailPage) shouldBe None
@@ -74,22 +100,32 @@ class UserAnswersSpec extends FreeSpec {
 
   "set with a boolean value" - {
     "must NOT cleanup relevant previous values when value not changed" in {
-
-      val ua = UserAnswers()
-        .setOrException(DummyBooleanPage, false)
-        .setOrException(CompanyEmailPage, "email")
+      val ua = UserAnswers().setOrException(DummyBooleanPage, false).setOrException(CompanyEmailPage, "email")
 
       val result = ua.set(DummyBooleanPage, false).toOption.get
       result.get(CompanyEmailPage) shouldBe Some("email")
     }
 
     "must cleanup relevant previous values when value changed" in {
-
-      val ua = UserAnswers()
-        .setOrException(DummyBooleanPage, false)
-        .setOrException(CompanyEmailPage, "email")
+      val ua = UserAnswers().setOrException(DummyBooleanPage, false).setOrException(CompanyEmailPage, "email")
 
       val result = ua.set(DummyBooleanPage, true).toOption.get
+      result.get(CompanyEmailPage) shouldBe None
+    }
+  }
+
+  "set with a composite object value" - {
+    "must NOT cleanup relevant previous values when value not changed" in {
+      val ua = UserAnswers().setOrException(DummyModelPage, dummyModelA).setOrException(CompanyEmailPage, "email")
+
+      val result = ua.set(DummyModelPage, dummyModelB).toOption.get
+      result.get(CompanyEmailPage) shouldBe Some("email")
+    }
+
+    "must cleanup relevant previous values when value changed" in {
+      val ua = UserAnswers().setOrException(DummyModelPage, dummyModelA).setOrException(CompanyEmailPage, "email")
+
+      val result = ua.set(DummyModelPage, dummyModelC).toOption.get
       result.get(CompanyEmailPage) shouldBe None
     }
   }

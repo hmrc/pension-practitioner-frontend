@@ -41,16 +41,11 @@ final case class UserAnswers(data: JsObject = Json.obj()) {
 
     updatedData.flatMap { d =>
       val updatedAnswers = copy(data = d)
-      oldValueAsString(page) match {
-        case Some(o) if o == value.toString => Try(updatedAnswers)
+      (page.path.asSingleJsResult(data).asOpt, page.path.asSingleJsResult(d).asOpt) match {
+        case (Some(o), Some(n)) if o == n => Try(updatedAnswers)
         case _ => page.cleanup(Some(value), updatedAnswers)
       }
     }
-  }
-
-  def oldValueAsString[A](page: QuestionPage[A]): Option[String] = page.path.asSingleJsResult(data).asOpt match {
-    case x@Some(_) => x.map(_.as[String])
-    case _ => None
   }
 
   def set(path: JsPath, value: JsValue): Try[UserAnswers] = {
