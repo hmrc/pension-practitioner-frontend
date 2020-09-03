@@ -25,7 +25,7 @@ object RegistrationCustomerType extends Enumerable.Implicits {
 
   case object UK extends WithName("UK") with RegistrationCustomerType
 
-  case object NonUK extends WithName("NON-UK") with RegistrationCustomerType
+  case object NonUK extends WithName("NonUK") with RegistrationCustomerType
 
   def fromAddress(address: TolerantAddress): RegistrationCustomerType = {
     address.country match {
