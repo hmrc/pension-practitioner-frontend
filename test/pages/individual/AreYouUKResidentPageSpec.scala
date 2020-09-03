@@ -16,59 +16,32 @@
 
 package pages.individual
 
+import data.SampleData
 import models.register.{RegistrationCustomerType, RegistrationInfo, RegistrationLegalStatus, TolerantIndividual}
 import models.{Address, TolerantAddress, UserAnswers}
-import pages.RegistrationInfoPage
+import pages.{PageConstants, RegistrationInfoPage, WhatTypeBusinessPage}
 import pages.behaviours.PageBehaviours
 
 class AreYouUKResidentPageSpec extends PageBehaviours {
 
-  private val tolerantAddress = TolerantAddress(Some("line1"), Some("line2"), Some("line3"), Some("line4"), Some("post code"), Some("GB"))
-  private val address = Address("line1", "line2", Some("line3"), Some("line4"), Some("post code"), "GB")
-  private val ua: UserAnswers = UserAnswers().setOrException(UseAddressForContactPage, value = false).
-  setOrException(IndividualDetailsPage, TolerantIndividual(Some("first"), None, Some("last"))).
-  setOrException(AreYouUKResidentPage, true).
-  setOrException(IndividualAddressPage, tolerantAddress).
-  setOrException(IndividualEmailPage, "s@s.com").
-  setOrException(RegistrationInfoPage, RegistrationInfo(RegistrationLegalStatus.Individual, "",
-    noIdentifier = false, RegistrationCustomerType.UK,None, None
-  )).
-  setOrException(IndividualPhonePage, "1234").
-  setOrException(IndividualPostcodePage, Seq(tolerantAddress)).
-  setOrException(IsThisYouPage, true).
-  setOrException(IndividualAddressListPage, 1).
-  setOrException(IndividualManualAddressPage, address)
 
   "AreYouUKResidentPage" - {
-    "must clean up the data for all the uk individual" in {
-      val result = ua.set(AreYouUKResidentPage, value = false).getOrElse(UserAnswers())
-
-      result.get(IndividualDetailsPage) mustNot be(defined)
-      result.get(UseAddressForContactPage) mustNot be(defined)
-      result.get(IndividualAddressPage) mustNot be(defined)
-      result.get(IndividualEmailPage) mustNot be(defined)
-      result.get(RegistrationInfoPage) mustNot be(defined)
-      result.get(IndividualPhonePage) mustNot be(defined)
-      result.get(IndividualPostcodePage) mustNot be(defined)
-      result.get(IsThisYouPage) mustNot be(defined)
-      result.get(IndividualAddressListPage) mustNot be(defined)
-      result.get(IndividualManualAddressPage) mustNot be(defined)
+    "must clean up when set to false when have completed an individual UK journey" in {
+      val result = SampleData.userAnswersFullJourneyIndividualUK.setOrException(AreYouUKResidentPage, false)
+      result.get(WhatTypeBusinessPage).isDefined must be(true)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualUK) must be (true)
     }
 
-    "must clean up the data for all the non uk individual" in {
-      val result = ua.set(AreYouUKResidentPage, value = true).getOrElse(UserAnswers())
+    "must clean up when set to false when have completed an individual non UK journey" in {
+      val result = SampleData.userAnswersFullJourneyIndividualNonUK.setOrException(AreYouUKResidentPage, false)
+      result.get(WhatTypeBusinessPage).isDefined must be(true)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualNonUK - AreYouUKResidentPage) must be (true)
+    }
 
-      result.get(IndividualDetailsPage) mustNot be(defined)
-      result.get(UseAddressForContactPage) mustNot be(defined)
-      result.get(IndividualAddressPage) mustNot be(defined)
-      result.get(IndividualEmailPage) mustNot be(defined)
-      result.get(RegistrationInfoPage) mustNot be(defined)
-      result.get(IndividualPhonePage) mustNot be(defined)
-      result.get(IsThisYouPage) mustNot be(defined)
-      result.get(IndividualManualAddressPage) mustNot be(defined)
-
-      result.get(IndividualPostcodePage) must be(defined)
-      result.get(IndividualAddressListPage) must be(defined)
+    "must clean up when set to true when have completed an individual non UK journey" in {
+      val result = SampleData.userAnswersFullJourneyIndividualNonUK.setOrException(AreYouUKResidentPage, true)
+      result.get(WhatTypeBusinessPage).isDefined must be(true)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualNonUK - AreYouUKResidentPage) must be (true)
     }
   }
 }
