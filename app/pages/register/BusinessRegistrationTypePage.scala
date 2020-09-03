@@ -35,12 +35,13 @@ case object BusinessRegistrationTypePage extends QuestionPage[BusinessRegistrati
       value match {
         case Some(Company | Partnership) =>
           userAnswers
-            .removeAllPages(PageConstants.pagesFullJourneyIndividualUK)
-            .removeAllPages(PageConstants.pagesFullJourneyIndividualNonUK)
-            .removeAllPages(PageConstants.pagesFullJourneyPartnershipUK)
-            .removeAllPages(PageConstants.pagesFullJourneyPartnershipNonUK - BusinessRegistrationTypePage)
-            .removeAllPages(PageConstants.pagesFullJourneyCompanyUK)
-            .removeAllPages(PageConstants.pagesFullJourneyCompanyNonUK - BusinessRegistrationTypePage)
+            .removeAllPages(PageConstants.pagesFullJourneyIndividualUK ++
+              PageConstants.pagesFullJourneyIndividualNonUK ++
+              PageConstants.pagesFullJourneyPartnershipUK ++
+              PageConstants.pagesFullJourneyPartnershipNonUK ++
+              PageConstants.pagesFullJourneyCompanyUK ++
+              PageConstants.pagesFullJourneyCompanyNonUK - BusinessRegistrationTypePage
+            )
         case _ => userAnswers
       }
     }
