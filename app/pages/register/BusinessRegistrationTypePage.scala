@@ -16,13 +16,34 @@
 
 package pages.register
 
+import models.UserAnswers
 import models.register.BusinessRegistrationType
-import pages.QuestionPage
+import models.register.BusinessRegistrationType.{Company, Partnership}
+import pages.{PageConstants, QuestionPage}
 import play.api.libs.json.JsPath
+
+import scala.util.Try
 
 case object BusinessRegistrationTypePage extends QuestionPage[BusinessRegistrationType] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "businessRegistrationType"
+
+  override def cleanup(value: Option[BusinessRegistrationType], userAnswers: UserAnswers): Try[UserAnswers] = {
+    val result = {
+      value match {
+        case Some(Company | Partnership) =>
+          userAnswers
+            .removeAllPages(PageConstants.pagesFullJourneyIndividualUK)
+            .removeAllPages(PageConstants.pagesFullJourneyIndividualNonUK)
+            .removeAllPages(PageConstants.pagesFullJourneyPartnershipUK)
+            .removeAllPages(PageConstants.pagesFullJourneyPartnershipNonUK - BusinessRegistrationTypePage)
+            .removeAllPages(PageConstants.pagesFullJourneyCompanyUK)
+            .removeAllPages(PageConstants.pagesFullJourneyCompanyNonUK - BusinessRegistrationTypePage)
+        case _ => userAnswers
+      }
+    }
+    super.cleanup(value, result)
+  }
 }

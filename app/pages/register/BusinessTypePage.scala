@@ -18,7 +18,7 @@ package pages.register
 
 import models.UserAnswers
 import models.register.BusinessType
-import models.register.BusinessType.{LimitedCompany, LimitedPartnership}
+import models.register.BusinessType.{BusinessPartnership, LimitedCompany, LimitedLiabilityPartnership, LimitedPartnership, UnlimitedCompany}
 import pages.PageConstants
 import pages.QuestionPage
 import play.api.libs.json.JsPath
@@ -31,38 +31,22 @@ case object BusinessTypePage extends QuestionPage[BusinessType] {
 
   override def toString: String = "businessType"
 
-  //private def isCompany(businessType: BusinessType):Boolean =
-  //  businessType == BusinessType.LimitedCompany || businessType == BusinessType.UnlimitedCompany
-  //
-  //private def isPartnership(businessType: BusinessType):Boolean = !isCompany(businessType)
-
   override def cleanup(value: Option[BusinessType], userAnswers: UserAnswers): Try[UserAnswers] = {
     val result = {
       value match {
-        case Some(LimitedCompany) =>
+        case Some(LimitedCompany | UnlimitedCompany) =>
           userAnswers
             .removeAllPages(PageConstants.pagesFullJourneyPartnershipUK - BusinessTypePage)
             .removeAllPages(PageConstants.pagesFullJourneyPartnershipNonUK)
             .removeAllPages(PageConstants.pagesFullJourneyIndividualUK)
             .removeAllPages(PageConstants.pagesFullJourneyIndividualNonUK)
-        case Some(LimitedPartnership) =>
+        case Some(LimitedPartnership | LimitedLiabilityPartnership | BusinessPartnership) =>
           userAnswers
             .removeAllPages(PageConstants.pagesFullJourneyCompanyUK - BusinessTypePage)
             .removeAllPages(PageConstants.pagesFullJourneyCompanyNonUK)
         case _ => userAnswers
       }
     }
-    //val result = value match {
-    //  case Some(businessType) => userAnswers
-    //    //.removeAllPages(PageConstants.pagesFullJourneyCompanyUK - AreYouUKCompanyPage)
-    //    //.removeAllPages(PageConstants.pagesFullJourneyCompanyNonUK - AreYouUKCompanyPage)
-    //    //.removeAllPages(PageConstants.pagesFullJourneyPartnershipUK - AreYouUKCompanyPage)
-    //    //.removeAllPages(PageConstants.pagesFullJourneyPartnershipNonUK - AreYouUKCompanyPage)
-    //  case Some(false) => userAnswers
-    //    //.removeAllPages(PageConstants.pagesFullJourneyIndividualUK)
-    //    //.removeAllPages(PageConstants.pagesFullJourneyIndividualNonUK)
-    //  case _ => userAnswers
-    //}
     super.cleanup(value, result)
   }
 }
