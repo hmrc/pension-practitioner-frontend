@@ -73,6 +73,7 @@ class IndividualNonUKAddressController @Inject()(override val messagesApi: Messa
               val regCall: Address => Future[RegistrationInfo] = address =>
                 registrationConnector.registerWithNoIdIndividual(firstName, lastName, address)
               post(mode, getFormToJson(mode), IndividualAddressPage, regCall)
+            case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
           }
         }
     }
