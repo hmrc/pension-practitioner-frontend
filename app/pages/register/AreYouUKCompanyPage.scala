@@ -17,10 +17,8 @@
 package pages.register
 
 import models.UserAnswers
-import pages.company.CompanyRegisteredAddressPage
-import pages.company.{CompanyEmailPage, CompanyUseSameAddressPage, CompanyAddressListPage, CompanyPhonePage, CompanyAddressPage, CompanyPostcodePage, ConfirmNamePage => ConfirmCompanyNamePage, ConfirmAddressPage => ConfirmCompanyAddressPage, BusinessNamePage => CompanyNamePage, BusinessUTRPage => CompanyUTRPage}
-import pages.partnership.{ConfirmNamePage => ConfirmPartnershipNamePage, ConfirmAddressPage => ConfirmPartnershipAddressPage, BusinessNamePage => PartnershipNamePage, BusinessUTRPage => PartnershipUTRPage}
-import pages.{RegistrationInfoPage, QuestionPage}
+import pages.PageConstants
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 import scala.util.Try
@@ -33,28 +31,14 @@ case object AreYouUKCompanyPage extends QuestionPage[Boolean] {
 
   override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] = {
     val result = value match {
-      case Some(false) =>
-        userAnswers
-          .removeOrException(BusinessTypePage)
-          .removeOrException(PartnershipNamePage)
-          .removeOrException(PartnershipUTRPage)
-          .removeOrException(ConfirmPartnershipNamePage)
-          .removeOrException(ConfirmPartnershipAddressPage)
-          .removeOrException(RegistrationInfoPage)
-          .removeOrException(CompanyNamePage)
-          .removeOrException(CompanyUTRPage)
-          .removeOrException(ConfirmCompanyNamePage)
-          .removeOrException(ConfirmCompanyAddressPage)
-          .removeOrException(CompanyAddressListPage)
-          .removeOrException(CompanyAddressPage)
-          .removeOrException(CompanyEmailPage)
-          .removeOrException(CompanyPhonePage)
-          .removeOrException(CompanyPostcodePage)
-          .removeOrException(CompanyUseSameAddressPage)
-      case Some(true) =>
-        userAnswers
-          .removeOrException(BusinessRegistrationTypePage)
-          .removeOrException(CompanyRegisteredAddressPage)
+      case Some(true) => userAnswers
+        //.removeAllPages(PageConstants.pagesFullJourneyCompanyUK) // - Seq(AreYouUKCompanyPage)
+        //.removeAllPages(PageConstants.pagesFullJourneyCompanyNonUK)
+        //.removeAllPages(PageConstants.pagesFullJourneyPartnershipUK)
+        //.removeAllPages(PageConstants.pagesFullJourneyPartnershipNonUK)
+      case Some(false) => userAnswers
+        .removeAllPages(PageConstants.pagesFullJourneyIndividualUK)
+        .removeAllPages(PageConstants.pagesFullJourneyIndividualNonUK)
       case _ => userAnswers
     }
     super.cleanup(value, result)

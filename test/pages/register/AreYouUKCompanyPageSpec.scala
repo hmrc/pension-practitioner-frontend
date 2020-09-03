@@ -16,17 +16,13 @@
 
 package pages.register
 
-import models.{Address, TolerantAddress, UserAnswers}
-import models.register.{BusinessType, RegistrationCustomerType, RegistrationInfo, RegistrationLegalStatus}
-import pages.RegistrationInfoPage
+import data.SampleData
+import pages.PageConstants
+import pages.WhatTypeBusinessPage
 import pages.behaviours.PageBehaviours
-import pages.company.{CompanyAddressListPage, CompanyAddressPage, CompanyEmailPage, CompanyPhonePage, CompanyPostcodePage, CompanyUseSameAddressPage, BusinessNamePage => CompanyNamePage, BusinessUTRPage => CompanyUTRPage, ConfirmAddressPage => ConfirmCompanyAddressPage, ConfirmNamePage => ConfirmCompanyNamePage}
-import pages.partnership.{BusinessNamePage => PartnershipNamePage, BusinessUTRPage => PartnershipUTRPage, ConfirmAddressPage => ConfirmPartnershipAddressPage, ConfirmNamePage => ConfirmPartnershipNamePage}
 
 
 class AreYouUKCompanyPageSpec extends PageBehaviours {
-  private val tolerantAddress = TolerantAddress(Some("line1"), Some("line2"), Some("line3"), Some("line4"), Some("post code"), Some("GB"))
-  private val address = Address("line1", "line2", Some("line3"), Some("line4"), Some("post code"), "GB")
   "AreYouUKCompanyPage" - {
 
     beRetrievable[Boolean](AreYouUKCompanyPage)
@@ -35,47 +31,25 @@ class AreYouUKCompanyPageSpec extends PageBehaviours {
 
     beRemovable[Boolean](AreYouUKCompanyPage)
 
-    "when selected as non Uk" - {
+    "must clean up when set to false when have completed an individual UK journey" in {
+      val result = SampleData.userAnswersFullJourneyIndividualUK.setOrException(AreYouUKCompanyPage, false)
+      result.get(WhatTypeBusinessPage).isDefined must be(true)
+      result.getOrException(AreYouUKCompanyPage) must be(false)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualUK) must be (true)
+    }
 
-      "must clean up the data for all the UK Company or partnership" in {
-        val ua: UserAnswers = UserAnswers().setOrException(AreYouUKCompanyPage, value = true).
-          setOrException(BusinessTypePage, BusinessType.LimitedPartnership).
-          setOrException(CompanyUTRPage, "").
-          setOrException(CompanyNamePage, "").
-          setOrException(ConfirmCompanyNamePage, true).
-          setOrException(ConfirmCompanyAddressPage, tolerantAddress).
-          setOrException(CompanyAddressListPage, 0).
-          setOrException(CompanyAddressPage, address).
-          setOrException(CompanyEmailPage, "").
-          setOrException(CompanyPhonePage, "").
-          setOrException(CompanyPostcodePage, Seq(tolerantAddress)).
-          setOrException(CompanyUseSameAddressPage, true).
-          setOrException(PartnershipNamePage, "").
-          setOrException(PartnershipUTRPage, "").
-          setOrException(ConfirmPartnershipNamePage, true).
-          setOrException(ConfirmPartnershipAddressPage, tolerantAddress).
-          setOrException(RegistrationInfoPage, RegistrationInfo(RegistrationLegalStatus.Individual, "",
-            noIdentifier = false, RegistrationCustomerType.UK, None, None
-          ))
-        val result = ua.set(AreYouUKCompanyPage, false).getOrElse(UserAnswers())
+    "must clean up when set to false when have completed an individual non-UK journey" in {
+      val result = SampleData.userAnswersFullJourneyIndividualNonUK.setOrException(AreYouUKCompanyPage, false)
+      result.get(WhatTypeBusinessPage).isDefined must be(true)
+      result.getOrException(AreYouUKCompanyPage) must be(false)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualNonUK) must be (true)
+    }
 
-        result.get(BusinessTypePage) mustNot be(defined)
-        result.get(CompanyUTRPage) mustNot be(defined)
-        result.get(CompanyNamePage) mustNot be(defined)
-        result.get(ConfirmCompanyNamePage) mustNot be(defined)
-        result.get(ConfirmCompanyAddressPage) mustNot be(defined)
-        result.get(CompanyAddressListPage) mustNot be(defined)
-        result.get(CompanyAddressPage) mustNot be(defined)
-        result.get(CompanyEmailPage) mustNot be(defined)
-        result.get(CompanyPhonePage) mustNot be(defined)
-        result.get(CompanyPostcodePage) mustNot be(defined)
-        result.get(CompanyUseSameAddressPage) mustNot be(defined)
-        result.get(PartnershipNamePage) mustNot be(defined)
-        result.get(PartnershipUTRPage) mustNot be(defined)
-        result.get(ConfirmPartnershipNamePage) mustNot be(defined)
-        result.get(ConfirmPartnershipAddressPage) mustNot be(defined)
-        result.get(RegistrationInfoPage) mustNot be(defined)
-      }
+    "must clean up when set to true when have completed a company UK journey" in {
+      val result = SampleData.userAnswersFullJourneyCompanyUK.setOrException(AreYouUKCompanyPage, false)
+      result.get(WhatTypeBusinessPage).isDefined must be(true)
+      result.getOrException(AreYouUKCompanyPage) must be(true)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyCompanyUK) must be (true)
     }
   }
 }

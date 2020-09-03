@@ -26,9 +26,6 @@ import queries.Gettable
 
 class WhatTypeBusinessPageSpec extends PageBehaviours {
 
-  def areAllPagesEmpty(userAnswers: UserAnswers, pages:Seq[Gettable[_]]):Boolean =
-    pages.flatMap(_.path.asSingleJsResult(userAnswers.data).asOpt.toSeq).isEmpty
-
   "WhatTypeBusinessPage" - {
 
     beRetrievable[WhatTypeBusiness](WhatTypeBusinessPage)
