@@ -142,7 +142,7 @@ WhatTypeBusinessPage=Companyorpartnership
     UserAnswers()
       .setOrException(WhatTypeBusinessPage, value = Companyorpartnership)
       .setOrException(AreYouUKCompanyPage, true)
-      .setOrException(BusinessTypePage, BusinessType.LimitedCompany)
+      .setOrException(BusinessTypePage, BusinessType.BusinessPartnership)
       .setOrException(pages.partnership.BusinessUTRPage, "")
       .setOrException(pages.partnership.BusinessNamePage, "")
       .setOrException(pages.partnership.ConfirmNamePage, true)

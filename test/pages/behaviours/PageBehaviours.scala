@@ -30,7 +30,7 @@ trait PageBehaviours extends FreeSpec with MustMatchers with ScalaCheckPropertyC
 
   def areAllPagesEmpty(userAnswers: UserAnswers, pages:Set[Gettable[_]]):Boolean = {
     val xx = pages.flatMap(_.path.asSingleJsResult(userAnswers.data).asOpt.toSeq)
-    //println( "\n>>>>" + xx)
+//    println( "\n>>>>" + xx)
     xx.isEmpty
   }
 

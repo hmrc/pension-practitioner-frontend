@@ -18,6 +18,7 @@ package pages.register
 
 import models.UserAnswers
 import models.register.BusinessType
+import models.register.BusinessType.{LimitedCompany, LimitedPartnership}
 import pages.PageConstants
 import pages.QuestionPage
 import play.api.libs.json.JsPath
@@ -36,9 +37,21 @@ case object BusinessTypePage extends QuestionPage[BusinessType] {
   //private def isPartnership(businessType: BusinessType):Boolean = !isCompany(businessType)
 
   override def cleanup(value: Option[BusinessType], userAnswers: UserAnswers): Try[UserAnswers] = {
-    val result = userAnswers
-      .removeAllPages(PageConstants.pagesFullJourneyIndividualUK)
-      .removeAllPages(PageConstants.pagesFullJourneyIndividualNonUK)
+    val result = {
+      value match {
+        case Some(LimitedCompany) =>
+          userAnswers
+            .removeAllPages(PageConstants.pagesFullJourneyPartnershipUK - BusinessTypePage)
+            .removeAllPages(PageConstants.pagesFullJourneyPartnershipNonUK)
+            .removeAllPages(PageConstants.pagesFullJourneyIndividualUK)
+            .removeAllPages(PageConstants.pagesFullJourneyIndividualNonUK)
+        case Some(LimitedPartnership) =>
+          userAnswers
+            .removeAllPages(PageConstants.pagesFullJourneyCompanyUK - BusinessTypePage)
+            .removeAllPages(PageConstants.pagesFullJourneyCompanyNonUK)
+        case _ => userAnswers
+      }
+    }
     //val result = value match {
     //  case Some(businessType) => userAnswers
     //    //.removeAllPages(PageConstants.pagesFullJourneyCompanyUK - AreYouUKCompanyPage)
