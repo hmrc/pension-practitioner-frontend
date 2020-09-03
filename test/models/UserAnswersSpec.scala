@@ -16,8 +16,10 @@
 
 package models
 
+import data.SampleData
 import org.scalatest.FreeSpec
 import org.scalatest.Matchers.convertToAnyShouldWrapper
+import pages.PageConstants
 import pages.QuestionPage
 import pages.company.CompanyEmailPage
 import play.api.libs.json.Format
@@ -127,6 +129,19 @@ class UserAnswersSpec extends FreeSpec {
 
       val result = ua.set(DummyModelPage, dummyModelC).toOption.get
       result.get(CompanyEmailPage) shouldBe None
+    }
+  }
+
+  "removeAllPages" - {
+    "must remove all the pages specified" in {
+      val result = UserAnswers()
+        .setOrException(DummyStringPage, "one")
+        .setOrException(DummyBooleanPage, true)
+        .setOrException(DummyModelPage, dummyModelA)
+        .removeAllPages(Seq(DummyStringPage, DummyModelPage))
+      result.get(DummyStringPage) shouldBe None
+      result.get(DummyBooleanPage) shouldBe Some(true)
+      result.get(DummyModelPage) shouldBe None
     }
   }
 }

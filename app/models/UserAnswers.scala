@@ -18,6 +18,7 @@ package models
 
 import pages._
 import play.api.libs.json._
+import queries.Gettable
 
 import scala.util.Failure
 import scala.util.Success
@@ -29,8 +30,7 @@ final case class UserAnswers(data: JsObject = Json.obj()) {
 
   def get(path: JsPath)(implicit rds: Reads[JsValue]): Option[JsValue] = Reads.optionNoError(Reads.at(path)).reads(data).getOrElse(None)
 
-  def getOrException[A](page: QuestionPage[A])(implicit rds: Reads[A]): A =
-    get(page).getOrElse(throw new RuntimeException("Expected a value but none found for " + page))
+  def getOrException[A](page: QuestionPage[A])(implicit rds: Reads[A]): A = get(page).getOrElse(throw new RuntimeException("Expected a value but none found for " + page))
 
   def set[A](page: QuestionPage[A], value: A)(implicit writes: Writes[A]): Try[UserAnswers] = {
 
@@ -81,6 +81,18 @@ final case class UserAnswers(data: JsObject = Json.obj()) {
     }
   }
 
+  def removeAllPages(pages: Seq[Gettable[_]]): UserAnswers = {
+    @scala.annotation.tailrec
+    def removeNext(pages: Seq[Gettable[_]], ua: UserAnswers): UserAnswers = {
+      if (pages.isEmpty) {
+        ua
+      } else {
+        removeNext(pages.tail, ua.removeWithPath(pages.head.path))
+      }
+    }
+    removeNext(pages, this)
+  }
+
   def removeOrException[A](page: QuestionPage[A]): UserAnswers = {
     remove(page) match {
       case Success(ua) => ua
@@ -101,5 +113,3 @@ final case class UserAnswers(data: JsObject = Json.obj()) {
   }
 
 }
-
-

@@ -26,10 +26,18 @@ import models.register.BusinessType
 import models.register.RegistrationCustomerType
 import models.register.RegistrationInfo
 import models.register.RegistrationLegalStatus
+import models.register.TolerantIndividual
 import pages.RegistrationInfoPage
 import pages.WhatTypeBusinessPage
 import pages.company.CompanyRegisteredAddressPage
 import pages.individual.AreYouUKResidentPage
+import pages.individual.IndividualAddressListPage
+import pages.individual.IndividualAddressPage
+import pages.individual.IndividualDetailsPage
+import pages.individual.IndividualManualAddressPage
+import pages.individual.IndividualPostcodePage
+import pages.individual.IsThisYouPage
+import pages.individual.UseAddressForContactPage
 import pages.register.AreYouUKCompanyPage
 import pages.register.BusinessRegistrationTypePage
 import pages.register.BusinessTypePage
@@ -52,6 +60,11 @@ object SampleData {
   val address = Address("line1", "line2", Some("line3"), Some("line4"), Some("post code"), "GB")
   def registrationInfo(registrationLegalStatus:RegistrationLegalStatus) =
     RegistrationInfo(registrationLegalStatus, "", noIdentifier = false, RegistrationCustomerType.UK, None, None)
+  val tolerantIndividual = TolerantIndividual(
+    Some("John"),
+    Some("T"),
+    Some("Doe")
+  )
 
   /*
 /who-are-you-registering (company or partnership OR yourself as an individual) - WhatTypeBusinessPage
@@ -59,56 +72,10 @@ object SampleData {
 /business-type (5 items grouped into company OR partnership) - BusinessTypePage
 /what-is-business-registered-as [NON UK] (company OR partnership) - BusinessRegistrationTypePage
 /are-you-uk-resident [YOURSELF AS INDIVIDUAL] (yes OR no) - AreYouUKResidentPage
-
-WhatTypeBusinessPage=Companyorpartnership
- AreYouUKCompanyPage=Yes
-  BusinessTypePage=Limited company OR Unlimited company
-   Business UTR
-   Org name
-   Confirm name
-   Confirm address
-   Can use as contact address
-    No
-     Contact address
-   Email address
-   Phone no
-  BusinessTypePage=One of the partnership types
-   <as for company above>
- AreYouUKCompanyPage=No
-  BusinessRegistrationTypePage=Company
-   Org name
-   Enter registered address
-   Can use as contact address
-    No
-     Contact address
-   Email address
-   Phone no
-  BusinessRegistrationTypePage=Partnership
-   <as above>
- WhatTypeBusinessPage=Yourself
-  AreYouUKResidentPage=Yes
-   Is this your name and address?
-   Can hmrc use this address to contact you?
-    No
-     Address manual
-   Email
-   Phone no
-  AreYouUKResidentPage=No
-   What is your name?
-   What is your address?
-   Can hmrc use this address to contact you?
-    No
-     Address manual
-   Email address
-   Phone no
-   */
-
-  /*
-    isCompany: None = yourself as individual, Some(false) = partnership, Some(true) = company
-   */
+*/
 
 
-  def userAnswersCompanyUK:UserAnswers = {
+  def userAnswersFullJourneyCompanyUK:UserAnswers = {
     UserAnswers()
     .setOrException(WhatTypeBusinessPage, value = Companyorpartnership)
     .setOrException(AreYouUKCompanyPage, true)
@@ -126,7 +93,7 @@ WhatTypeBusinessPage=Companyorpartnership
     .setOrException(pages.company.CompanyPhonePage, "")
   }
 
-  def userAnswersPartnershipUK:UserAnswers = {
+  def userAnswersFullJourneyPartnershipUK:UserAnswers = {
     UserAnswers()
       .setOrException(WhatTypeBusinessPage, value = Companyorpartnership)
       .setOrException(AreYouUKCompanyPage, true)
@@ -144,7 +111,7 @@ WhatTypeBusinessPage=Companyorpartnership
       .setOrException(pages.partnership.PartnershipPhonePage, "")
   }
 
-  def userAnswersCompanyNonUK:UserAnswers = {
+  def userAnswersFullJourneyCompanyNonUK:UserAnswers = {
     UserAnswers()
       .setOrException(WhatTypeBusinessPage, value = Companyorpartnership)
       .setOrException(AreYouUKCompanyPage, false)
@@ -158,7 +125,7 @@ WhatTypeBusinessPage=Companyorpartnership
       .setOrException(pages.company.CompanyPhonePage, "")
   }
 
-  def userAnswersPartnershipNonUK:UserAnswers = {
+  def userAnswersFullJourneyPartnershipNonUK:UserAnswers = {
     UserAnswers()
       .setOrException(WhatTypeBusinessPage, value = Companyorpartnership)
       .setOrException(AreYouUKCompanyPage, false)
@@ -172,42 +139,31 @@ WhatTypeBusinessPage=Companyorpartnership
       .setOrException(pages.partnership.PartnershipPhonePage, "")
   }
 
-  /*
-    AreYouUKResidentPage=Yes
-   Is this your name and address?
-   Can hmrc use this address to contact you?
-    No
-     Address manual
-   Email
-   Phone no
-  AreYouUKResidentPage=No
-   What is your name?
-   What is your address?
-   Can hmrc use this address to contact you?
-    No
-     Address manual
-   Email address
-   Phone no
-   */
-
-  def userAnswersIndividualUK:UserAnswers = {
+  def userAnswersFullJourneyIndividualUK:UserAnswers = {
     UserAnswers()
       .setOrException(WhatTypeBusinessPage, value = Yourselfasindividual)
       .setOrException(AreYouUKResidentPage, true)
-
-
-      //.setOrException(BusinessRegistrationTypePage, BusinessRegistrationType.Company)
-      //.setOrException(pages.company.BusinessNamePage, "")
-      //.setOrException(pages.company.CompanyRegisteredAddressPage, address)
-      //.setOrException(pages.company.CompanyUseSameAddressPage, false)
-      //.setOrException(pages.company.CompanyAddressPage, address)
-      //.setOrException(RegistrationInfoPage, registrationInfo(RegistrationLegalStatus.LimitedCompany))
-      //.setOrException(pages.company.CompanyEmailPage, "")
-      //.setOrException(pages.company.CompanyPhonePage, "")
+      .setOrException(IsThisYouPage, true)
+      .setOrException(RegistrationInfoPage, registrationInfo(RegistrationLegalStatus.LimitedCompany))
+      .setOrException(UseAddressForContactPage, false)
+      .setOrException(IndividualPostcodePage, Seq(tolerantAddress))
+      .setOrException(IndividualAddressListPage, 0)
+      .setOrException(IndividualManualAddressPage, address)
+      .setOrException(pages.individual.IndividualEmailPage, "")
+      .setOrException(pages.individual.IndividualPhonePage, "")
   }
 
-  def userAnswersIndividualNonUK:UserAnswers = {
+  def userAnswersFullJourneyIndividualNonUK:UserAnswers = {
     UserAnswers()
+      .setOrException(WhatTypeBusinessPage, value = Yourselfasindividual)
+      .setOrException(AreYouUKResidentPage, false)
+      .setOrException(IndividualDetailsPage, tolerantIndividual)
+      .setOrException(IndividualAddressPage, tolerantAddress)
+      .setOrException(UseAddressForContactPage, false)
+      .setOrException(IndividualPostcodePage, Seq(tolerantAddress))
+      .setOrException(IndividualAddressListPage, 0)
+      .setOrException(IndividualManualAddressPage, address)
+      .setOrException(pages.individual.IndividualEmailPage, "")
+      .setOrException(pages.individual.IndividualPhonePage, "")
   }
-
 }

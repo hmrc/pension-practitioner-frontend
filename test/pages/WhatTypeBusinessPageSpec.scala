@@ -16,17 +16,19 @@
 
 package pages
 
-import models.WhatTypeBusiness.{Companyorpartnership, Yourselfasindividual}
-import models.register._
-import models.{Address, TolerantAddress, UserAnswers, WhatTypeBusiness}
+import data.SampleData
+import models.UserAnswers
+import models.WhatTypeBusiness
+import models.WhatTypeBusiness.Companyorpartnership
+import models.WhatTypeBusiness.Yourselfasindividual
 import pages.behaviours.PageBehaviours
-import pages.register.{AreYouUKCompanyPage, BusinessTypePage}
-import pages.company.{CompanyAddressListPage, CompanyAddressPage, CompanyEmailPage, CompanyPhonePage, CompanyPostcodePage, CompanyUseSameAddressPage, BusinessNamePage => CompanyNamePage, BusinessUTRPage => CompanyUTRPage, ConfirmAddressPage => ConfirmCompanyAddressPage, ConfirmNamePage => ConfirmCompanyNamePage}
-import pages.individual._
+import queries.Gettable
 
 class WhatTypeBusinessPageSpec extends PageBehaviours {
-  private val tolerantAddress = TolerantAddress(Some("line1"), Some("line2"), Some("line3"), Some("line4"), Some("post code"), Some("GB"))
-  private val address = Address("line1", "line2", Some("line3"), Some("line4"), Some("post code"), "GB")
+
+  def areAllPagesEmpty(userAnswers: UserAnswers, pages:Seq[Gettable[_]]):Boolean =
+    pages.flatMap(_.path.asSingleJsResult(userAnswers.data).asOpt.toSeq).isEmpty
+
   "WhatTypeBusinessPage" - {
 
     beRetrievable[WhatTypeBusiness](WhatTypeBusinessPage)
@@ -35,78 +37,41 @@ class WhatTypeBusinessPageSpec extends PageBehaviours {
 
     beRemovable[WhatTypeBusiness](WhatTypeBusinessPage)
 
-    "when selected as individual" - {
-
-      "must clean up the data for all the Companyorpartnership" in {
-        val ua: UserAnswers = UserAnswers().setOrException(WhatTypeBusinessPage, value = Companyorpartnership).
-          setOrException(AreYouUKCompanyPage, true).
-          setOrException(AreYouUKResidentPage, true).
-          setOrException(BusinessTypePage, BusinessType.LimitedCompany).
-          setOrException(CompanyUTRPage, "").
-          setOrException(CompanyNamePage, "").
-          setOrException(ConfirmCompanyNamePage, true).
-          setOrException(ConfirmCompanyAddressPage, tolerantAddress).
-          setOrException(CompanyAddressListPage, 0).
-          setOrException(CompanyAddressPage, address).
-          setOrException(CompanyEmailPage, "").
-          setOrException(CompanyPhonePage, "").
-          setOrException(CompanyPostcodePage, Seq(tolerantAddress)).
-          setOrException(CompanyUseSameAddressPage, true).
-          setOrException(RegistrationInfoPage, RegistrationInfo(RegistrationLegalStatus.Individual, "",
-            noIdentifier = false, RegistrationCustomerType.UK,None, None
-          ))
-        val result = ua.set(WhatTypeBusinessPage, Yourselfasindividual).getOrElse(UserAnswers())
-
-        result.get(AreYouUKCompanyPage) mustNot be(defined)
-        result.get(BusinessTypePage) mustNot be(defined)
-        result.get(CompanyUTRPage) mustNot be(defined)
-        result.get(CompanyNamePage) mustNot be(defined)
-        result.get(ConfirmCompanyNamePage) mustNot be(defined)
-        result.get(ConfirmCompanyAddressPage) mustNot be(defined)
-        result.get(CompanyAddressListPage) mustNot be(defined)
-        result.get(CompanyAddressPage) mustNot be(defined)
-        result.get(CompanyEmailPage) mustNot be(defined)
-        result.get(CompanyPhonePage) mustNot be(defined)
-        result.get(CompanyPostcodePage) mustNot be(defined)
-        result.get(CompanyUseSameAddressPage) mustNot be(defined)
-        result.get(RegistrationInfoPage) mustNot be(defined)
-
-        result.get(AreYouUKResidentPage) must be(defined)
-      }
+    "must clean up when set to Companyorpartnership when have completed an individual UK journey" in {
+      val result = SampleData.userAnswersFullJourneyIndividualUK.setOrException(WhatTypeBusinessPage, Companyorpartnership)
+      result.getOrException(WhatTypeBusinessPage) must be(models.WhatTypeBusiness.Companyorpartnership)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualUK) must be (true)
     }
 
-    "when selected as Companyorpartnership" - {
-      "must clean up the data for all the individual" in {
-        val ua: UserAnswers = UserAnswers().setOrException(WhatTypeBusinessPage, value = Yourselfasindividual).
-          setOrException(AreYouUKResidentPage, true).
-          setOrException(AreYouUKCompanyPage, true).
-          setOrException(IndividualDetailsPage, TolerantIndividual(Some("first"), None, Some("last"))).
-          setOrException(IndividualAddressPage, tolerantAddress).
-          setOrException(IndividualEmailPage, "s@s.com").
-          setOrException(IndividualPhonePage, "").
-          setOrException(IndividualPostcodePage, Seq(tolerantAddress)).
-          setOrException(IsThisYouPage, true).
-          setOrException(IndividualAddressListPage, 1).
-          setOrException(IndividualManualAddressPage, address).
-          setOrException(RegistrationInfoPage, RegistrationInfo(RegistrationLegalStatus.Individual, "",
-            noIdentifier = false, RegistrationCustomerType.UK,None, None
-          ))
-
-        val result = ua.set(WhatTypeBusinessPage, Companyorpartnership).getOrElse(UserAnswers())
-
-        result.get(AreYouUKResidentPage) mustNot be(defined)
-        result.get(IndividualDetailsPage) mustNot be(defined)
-        result.get(IndividualAddressPage) mustNot be(defined)
-        result.get(IndividualEmailPage) mustNot be(defined)
-        result.get(IndividualPhonePage) mustNot be(defined)
-        result.get(IndividualPostcodePage) mustNot be(defined)
-        result.get(IsThisYouPage) mustNot be(defined)
-        result.get(IndividualAddressListPage) mustNot be(defined)
-        result.get(IndividualManualAddressPage) mustNot be(defined)
-        result.get(RegistrationInfoPage) mustNot be(defined)
-
-        result.get(AreYouUKCompanyPage) must be(defined)
-      }
+    "must clean up when set to Companyorpartnership when have completed an individual non-UK journey" in {
+      val result = SampleData.userAnswersFullJourneyIndividualNonUK.setOrException(WhatTypeBusinessPage, Companyorpartnership)
+      result.getOrException(WhatTypeBusinessPage) must be(models.WhatTypeBusiness.Companyorpartnership)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualNonUK) must be (true)
     }
+
+    "must clean up when set to Yourselfasindividual when have completed a company UK journey" in {
+      val result = SampleData.userAnswersFullJourneyCompanyUK.setOrException(WhatTypeBusinessPage, Yourselfasindividual)
+      result.getOrException(WhatTypeBusinessPage) must be(models.WhatTypeBusiness.Yourselfasindividual)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyCompanyUK) must be (true)
+    }
+
+    "must clean up when set to Yourselfasindividual when have completed a company non-UK journey" in {
+      val result = SampleData.userAnswersFullJourneyCompanyNonUK.setOrException(WhatTypeBusinessPage, Yourselfasindividual)
+      result.getOrException(WhatTypeBusinessPage) must be(models.WhatTypeBusiness.Yourselfasindividual)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyCompanyNonUK) must be (true)
+    }
+
+    "must clean up when set to Yourselfasindividual when have completed a partnership UK journey" in {
+      val result = SampleData.userAnswersFullJourneyPartnershipUK.setOrException(WhatTypeBusinessPage, Yourselfasindividual)
+      result.getOrException(WhatTypeBusinessPage) must be(models.WhatTypeBusiness.Yourselfasindividual)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyPartnershipUK) must be (true)
+    }
+
+    "must clean up when set to Yourselfasindividual when have completed a partnership non-UK journey" in {
+      val result = SampleData.userAnswersFullJourneyPartnershipNonUK.setOrException(WhatTypeBusinessPage, Yourselfasindividual)
+      result.getOrException(WhatTypeBusinessPage) must be(models.WhatTypeBusiness.Yourselfasindividual)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyPartnershipNonUK) must be (true)
+    }
+
   }
 }

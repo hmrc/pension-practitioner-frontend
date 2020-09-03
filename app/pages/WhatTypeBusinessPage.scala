@@ -34,40 +34,16 @@ case object WhatTypeBusinessPage extends QuestionPage[WhatTypeBusiness] {
 
   override def cleanup(value: Option[WhatTypeBusiness], userAnswers: UserAnswers): Try[UserAnswers] = {
     val result = value match {
-      case Some(Yourselfasindividual) =>
-        userAnswers
-          .remove(AreYouUKCompanyPage).toOption.getOrElse(userAnswers)
-          .remove(BusinessTypePage).toOption.getOrElse(userAnswers)
-          .remove(PartnershipUTRPage).toOption.getOrElse(userAnswers)
-          .remove(PartnershipNamePage).toOption.getOrElse(userAnswers)
-          .remove(ConfirmPartnershipNamePage).toOption.getOrElse(userAnswers)
-          .remove(ConfirmPartnershipAddressPage).toOption.getOrElse(userAnswers)
-          .remove(CompanyUTRPage).toOption.getOrElse(userAnswers)
-          .remove(CompanyNamePage).toOption.getOrElse(userAnswers)
-          .remove(ConfirmCompanyNamePage).toOption.getOrElse(userAnswers)
-          .remove(ConfirmCompanyAddressPage).toOption.getOrElse(userAnswers)
-          .remove(CompanyAddressListPage).toOption.getOrElse(userAnswers)
-          .remove(CompanyAddressPage).toOption.getOrElse(userAnswers)
-          .remove(CompanyEmailPage).toOption.getOrElse(userAnswers)
-          .remove(CompanyPhonePage).toOption.getOrElse(userAnswers)
-          .remove(CompanyPostcodePage).toOption.getOrElse(userAnswers)
-          .remove(CompanyUseSameAddressPage).toOption.getOrElse(userAnswers)
-          .remove(RegistrationInfoPage).toOption
-      case Some(companyorpartnership) =>
-        userAnswers
-          .remove(AreYouUKResidentPage).toOption.getOrElse(userAnswers)
-          .remove(IndividualDetailsPage).toOption.getOrElse(userAnswers)
-          .remove(IndividualAddressPage).toOption.getOrElse(userAnswers)
-          .remove(IndividualPostcodePage).toOption.getOrElse(userAnswers)
-          .remove(IndividualAddressListPage).toOption.getOrElse(userAnswers)
-          .remove(IndividualManualAddressPage).toOption.getOrElse(userAnswers)
-          .remove(IndividualEmailPage).toOption.getOrElse(userAnswers)
-          .remove(IndividualPhonePage).toOption.getOrElse(userAnswers)
-          .remove(IsThisYouPage).toOption.getOrElse(userAnswers)
-          .remove(UseAddressForContactPage).toOption.getOrElse(userAnswers)
-          .remove(RegistrationInfoPage).toOption
-      case _ => None
+      case Some(Yourselfasindividual) => userAnswers
+        .removeAllPages(PageConstants.pagesFullJourneyCompanyUK)
+        .removeAllPages(PageConstants.pagesFullJourneyCompanyNonUK)
+        .removeAllPages(PageConstants.pagesFullJourneyPartnershipUK)
+        .removeAllPages(PageConstants.pagesFullJourneyPartnershipNonUK)
+      case Some(_) => userAnswers
+        .removeAllPages(PageConstants.pagesFullJourneyIndividualUK)
+        .removeAllPages(PageConstants.pagesFullJourneyIndividualNonUK)
+      case _ => userAnswers
     }
-    super.cleanup(value, result.getOrElse(userAnswers))
+    super.cleanup(value, result)
   }
 }
