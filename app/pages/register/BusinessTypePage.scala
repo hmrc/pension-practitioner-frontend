@@ -18,10 +18,8 @@ package pages.register
 
 import models.UserAnswers
 import models.register.BusinessType
-import models.register.BusinessType.{BusinessPartnership, LimitedCompany, LimitedLiabilityPartnership, LimitedPartnership, UnlimitedCompany}
-import pages.{QuestionPage, RegistrationInfoPage}
-import pages.company.{BusinessNamePage => CompanyNamePage, BusinessUTRPage => CompanyUTRPage, ConfirmAddressPage => ConfirmCompanyAddressPage, ConfirmNamePage => ConfirmCompanyNamePage}
-import pages.partnership.{BusinessNamePage => PartnershipNamePage, BusinessUTRPage => PartnershipUTRPage, ConfirmAddressPage => ConfirmPartnershipAddressPage, ConfirmNamePage => ConfirmPartnershipNamePage}
+import pages.PageConstants
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 import scala.util.Try
@@ -32,24 +30,26 @@ case object BusinessTypePage extends QuestionPage[BusinessType] {
 
   override def toString: String = "businessType"
 
+  //private def isCompany(businessType: BusinessType):Boolean =
+  //  businessType == BusinessType.LimitedCompany || businessType == BusinessType.UnlimitedCompany
+  //
+  //private def isPartnership(businessType: BusinessType):Boolean = !isCompany(businessType)
+
   override def cleanup(value: Option[BusinessType], userAnswers: UserAnswers): Try[UserAnswers] = {
-    val result = value match {
-      case Some(LimitedCompany) | Some(LimitedCompany) | Some(UnlimitedCompany) =>
-        userAnswers
-          .remove(CompanyNamePage).toOption.getOrElse(userAnswers)
-          .remove(CompanyUTRPage).toOption.getOrElse(userAnswers)
-          .remove(ConfirmCompanyNamePage).toOption.getOrElse(userAnswers)
-          .remove(RegistrationInfoPage).toOption.getOrElse(userAnswers)
-          .remove(ConfirmCompanyAddressPage).toOption
-      case Some(BusinessPartnership) | Some(LimitedPartnership) | Some(LimitedLiabilityPartnership) =>
-        userAnswers
-          .remove(PartnershipNamePage).toOption.getOrElse(userAnswers)
-          .remove(PartnershipUTRPage).toOption.getOrElse(userAnswers)
-          .remove(ConfirmPartnershipNamePage).toOption.getOrElse(userAnswers)
-          .remove(RegistrationInfoPage).toOption.getOrElse(userAnswers)
-          .remove(ConfirmPartnershipAddressPage).toOption
-      case _ => None
-    }
-    super.cleanup(value, result.getOrElse(userAnswers))
+    val result = userAnswers
+      .removeAllPages(PageConstants.pagesFullJourneyIndividualUK)
+      .removeAllPages(PageConstants.pagesFullJourneyIndividualNonUK)
+    //val result = value match {
+    //  case Some(businessType) => userAnswers
+    //    //.removeAllPages(PageConstants.pagesFullJourneyCompanyUK - AreYouUKCompanyPage)
+    //    //.removeAllPages(PageConstants.pagesFullJourneyCompanyNonUK - AreYouUKCompanyPage)
+    //    //.removeAllPages(PageConstants.pagesFullJourneyPartnershipUK - AreYouUKCompanyPage)
+    //    //.removeAllPages(PageConstants.pagesFullJourneyPartnershipNonUK - AreYouUKCompanyPage)
+    //  case Some(false) => userAnswers
+    //    //.removeAllPages(PageConstants.pagesFullJourneyIndividualUK)
+    //    //.removeAllPages(PageConstants.pagesFullJourneyIndividualNonUK)
+    //  case _ => userAnswers
+    //}
+    super.cleanup(value, result)
   }
 }

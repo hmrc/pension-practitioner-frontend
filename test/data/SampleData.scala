@@ -72,7 +72,52 @@ object SampleData {
 /business-type (5 items grouped into company OR partnership) - BusinessTypePage
 /what-is-business-registered-as [NON UK] (company OR partnership) - BusinessRegistrationTypePage
 /are-you-uk-resident [YOURSELF AS INDIVIDUAL] (yes OR no) - AreYouUKResidentPage
-*/
+
+
+WhatTypeBusinessPage=Companyorpartnership
+ AreYouUKCompanyPage=Yes
+  BusinessTypePage=Limited company OR Unlimited company
+   Business UTR
+   Org name
+   Confirm name
+   Confirm address
+   Can use as contact address
+    No
+     Contact address
+   Email address
+   Phone no
+  BusinessTypePage=One of the partnership types
+   <as for company above>
+ AreYouUKCompanyPage=No
+  BusinessRegistrationTypePage=Company
+   Org name
+   Enter registered address
+   Can use as contact address
+    No
+     Contact address
+   Email address
+   Phone no
+  BusinessRegistrationTypePage=Partnership
+   <as above>
+ WhatTypeBusinessPage=Yourself
+  AreYouUKResidentPage=Yes
+   Is this your name and address?
+   Can hmrc use this address to contact you?
+    No
+     Address manual
+   Email
+   Phone no
+  AreYouUKResidentPage=No
+   What is your name?
+   What is your address?
+   Can hmrc use this address to contact you?
+    No
+     Address manual
+   Email address
+   Phone no
+   */
+
+
 
 
   def userAnswersFullJourneyCompanyUK:UserAnswers = {
