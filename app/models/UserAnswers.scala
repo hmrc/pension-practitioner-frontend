@@ -42,7 +42,7 @@ final case class UserAnswers(data: JsObject = Json.obj()) {
     updatedData.flatMap { d =>
       val updatedAnswers = copy(data = d)
       (page.path.asSingleJsResult(data).asOpt, page.path.asSingleJsResult(d).asOpt) match {
-        case (Some(o), Some(n)) if o == n => Try(updatedAnswers)
+        case (Some(oldValue), Some(newValue)) if oldValue == newValue => Try(updatedAnswers)
         case _ => page.cleanup(Some(value), updatedAnswers)
       }
     }
