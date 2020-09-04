@@ -16,6 +16,7 @@
 
 package controllers.partnership
 
+import connectors.SubscriptionConnector
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import matchers.JsonMatchers
@@ -25,8 +26,10 @@ import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
+import pages.PspIdPage
 import pages.partnership.DeclarationPage
 import play.api.Application
+import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.Helpers._
@@ -39,14 +42,14 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
+  private val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
 
   private val application: Application =
-    applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
+    applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction,
+      Seq(bind[SubscriptionConnector].toInstance(mockSubscriptionConnector))).build()
   private val templateToBeRendered = "register/declaration.njk"
   private val dummyCall: Call = Call("GET", "/foo")
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq("true"))
-  private val jsonToPassToTemplate: JsObject = Json.obj(
-    "submitUrl" -> routes.DeclarationController.onSubmit().url)
 
   private def onPageLoadUrl: String = routes.DeclarationController.onPageLoad().url
   private def submitUrl: String = routes.DeclarationController.onSubmit().url
@@ -83,13 +86,19 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
     "redirect to next page when valid data is submitted" in {
 
-      when(mockCompoundNavigator.nextPage(Matchers.eq(DeclarationPage), any(), any())).thenReturn(dummyCall)
+      val expectedJson = Json.obj(PspIdPage.toString -> "psp-id")
 
+      when(mockCompoundNavigator.nextPage(Matchers.eq(DeclarationPage), any(), any())).thenReturn(dummyCall)
+      when(mockSubscriptionConnector.subscribePsp(any())(any(), any())).thenReturn(Future.successful("psp-id"))
+      when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
+
+      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
       val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
+      verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
+      jsonCaptor.getValue must containJson(expectedJson)
       redirectLocation(result) mustBe Some(dummyCall.url)
-
     }
 
     "redirect to Session Expired page for a POST when there is no data" in {
