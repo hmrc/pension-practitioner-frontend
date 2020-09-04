@@ -190,6 +190,7 @@ WhatTypeBusinessPage=Companyorpartnership
       .setOrException(AreYouUKResidentPage, true)
       .setOrException(IsThisYouPage, true)
       .setOrException(RegistrationInfoPage, registrationInfo(RegistrationLegalStatus.LimitedCompany))
+      .setOrException(IndividualDetailsPage, tolerantIndividual)
       .setOrException(UseAddressForContactPage, false)
       .setOrException(IndividualPostcodePage, Seq(tolerantAddress))
       .setOrException(IndividualAddressListPage, 0)

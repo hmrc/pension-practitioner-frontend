@@ -34,6 +34,7 @@ object PageConstants {
     AreYouUKResidentPage,
     IsThisYouPage,
     RegistrationInfoPage,
+    IndividualDetailsPage,
     UseAddressForContactPage,
     IndividualPostcodePage,
     IndividualAddressListPage,
