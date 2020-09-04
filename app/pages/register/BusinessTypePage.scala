@@ -36,9 +36,8 @@ case object BusinessTypePage extends QuestionPage[BusinessType] {
 
   override def toString: String = "businessType"
 
-  private val pagesNotToRemove = Set[Gettable[_]](
-    AreYouUKCompanyPage, BusinessTypePage
-  )
+  private val pagesNotToRemove =
+    Set[Gettable[_]](AreYouUKCompanyPage, BusinessTypePage)
 
   override def cleanup(value: Option[BusinessType],
                        userAnswers: UserAnswers): Try[UserAnswers] = {
@@ -60,7 +59,7 @@ case object BusinessTypePage extends QuestionPage[BusinessType] {
           userAnswers
             .removeAllPages(
               PageConstants.pagesFullJourneyCompanyNonUK ++
-              PageConstants.pagesFullJourneyCompanyUK ++
+                PageConstants.pagesFullJourneyCompanyUK ++
                 PageConstants.pagesFullJourneyIndividualUK ++
                 PageConstants.pagesFullJourneyIndividualNonUK --
                 pagesNotToRemove
