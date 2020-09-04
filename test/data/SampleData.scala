@@ -29,7 +29,6 @@ import models.register.RegistrationLegalStatus
 import models.register.TolerantIndividual
 import pages.RegistrationInfoPage
 import pages.WhatTypeBusinessPage
-import pages.company.CompanyRegisteredAddressPage
 import pages.individual.AreYouUKResidentPage
 import pages.individual.IndividualAddressListPage
 import pages.individual.IndividualAddressPage

@@ -31,16 +31,14 @@ case object AreYouUKCompanyPage extends QuestionPage[Boolean] {
 
   override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] = {
     val result = value match {
-      case Some(true) => userAnswers
+      case Some(_) => userAnswers
         .removeAllPages(
           PageConstants.pagesFullJourneyCompanyUK ++
             PageConstants.pagesFullJourneyCompanyNonUK ++
-            PageConstants.pagesFullJourneyPartnershipNonUK - AreYouUKCompanyPage
-        )
-      case Some(false) => userAnswers
-        .removeAllPages(
-          PageConstants.pagesFullJourneyIndividualUK ++
-          PageConstants.pagesFullJourneyIndividualNonUK  - AreYouUKCompanyPage
+            PageConstants.pagesFullJourneyPartnershipUK ++
+            PageConstants.pagesFullJourneyPartnershipNonUK ++
+            PageConstants.pagesFullJourneyIndividualUK ++
+            PageConstants.pagesFullJourneyIndividualNonUK- AreYouUKCompanyPage
         )
       case _ => userAnswers
     }
