@@ -17,7 +17,8 @@
 package pages.individual
 
 import models.UserAnswers
-import pages.{PageConstants, QuestionPage, RegistrationInfoPage}
+import pages.PageConstants
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 import scala.util.Try
@@ -32,9 +33,7 @@ case object AreYouUKResidentPage extends QuestionPage[Boolean] {
     val result = value match {
       case Some(false) =>
         userAnswers
-          .removeAllPages(PageConstants.pagesFullJourneyIndividualUK ++
-            PageConstants.pagesFullJourneyIndividualNonUK
-          )
+          .removeAllPages(PageConstants.pagesFullJourneyIndividualUK)
 
       case Some(true) =>
         userAnswers

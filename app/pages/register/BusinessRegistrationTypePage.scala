@@ -19,6 +19,7 @@ package pages.register
 import models.UserAnswers
 import models.register.BusinessRegistrationType
 import models.register.BusinessRegistrationType.{Company, Partnership}
+import pages.WhatTypeBusinessPage
 import pages.{PageConstants, QuestionPage}
 import play.api.libs.json.JsPath
 
@@ -35,12 +36,14 @@ case object BusinessRegistrationTypePage extends QuestionPage[BusinessRegistrati
       value match {
         case Some(Company | Partnership) =>
           userAnswers
-            .removeAllPages(PageConstants.pagesFullJourneyIndividualUK ++
+            .removeAllPages(
+              PageConstants.pagesFullJourneyIndividualUK ++
               PageConstants.pagesFullJourneyIndividualNonUK ++
               PageConstants.pagesFullJourneyPartnershipUK ++
               PageConstants.pagesFullJourneyPartnershipNonUK ++
               PageConstants.pagesFullJourneyCompanyUK ++
-              PageConstants.pagesFullJourneyCompanyNonUK - BusinessRegistrationTypePage
+              PageConstants.pagesFullJourneyCompanyNonUK --
+              Set(AreYouUKCompanyPage, BusinessRegistrationTypePage)
             )
         case _ => userAnswers
       }

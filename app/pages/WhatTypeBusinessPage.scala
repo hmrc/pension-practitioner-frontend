@@ -16,15 +16,12 @@
 
 package pages
 
-import models.WhatTypeBusiness.{Companyorpartnership, Yourselfasindividual}
-import models.{UserAnswers, WhatTypeBusiness}
+import models.WhatTypeBusiness.Yourselfasindividual
+import models.UserAnswers
+import models.WhatTypeBusiness
 import play.api.libs.json.JsPath
 
 import scala.util.Try
-import pages.company.{CompanyAddressListPage, CompanyAddressPage, CompanyEmailPage, CompanyPhonePage, CompanyPostcodePage, CompanyUseSameAddressPage, BusinessNamePage => CompanyNamePage, BusinessUTRPage => CompanyUTRPage, ConfirmAddressPage => ConfirmCompanyAddressPage, ConfirmNamePage => ConfirmCompanyNamePage}
-import pages.individual._
-import pages.partnership.{BusinessNamePage => PartnershipNamePage, BusinessUTRPage => PartnershipUTRPage, ConfirmAddressPage => ConfirmPartnershipAddressPage, ConfirmNamePage => ConfirmPartnershipNamePage}
-import pages.register.{AreYouUKCompanyPage, BusinessTypePage}
 
 case object WhatTypeBusinessPage extends QuestionPage[WhatTypeBusiness] {
 
@@ -32,16 +29,23 @@ case object WhatTypeBusinessPage extends QuestionPage[WhatTypeBusiness] {
 
   override def toString: String = "whatTypeBusiness"
 
-  override def cleanup(value: Option[WhatTypeBusiness], userAnswers: UserAnswers): Try[UserAnswers] = {
+  override def cleanup(value: Option[WhatTypeBusiness],
+                       userAnswers: UserAnswers): Try[UserAnswers] = {
     val result = value match {
-      case Some(Yourselfasindividual) => userAnswers
-        .removeAllPages(PageConstants.pagesFullJourneyCompanyUK)
-        .removeAllPages(PageConstants.pagesFullJourneyCompanyNonUK)
-        .removeAllPages(PageConstants.pagesFullJourneyPartnershipUK)
-        .removeAllPages(PageConstants.pagesFullJourneyPartnershipNonUK)
-      case Some(_) => userAnswers
-        .removeAllPages(PageConstants.pagesFullJourneyIndividualUK)
-        .removeAllPages(PageConstants.pagesFullJourneyIndividualNonUK)
+      case Some(Yourselfasindividual) =>
+        userAnswers
+          .removeAllPages(
+            PageConstants.pagesFullJourneyCompanyUK ++
+              PageConstants.pagesFullJourneyCompanyNonUK ++
+              PageConstants.pagesFullJourneyPartnershipUK ++
+              PageConstants.pagesFullJourneyPartnershipNonUK
+          )
+      case Some(_) =>
+        userAnswers
+          .removeAllPages(
+            PageConstants.pagesFullJourneyIndividualUK ++
+              PageConstants.pagesFullJourneyIndividualNonUK
+          )
       case _ => userAnswers
     }
     super.cleanup(value, result)

@@ -49,14 +49,14 @@ class AreYouUKCompanyPageSpec extends PageBehaviours {
       val result = SampleData.userAnswersFullJourneyCompanyUK.setOrException(AreYouUKCompanyPage, true)
       result.get(WhatTypeBusinessPage).isDefined must be(true)
       result.getOrException(AreYouUKCompanyPage) must be(true)
-      areAllPagesNonEmpty(result, PageConstants.pagesFullJourneyCompanyUK) must be (true)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyCompanyUK - AreYouUKCompanyPage) must be (true)
     }
 
     "must NOT clean up when set to true when have completed a partnership UK journey (because value not changed)" in {
       val result = SampleData.userAnswersFullJourneyPartnershipUK.setOrException(AreYouUKCompanyPage, true)
       result.get(WhatTypeBusinessPage).isDefined must be(true)
       result.getOrException(AreYouUKCompanyPage) must be(true)
-      areAllPagesNonEmpty(result, PageConstants.pagesFullJourneyCompanyUK) must be (true)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyPartnershipUK - AreYouUKCompanyPage) must be (true)
     }
 
     "must clean up when set to true when have completed a company non-UK journey" in {

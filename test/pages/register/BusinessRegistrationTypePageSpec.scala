@@ -18,10 +18,13 @@ package pages.register
 
 import data.SampleData
 import models.register.BusinessRegistrationType
-import pages.{PageConstants, WhatTypeBusinessPage}
+import pages.{WhatTypeBusinessPage, PageConstants}
 import pages.behaviours.PageBehaviours
+import queries.Gettable
 
 class BusinessRegistrationTypePageSpec extends PageBehaviours {
+
+  private val pagesNotToRemove = Set[Gettable[_]](WhatTypeBusinessPage, AreYouUKCompanyPage, BusinessRegistrationTypePage)
 
   "BusinessRegistrationTypePage" - {
 
@@ -33,58 +36,50 @@ class BusinessRegistrationTypePageSpec extends PageBehaviours {
 
     "must clean up when set to company when have completed an individual UK journey" in {
       val result = SampleData.userAnswersFullJourneyIndividualUK.setOrException(BusinessRegistrationTypePage ,BusinessRegistrationType.Company)
-      result.get(WhatTypeBusinessPage).isDefined must be(true)
-      result.get(BusinessRegistrationTypePage).isDefined must be(true)
+      areAllPagesNonEmpty(result, pagesNotToRemove)
       areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualUK) must be (true)
     }
 
     "must clean up when set to company when have completed an individual non UK journey" in {
       val result = SampleData.userAnswersFullJourneyIndividualNonUK.setOrException(BusinessRegistrationTypePage ,BusinessRegistrationType.Company)
-      result.get(WhatTypeBusinessPage).isDefined must be(true)
-      result.get(BusinessRegistrationTypePage).isDefined must be(true)
+      areAllPagesNonEmpty(result, pagesNotToRemove)
       areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualNonUK) must be (true)
     }
 
     "must clean up when set to partnership when have completed an individual non UK journey" in {
       val result = SampleData.userAnswersFullJourneyIndividualNonUK.setOrException(BusinessRegistrationTypePage ,BusinessRegistrationType.Partnership)
-      result.get(WhatTypeBusinessPage).isDefined must be(true)
-      result.get(BusinessRegistrationTypePage).isDefined must be(true)
+      areAllPagesNonEmpty(result, pagesNotToRemove)
       areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualNonUK) must be (true)
     }
 
     "must clean up when set to partnership when have completed an individual UK journey" in {
       val result = SampleData.userAnswersFullJourneyIndividualUK.setOrException(BusinessRegistrationTypePage ,BusinessRegistrationType.Partnership)
-      result.get(WhatTypeBusinessPage).isDefined must be(true)
-      result.get(BusinessRegistrationTypePage).isDefined must be(true)
+      areAllPagesNonEmpty(result, pagesNotToRemove)
       areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualUK) must be (true)
     }
 
     "must clean up when set to partnership when have completed an company UK journey" in {
       val result = SampleData.userAnswersFullJourneyCompanyUK.setOrException(BusinessRegistrationTypePage ,BusinessRegistrationType.Partnership)
-      result.get(WhatTypeBusinessPage).isDefined must be(true)
-      result.get(BusinessRegistrationTypePage).isDefined must be(true)
+      areAllPagesNonEmpty(result, pagesNotToRemove)
       areAllPagesEmpty(result, PageConstants.pagesFullJourneyCompanyUK) must be (true)
     }
 
     "must clean up when set to partnership when have completed an company Non UK journey" in {
       val result = SampleData.userAnswersFullJourneyCompanyNonUK.setOrException(BusinessRegistrationTypePage ,BusinessRegistrationType.Partnership)
-      result.get(WhatTypeBusinessPage).isDefined must be(true)
-      result.get(BusinessRegistrationTypePage).isDefined must be(true)
-      areAllPagesEmpty(result, PageConstants.pagesFullJourneyCompanyNonUK - BusinessRegistrationTypePage) must be (true)
+      areAllPagesNonEmpty(result, pagesNotToRemove)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyCompanyNonUK -- pagesNotToRemove) must be (true)
     }
 
     "must clean up when set to company when have completed an partnership UK journey" in {
       val result = SampleData.userAnswersFullJourneyPartnershipUK.setOrException(BusinessRegistrationTypePage ,BusinessRegistrationType.Company)
-      result.get(WhatTypeBusinessPage).isDefined must be(true)
-      result.get(BusinessRegistrationTypePage).isDefined must be(true)
+      areAllPagesNonEmpty(result, pagesNotToRemove)
       areAllPagesEmpty(result, PageConstants.pagesFullJourneyPartnershipUK) must be (true)
     }
 
     "must clean up when set to company when have completed an partnership non UK journey" in {
       val result = SampleData.userAnswersFullJourneyPartnershipNonUK.setOrException(BusinessRegistrationTypePage ,BusinessRegistrationType.Company)
-      result.get(WhatTypeBusinessPage).isDefined must be(true)
-      result.get(BusinessRegistrationTypePage).isDefined must be(true)
-      areAllPagesEmpty(result, PageConstants.pagesFullJourneyPartnershipNonUK - BusinessRegistrationTypePage) must be (true)
+      areAllPagesNonEmpty(result, pagesNotToRemove)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyPartnershipNonUK -- pagesNotToRemove) must be (true)
     }
   }
 }

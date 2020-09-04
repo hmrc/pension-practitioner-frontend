@@ -18,7 +18,11 @@ package pages.register
 
 import models.UserAnswers
 import models.register.BusinessType
-import models.register.BusinessType.{BusinessPartnership, LimitedCompany, LimitedLiabilityPartnership, LimitedPartnership, UnlimitedCompany}
+import models.register.BusinessType.BusinessPartnership
+import models.register.BusinessType.LimitedCompany
+import models.register.BusinessType.LimitedLiabilityPartnership
+import models.register.BusinessType.LimitedPartnership
+import models.register.BusinessType.UnlimitedCompany
 import pages.PageConstants
 import pages.QuestionPage
 import play.api.libs.json.JsPath
@@ -31,19 +35,27 @@ case object BusinessTypePage extends QuestionPage[BusinessType] {
 
   override def toString: String = "businessType"
 
-  override def cleanup(value: Option[BusinessType], userAnswers: UserAnswers): Try[UserAnswers] = {
+  override def cleanup(value: Option[BusinessType],
+                       userAnswers: UserAnswers): Try[UserAnswers] = {
     val result = {
       value match {
         case Some(LimitedCompany | UnlimitedCompany) =>
           userAnswers
-            .removeAllPages(PageConstants.pagesFullJourneyPartnershipUK - BusinessTypePage)
-            .removeAllPages(PageConstants.pagesFullJourneyPartnershipNonUK)
-            .removeAllPages(PageConstants.pagesFullJourneyIndividualUK)
-            .removeAllPages(PageConstants.pagesFullJourneyIndividualNonUK)
-        case Some(LimitedPartnership | LimitedLiabilityPartnership | BusinessPartnership) =>
+            .removeAllPages(
+              PageConstants.pagesFullJourneyPartnershipUK ++
+                PageConstants.pagesFullJourneyPartnershipNonUK ++
+                PageConstants.pagesFullJourneyIndividualUK ++
+                PageConstants.pagesFullJourneyIndividualNonUK - BusinessTypePage
+            )
+        case Some(
+            LimitedPartnership | LimitedLiabilityPartnership |
+            BusinessPartnership
+            ) =>
           userAnswers
-            .removeAllPages(PageConstants.pagesFullJourneyCompanyUK - BusinessTypePage)
-            .removeAllPages(PageConstants.pagesFullJourneyCompanyNonUK)
+            .removeAllPages(
+              PageConstants.pagesFullJourneyCompanyNonUK ++
+              PageConstants.pagesFullJourneyCompanyUK - BusinessTypePage
+            )
         case _ => userAnswers
       }
     }
