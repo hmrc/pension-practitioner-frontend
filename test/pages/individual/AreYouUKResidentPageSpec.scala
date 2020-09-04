@@ -21,9 +21,12 @@ import models.register.{RegistrationCustomerType, RegistrationInfo, Registration
 import models.{Address, TolerantAddress, UserAnswers}
 import pages.{PageConstants, RegistrationInfoPage, WhatTypeBusinessPage}
 import pages.behaviours.PageBehaviours
+import pages.{PageConstants, WhatTypeBusinessPage}
+import queries.Gettable
 
 class AreYouUKResidentPageSpec extends PageBehaviours {
 
+  private val pagesNotToRemove = Set[Gettable[_]](WhatTypeBusinessPage, AreYouUKResidentPage)
 
   "AreYouUKResidentPage" - {
     "must clean up when set to false when have completed an individual UK journey" in {
@@ -35,7 +38,7 @@ class AreYouUKResidentPageSpec extends PageBehaviours {
     "must clean up when set to true when have completed an individual non UK journey" in {
       val result = SampleData.userAnswersFullJourneyIndividualNonUK.setOrException(AreYouUKResidentPage, true)
       result.get(WhatTypeBusinessPage).isDefined must be(true)
-      areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualNonUK - AreYouUKResidentPage) must be (true)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualNonUK -- pagesNotToRemove) must be (true)
     }
   }
 }
