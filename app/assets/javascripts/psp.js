@@ -3,7 +3,7 @@ GOVUKFrontend.initAll();
 if (document.querySelector('#country') != null) {
     openregisterLocationPicker({
         selectElement: document.getElementById('country'),
-        url: '/register-as-pension-scheme-practitioner/assets/javascripts/autocomplete/location-autocomplete-graph.json'
+        url: '/pension-scheme-practitioner/assets/javascripts/autocomplete/location-autocomplete-graph.json'
     })
 }
 
