@@ -26,7 +26,7 @@ object RegistrationLegalStatus extends Enumerable.Implicits {
 
   case object Partnership extends WithName("Partnership") with RegistrationLegalStatus
 
-  case object LimitedCompany extends WithName("Limited Company") with RegistrationLegalStatus
+  case object LimitedCompany extends WithName("Company") with RegistrationLegalStatus
 
   val values = Seq(
     Individual,

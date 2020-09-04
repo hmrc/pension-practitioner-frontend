@@ -25,9 +25,11 @@ import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
+import pages.PspIdPage
 import pages.individual.IndividualEmailPage
 import play.api.Application
 import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.Results.Ok
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
@@ -46,6 +48,7 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
 
   val userAnswers: UserAnswers = UserAnswers()
     .setOrException(IndividualEmailPage, email)
+    .setOrException(PspIdPage, pspId)
 
   private def onPageLoadUrl: String = routes.ConfirmationController.onPageLoad().url
   private def submitUrl: String = controllers.routes.SignOutController.signOut().url
@@ -68,6 +71,7 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
     "return OK and the correct view for a GET" in {
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+      when(mockUserAnswersCacheConnector.removeAll(any(), any())).thenReturn(Future.successful(Ok))
 
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 
