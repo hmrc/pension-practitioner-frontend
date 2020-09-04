@@ -60,7 +60,9 @@ case object BusinessTypePage extends QuestionPage[BusinessType] {
           userAnswers
             .removeAllPages(
               PageConstants.pagesFullJourneyCompanyNonUK ++
-              PageConstants.pagesFullJourneyCompanyUK --
+              PageConstants.pagesFullJourneyCompanyUK ++
+                PageConstants.pagesFullJourneyIndividualUK ++
+                PageConstants.pagesFullJourneyIndividualNonUK --
                 pagesNotToRemove
             )
         case _ => userAnswers
