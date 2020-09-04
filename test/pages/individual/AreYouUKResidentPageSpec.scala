@@ -30,14 +30,18 @@ class AreYouUKResidentPageSpec extends PageBehaviours {
 
   "AreYouUKResidentPage" - {
     "must clean up when set to false when have completed an individual UK journey" in {
-      val result = SampleData.userAnswersFullJourneyIndividualUK.setOrException(AreYouUKResidentPage, false)
-      result.get(WhatTypeBusinessPage).isDefined must be(true)
-      areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualUK) must be (true)
+      val result = SampleData.userAnswersFullJourneyIndividualUK
+        .setOrException(AreYouUKResidentPage, true)
+        .setOrException(AreYouUKResidentPage, false)
+      areAllPagesNonEmpty(result, pagesNotToRemove)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualUK -- pagesNotToRemove) must be (true)
     }
 
     "must clean up when set to true when have completed an individual non UK journey" in {
-      val result = SampleData.userAnswersFullJourneyIndividualNonUK.setOrException(AreYouUKResidentPage, true)
-      result.get(WhatTypeBusinessPage).isDefined must be(true)
+      val result = SampleData.userAnswersFullJourneyIndividualNonUK
+        .setOrException(AreYouUKResidentPage, false)
+        .setOrException(AreYouUKResidentPage, true)
+      areAllPagesNonEmpty(result, pagesNotToRemove)
       areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualNonUK -- pagesNotToRemove) must be (true)
     }
   }

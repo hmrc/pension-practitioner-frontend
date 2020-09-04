@@ -20,6 +20,7 @@ import models.UserAnswers
 import pages.PageConstants
 import pages.QuestionPage
 import play.api.libs.json.JsPath
+import queries.Gettable
 
 import scala.util.Try
 
@@ -29,15 +30,23 @@ case object AreYouUKResidentPage extends QuestionPage[Boolean] {
 
   override def toString: String = "areYouUKResident"
 
+  private val pagesNotToRemove = Set[Gettable[_]](
+    AreYouUKResidentPage
+  )
+
     override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] = {
     val result = value match {
       case Some(false) =>
         userAnswers
-          .removeAllPages(PageConstants.pagesFullJourneyIndividualUK)
+          .removeAllPages(
+            PageConstants.pagesFullJourneyIndividualUK -- pagesNotToRemove
+          )
 
       case Some(true) =>
         userAnswers
-          .removeAllPages(PageConstants.pagesFullJourneyIndividualNonUK)
+          .removeAllPages(
+            PageConstants.pagesFullJourneyIndividualNonUK -- pagesNotToRemove
+          )
 
       case _ => userAnswers
     }

@@ -18,10 +18,12 @@ package pages.register
 
 import models.UserAnswers
 import models.register.BusinessRegistrationType
-import models.register.BusinessRegistrationType.{Company, Partnership}
-import pages.WhatTypeBusinessPage
-import pages.{PageConstants, QuestionPage}
+import models.register.BusinessRegistrationType.Company
+import models.register.BusinessRegistrationType.Partnership
+import pages.PageConstants
+import pages.QuestionPage
 import play.api.libs.json.JsPath
+import queries.Gettable
 
 import scala.util.Try
 
@@ -30,6 +32,10 @@ case object BusinessRegistrationTypePage extends QuestionPage[BusinessRegistrati
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "businessRegistrationType"
+
+  private val pagesNotToRemove = Set[Gettable[_]](
+    AreYouUKCompanyPage, BusinessRegistrationTypePage
+  )
 
   override def cleanup(value: Option[BusinessRegistrationType], userAnswers: UserAnswers): Try[UserAnswers] = {
     val result = {
@@ -43,7 +49,7 @@ case object BusinessRegistrationTypePage extends QuestionPage[BusinessRegistrati
               PageConstants.pagesFullJourneyPartnershipNonUK ++
               PageConstants.pagesFullJourneyCompanyUK ++
               PageConstants.pagesFullJourneyCompanyNonUK --
-              Set(AreYouUKCompanyPage, BusinessRegistrationTypePage)
+              pagesNotToRemove
             )
         case _ => userAnswers
       }
