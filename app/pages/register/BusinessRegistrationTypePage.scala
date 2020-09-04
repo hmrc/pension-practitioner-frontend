@@ -27,29 +27,24 @@ import queries.Gettable
 
 import scala.util.Try
 
-case object BusinessRegistrationTypePage extends QuestionPage[BusinessRegistrationType] {
+case object BusinessRegistrationTypePage
+    extends QuestionPage[BusinessRegistrationType] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "businessRegistrationType"
 
-  private val pagesNotToRemove = Set[Gettable[_]](
-    AreYouUKCompanyPage, BusinessRegistrationTypePage
-  )
+  private val pagesNotToRemove =
+    Set[Gettable[_]](AreYouUKCompanyPage, BusinessRegistrationTypePage)
 
-  override def cleanup(value: Option[BusinessRegistrationType], userAnswers: UserAnswers): Try[UserAnswers] = {
+  override def cleanup(value: Option[BusinessRegistrationType],
+                       userAnswers: UserAnswers): Try[UserAnswers] = {
     val result = {
       value match {
         case Some(Company | Partnership) =>
           userAnswers
             .removeAllPages(
-              PageConstants.pagesFullJourneyIndividualUK ++
-              PageConstants.pagesFullJourneyIndividualNonUK ++
-              PageConstants.pagesFullJourneyPartnershipUK ++
-              PageConstants.pagesFullJourneyPartnershipNonUK ++
-              PageConstants.pagesFullJourneyCompanyUK ++
-              PageConstants.pagesFullJourneyCompanyNonUK --
-              pagesNotToRemove
+              PageConstants.pagesFullJourneyAll -- pagesNotToRemove
             )
         case _ => userAnswers
       }

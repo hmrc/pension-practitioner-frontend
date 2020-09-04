@@ -34,18 +34,10 @@ case object WhatTypeBusinessPage extends QuestionPage[WhatTypeBusiness] {
     val result = value match {
       case Some(Yourselfasindividual) =>
         userAnswers
-          .removeAllPages(
-            PageConstants.pagesFullJourneyCompanyUK ++
-              PageConstants.pagesFullJourneyCompanyNonUK ++
-              PageConstants.pagesFullJourneyPartnershipUK ++
-              PageConstants.pagesFullJourneyPartnershipNonUK
-          )
+          .removeAllPages(PageConstants.pagesFullJourneyCompanyAndPartnership)
       case Some(_) =>
         userAnswers
-          .removeAllPages(
-            PageConstants.pagesFullJourneyIndividualUK ++
-              PageConstants.pagesFullJourneyIndividualNonUK
-          )
+          .removeAllPages(PageConstants.pagesFullJourneyIndividual)
       case _ => userAnswers
     }
     super.cleanup(value, result)
