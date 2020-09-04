@@ -89,8 +89,6 @@ class IndividualCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
       val actual = service.individualCya(userAnswers(isUK = true))
       val expected = expectedRows(
         addressRow(controllers.individual.routes.IndividualPostcodeController.onPageLoad(CheckMode).url))
-      println(s"\n\n\n\n ACTUAL $actual")
-      println(s"\n\n\n\n EXPECTED $expected")
       actual mustBe expected
 
     }

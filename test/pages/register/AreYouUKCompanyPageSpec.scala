@@ -32,28 +32,36 @@ class AreYouUKCompanyPageSpec extends PageBehaviours {
     beRemovable[Boolean](AreYouUKCompanyPage)
 
     "must clean up when set to false when have completed an individual UK journey" in {
-      val result = SampleData.userAnswersFullJourneyIndividualUK.setOrException(AreYouUKCompanyPage, false)
+      val result = SampleData.userAnswersFullJourneyIndividualUK
+        .setOrException(AreYouUKCompanyPage, true)
+        .setOrException(AreYouUKCompanyPage, false)
       result.get(WhatTypeBusinessPage).isDefined must be(true)
       result.getOrException(AreYouUKCompanyPage) must be(false)
       areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualUK) must be (true)
     }
 
     "must clean up when set to false when have completed an individual non-UK journey" in {
-      val result = SampleData.userAnswersFullJourneyIndividualNonUK.setOrException(AreYouUKCompanyPage, false)
+      val result = SampleData.userAnswersFullJourneyIndividualNonUK
+        .setOrException(AreYouUKCompanyPage, true)
+        .setOrException(AreYouUKCompanyPage, false)
       result.get(WhatTypeBusinessPage).isDefined must be(true)
       result.getOrException(AreYouUKCompanyPage) must be(false)
       areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualNonUK) must be (true)
     }
 
     "must NOT clean up when set to true when have completed a company UK journey (because value not changed)" in {
-      val result = SampleData.userAnswersFullJourneyCompanyUK.setOrException(AreYouUKCompanyPage, true)
+      val result = SampleData.userAnswersFullJourneyCompanyUK
+        .setOrException(AreYouUKCompanyPage, false)
+        .setOrException(AreYouUKCompanyPage, true)
       result.get(WhatTypeBusinessPage).isDefined must be(true)
       result.getOrException(AreYouUKCompanyPage) must be(true)
       areAllPagesEmpty(result, PageConstants.pagesFullJourneyCompanyUK - AreYouUKCompanyPage) must be (true)
     }
 
     "must NOT clean up when set to true when have completed a partnership UK journey (because value not changed)" in {
-      val result = SampleData.userAnswersFullJourneyPartnershipUK.setOrException(AreYouUKCompanyPage, true)
+      val result = SampleData.userAnswersFullJourneyPartnershipUK
+        .setOrException(AreYouUKCompanyPage, false)
+        .setOrException(AreYouUKCompanyPage, true)
       result.get(WhatTypeBusinessPage).isDefined must be(true)
       result.getOrException(AreYouUKCompanyPage) must be(true)
       areAllPagesEmpty(result, PageConstants.pagesFullJourneyPartnershipUK - AreYouUKCompanyPage) must be (true)

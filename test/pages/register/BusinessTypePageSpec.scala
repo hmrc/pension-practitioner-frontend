@@ -35,13 +35,17 @@ class BusinessTypePageSpec extends PageBehaviours {
     beRemovable[BusinessType](BusinessTypePage)
 
     "must clean up when set to LimitedCompany when have completed an individual UK journey" in {
-      val result = SampleData.userAnswersFullJourneyIndividualUK.setOrException(BusinessTypePage, BusinessType.LimitedCompany)
+      val result = SampleData.userAnswersFullJourneyIndividualUK
+        .setOrException(BusinessTypePage, BusinessType.UnlimitedCompany)
+        .setOrException(BusinessTypePage, BusinessType.LimitedCompany)
       areAllPagesNonEmpty(result, pagesNotToRemove)
       areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualUK) must be (true)
     }
 
     "must clean up when set to LimitedCompany when have completed an individual non UK journey" in {
-      val result = SampleData.userAnswersFullJourneyIndividualNonUK.setOrException(BusinessTypePage, BusinessType.LimitedCompany)
+      val result = SampleData.userAnswersFullJourneyIndividualNonUK
+        .setOrException(BusinessTypePage, BusinessType.UnlimitedCompany)
+        .setOrException(BusinessTypePage, BusinessType.LimitedCompany)
       areAllPagesNonEmpty(result, pagesNotToRemove)
       areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualNonUK) must be (true)
     }
@@ -53,19 +57,24 @@ class BusinessTypePageSpec extends PageBehaviours {
     }
 
     "must clean up when set to LimitedCompany when have completed an partnership non UK journey" in {
-      val result = SampleData.userAnswersFullJourneyPartnershipNonUK.setOrException(BusinessTypePage, BusinessType.LimitedCompany)
+      val result = SampleData.userAnswersFullJourneyPartnershipNonUK
+        .setOrException(BusinessTypePage, BusinessType.UnlimitedCompany)
+        .setOrException(BusinessTypePage, BusinessType.LimitedCompany)
       areAllPagesNonEmpty(result, pagesNotToRemove)
       areAllPagesEmpty(result, PageConstants.pagesFullJourneyPartnershipNonUK) must be (true)
     }
 
     "must clean up when set to LimitedPartnership when have completed an company UK journey" in {
-      val result = SampleData.userAnswersFullJourneyCompanyUK.setOrException(BusinessTypePage, BusinessType.LimitedPartnership)
+      val result = SampleData.userAnswersFullJourneyCompanyUK
+        .setOrException(BusinessTypePage, BusinessType.LimitedPartnership)
       areAllPagesNonEmpty(result, pagesNotToRemove)
       areAllPagesEmpty(result, PageConstants.pagesFullJourneyCompanyUK - BusinessTypePage) must be (true)
     }
 
     "must clean up when set to LimitedPartnership when have completed an company non UK journey" in {
-      val result = SampleData.userAnswersFullJourneyCompanyNonUK.setOrException(BusinessTypePage, BusinessType.LimitedPartnership)
+      val result = SampleData.userAnswersFullJourneyCompanyNonUK
+        .setOrException(BusinessTypePage, BusinessType.BusinessPartnership)
+        .setOrException(BusinessTypePage, BusinessType.LimitedPartnership)
       areAllPagesNonEmpty(result, pagesNotToRemove)
       areAllPagesEmpty(result, PageConstants.pagesFullJourneyCompanyNonUK) must be (true)
     }
