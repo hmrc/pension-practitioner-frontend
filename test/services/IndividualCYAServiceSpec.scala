@@ -86,9 +86,12 @@ class IndividualCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
 
   "individualCya" must {
     "return a list of rows of individual uk cya details" in {
-
-      service.individualCya(userAnswers(isUK = true)) mustBe expectedRows(
+      val actual = service.individualCya(userAnswers(isUK = true))
+      val expected = expectedRows(
         addressRow(controllers.individual.routes.IndividualPostcodeController.onPageLoad(CheckMode).url))
+      println(s"\n\n\n\n ACTUAL $actual")
+      println(s"\n\n\n\n EXPECTED $expected")
+      actual mustBe expected
 
     }
 
