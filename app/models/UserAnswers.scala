@@ -30,7 +30,8 @@ final case class UserAnswers(data: JsObject = Json.obj()) {
 
   def get(path: JsPath)(implicit rds: Reads[JsValue]): Option[JsValue] = Reads.optionNoError(Reads.at(path)).reads(data).getOrElse(None)
 
-  def getOrException[A](page: QuestionPage[A])(implicit rds: Reads[A]): A = get(page).getOrElse(throw new RuntimeException("Expected a value but none found for " + page))
+  def getOrException[A](page: QuestionPage[A])(implicit rds: Reads[A]): A =
+    get(page).getOrElse(throw new RuntimeException("Expected a value but none found for " + page))
 
   def set[A](page: QuestionPage[A], value: A)(implicit writes: Writes[A]): Try[UserAnswers] = {
 
@@ -68,7 +69,7 @@ final case class UserAnswers(data: JsObject = Json.obj()) {
   }
 
 
-  def setOrException[A](page: QuestionPage[A], value: A)(implicit writes: Writes[A], rds: Reads[A]): UserAnswers = {
+  def setOrException[A](page: QuestionPage[A], value: A)(implicit writes: Writes[A]): UserAnswers = {
     set(page, value) match {
       case Success(ua) => ua
       case Failure(ex) => throw ex

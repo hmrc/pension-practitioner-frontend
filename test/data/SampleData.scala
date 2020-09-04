@@ -65,7 +65,7 @@ object SampleData {
     Some("Doe")
   )
 
-  def userAnswersFullJourneyCompanyUK:UserAnswers = {
+  val userAnswersFullJourneyCompanyUK:UserAnswers = {
     UserAnswers()
     .setOrException(WhatTypeBusinessPage, value = Companyorpartnership)
     .setOrException(AreYouUKCompanyPage, true)
@@ -83,7 +83,7 @@ object SampleData {
     .setOrException(pages.company.CompanyPhonePage, "")
   }
 
-  def userAnswersFullJourneyPartnershipUK:UserAnswers = {
+  val userAnswersFullJourneyPartnershipUK:UserAnswers = {
     UserAnswers()
       .setOrException(WhatTypeBusinessPage, value = Companyorpartnership)
       .setOrException(AreYouUKCompanyPage, true)
@@ -101,7 +101,7 @@ object SampleData {
       .setOrException(pages.partnership.PartnershipPhonePage, "")
   }
 
-  def userAnswersFullJourneyCompanyNonUK:UserAnswers = {
+  val userAnswersFullJourneyCompanyNonUK:UserAnswers = {
     UserAnswers()
       .setOrException(WhatTypeBusinessPage, value = Companyorpartnership)
       .setOrException(AreYouUKCompanyPage, false)
@@ -115,7 +115,7 @@ object SampleData {
       .setOrException(pages.company.CompanyPhonePage, "")
   }
 
-  def userAnswersFullJourneyPartnershipNonUK:UserAnswers = {
+  val userAnswersFullJourneyPartnershipNonUK:UserAnswers = {
     UserAnswers()
       .setOrException(WhatTypeBusinessPage, value = Companyorpartnership)
       .setOrException(AreYouUKCompanyPage, false)
@@ -129,7 +129,7 @@ object SampleData {
       .setOrException(pages.partnership.PartnershipPhonePage, "")
   }
 
-  def userAnswersFullJourneyIndividualUK:UserAnswers = {
+  val userAnswersFullJourneyIndividualUK:UserAnswers = {
     UserAnswers()
       .setOrException(WhatTypeBusinessPage, value = Yourselfasindividual)
       .setOrException(AreYouUKResidentPage, true)
@@ -144,7 +144,7 @@ object SampleData {
       .setOrException(pages.individual.IndividualPhonePage, "")
   }
 
-  def userAnswersFullJourneyIndividualNonUK:UserAnswers = {
+  val userAnswersFullJourneyIndividualNonUK:UserAnswers = {
     UserAnswers()
       .setOrException(WhatTypeBusinessPage, value = Yourselfasindividual)
       .setOrException(AreYouUKResidentPage, false)

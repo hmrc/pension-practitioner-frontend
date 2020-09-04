@@ -79,37 +79,41 @@ class UserAnswersSpec extends FreeSpec {
     }
   }
 
-  //scalastyle.off: magic.number
+  //scalastyle.off magic.number
   private val dummyModelA = new DummyModel("", 8, BigDecimal(5.55))
   private val dummyModelB = new DummyModel("", 8, BigDecimal(5.55))
   private val dummyModelC = new DummyModel("", 9, BigDecimal(5.55))
 
+  private val email = "x@x.com"
+  private val stringValue = "aaaa"
+  private val stringValueNew = "bbbbb"
+
   "set with a string value" - {
     "must NOT cleanup relevant previous values when value not changed" in {
-      val ua = UserAnswers().setOrException(DummyStringPage, "hello").setOrException(CompanyEmailPage, "email")
+      val ua = UserAnswers().setOrException(DummyStringPage, stringValue).setOrException(CompanyEmailPage, email)
 
-      val result = ua.set(DummyStringPage, "hello").toOption.get
-      result.get(CompanyEmailPage) shouldBe Some("email")
+      val result = ua.set(DummyStringPage, stringValue).toOption.get
+      result.get(CompanyEmailPage) shouldBe Some(email)
     }
 
     "must cleanup relevant previous values when value changed" in {
-      val ua = UserAnswers().setOrException(DummyStringPage, "hello").setOrException(CompanyEmailPage, "email")
+      val ua = UserAnswers().setOrException(DummyStringPage, stringValue).setOrException(CompanyEmailPage, email)
 
-      val result = ua.set(DummyStringPage, "goodbye").toOption.get
+      val result = ua.set(DummyStringPage, stringValueNew).toOption.get
       result.get(CompanyEmailPage) shouldBe None
     }
   }
 
   "set with a boolean value" - {
     "must NOT cleanup relevant previous values when value not changed" in {
-      val ua = UserAnswers().setOrException(DummyBooleanPage, false).setOrException(CompanyEmailPage, "email")
+      val ua = UserAnswers().setOrException(DummyBooleanPage, false).setOrException(CompanyEmailPage, email)
 
       val result = ua.set(DummyBooleanPage, false).toOption.get
-      result.get(CompanyEmailPage) shouldBe Some("email")
+      result.get(CompanyEmailPage) shouldBe Some(email)
     }
 
     "must cleanup relevant previous values when value changed" in {
-      val ua = UserAnswers().setOrException(DummyBooleanPage, false).setOrException(CompanyEmailPage, "email")
+      val ua = UserAnswers().setOrException(DummyBooleanPage, false).setOrException(CompanyEmailPage, email)
 
       val result = ua.set(DummyBooleanPage, true).toOption.get
       result.get(CompanyEmailPage) shouldBe None
@@ -118,14 +122,14 @@ class UserAnswersSpec extends FreeSpec {
 
   "set with a composite object value" - {
     "must NOT cleanup relevant previous values when value not changed" in {
-      val ua = UserAnswers().setOrException(DummyModelPage, dummyModelA).setOrException(CompanyEmailPage, "email")
+      val ua = UserAnswers().setOrException(DummyModelPage, dummyModelA).setOrException(CompanyEmailPage, email)
 
       val result = ua.set(DummyModelPage, dummyModelB).toOption.get
-      result.get(CompanyEmailPage) shouldBe Some("email")
+      result.get(CompanyEmailPage) shouldBe Some(email)
     }
 
     "must cleanup relevant previous values when value changed" in {
-      val ua = UserAnswers().setOrException(DummyModelPage, dummyModelA).setOrException(CompanyEmailPage, "email")
+      val ua = UserAnswers().setOrException(DummyModelPage, dummyModelA).setOrException(CompanyEmailPage, email)
 
       val result = ua.set(DummyModelPage, dummyModelC).toOption.get
       result.get(CompanyEmailPage) shouldBe None
@@ -135,7 +139,7 @@ class UserAnswersSpec extends FreeSpec {
   "removeAllPages" - {
     "must remove all the pages specified" in {
       val result = UserAnswers()
-        .setOrException(DummyStringPage, "one")
+        .setOrException(DummyStringPage, stringValue)
         .setOrException(DummyBooleanPage, true)
         .setOrException(DummyModelPage, dummyModelA)
         .removeAllPages(Set(DummyStringPage, DummyModelPage))
