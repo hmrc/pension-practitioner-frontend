@@ -33,7 +33,10 @@ class IndividualNavigatorSpec extends NavigatorBehaviour {
 
   private def areYouUKResident(flag: Boolean): UserAnswers = UserAnswers().setOrException(AreYouUKResidentPage, flag)
 
-  private def uaUseAddressForContact(flag: Boolean): UserAnswers = UserAnswers().setOrException(UseAddressForContactPage, flag)
+  private def uaUseAddressForContact(useAddress: Boolean, uk:Boolean): UserAnswers = UserAnswers()
+    .setOrException(AreYouUKResidentPage, uk)
+    .setOrException(UseAddressForContactPage, useAddress)
+
 
   "NormalMode" must {
     def normalModeRoutes: TableFor3[Page, UserAnswers, Call] =
@@ -50,8 +53,12 @@ class IndividualNavigatorSpec extends NavigatorBehaviour {
         row(IsThisYouPage)(controllers.individual.routes.YouNeedToTellHMRCController.onPageLoad(), Some(uaIsThisYou(false))),
         row(IsThisYouPage)(controllers.individual.routes.UseAddressForContactController.onPageLoad(NormalMode), Some(uaIsThisYou(true))),
         row(IsThisYouPage)(controllers.routes.SessionExpiredController.onPageLoad(), None),
-        row(UseAddressForContactPage)(controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode), Some(uaUseAddressForContact(true))),
-        row(UseAddressForContactPage)(controllers.individual.routes.IndividualPostcodeController.onPageLoad(NormalMode), Some(uaUseAddressForContact(false))),
+        row(UseAddressForContactPage)(controllers.individual.routes.IndividualEmailController
+          .onPageLoad(NormalMode), Some(uaUseAddressForContact(useAddress = true, uk = false))),
+        row(UseAddressForContactPage)(controllers.individual.routes.IndividualPostcodeController
+          .onPageLoad(NormalMode), Some(uaUseAddressForContact(useAddress = false, uk = true))),
+        row(UseAddressForContactPage)(controllers.individual.routes.IndividualAddressController
+          .onPageLoad(NormalMode), Some(uaUseAddressForContact(useAddress = false, uk = false))),
         row(UseAddressForContactPage)(controllers.routes.SessionExpiredController.onPageLoad(), None),
         row(IndividualPostcodePage)(controllers.individual.routes.IndividualAddressListController.onPageLoad(NormalMode)),
         row(IndividualAddressListPage)(controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)),
