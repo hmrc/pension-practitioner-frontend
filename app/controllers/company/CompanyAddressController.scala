@@ -67,16 +67,21 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
       implicit request =>
         (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map { retrievedData =>
           val json = retrievedData match {
-          case true ~ companyName =>
-              commonJson(mode, companyName) ++
-                Json.obj("form" -> request.userAnswers.get(CompanyAddressPage).fold(form)(form.fill))
-          case false ~ companyName =>
-              val filledForm = request.userAnswers.get(CompanyAddressPage).fold(form)(form.fill)
+          case areYouUKCompany ~ companyName =>
+            val extraJson = if (areYouUKCompany) {
+              Json.obj("postcodeFirst" -> true)
+            } else {
+              Json.obj()
+            }
+
+
+
+            val filledForm = request.userAnswers.get(CompanyAddressPage).fold(form)(form.fill)
               commonJson(mode, companyName) ++
                 Json.obj(
                   "form" -> filledForm,
                   "countries" -> jsonCountries(filledForm.data.get("country"), config)(request2Messages)
-                )
+                ) ++ extraJson
           }
           renderer.render(viewTemplate, json).map(Ok(_))
         }
@@ -86,11 +91,16 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
     (identify andThen getData andThen requireData).async {
       implicit request =>
         (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map { retrievedData =>
-          form.bind(retrieveFieldsFromRequestAndAddCountryForUK).fold(
+          form.bindFromRequest().fold(
+          //form.bind(retrieveFieldsFromRequestAndAddCountryForUK).fold(
             formWithErrors => {
               val json = retrievedData match {
                 case true ~ companyName =>
-                  commonJson(mode, companyName) ++ Json.obj("form" -> formWithErrors)
+                  commonJson(mode, companyName) ++ Json.obj(
+                    "form" -> formWithErrors,
+                    "postcodeFirst" -> true,
+                    "countries" -> jsonCountries(formWithErrors.data.get("country"), config)(request2Messages)
+                  )
                 case false ~ companyName =>
                   commonJson(mode, companyName) ++
                     Json.obj(

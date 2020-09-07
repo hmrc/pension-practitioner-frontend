@@ -89,39 +89,60 @@
             errorMessage: form.line4.error
           }) }}
 
+         {% if postcodeEntry %}
+             {% if postcodeFirst %}
+                  {{ govukInput({
+                      label: {
+                        text: messages('address.postcode'),
+                        isPageHeading: false,
+                        classes: "govuk-label--s"
+                      },
+                      id: "postcode",
+                      name: "postcode",
+                      value: form.postcode.value,
+                      classes: "govuk-input--width-10",
+                      attributes: {autocomplete: "none"},
+                      errorMessage: form.postcode.error
+                  }) }}
+             {% endif %}
+         {% endif %}
+
          {% if countries %}
               <div class="govuk-form-group autocomplete-wrapper govuk-body govuk-input--width-20">
-                      {{ govukSelect({
-                        label: {
-                            text: messages('address.country'),
-                            classes: "govuk-label--s"
-                        },
-                        id: "country",
-                        classes: "autoComplete",
-                        name: "country",
-                        items: countries,
-                        errorMessage: form.country.error,
-                        attributes: {
-                            value: form.country.value
-                        }
-                      }) }}
+                  {{ govukSelect({
+                    label: {
+                        text: messages('address.country'),
+                        classes: "govuk-label--s"
+                    },
+                    id: "country",
+                    classes: "autocomplete",
+                    name: "country",
+                    items: countries,
+                    errorMessage: form.country.error,
+                    attributes: {
+                        value: form.country.value
+                    }
+                  }) }}
               </div>
           {% endif %}
 
           {% if postcodeEntry %}
-              {{ govukInput({
-                  label: {
-                    text: messages('address.postcode'),
-                    isPageHeading: false,
-                    classes: "govuk-label--s"
-                  },
-                  id: "postcode",
-                  name: "postcode",
-                  value: form.postcode.value,
-                  classes: "govuk-input--width-10",
-                  attributes: {autocomplete: "none"},
-                  errorMessage: form.postcode.error
-              }) }}
+             {% if postcodeFirst %}
+             {% else %}
+                  {{ govukInput({
+                      label: {
+                        text: messages('address.postcode'),
+                        isPageHeading: false,
+                        classes: "govuk-label--s"
+                      },
+                      id: "postcode",
+                      name: "postcode",
+                      value: form.postcode.value,
+                      classes: "govuk-input--width-10",
+                      attributes: {autocomplete: "none"},
+                      errorMessage: form.postcode.error
+                  }) }}
+             {% endif %}
           {% endif %}
 
 

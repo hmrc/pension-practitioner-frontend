@@ -87,6 +87,8 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
               renderer.render(viewTemplate, json).map(BadRequest(_))
             },
             value => {
+              println( "\n<<<<" + request.body)
+              println( "\n>>>>" + value)
               val updatedUA = request.userAnswers.setOrException(CompanyRegisteredAddressPage, value)
               val nextPage = navigator.nextPage(CompanyRegisteredAddressPage, mode, updatedUA)
               val futureUA =
