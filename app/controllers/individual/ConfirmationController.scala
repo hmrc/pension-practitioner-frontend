@@ -16,9 +16,11 @@
 
 package controllers.individual
 
+import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import javax.inject.Inject
+import pages.PspIdPage
 import pages.individual.IndividualEmailPage
 import play.api.i18n.I18nSupport
 import play.api.i18n.Messages
@@ -37,25 +39,27 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
+                                       userAnswersCacheConnector: UserAnswersCacheConnector,
                                        identify: IdentifierAction,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        renderer: Renderer
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController
-  with Retrievals with I18nSupport with NunjucksSupport {
+                                        with Retrievals with I18nSupport with NunjucksSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      request.userAnswers.get(IndividualEmailPage) match {
-        case Some(email) =>
+      (PspIdPage and IndividualEmailPage).retrieve.right.map {
+        case pspId ~ email =>
           val json: JsObject = Json.obj(
-            "panelHtml" -> confirmationPanelText("1234567890").toString(),
+            "panelHtml" -> confirmationPanelText(pspId).toString(),
             "email" -> email,
             "submitUrl" -> controllers.routes.SignOutController.signOut().url
           )
-
+        userAnswersCacheConnector.removeAll.flatMap { _ =>
           renderer.render("individual/confirmation.njk", json).map(Ok(_))
+        }
         case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
       }
   }
