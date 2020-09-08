@@ -57,7 +57,7 @@ class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
       implicit request =>
         val formFilled = request.userAnswers.get(CompanyEmailPage).fold(form)(form.fill)
         getJson(mode, formFilled) { json =>
-          renderer.render("register/email.njk", json).map(Ok(_))
+          renderer.render("email.njk", json).map(Ok(_))
         }
     }
 
@@ -67,7 +67,7 @@ class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
         form.bindFromRequest().fold(
           formWithErrors =>
             getJson(mode, formWithErrors) { json =>
-              renderer.render("register/email.njk", json).map(BadRequest(_))
+              renderer.render("email.njk", json).map(BadRequest(_))
             },
           value =>
             for {
