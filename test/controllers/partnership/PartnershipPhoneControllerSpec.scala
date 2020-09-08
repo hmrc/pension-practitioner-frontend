@@ -45,7 +45,7 @@ class PartnershipPhoneControllerSpec extends ControllerSpecBase with MockitoSuga
   private val PartnershipName: String = "Partnership name"
   private val application: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
-  private val templateToBeRendered = "register/phone.njk"
+  private val templateToBeRendered = "phone.njk"
   private val form = new PhoneFormProvider()(messages("phone.error.required", messages("Partnership")))
   private val phone = "11111111"
   private val dummyCall: Call = Call("GET", "/foo")

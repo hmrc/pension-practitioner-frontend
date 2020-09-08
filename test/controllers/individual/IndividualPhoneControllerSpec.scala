@@ -43,7 +43,7 @@ class IndividualPhoneControllerSpec extends ControllerSpecBase with MockitoSugar
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val application: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
-  private val templateToBeRendered = "individual/phone.njk"
+  private val templateToBeRendered = "phone.njk"
   private val form = new PhoneFormProvider()(messages("individual.phone.error.required"))
   private val phone = "11111111"
   private val dummyCall: Call = Call("GET", "/foo")
