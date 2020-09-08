@@ -19,7 +19,7 @@ package controllers.partnership
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
-import forms.PhoneFormProvider
+import forms.register.PhoneFormProvider
 import javax.inject.Inject
 import models.Mode
 import models.requests.DataRequest

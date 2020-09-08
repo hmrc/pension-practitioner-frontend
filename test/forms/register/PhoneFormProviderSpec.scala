@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package forms
+package forms.register
 
 import forms.behaviours.StringFieldBehaviours
 import forms.mappings.Constraints

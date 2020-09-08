@@ -19,7 +19,7 @@ package controllers.company
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
-import forms.EmailFormProvider
+import forms.register.EmailFormProvider
 import javax.inject.Inject
 import models.Mode
 import models.requests.DataRequest

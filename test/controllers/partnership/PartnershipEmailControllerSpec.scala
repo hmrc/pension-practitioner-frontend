@@ -18,7 +18,7 @@ package controllers.partnership
 
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
-import forms.EmailFormProvider
+import forms.register.EmailFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
 import org.mockito.Matchers.any
