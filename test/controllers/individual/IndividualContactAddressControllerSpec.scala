@@ -40,7 +40,7 @@ import utils.countryOptions.CountryOptions
 
 import scala.concurrent.Future
 
-class IndividualAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class IndividualContactAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
                                 with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
@@ -54,8 +54,8 @@ class IndividualAddressControllerSpec extends ControllerSpecBase with MockitoSug
   private val templateToBeRendered = "individual/manualAddress.njk"
   private val form = new AddressFormProvider(countryOptions)()
 
-  private def onPageLoadUrl: String = routes.IndividualAddressController.onPageLoad(NormalMode).url
-  private def submitUrl: String = routes.IndividualAddressController.onSubmit(NormalMode).url
+  private def onPageLoadUrl: String = routes.IndividualContactAddressController.onPageLoad(NormalMode).url
+  private def submitUrl: String = routes.IndividualContactAddressController.onSubmit(NormalMode).url
   private val dummyCall: Call = Call("GET", "/foo")
   private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("ZZ1 1ZZ"), "UK")
 

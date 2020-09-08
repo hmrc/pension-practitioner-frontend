@@ -77,7 +77,7 @@ class IndividualAddressListController @Inject()(override val messagesApi: Messag
               "form" -> form,
               "addresses" -> transformAddressesForTemplate(addresses, countryOptions),
               "submitUrl" -> routes.IndividualAddressListController.onSubmit(mode).url,
-              "enterManuallyUrl" -> routes.IndividualAddressController.onSubmit(mode).url
+              "enterManuallyUrl" -> routes.IndividualContactAddressController.onSubmit(mode).url
             )
         }
     )

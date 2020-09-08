@@ -38,10 +38,10 @@ POST       /addresses/address-results-individual             controllers.individ
 GET        /addresses/change-address-results-individual      controllers.individual.IndividualAddressListController.onPageLoad(mode: Mode = CheckMode)
 POST       /addresses/change-address-results-individual      controllers.individual.IndividualAddressListController.onSubmit(mode: Mode = CheckMode)
 
-GET        /addresses/address-manual-individual             controllers.individual.IndividualAddressController.onPageLoad(mode: Mode = NormalMode)
-POST       /addresses/address-manual-individual             controllers.individual.IndividualAddressController.onSubmit(mode: Mode = NormalMode)
-GET        /addresses/change-address-manual-individual      controllers.individual.IndividualAddressController.onPageLoad(mode: Mode = CheckMode)
-POST       /addresses/change-address-manual-individual      controllers.individual.IndividualAddressController.onSubmit(mode: Mode = CheckMode)
+GET        /addresses/address-manual-individual             controllers.individual.IndividualContactAddressController.onPageLoad(mode: Mode = NormalMode)
+POST       /addresses/address-manual-individual             controllers.individual.IndividualContactAddressController.onSubmit(mode: Mode = NormalMode)
+GET        /addresses/change-address-manual-individual      controllers.individual.IndividualContactAddressController.onPageLoad(mode: Mode = CheckMode)
+POST       /addresses/change-address-manual-individual      controllers.individual.IndividualContactAddressController.onSubmit(mode: Mode = CheckMode)
 
 GET        /check-your-answers-individual                        controllers.individual.CheckYourAnswersController.onPageLoad
 

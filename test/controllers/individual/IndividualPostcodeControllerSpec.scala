@@ -59,7 +59,7 @@ class IndividualPostcodeControllerSpec extends ControllerSpecBase with MockitoSu
 
   private def onPageLoadUrl: String = routes.IndividualPostcodeController.onPageLoad(NormalMode).url
 
-  private def enterManuallyUrl: Call = routes.IndividualAddressController.onPageLoad(NormalMode)
+  private def enterManuallyUrl: Call = routes.IndividualContactAddressController.onPageLoad(NormalMode)
 
   private def submitUrl: String = routes.IndividualPostcodeController.onSubmit(NormalMode).url
 

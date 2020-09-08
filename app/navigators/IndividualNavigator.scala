@@ -48,7 +48,7 @@ class IndividualNavigator @Inject()(countryOptions: CountryOptions) extends Navi
       (ua.get(AreYouUKResidentPage), ua.get(UseAddressForContactPage)) match {
         case (_, Some(true)) => IndividualEmailController.onPageLoad(NormalMode)
         case (Some(true), Some(false)) => IndividualPostcodeController.onPageLoad(NormalMode)
-        case (Some(false), Some(false)) => IndividualAddressController.onPageLoad(NormalMode)
+        case (Some(false), Some(false)) => IndividualContactAddressController.onPageLoad(NormalMode)
         case _ => controllers.routes.SessionExpiredController.onPageLoad()
       }
     case IndividualPostcodePage => IndividualAddressListController.onPageLoad(NormalMode)

@@ -57,7 +57,7 @@ class IndividualNavigatorSpec extends NavigatorBehaviour {
           .onPageLoad(NormalMode), Some(uaUseAddressForContact(useAddress = true, uk = false))),
         row(UseAddressForContactPage)(controllers.individual.routes.IndividualPostcodeController
           .onPageLoad(NormalMode), Some(uaUseAddressForContact(useAddress = false, uk = true))),
-        row(UseAddressForContactPage)(controllers.individual.routes.IndividualAddressController
+        row(UseAddressForContactPage)(controllers.individual.routes.IndividualContactAddressController
           .onPageLoad(NormalMode), Some(uaUseAddressForContact(useAddress = false, uk = false))),
         row(UseAddressForContactPage)(controllers.routes.SessionExpiredController.onPageLoad(), None),
         row(IndividualPostcodePage)(controllers.individual.routes.IndividualAddressListController.onPageLoad(NormalMode)),

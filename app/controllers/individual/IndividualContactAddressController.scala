@@ -50,7 +50,7 @@ import pages.individual.IndividualManualAddressPage
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 
 
-class IndividualAddressController @Inject()(
+class IndividualContactAddressController @Inject()(
   override val messagesApi: MessagesApi,
   val userAnswersCacheConnector: UserAnswersCacheConnector,
   val navigator: CompoundNavigator,
@@ -130,7 +130,7 @@ class IndividualAddressController @Inject()(
     val h1 = messages("individual.address.title")
 
     Json.obj(
-      "submitUrl" -> routes.IndividualAddressController.onSubmit(mode).url,
+      "submitUrl" -> routes.IndividualContactAddressController.onSubmit(mode).url,
       "postcodeEntry" -> true,
       "form" -> form,
       "countries" -> jsonCountries(form.data.get("country"), config)(messages),
