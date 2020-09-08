@@ -36,6 +36,7 @@ import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
+import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
@@ -68,8 +69,7 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
       implicit request =>
         BusinessNamePage.retrieve.right.map { companyName =>
           val filledForm = request.userAnswers.get(PartnershipRegisteredAddressPage).fold(form)(form.fill)
-          val json = commonJson(companyName, mode, filledForm.data.get("country")) ++
-            Json.obj("form" -> filledForm)
+          val json = commonJson( mode, companyName, filledForm)
           renderer.render(viewTemplate, json).map(Ok(_))
         }
     }
@@ -80,8 +80,7 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
         BusinessNamePage.retrieve.right.map { companyName =>
           form.bindFromRequest().fold(
             formWithErrors => {
-              val json = commonJson(companyName, mode, formWithErrors.data.get("country")) ++
-                Json.obj("form" -> formWithErrors)
+              val json = commonJson(mode, companyName, formWithErrors)
               renderer.render(viewTemplate, json).map(BadRequest(_))
             },
             value => {
@@ -103,13 +102,22 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
         }
     }
 
-  private def commonJson(companyName: String, mode: Mode, country:Option[String])(implicit request: DataRequest[AnyContent]) = {
+  private def commonJson(
+    mode: Mode,
+    companyName: String,
+    form: Form[Address]
+  )(implicit request: DataRequest[AnyContent]): JsObject = {
+    val messages = request2Messages
+
+    val pageTitle = messages("address.title", companyName)
+    val h1 = messages("address.title", companyName)
+
     Json.obj(
-      "viewmodel" -> CommonViewModel(
-        "partnership",
-        companyName,
-        routes.PartnershipEnterRegisteredAddressController.onSubmit(mode).url),
-      "countries" -> jsonCountries(country, config)(request2Messages)
+      "submitUrl" -> routes.PartnershipEnterRegisteredAddressController.onSubmit(mode).url,
+      "form" -> form,
+      "countries" -> jsonCountries(form.data.get("country"), config)(messages),
+      "pageTitle" -> pageTitle,
+      "h1" -> h1
     )
   }
 }

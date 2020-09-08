@@ -44,7 +44,6 @@ import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import viewmodels.CommonViewModel
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -70,8 +69,7 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
       implicit request =>
         BusinessNamePage.retrieve.right.map { companyName =>
             val filledForm = request.userAnswers.get(CompanyRegisteredAddressPage).fold(form)(form.fill)
-            val json = commonJson(companyName, mode, filledForm.data.get("country")) ++
-              Json.obj("form" -> filledForm)
+            val json = commonJson( mode, companyName, filledForm)
           renderer.render(viewTemplate, json).map(Ok(_))
         }
     }
@@ -82,13 +80,10 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
         BusinessNamePage.retrieve.right.map { companyName =>
           form.bindFromRequest().fold(
             formWithErrors => {
-              val json = commonJson(companyName, mode, formWithErrors.data.get("country")) ++
-                Json.obj("form" -> formWithErrors)
+              val json = commonJson(mode, companyName, formWithErrors)
               renderer.render(viewTemplate, json).map(BadRequest(_))
             },
             value => {
-              println( "\n<<<<" + request.body)
-              println( "\n>>>>" + value)
               val updatedUA = request.userAnswers.setOrException(CompanyRegisteredAddressPage, value)
               val nextPage = navigator.nextPage(CompanyRegisteredAddressPage, mode, updatedUA)
               val futureUA =
@@ -107,13 +102,22 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
         }
     }
 
-  private def commonJson(companyName: String, mode: Mode, country:Option[String])(implicit request: DataRequest[AnyContent]) = {
+  private def commonJson(
+    mode: Mode,
+    companyName: String,
+    form: Form[Address]
+  )(implicit request: DataRequest[AnyContent]): JsObject = {
+    val messages = request2Messages
+
+    val pageTitle = messages("address.title", companyName)
+    val h1 = messages("address.title", companyName)
+
     Json.obj(
-      "viewmodel" -> CommonViewModel(
-        "company",
-        companyName,
-        routes.CompanyEnterRegisteredAddressController.onSubmit(mode).url),
-      "countries" -> jsonCountries(country, config)(request2Messages)
+      "submitUrl" -> routes.CompanyEnterRegisteredAddressController.onSubmit(mode).url,
+      "form" -> form,
+      "countries" -> jsonCountries(form.data.get("country"), config)(messages),
+      "pageTitle" -> pageTitle,
+      "h1" -> h1
     )
   }
 }
