@@ -46,15 +46,6 @@ trait ManualAddressController extends FrontendBaseController with Retrievals {
 
   protected def viewTemplate = "address/manualAddress.njk"
 
-  protected def retrieveFieldsFromRequestAndAddCountryForUK(implicit request: DataRequest[AnyContent]):Map[String, String] = {
-    val postedFields = request.body.asFormUrlEncoded.fold(Map[String, Seq[String]]())(identity)
-      .map(field => (field._1, field._2.headOption.getOrElse("")))
-    request.userAnswers.get(AreYouUKCompanyPage) match {
-      case Some(true) => postedFields ++ Map("country" -> "GB")
-      case _ => postedFields
-    }
-  }
-
   def get(json: Form[Address] => JsObject)
          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
     renderer.render(viewTemplate, json(form)).map(Ok(_))

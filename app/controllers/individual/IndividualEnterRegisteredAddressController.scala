@@ -39,7 +39,7 @@ import utils.countryOptions.CountryOptions
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class IndividualNonUKAddressController @Inject()(override val messagesApi: MessagesApi,
+class IndividualEnterRegisteredAddressController @Inject()(override val messagesApi: MessagesApi,
                                                  val userAnswersCacheConnector: UserAnswersCacheConnector,
                                                  val navigator: CompoundNavigator,
                                                  identify: IdentifierAction,
@@ -82,7 +82,7 @@ class IndividualNonUKAddressController @Inject()(override val messagesApi: Messa
     form =>
       Json.obj(
         "form" -> form,
-        "submitUrl" -> routes.IndividualNonUKAddressController.onSubmit(mode).url,
+        "submitUrl" -> routes.IndividualEnterRegisteredAddressController.onSubmit(mode).url,
         "countries" -> jsonCountries(form.data.get("country"), config)(request2Messages)
       )
   }

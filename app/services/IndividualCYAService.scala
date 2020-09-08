@@ -62,7 +62,7 @@ class IndividualCYAService extends CYAService {
             if (areYouUKResident) {
               controllers.individual.routes.IndividualPostcodeController.onPageLoad(CheckMode).url
             } else {
-              controllers.individual.routes.IndividualNonUKAddressController.onPageLoad(CheckMode).url
+              controllers.individual.routes.IndividualContactAddressController.onPageLoad(CheckMode).url
             },
           visuallyHiddenText = Some(msg"cya.change.address")
         )

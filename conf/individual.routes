@@ -53,10 +53,10 @@ GET        /registration-successful                         controllers.individu
 GET        /what-is-your-name                      controllers.individual.IndividualNameController.onPageLoad(mode: Mode = NormalMode)
 POST       /what-is-your-name                      controllers.individual.IndividualNameController.onSubmit(mode: Mode = NormalMode)
 
-GET         /address-manual                         controllers.individual.IndividualNonUKAddressController.onPageLoad(mode: Mode = NormalMode)
-POST        /address-manual                         controllers.individual.IndividualNonUKAddressController.onSubmit(mode: Mode = NormalMode)
-GET         /change-address-manual                  controllers.individual.IndividualNonUKAddressController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-address-manual                  controllers.individual.IndividualNonUKAddressController.onSubmit(mode: Mode = CheckMode)
+GET         /address-manual                         controllers.individual.IndividualEnterRegisteredAddressController.onPageLoad(mode: Mode = NormalMode)
+POST        /address-manual                         controllers.individual.IndividualEnterRegisteredAddressController.onSubmit(mode: Mode = NormalMode)
+GET         /change-address-manual                  controllers.individual.IndividualEnterRegisteredAddressController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-address-manual                  controllers.individual.IndividualEnterRegisteredAddressController.onSubmit(mode: Mode = CheckMode)
 
 GET         /outside-eu-eea                         controllers.individual.OutsideEuEeaController.onPageLoad()
 

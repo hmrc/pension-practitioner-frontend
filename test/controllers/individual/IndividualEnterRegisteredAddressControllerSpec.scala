@@ -42,7 +42,7 @@ import utils.countryOptions.CountryOptions
 
 import scala.concurrent.Future
 
-class IndividualNonUKAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class IndividualEnterRegisteredAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
@@ -69,9 +69,9 @@ class IndividualNonUKAddressControllerSpec extends ControllerSpecBase with Mocki
   private val templateToBeRendered = "individual/nonUKAddress.njk"
   private val form = new NonUKAddressFormProvider(countryOptions)()
 
-  private def onPageLoadUrl: String = routes.IndividualNonUKAddressController.onPageLoad(NormalMode).url
+  private def onPageLoadUrl: String = routes.IndividualEnterRegisteredAddressController.onPageLoad(NormalMode).url
 
-  private def submitUrl: String = routes.IndividualNonUKAddressController.onSubmit(NormalMode).url
+  private def submitUrl: String = routes.IndividualEnterRegisteredAddressController.onSubmit(NormalMode).url
 
   private val dummyCall: Call = Call("GET", "/foo")
   private val address: TolerantAddress = TolerantAddress(Some("line1"), Some("line2"), Some("line3"), Some("line4"), None, Some("IN"))

@@ -94,7 +94,7 @@ class IndividualCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
 
     "return a list of rows of individual non uk cya details" in {
       service.individualCya(userAnswers(isUK = false)) mustBe expectedRows(addressRow(
-        controllers.individual.routes.IndividualNonUKAddressController.onPageLoad(CheckMode).url))
+        controllers.individual.routes.IndividualEnterRegisteredAddressController.onPageLoad(CheckMode).url))
 
     }
   }
