@@ -17,8 +17,10 @@
 package pages.individual
 
 import models.UserAnswers
-import pages.{QuestionPage, RegistrationInfoPage}
+import pages.PageConstants
+import pages.QuestionPage
 import play.api.libs.json.JsPath
+import queries.Gettable
 
 import scala.util.Try
 
@@ -28,32 +30,26 @@ case object AreYouUKResidentPage extends QuestionPage[Boolean] {
 
   override def toString: String = "areYouUKResident"
 
-  override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] = {
+  private val pagesNotToRemove = Set[Gettable[_]](
+    AreYouUKResidentPage
+  )
+
+    override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] = {
     val result = value match {
       case Some(false) =>
         userAnswers
-          .remove(IndividualDetailsPage).toOption.getOrElse(userAnswers)
-          .remove(IndividualAddressPage).toOption.getOrElse(userAnswers)
-          .remove(RegistrationInfoPage).toOption.getOrElse(userAnswers)
-          .remove(IndividualPostcodePage).toOption.getOrElse(userAnswers)
-          .remove(IndividualAddressListPage).toOption.getOrElse(userAnswers)
-          .remove(IndividualManualAddressPage).toOption.getOrElse(userAnswers)
-          .remove(IndividualEmailPage).toOption.getOrElse(userAnswers)
-          .remove(IsThisYouPage).toOption.getOrElse(userAnswers)
-          .remove(UseAddressForContactPage).toOption.getOrElse(userAnswers)
-          .remove(IndividualPhonePage).toOption
+          .removeAllPages(
+            PageConstants.pagesFullJourneyIndividualUK -- pagesNotToRemove
+          )
+
       case Some(true) =>
         userAnswers
-          .remove(IndividualDetailsPage).toOption.getOrElse(userAnswers)
-          .remove(IndividualAddressPage).toOption.getOrElse(userAnswers)
-          .remove(RegistrationInfoPage).toOption.getOrElse(userAnswers)
-          .remove(IndividualManualAddressPage).toOption.getOrElse(userAnswers)
-          .remove(IndividualEmailPage).toOption.getOrElse(userAnswers)
-          .remove(IsThisYouPage).toOption.getOrElse(userAnswers)
-          .remove(UseAddressForContactPage).toOption.getOrElse(userAnswers)
-          .remove(IndividualPhonePage).toOption
-      case _ => None
+          .removeAllPages(
+            PageConstants.pagesFullJourneyIndividualNonUK -- pagesNotToRemove
+          )
+
+      case _ => userAnswers
     }
-    super.cleanup(value, result.getOrElse(userAnswers))
+    super.cleanup(value, result)
   }
 }

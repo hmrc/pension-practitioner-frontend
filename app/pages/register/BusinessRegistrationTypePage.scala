@@ -16,13 +16,39 @@
 
 package pages.register
 
+import models.UserAnswers
 import models.register.BusinessRegistrationType
+import models.register.BusinessRegistrationType.Company
+import models.register.BusinessRegistrationType.Partnership
+import pages.PageConstants
 import pages.QuestionPage
 import play.api.libs.json.JsPath
+import queries.Gettable
 
-case object BusinessRegistrationTypePage extends QuestionPage[BusinessRegistrationType] {
+import scala.util.Try
+
+case object BusinessRegistrationTypePage
+    extends QuestionPage[BusinessRegistrationType] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "businessRegistrationType"
+
+  private val pagesNotToRemove =
+    Set[Gettable[_]](AreYouUKCompanyPage, BusinessRegistrationTypePage)
+
+  override def cleanup(value: Option[BusinessRegistrationType],
+                       userAnswers: UserAnswers): Try[UserAnswers] = {
+    val result = {
+      value match {
+        case Some(Company | Partnership) =>
+          userAnswers
+            .removeAllPages(
+              PageConstants.pagesFullJourneyAll -- pagesNotToRemove
+            )
+        case _ => userAnswers
+      }
+    }
+    super.cleanup(value, result)
+  }
 }

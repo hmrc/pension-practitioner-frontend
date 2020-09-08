@@ -16,15 +16,15 @@
 
 package pages.register
 
-import models.{TolerantAddress, UserAnswers}
+import data.SampleData
 import models.register._
-import pages.RegistrationInfoPage
+import pages.PageConstants
+import pages.WhatTypeBusinessPage
 import pages.behaviours.PageBehaviours
-import pages.company.{BusinessNamePage => CompanyNamePage, BusinessUTRPage => CompanyUTRPage, ConfirmAddressPage => ConfirmCompanyAddressPage, ConfirmNamePage => ConfirmCompanyNamePage}
-import pages.partnership.{BusinessNamePage => PartnershipNamePage, BusinessUTRPage => PartnershipUTRPage, ConfirmAddressPage => ConfirmPartnershipAddressPage, ConfirmNamePage => ConfirmPartnershipNamePage}
+import queries.Gettable
 
 class BusinessTypePageSpec extends PageBehaviours {
-  private val tolerantAddress = TolerantAddress(Some("line1"), Some("line2"), Some("line3"), Some("line4"), Some("post code"), Some("GB"))
+  private val pagesNotToRemove = Set[Gettable[_]](WhatTypeBusinessPage, AreYouUKCompanyPage, BusinessTypePage)
 
   "BusinessTypePage" - {
 
@@ -34,44 +34,49 @@ class BusinessTypePageSpec extends PageBehaviours {
 
     beRemovable[BusinessType](BusinessTypePage)
 
-    "when selected as company" - {
-      "must clean up the data for all the partnership" in {
-        val ua: UserAnswers = UserAnswers().setOrException(BusinessTypePage, value = BusinessType.LimitedPartnership).
-          setOrException(PartnershipNamePage, "test-partnership").
-          setOrException(PartnershipUTRPage, "1234").
-          setOrException(ConfirmPartnershipNamePage, true).
-          setOrException(ConfirmPartnershipAddressPage, tolerantAddress).
-          setOrException(RegistrationInfoPage, RegistrationInfo(RegistrationLegalStatus.Individual, "",
-            noIdentifier = false, RegistrationCustomerType.UK,None, None
-          ))
-        val result = ua.set(BusinessTypePage, BusinessType.LimitedCompany).getOrElse(UserAnswers())
-
-        result.get(PartnershipNamePage) mustNot be(defined)
-        result.get(PartnershipUTRPage) mustNot be(defined)
-        result.get(ConfirmPartnershipNamePage) mustNot be(defined)
-        result.get(ConfirmPartnershipAddressPage) mustNot be(defined)
-        result.get(RegistrationInfoPage) mustNot be(defined)
-      }
+    "must clean up when set to LimitedCompany when have completed an individual UK journey" in {
+      val result = SampleData.userAnswersFullJourneyIndividualUK
+        .setOrException(BusinessTypePage, BusinessType.UnlimitedCompany)
+        .setOrException(BusinessTypePage, BusinessType.LimitedCompany)
+      areAllPagesNonEmpty(result, pagesNotToRemove)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualUK -- pagesNotToRemove) must be (true)
     }
 
-    "when selected as partnership" - {
-      "must clean up the data for all the company" in {
-        val ua: UserAnswers = UserAnswers().setOrException(BusinessTypePage, value = BusinessType.LimitedCompany).
-          setOrException(CompanyNamePage, "test-partnership").
-          setOrException(CompanyUTRPage, "1234").
-          setOrException(ConfirmCompanyNamePage, true).
-          setOrException(ConfirmCompanyAddressPage, tolerantAddress).
-          setOrException(RegistrationInfoPage, RegistrationInfo(RegistrationLegalStatus.Individual, "",
-            noIdentifier = false, RegistrationCustomerType.UK, None, None
-          ))
-        val result = ua.set(BusinessTypePage, BusinessType.LimitedPartnership).getOrElse(UserAnswers())
+    "must clean up when set to LimitedCompany when have completed an individual non UK journey" in {
+      val result = SampleData.userAnswersFullJourneyIndividualNonUK
+        .setOrException(BusinessTypePage, BusinessType.UnlimitedCompany)
+        .setOrException(BusinessTypePage, BusinessType.LimitedCompany)
+      areAllPagesNonEmpty(result, pagesNotToRemove)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyIndividualNonUK -- pagesNotToRemove) must be (true)
+    }
 
-        result.get(CompanyNamePage) mustNot be(defined)
-        result.get(CompanyUTRPage) mustNot be(defined)
-        result.get(ConfirmCompanyNamePage) mustNot be(defined)
-        result.get(ConfirmCompanyAddressPage) mustNot be(defined)
-        result.get(RegistrationInfoPage) mustNot be(defined)
-      }
+    "must clean up when set to LimitedCompany when have completed an partnership UK journey" in {
+      val result = SampleData.userAnswersFullJourneyPartnershipUK.setOrException(BusinessTypePage, BusinessType.LimitedCompany)
+      areAllPagesNonEmpty(result, pagesNotToRemove)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyPartnershipUK -- pagesNotToRemove) must be (true)
+    }
+
+    "must clean up when set to LimitedCompany when have completed an partnership non UK journey" in {
+      val result = SampleData.userAnswersFullJourneyPartnershipNonUK
+        .setOrException(BusinessTypePage, BusinessType.UnlimitedCompany)
+        .setOrException(BusinessTypePage, BusinessType.LimitedCompany)
+      areAllPagesNonEmpty(result, pagesNotToRemove)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyPartnershipNonUK -- pagesNotToRemove) must be (true)
+    }
+
+    "must clean up when set to LimitedPartnership when have completed an company UK journey" in {
+      val result = SampleData.userAnswersFullJourneyCompanyUK
+        .setOrException(BusinessTypePage, BusinessType.LimitedPartnership)
+      areAllPagesNonEmpty(result, pagesNotToRemove)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyCompanyUK -- pagesNotToRemove) must be (true)
+    }
+
+    "must clean up when set to LimitedPartnership when have completed an company non UK journey" in {
+      val result = SampleData.userAnswersFullJourneyCompanyNonUK
+        .setOrException(BusinessTypePage, BusinessType.BusinessPartnership)
+        .setOrException(BusinessTypePage, BusinessType.LimitedPartnership)
+      areAllPagesNonEmpty(result, pagesNotToRemove)
+      areAllPagesEmpty(result, PageConstants.pagesFullJourneyCompanyNonUK -- pagesNotToRemove) must be (true)
     }
   }
 }
