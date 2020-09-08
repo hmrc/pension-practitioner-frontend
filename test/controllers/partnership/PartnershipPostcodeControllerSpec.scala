@@ -62,7 +62,7 @@ class PartnershipPostcodeControllerSpec extends ControllerSpecBase with MockitoS
   val userAnswers: UserAnswers = UserAnswers().set(BusinessNamePage, partnershipName).toOption.value
 
   private def onPageLoadUrl: String = routes.PartnershipPostcodeController.onPageLoad(NormalMode).url
-  private def enterManuallyUrl: Call = routes.PartnershipAddressController.onPageLoad(NormalMode)
+  private def enterManuallyUrl: Call = routes.PartnershipContactAddressController.onPageLoad(NormalMode)
   private def submitUrl: String = routes.PartnershipPostcodeController.onSubmit(NormalMode).url
 
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq(postcode))

@@ -26,17 +26,10 @@ import javax.inject.Inject
 import models.requests.DataRequest
 import models.Address
 import models.Mode
-import models.UserAnswers
-import models.WhatTypeBusiness
-import models.register.BusinessRegistrationType
-import models.register.BusinessType
 import navigators.CompoundNavigator
-import pages.WhatTypeBusinessPage
 import pages.company.CompanyAddressPage
 import pages.company.BusinessNamePage
 import pages.register.AreYouUKCompanyPage
-import pages.register.BusinessRegistrationTypePage
-import pages.register.BusinessTypePage
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.i18n.Messages
@@ -53,7 +46,7 @@ import utils.countryOptions.CountryOptions
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-class CompanyAddressController @Inject()(
+class CompanyContactAddressController @Inject()(
   override val messagesApi: MessagesApi,
   val userAnswersCacheConnector: UserAnswersCacheConnector,
   val navigator: CompoundNavigator,
@@ -116,29 +109,6 @@ class CompanyAddressController @Inject()(
       }
     }
 
-  private val entityTypeCompany = "Company"
-  private val entityTypePartnership = "Partnership"
-  private val entityTypeIndividual = "Individual"
-
-  private def entityType(ua: UserAnswers): String = {
-    ua.getOrException(WhatTypeBusinessPage) match {
-      case WhatTypeBusiness.Yourselfasindividual => entityTypeIndividual
-      case _ =>
-        if (ua.getOrException(AreYouUKCompanyPage)) {
-          ua.getOrException(BusinessTypePage) match {
-            case BusinessType.UnlimitedCompany | BusinessType.LimitedCompany =>
-              entityTypeCompany
-            case _ => entityTypePartnership
-          }
-        } else {
-          ua.getOrException(BusinessRegistrationTypePage) match {
-            case BusinessRegistrationType.Company => entityTypeCompany
-            case _                                => entityTypePartnership
-          }
-        }
-    }
-  }
-
   private def commonJson(
     mode: Mode,
     companyName: String,
@@ -152,26 +122,11 @@ class CompanyAddressController @Inject()(
       Json.obj()
     }
 
-    val (pageTitle, h1) = entityType(request.userAnswers) match {
-      case "Individual" =>
-        (
-          messages("individual.address.title"),
-          messages("individual.address.title")
-        )
-      case "Company" =>
-        (
-          messages("address.title", companyName),
-          messages("address.title", companyName)
-        )
-      case _ =>
-        (
-          messages("address.title", companyName),
-          messages("address.title", companyName)
-        )
-    }
+    val pageTitle = messages("address.title", companyName)
+    val h1 = messages("address.title", companyName)
 
     Json.obj(
-      "submitUrl" -> routes.CompanyAddressController.onSubmit(mode).url,
+      "submitUrl" -> routes.CompanyContactAddressController.onSubmit(mode).url,
       "postcodeEntry" -> true,
       "form" -> form,
       "countries" -> jsonCountries(form.data.get("country"), config)(messages),

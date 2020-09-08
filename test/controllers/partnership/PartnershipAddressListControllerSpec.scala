@@ -60,7 +60,7 @@ class PartnershipAddressListControllerSpec extends ControllerSpecBase with Mocki
 
   private def onPageLoadUrl: String = routes.PartnershipAddressListController.onPageLoad(NormalMode).url
 
-  private def enterManuallyUrl: Call = routes.PartnershipAddressController.onPageLoad(NormalMode)
+  private def enterManuallyUrl: Call = routes.PartnershipContactAddressController.onPageLoad(NormalMode)
 
   private def submitUrl: String = routes.PartnershipAddressListController.onSubmit(NormalMode).url
 

@@ -16,118 +16,126 @@
 
 package controllers.individual
 
-import config.FrontendAppConfig
-import connectors.cache.UserAnswersCacheConnector
-import controllers.Retrievals
-import controllers.actions._
-import controllers.address.ManualAddressController
-import forms.address.AddressFormProvider
-import javax.inject.Inject
-import models.requests.DataRequest
+import controllers.actions.IdentifierAction
 import models.Address
-import models.Mode
-import navigators.CompoundNavigator
-import pages.individual.AreYouUKResidentPage
-import pages.individual.IndividualManualAddressPage
-import play.api.data.Form
-import play.api.i18n.I18nSupport
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.libs.json.Json
-import play.api.mvc.Action
 import play.api.mvc.AnyContent
-import play.api.mvc.MessagesControllerComponents
-import renderer.Renderer
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import viewmodels.CommonViewModel
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import models.requests.DataRequest
+import play.api.mvc.MessagesControllerComponents
+import play.api.data.Form
+import play.api.libs.json.JsObject
+import play.api.mvc.Action
+import connectors.cache.UserAnswersCacheConnector
+import config.FrontendAppConfig
+import javax.inject.Inject
+import play.api.libs.json.Json
+import controllers.address.ManualAddressController
+import navigators.CompoundNavigator
+import controllers.actions.DataRetrievalAction
+import forms.address.AddressFormProvider
+import models.Mode
+import play.api.i18n.I18nSupport
+import utils.countryOptions.CountryOptions
+import controllers.Retrievals
+import play.api.i18n.MessagesApi
+import renderer.Renderer
 
-class IndividualAddressController @Inject()(override val messagesApi: MessagesApi,
-                                            val userAnswersCacheConnector: UserAnswersCacheConnector,
-                                            val navigator: CompoundNavigator,
-                                            identify: IdentifierAction,
-                                            getData: DataRetrievalAction,
-                                            requireData: DataRequiredAction,
-                                            formProvider: AddressFormProvider,
-                                            val controllerComponents: MessagesControllerComponents,
-                                            val config: FrontendAppConfig,
-                                            val renderer: Renderer
-                                           )(implicit ec: ExecutionContext) extends ManualAddressController
-  with Retrievals with I18nSupport with NunjucksSupport {
+import scala.concurrent.Future
+import play.api.i18n.Messages
+import controllers.actions.DataRequiredAction
+import pages.individual.AreYouUKResidentPage
+import pages.individual.IndividualDetailsPage
+import pages.individual.IndividualManualAddressPage
+import uk.gov.hmrc.viewmodels.NunjucksSupport
+
+
+class IndividualAddressController @Inject()(
+  override val messagesApi: MessagesApi,
+  val userAnswersCacheConnector: UserAnswersCacheConnector,
+  val navigator: CompoundNavigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: AddressFormProvider,
+  countryOptions: CountryOptions,
+  val controllerComponents: MessagesControllerComponents,
+  val config: FrontendAppConfig,
+  val renderer: Renderer
+)(implicit ec: ExecutionContext)
+  extends ManualAddressController
+    with Retrievals
+    with I18nSupport
+    with NunjucksSupport {
 
   def form(implicit messages: Messages): Form[Address] = formProvider()
 
-  //def onPageLoad(mode: Mode): Action[AnyContent] =
-  //  (identify andThen getData andThen requireData).async {
-  //    implicit request =>
-  //      AreYouUKResidentPage.retrieve.right.map { retrievedData =>
-  //        val json = retrievedData match {
-  //          case areYouUKCompany  =>
-  //            val extraJson = if (areYouUKCompany) {
-  //              Json.obj("postcodeFirst" -> true)
-  //            } else {
-  //              Json.obj()
-  //            }
-  //
-  //
-  //
-  //            val filledForm = request.userAnswers.get(IndividualManualAddressPage).fold(form)(form.fill)
-  //            commonJson(mode, "you") ++
-  //              Json.obj(
-  //                "form" -> filledForm,
-  //                "countries" -> jsonCountries(filledForm.data.get("country"), config)(request2Messages)
-  //              ) ++ extraJson
-  //        }
-  //        renderer.render(viewTemplate, json).map(Ok(_))
-  //      }
-  //  }
-  //
-  //def onSubmit(mode: Mode): Action[AnyContent] =
-  //  (identify andThen getData andThen requireData).async {
-  //    implicit request =>
-  //    val companyName = "you"
-  //      AreYouUKResidentPage.retrieve.right.map { retrievedData =>
-  //        form.bindFromRequest().fold(
-  //          formWithErrors => {
-  //            val json = retrievedData match {
-  //              case true =>
-  //                commonJson(mode, companyName) ++ Json.obj(
-  //                  "form" -> formWithErrors,
-  //                  "postcodeFirst" -> true,
-  //                  "countries" -> jsonCountries(formWithErrors.data.get("country"), config)(request2Messages)
-  //                )
-  //              case false =>
-  //                commonJson(mode, companyName) ++
-  //                  Json.obj(
-  //                    "form" -> formWithErrors,
-  //                    "countries" -> jsonCountries(formWithErrors.data.get("country"), config)(request2Messages)
-  //                  )
-  //            }
-  //            renderer.render(viewTemplate, json).map(BadRequest(_))
-  //          },
-  //          value =>
-  //            for {
-  //              updatedAnswers <- Future.fromTry(request.userAnswers.set(IndividualManualAddressPage, value))
-  //              _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-  //            } yield {
-  //              Redirect(navigator.nextPage(IndividualManualAddressPage, mode, updatedAnswers))
-  //            }
-  //        )
-  //      }
-  //  }
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify andThen getData andThen requireData).async { implicit request =>
+      (AreYouUKResidentPage and IndividualDetailsPage).retrieve.right.map {
+        retrievedData =>
+          val json = retrievedData match {
+            case areYouUKResident ~ individualDetails =>
+              val filledForm = request.userAnswers
+                .get(IndividualManualAddressPage)
+                .fold(form)(form.fill)
+              commonJson(mode, individualDetails.fullName, filledForm, areYouUKResident)
+          }
+          renderer.render(viewTemplate, json).map(Ok(_))
+      }
+    }
 
-  //private def commonJson(mode: Mode, companyName: String)(implicit request: DataRequest[AnyContent]) = {
-  //  val messages = request2Messages
-  //  Json.obj(
-  //    "viewmodel" -> CommonViewModel(
-  //      "individual",
-  //      companyName,
-  //      routes.IndividualAddressController.onSubmit(mode).url),
-  //    "postcodeEntry" -> true,
-  //    "pageTitle" -> messages("individual.address.title"),
-  //    "h1" -> messages("individual.address.title")
-  //  )
-  //}
+  def onSubmit(mode: Mode): Action[AnyContent] =
+    (identify andThen getData andThen requireData).async { implicit request =>
+      (AreYouUKResidentPage and IndividualDetailsPage).retrieve.right.map {
+        retrievedData =>
+          form
+            .bindFromRequest()
+            .fold(
+              formWithErrors => {
+                val json = retrievedData match {
+                  case isUK ~ individualDetails =>
+                    commonJson(mode, individualDetails.fullName, formWithErrors, isUK = isUK)
+                }
+                renderer.render(viewTemplate, json).map(BadRequest(_))
+              },
+              value =>
+                for {
+                  updatedAnswers <- Future
+                    .fromTry(request.userAnswers.set(IndividualManualAddressPage, value))
+                  _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+                } yield {
+                  Redirect(
+                    navigator.nextPage(IndividualManualAddressPage, mode, updatedAnswers)
+                  )
+                }
+            )
+      }
+    }
+
+  private def commonJson(
+    mode: Mode,
+    individualDetails: String,
+    form: Form[Address],
+    isUK: Boolean
+  )(implicit request: DataRequest[AnyContent]): JsObject = {
+    val messages = request2Messages
+    val extraJson = if (isUK) {
+      Json.obj("postcodeFirst" -> true)
+    } else {
+      Json.obj()
+    }
+
+    val pageTitle = messages("individual.address.title")
+    val h1 = messages("individual.address.title")
+
+    Json.obj(
+      "submitUrl" -> routes.IndividualAddressController.onSubmit(mode).url,
+      "postcodeEntry" -> true,
+      "form" -> form,
+      "countries" -> jsonCountries(form.data.get("country"), config)(messages),
+      "pageTitle" -> pageTitle,
+      "h1" -> h1
+    ) ++ extraJson
+  }
 }

@@ -42,7 +42,7 @@ import viewmodels.CommonViewModel
 
 import scala.concurrent.Future
 
-class PartnershipAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class PartnershipContactAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
                                 with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
@@ -62,8 +62,8 @@ class PartnershipAddressControllerSpec extends ControllerSpecBase with MockitoSu
     .set(BusinessNamePage, partnershipName).toOption.value
     .setOrException(AreYouUKCompanyPage, true)
 
-  private def onPageLoadUrl: String = routes.PartnershipAddressController.onPageLoad(NormalMode).url
-  private def submitUrl: String = routes.PartnershipAddressController.onSubmit(NormalMode).url
+  private def onPageLoadUrl: String = routes.PartnershipContactAddressController.onPageLoad(NormalMode).url
+  private def submitUrl: String = routes.PartnershipContactAddressController.onSubmit(NormalMode).url
   private val dummyCall: Call = Call("GET", "/foo")
   private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("ZZ1 1ZZ"), "GB")
 

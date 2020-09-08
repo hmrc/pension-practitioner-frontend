@@ -105,7 +105,7 @@ class PartnershipCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAn
       actions = List(
         Action(
           content = msg"site.edit",
-          href = controllers.partnership.routes.PartnershipAddressController.onPageLoad(CheckMode).url,
+          href = controllers.partnership.routes.PartnershipContactAddressController.onPageLoad(CheckMode).url,
           visuallyHiddenText = Some(msg"cya.change.address")
         )
       )

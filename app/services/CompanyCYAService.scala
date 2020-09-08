@@ -57,7 +57,7 @@ class CompanyCYAService extends CYAService {
           case (Some(name), Some(address), Some(email), Some(phone)) =>
             Seq(
               companyName(name),
-              companyAddress(address, controllers.company.routes.CompanyAddressController.onPageLoad(CheckMode)),
+              companyAddress(address, controllers.company.routes.CompanyContactAddressController.onPageLoad(CheckMode)),
               companyEmail(name, email),
               companyPhone(name, phone)
             )
