@@ -55,7 +55,7 @@ class IndividualPhoneController @Inject()(override val messagesApi: MessagesApi,
       implicit request =>
         val formFilled = request.userAnswers.get(IndividualPhonePage).fold(form)(form.fill)
         getJson(mode, formFilled) { json =>
-          renderer.render(template = "phone.njk", json).map(Ok(_))
+          renderer.render(template = "individual/phone.njk", json).map(Ok(_))
         }
     }
 

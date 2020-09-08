@@ -45,7 +45,7 @@ class PartnershipEmailControllerSpec extends ControllerSpecBase with MockitoSuga
   private val partnershipName: String = "Partnership name"
   private val application: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
-  private val templateToBeRendered = "email.njk"
+  private val templateToBeRendered = "register/email.njk"
   private val form = new EmailFormProvider()(messages("email.error.required", messages("partnership")))
   private val email = "xyz@gmail.com"
   private val dummyCall: Call = Call("GET", "/foo")
