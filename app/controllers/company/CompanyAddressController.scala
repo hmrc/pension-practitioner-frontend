@@ -26,7 +26,10 @@ import javax.inject.Inject
 import models.requests.DataRequest
 import models.Address
 import models.Mode
+import models.UserAnswers
+import models.WhatTypeBusiness
 import navigators.CompoundNavigator
+import pages.WhatTypeBusinessPage
 import pages.company.CompanyAddressPage
 import pages.company.BusinessNamePage
 import pages.register.AreYouUKCompanyPage
@@ -98,11 +101,22 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
         }
     }
 
+  private def entityName(implicit ua: UserAnswers) =
+    ua.getOrException(WhatTypeBusinessPage) match {
+      case WhatTypeBusiness.Yourselfasindividual => "Individual"
+      case _ =>
+        if (ua.getOrException(AreYouUKCompanyPage)) {
+
+        } else {
+        }
+    }
+
   private def commonJson(
     mode: Mode,
     companyName: String,
     form:Form[Address],
-    isUK:Boolean
+    isUK:Boolean,
+    entityName: String
   )(implicit request: DataRequest[AnyContent]):JsObject = {
     val messages = request2Messages
     val extraJson = if (isUK) {
@@ -110,13 +124,20 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
     } else {
       Json.obj()
     }
+
+    val (pageTitle, h1) = entityName match {
+      case "Individual" => (messages("individual.address.title"), messages("individual.address.title"))
+      case "Company" => (messages("address.title", companyName), messages("address.title", companyName))
+      case _ => (messages("address.title", companyName), messages("address.title", companyName))
+    }
+
     Json.obj(
       "submitUrl" -> routes.CompanyAddressController.onSubmit(mode).url,
         "postcodeEntry" -> true,
       "form" -> form,
       "countries" -> jsonCountries(form.data.get("country"), config)(messages),
-      "pageTitle" -> messages("address.title", companyName),
-      "h1" -> messages("address.title", companyName)
+      "pageTitle" -> pageTitle,
+      "h1" -> h1
     ) ++ extraJson
   }
 }
