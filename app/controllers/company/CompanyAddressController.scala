@@ -28,11 +28,15 @@ import models.Address
 import models.Mode
 import models.UserAnswers
 import models.WhatTypeBusiness
+import models.register.BusinessRegistrationType
+import models.register.BusinessType
 import navigators.CompoundNavigator
 import pages.WhatTypeBusinessPage
 import pages.company.CompanyAddressPage
 import pages.company.BusinessNamePage
 import pages.register.AreYouUKCompanyPage
+import pages.register.BusinessRegistrationTypePage
+import pages.register.BusinessTypePage
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.i18n.Messages
@@ -49,75 +53,98 @@ import utils.countryOptions.CountryOptions
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
-                                         val userAnswersCacheConnector: UserAnswersCacheConnector,
-                                         val navigator: CompoundNavigator,
-                                         identify: IdentifierAction,
-                                         getData: DataRetrievalAction,
-                                         requireData: DataRequiredAction,
-                                         formProvider: AddressFormProvider,
-                                         countryOptions: CountryOptions,
-                                         val controllerComponents: MessagesControllerComponents,
-                                         val config: FrontendAppConfig,
-                                         val renderer: Renderer
-                                         )(implicit ec: ExecutionContext) extends ManualAddressController
-  with Retrievals with I18nSupport with NunjucksSupport {
+class CompanyAddressController @Inject()(
+  override val messagesApi: MessagesApi,
+  val userAnswersCacheConnector: UserAnswersCacheConnector,
+  val navigator: CompoundNavigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: AddressFormProvider,
+  countryOptions: CountryOptions,
+  val controllerComponents: MessagesControllerComponents,
+  val config: FrontendAppConfig,
+  val renderer: Renderer
+)(implicit ec: ExecutionContext)
+    extends ManualAddressController
+    with Retrievals
+    with I18nSupport
+    with NunjucksSupport {
 
   def form(implicit messages: Messages): Form[Address] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
-      implicit request =>
-        (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map { retrievedData =>
+    (identify andThen getData andThen requireData).async { implicit request =>
+      (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
+        retrievedData =>
           val json = retrievedData match {
-          case areYouUKCompany ~ companyName =>
-            val filledForm = request.userAnswers.get(CompanyAddressPage).fold(form)(form.fill)
+            case areYouUKCompany ~ companyName =>
+              val filledForm = request.userAnswers
+                .get(CompanyAddressPage)
+                .fold(form)(form.fill)
               commonJson(mode, companyName, filledForm, areYouUKCompany)
           }
           renderer.render(viewTemplate, json).map(Ok(_))
-        }
+      }
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
-      implicit request =>
-        (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map { retrievedData =>
-          form.bindFromRequest().fold(
-            formWithErrors => {
-              val json = retrievedData match {
-                case isUK ~ companyName =>
-                  commonJson(mode, companyName, formWithErrors, isUK = isUK)
+    (identify andThen getData andThen requireData).async { implicit request =>
+      (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
+        retrievedData =>
+          form
+            .bindFromRequest()
+            .fold(
+              formWithErrors => {
+                val json = retrievedData match {
+                  case isUK ~ companyName =>
+                    commonJson(mode, companyName, formWithErrors, isUK = isUK)
+                }
+                renderer.render(viewTemplate, json).map(BadRequest(_))
+              },
+              value =>
+                for {
+                  updatedAnswers <- Future
+                    .fromTry(request.userAnswers.set(CompanyAddressPage, value))
+                  _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+                } yield {
+                  Redirect(
+                    navigator.nextPage(CompanyAddressPage, mode, updatedAnswers)
+                  )
               }
-              renderer.render(viewTemplate, json).map(BadRequest(_))
-            },
-            value =>
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(CompanyAddressPage, value))
-                _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-              } yield {
-                Redirect(navigator.nextPage(CompanyAddressPage, mode, updatedAnswers))
-              }
-          )
-        }
+            )
+      }
     }
 
-  private def entityName(implicit ua: UserAnswers) =
+  private val entityTypeCompany = "Company"
+  private val entityTypePartnership = "Partnership"
+  private val entityTypeIndividual = "Individual"
+
+  private def entityType(ua: UserAnswers): String = {
     ua.getOrException(WhatTypeBusinessPage) match {
-      case WhatTypeBusiness.Yourselfasindividual => "Individual"
+      case WhatTypeBusiness.Yourselfasindividual => entityTypeIndividual
       case _ =>
         if (ua.getOrException(AreYouUKCompanyPage)) {
-
+          ua.getOrException(BusinessTypePage) match {
+            case BusinessType.UnlimitedCompany | BusinessType.LimitedCompany =>
+              entityTypeCompany
+            case _ => entityTypePartnership
+          }
         } else {
+          ua.getOrException(BusinessRegistrationTypePage) match {
+            case BusinessRegistrationType.Company => entityTypeCompany
+            case _                                => entityTypePartnership
+          }
         }
     }
+  }
 
   private def commonJson(
     mode: Mode,
     companyName: String,
-    form:Form[Address],
-    isUK:Boolean,
-    entityName: String
-  )(implicit request: DataRequest[AnyContent]):JsObject = {
+    form: Form[Address],
+    isUK: Boolean
+  )(implicit request: DataRequest[AnyContent]): JsObject = {
     val messages = request2Messages
     val extraJson = if (isUK) {
       Json.obj("postcodeFirst" -> true)
@@ -125,15 +152,27 @@ class CompanyAddressController @Inject()(override val messagesApi: MessagesApi,
       Json.obj()
     }
 
-    val (pageTitle, h1) = entityName match {
-      case "Individual" => (messages("individual.address.title"), messages("individual.address.title"))
-      case "Company" => (messages("address.title", companyName), messages("address.title", companyName))
-      case _ => (messages("address.title", companyName), messages("address.title", companyName))
+    val (pageTitle, h1) = entityType(request.userAnswers) match {
+      case "Individual" =>
+        (
+          messages("individual.address.title"),
+          messages("individual.address.title")
+        )
+      case "Company" =>
+        (
+          messages("address.title", companyName),
+          messages("address.title", companyName)
+        )
+      case _ =>
+        (
+          messages("address.title", companyName),
+          messages("address.title", companyName)
+        )
     }
 
     Json.obj(
       "submitUrl" -> routes.CompanyAddressController.onSubmit(mode).url,
-        "postcodeEntry" -> true,
+      "postcodeEntry" -> true,
       "form" -> form,
       "countries" -> jsonCountries(form.data.get("country"), config)(messages),
       "pageTitle" -> pageTitle,
