@@ -18,7 +18,7 @@ package controllers.individual
 
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
-import forms.register.PhoneFormProvider
+import forms.PhoneFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
 import org.mockito.Matchers.any
