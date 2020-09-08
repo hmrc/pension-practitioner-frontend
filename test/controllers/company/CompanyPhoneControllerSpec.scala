@@ -18,7 +18,7 @@ package controllers.company
 
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
-import forms.register.PhoneFormProvider
+import forms.PhoneFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
 import org.mockito.Matchers.any
@@ -45,7 +45,7 @@ class CompanyPhoneControllerSpec extends ControllerSpecBase with MockitoSugar wi
   private val companyName: String = "Company name"
   private val application: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
-  private val templateToBeRendered = "register/phone.njk"
+  private val templateToBeRendered = "phone.njk"
   private val form = new PhoneFormProvider()(messages("phone.error.required", messages("company")))
   private val phone = "11111111"
   private val dummyCall: Call = Call("GET", "/foo")
