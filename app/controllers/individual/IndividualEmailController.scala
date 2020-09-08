@@ -65,7 +65,7 @@ class IndividualEmailController @Inject()(override val messagesApi: MessagesApi,
         form.bindFromRequest().fold(
           formWithErrors =>
             getJson(mode, formWithErrors) { json =>
-              renderer.render(template = "individual/email.njk", json).map(BadRequest(_))
+              renderer.render(template = "email.njk", json).map(BadRequest(_))
             },
           value =>
             for {

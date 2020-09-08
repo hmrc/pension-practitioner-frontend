@@ -56,7 +56,7 @@ class PartnershipPhoneController @Inject()(override val messagesApi: MessagesApi
       implicit request =>
         val formFilled = request.userAnswers.get(PartnershipPhonePage).fold(form)(form.fill)
         getJson(mode, formFilled) { json =>
-          renderer.render("register/phone.njk", json).map(Ok(_))
+          renderer.render("phone.njk", json).map(Ok(_))
         }
     }
 
