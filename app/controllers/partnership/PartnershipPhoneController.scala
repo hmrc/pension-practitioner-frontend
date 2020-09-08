@@ -66,7 +66,7 @@ class PartnershipPhoneController @Inject()(override val messagesApi: MessagesApi
         form.bindFromRequest().fold(
           formWithErrors =>
             getJson(mode, formWithErrors) { json =>
-              renderer.render("phone.njk", json).map(BadRequest(_))
+              renderer.render("register/phone.njk", json).map(BadRequest(_))
             },
           value =>
             for {
