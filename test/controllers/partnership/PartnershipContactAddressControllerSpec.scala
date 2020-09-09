@@ -98,7 +98,7 @@ class PartnershipContactAddressControllerSpec extends ControllerSpecBase with Mo
   }
 
   "PartnershipAddress Controller" must {
-    "return OK and the correct view for a GET" in {
+    "return OK and the correct view for a GET with countries and postcode" in {
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
       val result = route(application, httpGETRequest(onPageLoadUrl)).value

@@ -114,7 +114,7 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
   }
 
   "Partnership Enter Registered Address Controller" must {
-    "return OK and the correct view for a GET" in {
+    "return OK and the correct view for a GET with countries but no postcode" in {
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 

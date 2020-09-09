@@ -130,8 +130,6 @@ trait ManualAddressController
           "postcodeEntry" -> true,
           "countries" -> jsonCountries(form.data.get("country"), config)(messages)
         )
-      case AddressConfiguration.PostcodeOnly =>
-        Json.obj("postcodeEntry" -> true)
       case AddressConfiguration.CountryOnly =>
         Json.obj("countries" -> jsonCountries(form.data.get("country"), config)(messages))
       case _ => Json.obj()
