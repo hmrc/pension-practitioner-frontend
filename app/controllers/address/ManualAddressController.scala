@@ -134,12 +134,9 @@ trait ManualAddressController
       case _ => Json.obj()
     }
 
-    val pageTitle = {
-      val messageParameter = pageTitleEntityTypeMessageKey match {
-        case Some(key) => messages(key)
-        case _ => entityName
-      }
-      messages(pageTitleMessageKey, messageParameter)
+    val pageTitle = pageTitleEntityTypeMessageKey match {
+        case Some(key) => messages(pageTitleMessageKey, messages(key))
+        case _ => messages(pageTitleMessageKey)
     }
     val h1 = messages(h1MessageKey, entityName)
 
