@@ -58,6 +58,12 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   lazy val pspSubscriptionUrl: String = s"$pspUrl${configuration.get[String]("urls.subscribePsp")}"
 
+  lazy val emailApiUrl: String = servicesConfig.baseUrl("email")
+  lazy val emailSendForce: Boolean = configuration.getOptional[Boolean]("email.force").getOrElse(false)
+
+  def emailCallback(journeyType: String, requestId: String, encryptedEmail: String, encryptedPsaId: String) =
+    s"$pspUrl${configuration.get[String](path = "urls.emailCallback").format(journeyType, requestId, encryptedEmail, encryptedPsaId)}"
+
   lazy val registerWithIdOrganisationUrl: String = s"$pspUrl${configuration.get[String]("urls.registration.registerWithIdOrganisation")}"
 
   lazy val registerWithNoIdOrganisationUrl: String = s"$pspUrl${configuration.get[String]("urls.registration.registerWithNoIdOrganisation")}"
