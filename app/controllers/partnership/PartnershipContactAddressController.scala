@@ -86,8 +86,8 @@ class PartnershipContactAddressController @Inject()(
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
       (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
-        case areYouUKCompany ~ companyName =>
-          post(mode, Some(companyName), addressConfigurationForPostcodeAndCountry(areYouUKCompany))
+        case areYouUKCompany ~ partnershipName =>
+          post(mode, Some(partnershipName), addressConfigurationForPostcodeAndCountry(areYouUKCompany))
       }
     }
 }

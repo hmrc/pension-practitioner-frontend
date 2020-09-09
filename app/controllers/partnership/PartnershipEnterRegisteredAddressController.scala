@@ -24,10 +24,8 @@ import controllers.actions._
 import controllers.address.ManualAddressController
 import forms.address.RegisteredAddressFormProvider
 import javax.inject.Inject
-import models.requests.DataRequest
 import models.Address
 import models.AddressConfiguration
-import models.AddressConfiguration.AddressConfiguration
 import models.Mode
 import models.register.RegistrationLegalStatus
 import navigators.CompoundNavigator
@@ -43,7 +41,6 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import play.api.mvc.MessagesControllerComponents
-import play.api.mvc.Result
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 
@@ -81,39 +78,30 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
-      BusinessNamePage.retrieve.right.map { companyName =>
-        doPost(mode, companyName, AddressConfiguration.CountryOnly)
+      BusinessNamePage.retrieve.right.map { partnershipName =>
+        form
+          .bindFromRequest()
+          .fold(
+            formWithErrors => {
+              val json = commonJson(mode, Some(partnershipName), formWithErrors, AddressConfiguration.CountryOnly)
+              renderer.render(viewTemplate, json).map(BadRequest(_))
+            },
+            value => {
+              val updatedUA = request.userAnswers.setOrException(addressPage, value)
+              val nextPage = navigator.nextPage(addressPage, mode, updatedUA)
+              val futureUA =
+                if (nextPage == controllers.partnership.routes.IsPartnershipRegisteredInUkController.onPageLoad()) {
+                  Future(updatedUA)
+                } else {
+                  registrationConnector
+                    .registerWithNoIdOrganisation(partnershipName, value, RegistrationLegalStatus.Partnership)
+                    .map(updatedUA.setOrException(RegistrationInfoPage, _))
+                }
+              futureUA
+                .flatMap(ua => userAnswersCacheConnector.save(ua.data))
+                .map(_ => Redirect(nextPage))
+            }
+          )
       }
     }
-
-  protected def doPost(mode: Mode,
-    name: String,
-    addressLocation: AddressConfiguration)(
-    implicit request: DataRequest[AnyContent],
-    ec: ExecutionContext
-  ): Future[Result] = {
-    form
-      .bindFromRequest()
-      .fold(
-        formWithErrors => {
-          val json = commonJson(mode, Some(name), formWithErrors, addressLocation)
-          renderer.render(viewTemplate, json).map(BadRequest(_))
-        },
-        value => {
-          val updatedUA = request.userAnswers.setOrException(addressPage, value)
-          val nextPage = navigator.nextPage(addressPage, mode, updatedUA)
-          val futureUA =
-            if (nextPage == controllers.partnership.routes.IsPartnershipRegisteredInUkController.onPageLoad()) {
-              Future(updatedUA)
-            } else {
-              registrationConnector
-                .registerWithNoIdOrganisation(name, value, RegistrationLegalStatus.Partnership)
-                .map(updatedUA.setOrException(RegistrationInfoPage, _))
-            }
-          futureUA
-            .flatMap(ua => userAnswersCacheConnector.save(ua.data))
-            .map(_ => Redirect(nextPage))
-        }
-      )
-  }
 }
