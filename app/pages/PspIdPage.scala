@@ -14,31 +14,14 @@
  * limitations under the License.
  */
 
-package pages.register
+package pages
 
-import models.UserAnswers
-import pages.PageConstants
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-import scala.util.Try
-
-case object AreYouUKCompanyPage extends QuestionPage[Boolean] {
+case object PspIdPage extends QuestionPage[String] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "areYouUKCompany"
-
-  override def cleanup(value: Option[Boolean],
-                       userAnswers: UserAnswers): Try[UserAnswers] = {
-    val result = value match {
-      case Some(_) =>
-        userAnswers
-          .removeAllPages(
-            PageConstants.pagesFullJourneyAll - AreYouUKCompanyPage
-          )
-      case _ => userAnswers
-    }
-    super.cleanup(value, result)
-  }
+  override def toString: String = "pspId"
 }

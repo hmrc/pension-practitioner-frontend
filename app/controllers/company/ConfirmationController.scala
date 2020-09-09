@@ -16,12 +16,13 @@
 
 package controllers.company
 
+import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import javax.inject.Inject
 import models.WhatTypeBusiness.Companyorpartnership
 import models.requests.DataRequest
-import pages.WhatTypeBusinessPage
+import pages.{PspIdPage, WhatTypeBusinessPage}
 import pages.company.{BusinessNamePage, CompanyEmailPage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
@@ -35,6 +36,7 @@ import viewmodels.CommonViewModel
 import scala.concurrent.{ExecutionContext, Future}
 
 class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
+                                       userAnswersCacheConnector: UserAnswersCacheConnector,
                                        identify: IdentifierAction,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
@@ -45,23 +47,19 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      getEntityTypeNameAndEmail.map { case (entityType, name, email) =>
-        val json: JsObject = Json.obj(
-          "panelHtml" -> confirmationPanelText("1234567890").toString(),
-          "email" -> email,
-          "viewmodel" -> CommonViewModel(entityType, name, controllers.routes.SignOutController.signOut().url)
-        )
+      (BusinessNamePage and CompanyEmailPage and PspIdPage).retrieve.right.map {
+        case name ~ email ~ pspid =>
+          val json: JsObject = Json.obj(
+            "panelHtml" -> confirmationPanelText(pspid).toString(),
+            "email" -> email,
+            "viewmodel" -> CommonViewModel("company.capitalised", name, controllers.routes.SignOutController.signOut().url)
+          )
 
-        renderer.render("register/confirmation.njk", json).map(Ok(_))
-      }.getOrElse(Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad())))
-  }
-
-  private def getEntityTypeNameAndEmail(implicit request: DataRequest[AnyContent]): Option[(String, String, String)] = {
-    (request.userAnswers.get(WhatTypeBusinessPage), request.userAnswers.get(CompanyEmailPage)) match {
-        case (Some(Companyorpartnership), Some(email)) =>
-          request.userAnswers.get(BusinessNamePage).map(name => ("company.capitalised", name, email))
-        case _ => None
-     }
+          userAnswersCacheConnector.removeAll.flatMap { _ =>
+            renderer.render("register/confirmation.njk", json).map(Ok(_))
+          }
+        case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+      }
   }
 
   private def confirmationPanelText(pspId: String)(implicit messages: Messages): Html = {

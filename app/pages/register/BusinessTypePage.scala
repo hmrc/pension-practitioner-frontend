@@ -18,11 +18,15 @@ package pages.register
 
 import models.UserAnswers
 import models.register.BusinessType
-import models.register.BusinessType.{BusinessPartnership, LimitedCompany, LimitedLiabilityPartnership, LimitedPartnership, UnlimitedCompany}
-import pages.{QuestionPage, RegistrationInfoPage}
-import pages.company.{BusinessNamePage => CompanyNamePage, BusinessUTRPage => CompanyUTRPage, ConfirmAddressPage => ConfirmCompanyAddressPage, ConfirmNamePage => ConfirmCompanyNamePage}
-import pages.partnership.{BusinessNamePage => PartnershipNamePage, BusinessUTRPage => PartnershipUTRPage, ConfirmAddressPage => ConfirmPartnershipAddressPage, ConfirmNamePage => ConfirmPartnershipNamePage}
+import models.register.BusinessType.BusinessPartnership
+import models.register.BusinessType.LimitedCompany
+import models.register.BusinessType.LimitedLiabilityPartnership
+import models.register.BusinessType.LimitedPartnership
+import models.register.BusinessType.UnlimitedCompany
+import pages.PageConstants
+import pages.QuestionPage
 import play.api.libs.json.JsPath
+import queries.Gettable
 
 import scala.util.Try
 
@@ -32,24 +36,37 @@ case object BusinessTypePage extends QuestionPage[BusinessType] {
 
   override def toString: String = "businessType"
 
-  override def cleanup(value: Option[BusinessType], userAnswers: UserAnswers): Try[UserAnswers] = {
-    val result = value match {
-      case Some(LimitedCompany) | Some(LimitedCompany) | Some(UnlimitedCompany) =>
-        userAnswers
-          .remove(CompanyNamePage).toOption.getOrElse(userAnswers)
-          .remove(CompanyUTRPage).toOption.getOrElse(userAnswers)
-          .remove(ConfirmCompanyNamePage).toOption.getOrElse(userAnswers)
-          .remove(RegistrationInfoPage).toOption.getOrElse(userAnswers)
-          .remove(ConfirmCompanyAddressPage).toOption
-      case Some(BusinessPartnership) | Some(LimitedPartnership) | Some(LimitedLiabilityPartnership) =>
-        userAnswers
-          .remove(PartnershipNamePage).toOption.getOrElse(userAnswers)
-          .remove(PartnershipUTRPage).toOption.getOrElse(userAnswers)
-          .remove(ConfirmPartnershipNamePage).toOption.getOrElse(userAnswers)
-          .remove(RegistrationInfoPage).toOption.getOrElse(userAnswers)
-          .remove(ConfirmPartnershipAddressPage).toOption
-      case _ => None
+  private val pagesNotToRemove =
+    Set[Gettable[_]](AreYouUKCompanyPage, BusinessTypePage)
+
+  override def cleanup(value: Option[BusinessType],
+                       userAnswers: UserAnswers): Try[UserAnswers] = {
+    val result = {
+      value match {
+        case Some(LimitedCompany | UnlimitedCompany) =>
+          userAnswers
+            .removeAllPages(
+              PageConstants.pagesFullJourneyPartnershipUK ++
+                PageConstants.pagesFullJourneyPartnershipNonUK ++
+                PageConstants.pagesFullJourneyIndividualUK ++
+                PageConstants.pagesFullJourneyIndividualNonUK --
+                pagesNotToRemove
+            )
+        case Some(
+            LimitedPartnership | LimitedLiabilityPartnership |
+            BusinessPartnership
+            ) =>
+          userAnswers
+            .removeAllPages(
+              PageConstants.pagesFullJourneyCompanyNonUK ++
+                PageConstants.pagesFullJourneyCompanyUK ++
+                PageConstants.pagesFullJourneyIndividualUK ++
+                PageConstants.pagesFullJourneyIndividualNonUK --
+                pagesNotToRemove
+            )
+        case _ => userAnswers
+      }
     }
-    super.cleanup(value, result.getOrElse(userAnswers))
+    super.cleanup(value, result)
   }
 }

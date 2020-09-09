@@ -56,6 +56,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val locationCanonicalList: String = loadConfig("location.canonical.list.all")
   lazy val locationCanonicalListEUAndEEA: String = loadConfig("location.canonical.list.EUAndEEA")
 
+  lazy val pspSubscriptionUrl: String = s"$pspUrl${configuration.get[String]("urls.subscribePsp")}"
+
   lazy val registerWithIdOrganisationUrl: String = s"$pspUrl${configuration.get[String]("urls.registration.registerWithIdOrganisation")}"
 
   lazy val registerWithNoIdOrganisationUrl: String = s"$pspUrl${configuration.get[String]("urls.registration.registerWithNoIdOrganisation")}"
