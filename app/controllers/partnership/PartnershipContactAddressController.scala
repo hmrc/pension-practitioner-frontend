@@ -71,6 +71,8 @@ class PartnershipContactAddressController @Inject()(
 
   override protected def addressPage: QuestionPage[Address] = PartnershipAddressPage
 
+  override protected val pageTitleEntityTypeMessageKey = Some("partnership")
+
   override protected val submitRoute: Mode => Call = mode => routes.PartnershipContactAddressController.onSubmit(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] =

@@ -68,6 +68,8 @@ trait ManualAddressController
 
   protected val pageTitleMessageKey: String = "address.title"
 
+  protected val pageTitleEntityTypeMessageKey: Option[String] = None
+
   protected val h1MessageKey: String = "address.title"
 
   protected def get(mode: Mode,
@@ -108,7 +110,7 @@ trait ManualAddressController
 
   protected def commonJson(
     mode: Mode,
-    companyName: String,
+    entityName: String,
     form: Form[Address],
     addressLocation: AddressLocation
   )(implicit request: DataRequest[AnyContent]): JsObject = {
@@ -132,8 +134,14 @@ trait ManualAddressController
       case _ => Json.obj()
     }
 
-    val pageTitle = messages(pageTitleMessageKey, companyName)
-    val h1 = messages(h1MessageKey, companyName)
+    val pageTitle = {
+      val messageParameter = pageTitleEntityTypeMessageKey match {
+        case Some(key) => messages(key)
+        case _ => entityName
+      }
+      messages(pageTitleMessageKey, messageParameter)
+    }
+    val h1 = messages(h1MessageKey, entityName)
 
     Json.obj(
       "submitUrl" -> submitRoute(mode).url,

@@ -69,6 +69,8 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
 
   override protected def addressPage: QuestionPage[Address] = CompanyRegisteredAddressPage
 
+  override protected val pageTitleEntityTypeMessageKey = Some("company")
+
   override protected val submitRoute: Mode => Call = mode => routes.CompanyEnterRegisteredAddressController.onSubmit(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] =

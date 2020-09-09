@@ -70,6 +70,9 @@ class IndividualContactAddressController @Inject()(
 
   override protected def addressPage: QuestionPage[Address] = IndividualManualAddressPage
 
+  override protected val pageTitleMessageKey: String = "individual.address.title"
+  override protected val h1MessageKey: String = "individual.address.title"
+
   override protected val submitRoute: Mode => Call = mode => routes.IndividualContactAddressController.onSubmit(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
