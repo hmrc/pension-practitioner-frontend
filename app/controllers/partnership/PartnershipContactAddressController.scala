@@ -25,8 +25,10 @@ import forms.address.AddressFormProvider
 import javax.inject.Inject
 import models.requests.DataRequest
 import models.Address
+import models.AddressLocation
 import models.Mode
 import navigators.CompoundNavigator
+import pages.QuestionPage
 import pages.partnership.BusinessNamePage
 import pages.partnership.PartnershipAddressPage
 import pages.register.AreYouUKCompanyPage
@@ -38,6 +40,7 @@ import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
+import play.api.mvc.Call
 import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
@@ -66,72 +69,23 @@ class PartnershipContactAddressController @Inject()(
 
   def form(implicit messages: Messages): Form[Address] = formProvider()
 
+  override protected def addressPage: QuestionPage[Address] = PartnershipAddressPage
+
+  override protected val submitRoute: Mode => Call = mode => routes.PartnershipContactAddressController.onSubmit(mode)
+
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
       (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
-        retrievedData =>
-          val json = retrievedData match {
-            case areYouUKCompany ~ companyName =>
-              val filledForm = request.userAnswers
-                .get(PartnershipAddressPage)
-                .fold(form)(form.fill)
-              commonJson(mode, companyName, filledForm, areYouUKCompany)
-          }
-          renderer.render(viewTemplate, json).map(Ok(_))
+        case areYouUKCompany ~ companyName =>
+          get(mode, companyName, if(areYouUKCompany) AddressLocation.PostcodeFirst else AddressLocation.CountryFirst)
       }
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
       (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
-        retrievedData =>
-          form
-            .bindFromRequest()
-            .fold(
-              formWithErrors => {
-                val json = retrievedData match {
-                  case isUK ~ companyName =>
-                    commonJson(mode, companyName, formWithErrors, isUK = isUK)
-                }
-                renderer.render(viewTemplate, json).map(BadRequest(_))
-              },
-              value =>
-                for {
-                  updatedAnswers <- Future
-                    .fromTry(request.userAnswers.set(PartnershipAddressPage, value))
-                  _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-                } yield {
-                  Redirect(
-                    navigator.nextPage(PartnershipAddressPage, mode, updatedAnswers)
-                  )
-                }
-            )
+        case areYouUKCompany ~ companyName =>
+          post(mode, companyName, if(areYouUKCompany) AddressLocation.PostcodeFirst else AddressLocation.CountryFirst)
       }
     }
-
-  private def commonJson(
-    mode: Mode,
-    companyName: String,
-    form: Form[Address],
-    isUK: Boolean
-  )(implicit request: DataRequest[AnyContent]): JsObject = {
-    val messages = request2Messages
-    val extraJson = if (isUK) {
-      Json.obj("postcodeFirst" -> true)
-    } else {
-      Json.obj()
-    }
-
-    val pageTitle = messages("address.title", companyName)
-    val h1 = messages("address.title", companyName)
-
-    Json.obj(
-      "submitUrl" -> routes.PartnershipContactAddressController.onSubmit(mode).url,
-      "postcodeEntry" -> true,
-      "form" -> form,
-      "countries" -> jsonCountries(form.data.get("country"), config)(messages),
-      "pageTitle" -> pageTitle,
-      "h1" -> h1
-    ) ++ extraJson
-  }
 }

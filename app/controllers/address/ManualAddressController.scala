@@ -23,6 +23,8 @@ import controllers.Retrievals
 import models.requests.DataRequest
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import models.Address
+import models.AddressLocation
+import models.AddressLocation.AddressLocation
 import models.Mode
 import navigators.CompoundNavigator
 import pages.QuestionPage
@@ -69,20 +71,20 @@ trait ManualAddressController
   protected val h1MessageKey: String = "address.title"
 
   protected def get(mode: Mode,
-                    isUK: Boolean,
-                    name: String)(
+                    name: String,
+                    addressLocation: AddressLocation)(
     implicit request: DataRequest[AnyContent],
     ec: ExecutionContext
   ): Future[Result] = {
     val filledForm =
       request.userAnswers.get(addressPage).fold(form)(form.fill)
-    val json = commonJson(mode, name, filledForm, isUK)
+    val json = commonJson(mode, name, filledForm, addressLocation)
     renderer.render(viewTemplate, json).map(Ok(_))
   }
 
   protected def post(mode: Mode,
-                     isUK: Boolean,
-                     name: String)(
+                     name: String,
+                     addressLocation: AddressLocation)(
     implicit request: DataRequest[AnyContent],
     ec: ExecutionContext
   ): Future[Result] = {
@@ -90,7 +92,7 @@ trait ManualAddressController
       .bindFromRequest()
       .fold(
         formWithErrors => {
-          val json = commonJson(mode, name, formWithErrors, isUK)
+          val json = commonJson(mode, name, formWithErrors, addressLocation)
           renderer.render(viewTemplate, json).map(Ok(_))
         },
         value =>
@@ -104,17 +106,30 @@ trait ManualAddressController
       )
   }
 
-  private def commonJson(
+  protected def commonJson(
     mode: Mode,
     companyName: String,
     form: Form[Address],
-    isUK: Boolean
+    addressLocation: AddressLocation
   )(implicit request: DataRequest[AnyContent]): JsObject = {
     val messages = request2Messages
-    val extraJson = if (isUK) {
-      Json.obj("postcodeFirst" -> true)
-    } else {
-      Json.obj()
+    val extraJson = addressLocation match {
+      case AddressLocation.PostcodeFirst =>
+        Json.obj(
+          "postcodeFirst" -> true,
+          "postcodeEntry" -> true,
+          "countries" -> jsonCountries(form.data.get("country"), config)(messages)
+        )
+      case AddressLocation.CountryFirst =>
+        Json.obj(
+          "postcodeEntry" -> true,
+          "countries" -> jsonCountries(form.data.get("country"), config)(messages)
+        )
+      case AddressLocation.PostcodeOnly =>
+        Json.obj("postcodeEntry" -> true)
+      case AddressLocation.CountryOnly =>
+        Json.obj("countries" -> jsonCountries(form.data.get("country"), config)(messages))
+      case _ => Json.obj()
     }
 
     val pageTitle = messages(pageTitleMessageKey, companyName)
@@ -122,9 +137,7 @@ trait ManualAddressController
 
     Json.obj(
       "submitUrl" -> submitRoute(mode).url,
-      "postcodeEntry" -> true,
       "form" -> form,
-      "countries" -> jsonCountries(form.data.get("country"), config)(messages),
       "pageTitle" -> pageTitle,
       "h1" -> h1
     ) ++ extraJson
