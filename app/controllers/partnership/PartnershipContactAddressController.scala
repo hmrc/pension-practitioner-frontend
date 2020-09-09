@@ -79,7 +79,7 @@ class PartnershipContactAddressController @Inject()(
     (identify andThen getData andThen requireData).async { implicit request =>
       (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
         case areYouUKCompany ~ companyName =>
-          get(mode, companyName, addressConfigurationForPostcodeAndCountry(areYouUKCompany))
+          get(mode, Some(companyName), addressConfigurationForPostcodeAndCountry(areYouUKCompany))
       }
     }
 
@@ -87,7 +87,7 @@ class PartnershipContactAddressController @Inject()(
     (identify andThen getData andThen requireData).async { implicit request =>
       (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
         case areYouUKCompany ~ companyName =>
-          post(mode, companyName, addressConfigurationForPostcodeAndCountry(areYouUKCompany))
+          post(mode, Some(companyName), addressConfigurationForPostcodeAndCountry(areYouUKCompany))
       }
     }
 }

@@ -76,7 +76,7 @@ trait ManualAddressController
     if(isUK) AddressConfiguration.PostcodeFirst else AddressConfiguration.CountryFirst
 
   protected def get(mode: Mode,
-                    name: String,
+                    name: Option[String],
                     addressLocation: AddressConfiguration)(
     implicit request: DataRequest[AnyContent],
     ec: ExecutionContext
@@ -88,7 +88,7 @@ trait ManualAddressController
   }
 
   protected def post(mode: Mode,
-                     name: String,
+                     name: Option[String],
                      addressLocation: AddressConfiguration)(
     implicit request: DataRequest[AnyContent],
     ec: ExecutionContext
@@ -113,7 +113,7 @@ trait ManualAddressController
 
   protected def commonJson(
     mode: Mode,
-    entityName: String,
+    entityName: Option[String],
     form: Form[Address],
     addressLocation: AddressConfiguration
   )(implicit request: DataRequest[AnyContent]): JsObject = {
@@ -141,7 +141,10 @@ trait ManualAddressController
         case Some(key) => messages(pageTitleMessageKey, messages(key))
         case _ => messages(pageTitleMessageKey)
     }
-    val h1 = messages(h1MessageKey, entityName)
+    val h1 = entityName match {
+      case Some(e) =>  messages (h1MessageKey, e)
+      case _ => messages (h1MessageKey)
+    }
 
     Json.obj(
       "submitUrl" -> submitRoute(mode).url,

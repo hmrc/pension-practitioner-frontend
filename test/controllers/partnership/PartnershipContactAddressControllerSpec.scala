@@ -31,6 +31,8 @@ import pages.register.AreYouUKCompanyPage
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
+import play.api.libs.json.JsArray
+import play.api.libs.json.JsBoolean
 import play.api.libs.json.{Json, JsObject}
 import play.api.mvc.Call
 import play.api.test.Helpers._
@@ -80,8 +82,10 @@ class PartnershipContactAddressControllerSpec extends ControllerSpecBase with Mo
 
   private val jsonToPassToTemplate: Form[Address] => JsObject =
     form => Json.obj(
-        "form" -> form,
-      "viewmodel" -> CommonViewModel("partnership", partnershipName, submitUrl)
+      "submitUrl" -> submitUrl,
+      "form" -> form,
+      "pageTitle" -> messages("address.title", messages("partnership")),
+      "h1" -> messages("address.title", partnershipName)
     )
 
   override def beforeEach: Unit = {
@@ -105,6 +109,8 @@ class PartnershipContactAddressControllerSpec extends ControllerSpecBase with Mo
 
       templateCaptor.getValue mustEqual templateToBeRendered
       jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
+      (jsonCaptor.getValue \ "countries").asOpt[JsArray].isDefined mustBe true
+      (jsonCaptor.getValue \ "postcodeEntry").asOpt[JsBoolean].isDefined mustBe true
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {

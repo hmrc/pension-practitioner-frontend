@@ -77,17 +77,15 @@ class IndividualContactAddressController @Inject()(
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
-      (AreYouUKResidentPage and IndividualDetailsPage).retrieve.right.map {
-        case areYouUKResident ~ individualDetails =>
-          get(mode, individualDetails.fullName, addressConfigurationForPostcodeAndCountry(areYouUKResident))
+      AreYouUKResidentPage.retrieve.right.map { areYouUKResident =>
+          get(mode, None, addressConfigurationForPostcodeAndCountry(areYouUKResident))
       }
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
-      (AreYouUKResidentPage and IndividualDetailsPage).retrieve.right.map {
-        case areYouUKResident ~ individualDetails =>
-          post(mode, individualDetails.fullName, addressConfigurationForPostcodeAndCountry(areYouUKResident))
+      AreYouUKResidentPage.retrieve.right.map { areYouUKResident =>
+          post(mode, None, addressConfigurationForPostcodeAndCountry(areYouUKResident))
       }
     }
 }

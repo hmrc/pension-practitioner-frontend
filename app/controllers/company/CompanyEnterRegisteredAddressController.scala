@@ -76,18 +76,18 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
       BusinessNamePage.retrieve.right.map { companyName =>
-          get(mode, companyName, AddressConfiguration.CountryOnly)
+          get(mode, Some(companyName), AddressConfiguration.CountryOnly)
       }
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
       BusinessNamePage.retrieve.right.map { companyName =>
-          post(mode, companyName, AddressConfiguration.CountryOnly)
+          doPost(mode, companyName, AddressConfiguration.CountryOnly)
       }
     }
 
-  override protected def post(mode: Mode,
+  protected def doPost(mode: Mode,
     name: String,
     addressLocation: AddressConfiguration)(
     implicit request: DataRequest[AnyContent],
@@ -97,7 +97,7 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
       .bindFromRequest()
       .fold(
         formWithErrors => {
-          val json = commonJson(mode, name, formWithErrors, addressLocation)
+          val json = commonJson(mode, Some(name), formWithErrors, addressLocation)
           renderer.render(viewTemplate, json).map(BadRequest(_))
         },
         value => {
