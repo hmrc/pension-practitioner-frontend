@@ -24,7 +24,7 @@ import controllers.address.ManualAddressController
 import forms.address.AddressFormProvider
 import javax.inject.Inject
 import models.Address
-import models.AddressLocation
+import models.AddressConfiguration
 import models.Mode
 import navigators.CompoundNavigator
 import pages.QuestionPage
@@ -75,7 +75,7 @@ class CompanyContactAddressController @Inject()(
     (identify andThen getData andThen requireData).async { implicit request =>
       (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
         case areYouUKCompany ~ companyName =>
-          get(mode, companyName, if(areYouUKCompany) AddressLocation.PostcodeFirst else AddressLocation.CountryFirst)
+          get(mode, companyName, addressConfigurationForPostcodeAndCountry(areYouUKCompany))
       }
     }
 
@@ -83,7 +83,7 @@ class CompanyContactAddressController @Inject()(
     (identify andThen getData andThen requireData).async { implicit request =>
       (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
         case areYouUKCompany ~ companyName =>
-          post(mode, companyName, if(areYouUKCompany) AddressLocation.PostcodeFirst else AddressLocation.CountryFirst)
+          post(mode, companyName, addressConfigurationForPostcodeAndCountry(areYouUKCompany))
       }
     }
 }

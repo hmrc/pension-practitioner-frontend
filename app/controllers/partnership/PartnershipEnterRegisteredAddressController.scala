@@ -26,8 +26,8 @@ import forms.address.RegisteredAddressFormProvider
 import javax.inject.Inject
 import models.requests.DataRequest
 import models.Address
-import models.AddressLocation
-import models.AddressLocation.AddressLocation
+import models.AddressConfiguration
+import models.AddressConfiguration.AddressConfiguration
 import models.Mode
 import models.register.RegistrationLegalStatus
 import navigators.CompoundNavigator
@@ -75,20 +75,20 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
       BusinessNamePage.retrieve.right.map { companyName =>
-        get(mode, companyName, AddressLocation.CountryOnly)
+        get(mode, companyName, AddressConfiguration.CountryOnly)
       }
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
       BusinessNamePage.retrieve.right.map { companyName =>
-        post(mode, companyName, AddressLocation.CountryOnly)
+        post(mode, companyName, AddressConfiguration.CountryOnly)
       }
     }
 
   override protected def post(mode: Mode,
     name: String,
-    addressLocation: AddressLocation)(
+    addressLocation: AddressConfiguration)(
     implicit request: DataRequest[AnyContent],
     ec: ExecutionContext
   ): Future[Result] = {

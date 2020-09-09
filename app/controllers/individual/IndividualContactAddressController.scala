@@ -39,7 +39,7 @@ import play.api.i18n.MessagesApi
 import renderer.Renderer
 import play.api.i18n.Messages
 import controllers.actions.DataRequiredAction
-import models.AddressLocation
+import models.AddressConfiguration
 import pages.QuestionPage
 import pages.individual.AreYouUKResidentPage
 import pages.individual.IndividualDetailsPage
@@ -79,7 +79,7 @@ class IndividualContactAddressController @Inject()(
     (identify andThen getData andThen requireData).async { implicit request =>
       (AreYouUKResidentPage and IndividualDetailsPage).retrieve.right.map {
         case areYouUKResident ~ individualDetails =>
-          get(mode, individualDetails.fullName, if(areYouUKResident) AddressLocation.PostcodeFirst else AddressLocation.CountryFirst)
+          get(mode, individualDetails.fullName, addressConfigurationForPostcodeAndCountry(areYouUKResident))
       }
     }
 
@@ -87,7 +87,7 @@ class IndividualContactAddressController @Inject()(
     (identify andThen getData andThen requireData).async { implicit request =>
       (AreYouUKResidentPage and IndividualDetailsPage).retrieve.right.map {
         case areYouUKResident ~ individualDetails =>
-          post(mode, individualDetails.fullName, if(areYouUKResident) AddressLocation.PostcodeFirst else AddressLocation.CountryFirst)
+          post(mode, individualDetails.fullName, addressConfigurationForPostcodeAndCountry(areYouUKResident))
       }
     }
 }

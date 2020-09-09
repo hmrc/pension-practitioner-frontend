@@ -16,7 +16,7 @@
 
 package models
 
-object AddressLocation extends Enumeration {
-  type AddressLocation = Value
+object AddressConfiguration extends Enumeration {
+  type AddressConfiguration = Value
   val PostcodeOnly, CountryOnly, PostcodeFirst, CountryFirst = Value
 }

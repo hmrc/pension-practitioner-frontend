@@ -23,8 +23,8 @@ import controllers.Retrievals
 import models.requests.DataRequest
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import models.Address
-import models.AddressLocation
-import models.AddressLocation.AddressLocation
+import models.AddressConfiguration
+import models.AddressConfiguration.AddressConfiguration
 import models.Mode
 import navigators.CompoundNavigator
 import pages.QuestionPage
@@ -72,9 +72,12 @@ trait ManualAddressController
 
   protected val h1MessageKey: String = "address.title"
 
+  protected def addressConfigurationForPostcodeAndCountry(isUK:Boolean): AddressConfiguration =
+    if(isUK) AddressConfiguration.PostcodeFirst else AddressConfiguration.CountryFirst
+
   protected def get(mode: Mode,
                     name: String,
-                    addressLocation: AddressLocation)(
+                    addressLocation: AddressConfiguration)(
     implicit request: DataRequest[AnyContent],
     ec: ExecutionContext
   ): Future[Result] = {
@@ -86,7 +89,7 @@ trait ManualAddressController
 
   protected def post(mode: Mode,
                      name: String,
-                     addressLocation: AddressLocation)(
+                     addressLocation: AddressConfiguration)(
     implicit request: DataRequest[AnyContent],
     ec: ExecutionContext
   ): Future[Result] = {
@@ -112,24 +115,24 @@ trait ManualAddressController
     mode: Mode,
     entityName: String,
     form: Form[Address],
-    addressLocation: AddressLocation
+    addressLocation: AddressConfiguration
   )(implicit request: DataRequest[AnyContent]): JsObject = {
     val messages = request2Messages
     val extraJson = addressLocation match {
-      case AddressLocation.PostcodeFirst =>
+      case AddressConfiguration.PostcodeFirst =>
         Json.obj(
           "postcodeFirst" -> true,
           "postcodeEntry" -> true,
           "countries" -> jsonCountries(form.data.get("country"), config)(messages)
         )
-      case AddressLocation.CountryFirst =>
+      case AddressConfiguration.CountryFirst =>
         Json.obj(
           "postcodeEntry" -> true,
           "countries" -> jsonCountries(form.data.get("country"), config)(messages)
         )
-      case AddressLocation.PostcodeOnly =>
+      case AddressConfiguration.PostcodeOnly =>
         Json.obj("postcodeEntry" -> true)
-      case AddressLocation.CountryOnly =>
+      case AddressConfiguration.CountryOnly =>
         Json.obj("countries" -> jsonCountries(form.data.get("country"), config)(messages))
       case _ => Json.obj()
     }
