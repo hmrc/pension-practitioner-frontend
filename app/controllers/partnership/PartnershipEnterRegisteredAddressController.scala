@@ -97,7 +97,7 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
       .fold(
         formWithErrors => {
           val json = commonJson(mode, name, formWithErrors, addressLocation)
-          renderer.render(viewTemplate, json).map(Ok(_))
+          renderer.render(viewTemplate, json).map(BadRequest(_))
         },
         value => {
           val updatedUA = request.userAnswers.setOrException(addressPage, value)

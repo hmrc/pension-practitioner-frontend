@@ -98,7 +98,7 @@ trait ManualAddressController
       .fold(
         formWithErrors => {
           val json = commonJson(mode, name, formWithErrors, addressLocation)
-          renderer.render(viewTemplate, json).map(Ok(_))
+          renderer.render(viewTemplate, json).map(BadRequest(_))
         },
         value =>
           for {

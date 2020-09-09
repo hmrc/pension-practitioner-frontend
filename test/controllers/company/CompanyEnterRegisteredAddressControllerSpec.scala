@@ -43,6 +43,8 @@ import pages.register.AreYouUKCompanyPage
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
+import play.api.libs.json.JsArray
+import play.api.libs.json.JsBoolean
 import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import play.api.mvc.Call
@@ -97,8 +99,10 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
 
   private val jsonToPassToTemplate: Form[Address] => JsObject =
     form => Json.obj(
-        "form" -> form,
-      "viewmodel" -> CommonViewModel("company", companyName, submitUrl)
+      "submitUrl" -> submitUrl,
+      "form" -> form,
+      "pageTitle" -> messages("address.title", messages("company")),
+      "h1" -> messages("address.title", companyName)
     )
 
   override def beforeEach: Unit = {
@@ -111,7 +115,7 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
   }
 
   "Company Enter Registered Address Controller" must {
-    "return OK and the correct view for a GET" in {
+    "return OK and the correct view for a GET with countries but no postcode" in {
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
@@ -123,6 +127,8 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
 
       templateCaptor.getValue mustEqual templateToBeRendered
       jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
+      (jsonCaptor.getValue \ "countries").asOpt[JsArray].isDefined mustBe true
+      (jsonCaptor.getValue \ "postcodeEntry").asOpt[JsBoolean].isDefined mustBe false
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {
@@ -171,7 +177,6 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
     }
 
     "return a BAD REQUEST when invalid data is submitted" in {
-
       val result = route(application, httpPOSTRequest(submitUrl, valuesInvalid)).value
 
       status(result) mustEqual BAD_REQUEST
