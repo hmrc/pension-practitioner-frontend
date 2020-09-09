@@ -83,8 +83,7 @@ trait ManualAddressController
   ): Future[Result] = {
     val filledForm =
       request.userAnswers.get(addressPage).fold(form)(form.fill)
-    val json = commonJson(mode, name, filledForm, addressLocation)
-    renderer.render(viewTemplate, json).map(Ok(_))
+    renderer.render(viewTemplate, json(mode, name, filledForm, addressLocation)).map(Ok(_))
   }
 
   protected def post(mode: Mode,
@@ -97,8 +96,7 @@ trait ManualAddressController
       .bindFromRequest()
       .fold(
         formWithErrors => {
-          val json = commonJson(mode, name, formWithErrors, addressLocation)
-          renderer.render(viewTemplate, json).map(BadRequest(_))
+          renderer.render(viewTemplate, json(mode, name, formWithErrors, addressLocation)).map(BadRequest(_))
         },
         value =>
           for {
@@ -111,7 +109,7 @@ trait ManualAddressController
       )
   }
 
-  protected def commonJson(
+  protected def json(
     mode: Mode,
     entityName: Option[String],
     form: Form[Address],

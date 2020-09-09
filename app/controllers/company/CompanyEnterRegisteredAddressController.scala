@@ -84,8 +84,8 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
           .bindFromRequest()
           .fold(
             formWithErrors => {
-              val json = commonJson(mode, Some(companyName), formWithErrors, AddressConfiguration.CountryOnly)
-              renderer.render(viewTemplate, json).map(BadRequest(_))
+              renderer.render(viewTemplate,
+                json(mode, Some(companyName), formWithErrors, AddressConfiguration.CountryOnly)).map(BadRequest(_))
             },
             value => {
               val updatedUA = request.userAnswers.setOrException(addressPage, value)
