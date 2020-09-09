@@ -70,7 +70,7 @@ trait ManualAddressController
 
   protected val pageTitleEntityTypeMessageKey: Option[String] = None
 
-  protected val h1MessageKey: String = "address.title"
+  protected val h1MessageKey: String = pageTitleMessageKey
 
   protected def addressConfigurationForPostcodeAndCountry(isUK:Boolean): AddressConfiguration =
     if(isUK) AddressConfiguration.PostcodeFirst else AddressConfiguration.CountryFirst
