@@ -19,7 +19,7 @@ package controllers.partnership
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
-import forms.register.PhoneFormProvider
+import forms.PhoneFormProvider
 import javax.inject.Inject
 import models.Mode
 import models.requests.DataRequest
@@ -56,7 +56,7 @@ class PartnershipPhoneController @Inject()(override val messagesApi: MessagesApi
       implicit request =>
         val formFilled = request.userAnswers.get(PartnershipPhonePage).fold(form)(form.fill)
         getJson(mode, formFilled) { json =>
-          renderer.render("register/phone.njk", json).map(Ok(_))
+          renderer.render("phone.njk", json).map(Ok(_))
         }
     }
 
@@ -66,7 +66,7 @@ class PartnershipPhoneController @Inject()(override val messagesApi: MessagesApi
         form.bindFromRequest().fold(
           formWithErrors =>
             getJson(mode, formWithErrors) { json =>
-              renderer.render("register/phone.njk", json).map(BadRequest(_))
+              renderer.render("phone.njk", json).map(BadRequest(_))
             },
           value =>
             for {

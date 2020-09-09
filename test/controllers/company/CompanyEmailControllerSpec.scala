@@ -18,7 +18,7 @@ package controllers.company
 
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
-import forms.register.EmailFormProvider
+import forms.EmailFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
 import org.mockito.Matchers.any
@@ -45,7 +45,7 @@ class CompanyEmailControllerSpec extends ControllerSpecBase with MockitoSugar wi
   private val companyName: String = "Company name"
   private val application: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
-  private val templateToBeRendered = "register/email.njk"
+  private val templateToBeRendered = "email.njk"
   private val form = new EmailFormProvider()(messages("email.error.required", messages("company")))
   private val email = "xyz@gmail.com"
   private val dummyCall: Call = Call("GET", "/foo")

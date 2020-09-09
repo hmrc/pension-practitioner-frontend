@@ -19,7 +19,7 @@ package controllers.partnership
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
-import forms.register.EmailFormProvider
+import forms.EmailFormProvider
 import javax.inject.Inject
 import models.Mode
 import models.requests.DataRequest
@@ -56,7 +56,7 @@ class PartnershipEmailController @Inject()(override val messagesApi: MessagesApi
       implicit request =>
         val formFilled = request.userAnswers.get(PartnershipEmailPage).fold(form)(form.fill)
         getJson(mode, formFilled) { json =>
-          renderer.render("register/email.njk", json).map(Ok(_))
+          renderer.render("email.njk", json).map(Ok(_))
         }
     }
 
@@ -66,7 +66,7 @@ class PartnershipEmailController @Inject()(override val messagesApi: MessagesApi
         form.bindFromRequest().fold(
           formWithErrors =>
             getJson(mode, formWithErrors) { json =>
-              renderer.render("register/email.njk", json).map(BadRequest(_))
+              renderer.render("email.njk", json).map(BadRequest(_))
             },
           value =>
             for {
