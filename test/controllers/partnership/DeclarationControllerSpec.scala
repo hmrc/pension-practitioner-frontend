@@ -19,18 +19,24 @@ package controllers.partnership
 import connectors.SubscriptionConnector
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
+import data.SampleData
 import matchers.JsonMatchers
 import models.UserAnswers
-import org.mockito.{ArgumentCaptor, Matchers}
+import models.WhatTypeBusiness.Companyorpartnership
+import org.mockito.{Matchers, ArgumentCaptor}
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.{times, when, verify}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.PspIdPage
+import pages.WhatTypeBusinessPage
+import pages.company.CompanyEmailPage
+import pages.partnership.BusinessNamePage
 import pages.partnership.DeclarationPage
+import pages.partnership.PartnershipEmailPage
 import play.api.Application
 import play.api.inject.bind
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{Json, JsObject}
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -53,6 +59,9 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   private def onPageLoadUrl: String = routes.DeclarationController.onPageLoad().url
   private def submitUrl: String = routes.DeclarationController.onSubmit().url
+
+  private val companyName = "Acme Ltd"
+  private val email = "a@a.c"
 
   override def beforeEach: Unit = {
     super.beforeEach
@@ -85,6 +94,11 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
     }
 
     "redirect to next page when valid data is submitted" in {
+      val ua = UserAnswers()
+          .setOrException(WhatTypeBusinessPage, Companyorpartnership)
+          .setOrException(BusinessNamePage, companyName)
+          .setOrException(PartnershipEmailPage, email)
+      mutableFakeDataRetrievalAction.setDataToReturn(Some(ua))
 
       val expectedJson = Json.obj(PspIdPage.toString -> "psp-id")
 

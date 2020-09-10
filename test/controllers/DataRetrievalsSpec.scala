@@ -20,6 +20,8 @@ package controllers
 import controllers.base.ControllerSpecBase
 import models.UserAnswers
 import models.WhatTypeBusiness
+import models.register.BusinessRegistrationType
+import models.register.BusinessType
 import models.register.TolerantIndividual
 import models.requests.DataRequest
 import models.requests.PSPUser
@@ -27,10 +29,12 @@ import models.requests.UserType
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import pages.WhatTypeBusinessPage
-import pages.company.BusinessNamePage
 import pages.company.CompanyEmailPage
 import pages.individual.IndividualDetailsPage
 import pages.individual.IndividualEmailPage
+import pages.partnership.PartnershipEmailPage
+import pages.register.BusinessRegistrationTypePage
+import pages.register.BusinessTypePage
 import play.api.mvc.AnyContent
 import play.api.mvc.Result
 import play.api.mvc.Results
@@ -66,17 +70,45 @@ class DataRetrievalsSpec extends ControllerSpecBase with MockitoSugar with Resul
       }
     }
 
-    "call the block with the name and email for companies/ partnerships when present in user answers" in {
+    "call the block with the name and email for uk companies when present in user answers" in {
       val companyName = "acme ltd"
       val ua = UserAnswers()
         .setOrException(WhatTypeBusinessPage, WhatTypeBusiness.Companyorpartnership)
-        .setOrException(BusinessNamePage, companyName)
+        .setOrException(BusinessTypePage, BusinessType.LimitedCompany)
+        .setOrException(pages.company.BusinessNamePage, companyName)
         .setOrException(CompanyEmailPage, email)
       val futureResult = DataRetrievals.retrievePspNameAndEmail(block)(request(ua))
       whenReady(futureResult) { result =>
         result mustBe createResult(companyName, email)
       }
     }
+
+    "call the block with the name and email for non-uk companies when present in user answers" in {
+      val companyName = "acme ltd"
+      val ua = UserAnswers()
+        .setOrException(WhatTypeBusinessPage, WhatTypeBusiness.Companyorpartnership)
+        .setOrException(BusinessRegistrationTypePage, BusinessRegistrationType.Company)
+        .setOrException(pages.company.BusinessNamePage, companyName)
+        .setOrException(CompanyEmailPage, email)
+      val futureResult = DataRetrievals.retrievePspNameAndEmail(block)(request(ua))
+      whenReady(futureResult) { result =>
+        result mustBe createResult(companyName, email)
+      }
+    }
+
+
+    //
+    //"call the block with the name and email for partnerships when present in user answers" in {
+    //  val companyName = "acme ltd"
+    //  val ua = UserAnswers()
+    //    .setOrException(WhatTypeBusinessPage, WhatTypeBusiness.Companyorpartnership)
+    //    .setOrException(pages.partnership.BusinessNamePage, companyName)
+    //    .setOrException(PartnershipEmailPage, email)
+    //  val futureResult = DataRetrievals.retrievePspNameAndEmail(block)(request(ua))
+    //  whenReady(futureResult) { result =>
+    //    result mustBe createResult(companyName, email)
+    //  }
+    //}
 
     "redirect to session expired when none of requisite values present in user answers" in {
       val ua = UserAnswers()
