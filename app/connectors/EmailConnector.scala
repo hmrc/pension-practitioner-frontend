@@ -63,7 +63,7 @@ class EmailConnector @Inject()(
 
     val jsonData = Json.toJson(sendEmailReq)
 
-    println( "\n>>>SNEDING:" + jsonData)
+    println( "\n>>>SENDING:" + jsonData)
 
     http.POST[JsValue, HttpResponse](emailServiceUrl, jsonData).map { response =>
       response.status match {
