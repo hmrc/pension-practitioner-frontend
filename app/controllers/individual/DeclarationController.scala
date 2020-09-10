@@ -16,11 +16,7 @@
 
 package controllers.individual
 
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
-
+import config.FrontendAppConfig
 import connectors.EmailConnector
 import connectors.EmailStatus
 import connectors.SubscriptionConnector
@@ -30,11 +26,9 @@ import controllers.Retrievals
 import controllers.actions._
 import javax.inject.Inject
 import models.NormalMode
-import models.UserAnswers
 import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.PspIdPage
-import pages.WhatTypeBusinessPage
 import pages.individual.DeclarationPage
 import play.api.i18n.Messages
 import play.api.i18n.I18nSupport
@@ -61,7 +55,8 @@ class DeclarationController @Inject()(
   requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
   renderer: Renderer,
-  emailConnector: EmailConnector
+  emailConnector: EmailConnector,
+  config: FrontendAppConfig
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with Retrievals
@@ -80,54 +75,34 @@ class DeclarationController @Inject()(
 
   def onSubmit: Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
-    DataRetrievals.retrievePspNameAndEmail{ (pspName, email) =>
-      for {
-        pspId <- subscriptionConnector.subscribePsp(request.userAnswers)
-        updatedAnswers <- Future.fromTry(request.userAnswers.set(PspIdPage, pspId))
-        _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-        _ <- sendEmail(email, pspId, pspName)
-      } yield
-        Redirect(
-          navigator.nextPage(DeclarationPage, NormalMode, updatedAnswers)
-        )
+      DataRetrievals.retrievePspNameAndEmail { (pspName, email) =>
+        for {
+          pspId <- subscriptionConnector.subscribePsp(request.userAnswers)
+          updatedAnswers <- Future.fromTry(
+            request.userAnswers.set(PspIdPage, pspId)
+          )
+          _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+          _ <- sendEmail(email, pspId, pspName)
+        } yield
+          Redirect(
+            navigator.nextPage(DeclarationPage, NormalMode, updatedAnswers)
+          )
+      }
     }
-   }
 
-  val dateFormatterSubmittedDate: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("d MMMM yyyy 'at' hh:mm a", Locale.UK)
-
-  private def sendEmail(email: String, pspId:String, pspName: String)(
+  private def sendEmail(email: String, pspId: String, pspName: String)(
     implicit request: DataRequest[_],
     hc: HeaderCarrier,
     messages: Messages
-  ): Future[EmailStatus] = {
-    val requestId = hc.requestId
-      .map(_.value)
-      .getOrElse(request.headers.get("X-Session-ID").getOrElse(""))
-
-    val submittedDate = dateFormatterSubmittedDate.format(
-      ZonedDateTime.now(ZoneId.of("Europe/London"))
-    )
-
-    val sendToEmailId = messages("confirmation.whatNext.send.to.email.id")
-
-    val templateParams = Map(
-      "dateSubmitted" -> submittedDate,
-      "hmrcEmail" -> sendToEmailId,
-      "pspName" -> pspName
-    )
-
-    val journeyType = ""
-    val templateId = ""
-
+  ): Future[EmailStatus] =
     emailConnector.sendEmail(
-      requestId,
+      requestId = hc.requestId
+        .map(_.value)
+        .getOrElse(request.headers.get("X-Session-ID").getOrElse("")),
       pspId,
-      journeyType,
+      journeyType = "PSPSubscription",
       email,
-      templateId,
-      templateParams
+      templateName = config.emailPspSubscriptionTemplateId,
+      templateParams = Map("pspName" -> pspName)
     )
-  }
-
 }

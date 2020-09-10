@@ -63,12 +63,16 @@ class EmailConnector @Inject()(
 
     val jsonData = Json.toJson(sendEmailReq)
 
+    println( "\n>>>SNEDING:" + jsonData)
+
     http.POST[JsValue, HttpResponse](emailServiceUrl, jsonData).map { response =>
       response.status match {
         case ACCEPTED =>
+          println( "\n>>>EMAIL SENT")
           Logger.debug(s"Email sent successfully for $journeyType")
           EmailSent
         case status =>
+          println( "\n>>>EMAIL NOT SENT:" + status)
           Logger.warn(s"Sending Email failed for $journeyType with response status $status")
           EmailNotSent
       }
