@@ -33,6 +33,7 @@ import pages.company.CompanyEmailPage
 import pages.individual.IndividualDetailsPage
 import pages.individual.IndividualEmailPage
 import pages.partnership.PartnershipEmailPage
+import pages.register.AreYouUKCompanyPage
 import pages.register.BusinessRegistrationTypePage
 import pages.register.BusinessTypePage
 import play.api.mvc.AnyContent
@@ -56,7 +57,7 @@ class DataRetrievalsSpec extends ControllerSpecBase with MockitoSugar with Resul
   private val email = "a@a.c"
 
   "retrievePspNameAndEmail" must {
-    "call the block with the name and email for individuals when present in user answers" in {
+    "call the function with the name and email for individuals when present in user answers" in {
       val firstName = "Bill"
       val lastName = "Bloggs"
       val individual = TolerantIndividual(Some(firstName), None, Some(lastName))
@@ -70,10 +71,11 @@ class DataRetrievalsSpec extends ControllerSpecBase with MockitoSugar with Resul
       }
     }
 
-    "call the block with the name and email for uk companies when present in user answers" in {
+    "call the function with the name and email for uk companies when present in user answers" in {
       val companyName = "acme ltd"
       val ua = UserAnswers()
         .setOrException(WhatTypeBusinessPage, WhatTypeBusiness.Companyorpartnership)
+        .setOrException(AreYouUKCompanyPage, true)
         .setOrException(BusinessTypePage, BusinessType.LimitedCompany)
         .setOrException(pages.company.BusinessNamePage, companyName)
         .setOrException(CompanyEmailPage, email)
@@ -83,10 +85,11 @@ class DataRetrievalsSpec extends ControllerSpecBase with MockitoSugar with Resul
       }
     }
 
-    "call the block with the name and email for non-uk companies when present in user answers" in {
+    "call the function with the name and email for non-uk companies when present in user answers" in {
       val companyName = "acme ltd"
       val ua = UserAnswers()
         .setOrException(WhatTypeBusinessPage, WhatTypeBusiness.Companyorpartnership)
+        .setOrException(AreYouUKCompanyPage, false)
         .setOrException(BusinessRegistrationTypePage, BusinessRegistrationType.Company)
         .setOrException(pages.company.BusinessNamePage, companyName)
         .setOrException(CompanyEmailPage, email)
@@ -96,19 +99,33 @@ class DataRetrievalsSpec extends ControllerSpecBase with MockitoSugar with Resul
       }
     }
 
+    "call the function with the name and email for uk partnerships when present in user answers" in {
+      val companyName = "acme ltd"
+      val ua = UserAnswers()
+        .setOrException(WhatTypeBusinessPage, WhatTypeBusiness.Companyorpartnership)
+        .setOrException(AreYouUKCompanyPage, true)
+        .setOrException(BusinessTypePage, BusinessType.BusinessPartnership)
+        .setOrException(pages.partnership.BusinessNamePage, companyName)
+        .setOrException(PartnershipEmailPage, email)
+      val futureResult = DataRetrievals.retrievePspNameAndEmail(block)(request(ua))
+      whenReady(futureResult) { result =>
+        result mustBe createResult(companyName, email)
+      }
+    }
 
-    //
-    //"call the block with the name and email for partnerships when present in user answers" in {
-    //  val companyName = "acme ltd"
-    //  val ua = UserAnswers()
-    //    .setOrException(WhatTypeBusinessPage, WhatTypeBusiness.Companyorpartnership)
-    //    .setOrException(pages.partnership.BusinessNamePage, companyName)
-    //    .setOrException(PartnershipEmailPage, email)
-    //  val futureResult = DataRetrievals.retrievePspNameAndEmail(block)(request(ua))
-    //  whenReady(futureResult) { result =>
-    //    result mustBe createResult(companyName, email)
-    //  }
-    //}
+    "call the function with the name and email for non-uk partnerships when present in user answers" in {
+      val companyName = "acme ltd"
+      val ua = UserAnswers()
+        .setOrException(WhatTypeBusinessPage, WhatTypeBusiness.Companyorpartnership)
+        .setOrException(AreYouUKCompanyPage, false)
+        .setOrException(BusinessRegistrationTypePage, BusinessRegistrationType.Partnership)
+        .setOrException(pages.partnership.BusinessNamePage, companyName)
+        .setOrException(PartnershipEmailPage, email)
+      val futureResult = DataRetrievals.retrievePspNameAndEmail(block)(request(ua))
+      whenReady(futureResult) { result =>
+        result mustBe createResult(companyName, email)
+      }
+    }
 
     "redirect to session expired when none of requisite values present in user answers" in {
       val ua = UserAnswers()
