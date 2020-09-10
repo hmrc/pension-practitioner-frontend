@@ -17,11 +17,17 @@
 package models
 
 import data.SampleData
+import models.register.TolerantIndividual
 import org.scalatest.FreeSpec
 import org.scalatest.Matchers.convertToAnyShouldWrapper
 import pages.PageConstants
 import pages.QuestionPage
+import pages.WhatTypeBusinessPage
 import pages.company.CompanyEmailPage
+import pages.individual.AreYouUKResidentPage
+import pages.individual.IndividualDetailsPage
+import pages.individual.IndividualEmailPage
+import pages.partnership.BusinessNamePage
 import play.api.libs.json.Format
 import play.api.libs.json.JsPath
 import play.api.libs.json.Json
