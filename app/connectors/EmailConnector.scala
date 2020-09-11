@@ -16,19 +16,25 @@
 
 package connectors
 
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import models.SendEmailRequest
 import play.api.Logger
 import play.api.http.Status._
-import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
-import uk.gov.hmrc.domain.PsaId
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json
+import uk.gov.hmrc.crypto.ApplicationCrypto
+import uk.gov.hmrc.crypto.PlainText
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 sealed trait EmailStatus
 
@@ -42,8 +48,8 @@ class EmailConnector @Inject()(
     crypto: ApplicationCrypto
 ) {
   private def callBackUrl(requestId: String, journeyType: String, pspId: String, email: String): String = {
-    val encryptedPspId = crypto.QueryParameterCrypto.encrypt(PlainText(pspId)).value
-    val encryptedEmail = crypto.QueryParameterCrypto.encrypt(PlainText(email)).value
+    val encryptedPspId = URLEncoder.encode(crypto.QueryParameterCrypto.encrypt(PlainText(pspId)).value, StandardCharsets.UTF_8.toString)
+    val encryptedEmail = URLEncoder.encode(crypto.QueryParameterCrypto.encrypt(PlainText(email)).value, StandardCharsets.UTF_8.toString)
 
     appConfig.emailCallback(journeyType, requestId, encryptedEmail, encryptedPspId)
   }
@@ -63,16 +69,12 @@ class EmailConnector @Inject()(
 
     val jsonData = Json.toJson(sendEmailReq)
 
-    println( "\n>>>SENDING:" + jsonData)
-
     http.POST[JsValue, HttpResponse](emailServiceUrl, jsonData).map { response =>
       response.status match {
         case ACCEPTED =>
-          println( "\n>>>EMAIL SENT")
           Logger.debug(s"Email sent successfully for $journeyType")
           EmailSent
         case status =>
-          println( "\n>>>EMAIL NOT SENT:" + status)
           Logger.warn(s"Sending Email failed for $journeyType with response status $status")
           EmailNotSent
       }

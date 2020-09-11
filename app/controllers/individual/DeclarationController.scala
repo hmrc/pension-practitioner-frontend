@@ -16,6 +16,8 @@
 
 package controllers.individual
 
+import java.util.Base64
+
 import config.FrontendAppConfig
 import connectors.EmailConnector
 import connectors.EmailStatus
