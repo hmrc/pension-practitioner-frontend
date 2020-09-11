@@ -16,10 +16,11 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock.{urlEqualTo, _}
-import org.scalatest.{AsyncWordSpec, MustMatchers}
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.github.tomakehurst.wiremock.client.WireMock._
+import org.scalatest.AsyncWordSpec
+import org.scalatest.MustMatchers
 import play.api.http.Status
-import uk.gov.hmrc.domain.PsaId
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.WireMockHelper
 
