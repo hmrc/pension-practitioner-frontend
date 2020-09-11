@@ -42,10 +42,10 @@ class EmailConnector @Inject()(
     crypto: ApplicationCrypto
 ) {
   private def callBackUrl(requestId: String, journeyType: String, pspId: String, email: String): String = {
-    val encryptedPsaId = crypto.QueryParameterCrypto.encrypt(PlainText(pspId)).value
+    val encryptedPspId = crypto.QueryParameterCrypto.encrypt(PlainText(pspId)).value
     val encryptedEmail = crypto.QueryParameterCrypto.encrypt(PlainText(email)).value
 
-    appConfig.emailCallback(journeyType, requestId, encryptedEmail, encryptedPsaId)
+    appConfig.emailCallback(journeyType, requestId, encryptedEmail, encryptedPspId)
   }
 
   def sendEmail(

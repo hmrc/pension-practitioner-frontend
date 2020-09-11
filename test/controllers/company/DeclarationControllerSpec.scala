@@ -16,6 +16,8 @@
 
 package controllers.company
 
+import connectors.EmailConnector
+import connectors.EmailSent
 import connectors.SubscriptionConnector
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
@@ -23,6 +25,8 @@ import matchers.JsonMatchers
 import org.mockito.Matchers
 import play.api.mvc.Call
 import models.UserAnswers
+import models.WhatTypeBusiness.Companyorpartnership
+import models.register.BusinessType
 import org.mockito.Matchers.any
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
@@ -32,7 +36,12 @@ import org.scalatest.OptionValues
 import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
 import pages.PspIdPage
+import pages.WhatTypeBusinessPage
+import pages.company.BusinessNamePage
+import pages.company.CompanyEmailPage
 import pages.company.DeclarationPage
+import pages.register.AreYouUKCompanyPage
+import pages.register.BusinessTypePage
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.JsObject
@@ -48,16 +57,22 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
+  private val mockEmailConnector: EmailConnector = mock[EmailConnector]
 
   private val application: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction,
-      Seq(bind[SubscriptionConnector].toInstance(mockSubscriptionConnector))).build()
+      Seq(
+        bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
+        bind[EmailConnector].toInstance(mockEmailConnector)
+      )).build()
   private val templateToBeRendered = "register/declaration.njk"
   private val dummyCall: Call = Call("GET", "/foo")
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq("true"))
 
   private def onPageLoadUrl: String = routes.DeclarationController.onPageLoad().url
   private def submitUrl: String = routes.DeclarationController.onSubmit().url
+  private val partnershipName = "Acme Ltd"
+  private val email = "a@a.c"
 
   override def beforeEach: Unit = {
     super.beforeEach
@@ -89,12 +104,29 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
       redirectLocation(result).value mustBe controllers.routes.SessionExpiredController.onPageLoad().url
     }
 
-    "redirect to next page when valid data is submitted" in {
+    "redirect to next page when valid data is submitted and send email" in {
+      val templateId = "dummyTemplateId"
+      val pspId = "psp-id"
+      when(mockEmailConnector
+        .sendEmail(any(),
+          Matchers.eq(pspId),
+          Matchers.eq("PSPSubscription"),
+          Matchers.eq(email),
+          Matchers.eq(templateId),any())(any(),any()))
+        .thenReturn(Future.successful(EmailSent))
+      when(mockAppConfig.emailPspSubscriptionTemplateId).thenReturn(templateId)
+      val ua = UserAnswers()
+        .setOrException(WhatTypeBusinessPage, Companyorpartnership)
+        .setOrException(AreYouUKCompanyPage, true)
+        .setOrException(BusinessTypePage, BusinessType.BusinessPartnership)
+        .setOrException(BusinessNamePage, partnershipName)
+        .setOrException(CompanyEmailPage, email)
+      mutableFakeDataRetrievalAction.setDataToReturn(Some(ua))
 
-      val expectedJson = Json.obj(PspIdPage.toString -> "psp-id")
+      val expectedJson = Json.obj(PspIdPage.toString -> pspId)
 
       when(mockCompoundNavigator.nextPage(Matchers.eq(DeclarationPage), any(), any())).thenReturn(dummyCall)
-      when(mockSubscriptionConnector.subscribePsp(any())(any(), any())).thenReturn(Future.successful("psp-id"))
+      when(mockSubscriptionConnector.subscribePsp(any())(any(), any())).thenReturn(Future.successful(pspId))
       when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
