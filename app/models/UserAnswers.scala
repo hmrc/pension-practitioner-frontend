@@ -16,14 +16,7 @@
 
 package models
 
-import models.WhatTypeBusiness.Companyorpartnership
-import models.WhatTypeBusiness.Yourselfasindividual
 import pages._
-import pages.company.CompanyEmailPage
-import pages.individual.AreYouUKResidentPage
-import pages.individual.IndividualDetailsPage
-import pages.individual.IndividualEmailPage
-import pages.partnership.BusinessNamePage
 import play.api.libs.json._
 import queries.Gettable
 
