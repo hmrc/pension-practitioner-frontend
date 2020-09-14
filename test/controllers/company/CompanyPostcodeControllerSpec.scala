@@ -62,7 +62,7 @@ class CompanyPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar
   val userAnswers: UserAnswers = UserAnswers().set(BusinessNamePage, companyName).toOption.value
 
   private def onPageLoadUrl: String = routes.CompanyPostcodeController.onPageLoad(NormalMode).url
-  private def enterManuallyUrl: Call = routes.CompanyAddressController.onPageLoad(NormalMode)
+  private def enterManuallyUrl: Call = routes.CompanyContactAddressController.onPageLoad(NormalMode)
   private def submitUrl: String = routes.CompanyPostcodeController.onSubmit(NormalMode).url
 
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq(postcode))

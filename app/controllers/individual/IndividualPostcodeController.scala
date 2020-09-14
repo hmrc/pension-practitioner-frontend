@@ -72,7 +72,7 @@ class IndividualPostcodeController @Inject()(override val messagesApi: MessagesA
       Json.obj(
         "form" -> form,
         "submitUrl" -> routes.IndividualPostcodeController.onSubmit(mode).url,
-        "enterManuallyUrl" -> Some(routes.IndividualAddressController.onPageLoad(mode).url)
+        "enterManuallyUrl" -> Some(routes.IndividualContactAddressController.onPageLoad(mode).url)
       )
   }
 }

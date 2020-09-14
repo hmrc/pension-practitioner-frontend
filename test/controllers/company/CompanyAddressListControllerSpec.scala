@@ -59,7 +59,7 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
                                   .set(CompanyPostcodePage, Seq(tolerantAddress)).toOption.value
 
   private def onPageLoadUrl: String = routes.CompanyAddressListController.onPageLoad(NormalMode).url
-  private def enterManuallyUrl: Call = routes.CompanyAddressController.onPageLoad(NormalMode)
+  private def enterManuallyUrl: Call = routes.CompanyContactAddressController.onPageLoad(NormalMode)
   private def submitUrl: String = routes.CompanyAddressListController.onSubmit(NormalMode).url
 
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq("0"))

@@ -16,25 +16,39 @@
 
 package controllers.address
 
+import controllers.company.routes
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import models.requests.DataRequest
-import models.{Mode, Address}
+import uk.gov.hmrc.viewmodels.NunjucksSupport
+import models.Address
+import models.AddressConfiguration
+import models.AddressConfiguration.AddressConfiguration
+import models.Mode
 import navigators.CompoundNavigator
 import pages.QuestionPage
-import pages.register.AreYouUKCompanyPage
+import pages.company.CompanyAddressPage
 import play.api.data.Form
+import play.api.i18n.I18nSupport
 import play.api.i18n.Messages
-import play.api.libs.json.{JsArray, Json, JsObject}
-import play.api.mvc.{Result, AnyContent}
+import play.api.libs.json.JsArray
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
+import play.api.mvc.AnyContent
+import play.api.mvc.Call
+import play.api.mvc.Result
 import renderer.Renderer
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
-trait ManualAddressController extends FrontendBaseController with Retrievals {
+trait ManualAddressController
+    extends FrontendBaseController
+    with Retrievals
+    with I18nSupport
+    with NunjucksSupport {
 
   protected def renderer: Renderer
 
@@ -46,59 +60,116 @@ trait ManualAddressController extends FrontendBaseController with Retrievals {
 
   protected def viewTemplate = "address/manualAddress.njk"
 
-  protected def retrieveFieldsFromRequestAndAddCountryForUK(implicit request: DataRequest[AnyContent]):Map[String, String] = {
-    val postedFields = request.body.asFormUrlEncoded.fold(Map[String, Seq[String]]())(identity)
-      .map(field => (field._1, field._2.headOption.getOrElse("")))
-    request.userAnswers.get(AreYouUKCompanyPage) match {
-      case Some(true) => postedFields ++ Map("country" -> "GB")
-      case _ => postedFields
-    }
+  protected def config: FrontendAppConfig
+
+  protected def addressPage: QuestionPage[Address] = CompanyAddressPage
+
+  protected val submitRoute: Mode => Call = _ => Call("", "")
+
+  protected val pageTitleMessageKey: String = "address.title"
+
+  protected val pageTitleEntityTypeMessageKey: Option[String] = None
+
+  protected val h1MessageKey: String = pageTitleMessageKey
+
+  protected def addressConfigurationForPostcodeAndCountry(isUK:Boolean): AddressConfiguration =
+    if(isUK) AddressConfiguration.PostcodeFirst else AddressConfiguration.CountryFirst
+
+  protected def get(mode: Mode,
+                    name: Option[String],
+                    addressLocation: AddressConfiguration)(
+    implicit request: DataRequest[AnyContent],
+    ec: ExecutionContext
+  ): Future[Result] = {
+    val filledForm =
+      request.userAnswers.get(addressPage).fold(form)(form.fill)
+    renderer.render(viewTemplate, json(mode, name, filledForm, addressLocation)).map(Ok(_))
   }
 
-  def get(json: Form[Address] => JsObject)
-         (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
-    renderer.render(viewTemplate, json(form)).map(Ok(_))
-  }
-
-  def post(mode: Mode, json: Form[Address] => JsObject, addressPage: QuestionPage[Address])
-          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
-    form.bindFromRequest().fold(
-      formWithErrors =>
-        renderer.render(viewTemplate, json(formWithErrors)).map(BadRequest(_)),
-      value =>
-        for {
-          updatedAnswers <- Future.fromTry(request.userAnswers.set(addressPage, value))
-          _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-        } yield {
-          Redirect(navigator.nextPage(addressPage, mode, updatedAnswers))
+  protected def post(mode: Mode,
+                     name: Option[String],
+                     addressLocation: AddressConfiguration)(
+    implicit request: DataRequest[AnyContent],
+    ec: ExecutionContext
+  ): Future[Result] = {
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => {
+          renderer.render(viewTemplate, json(mode, name, formWithErrors, addressLocation)).map(BadRequest(_))
+        },
+        value =>
+          for {
+            updatedAnswers <- Future
+              .fromTry(request.userAnswers.set(addressPage, value))
+            _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+          } yield {
+            Redirect(navigator.nextPage(addressPage, mode, updatedAnswers))
         }
-
-    )
+      )
   }
 
-  private def countryJsonElement(tuple: (String, String), isSelected: Boolean): JsArray = Json.arr(
-    if (isSelected) {
-      Json.obj(
-        "value" -> tuple._1,
-        "text" -> tuple._2,
-        "selected" -> true
-      )
-    } else {
-      Json.obj(
-        "value" -> tuple._1,
-        "text" -> tuple._2
-      )
+  protected def json(
+    mode: Mode,
+    entityName: Option[String],
+    form: Form[Address],
+    addressLocation: AddressConfiguration
+  )(implicit request: DataRequest[AnyContent]): JsObject = {
+    val messages = request2Messages
+    val extraJson = addressLocation match {
+      case AddressConfiguration.PostcodeFirst =>
+        Json.obj(
+          "postcodeFirst" -> true,
+          "postcodeEntry" -> true,
+          "countries" -> jsonCountries(form.data.get("country"), config)(messages)
+        )
+      case AddressConfiguration.CountryFirst =>
+        Json.obj(
+          "postcodeEntry" -> true,
+          "countries" -> jsonCountries(form.data.get("country"), config)(messages)
+        )
+      case AddressConfiguration.CountryOnly =>
+        Json.obj("countries" -> jsonCountries(form.data.get("country"), config)(messages))
+      case _ => Json.obj()
     }
-  )
 
-  def jsonCountries(countrySelected: Option[String], config: FrontendAppConfig)(implicit messages: Messages): JsArray = {
+    val pageTitle = pageTitleEntityTypeMessageKey match {
+        case Some(key) => messages(pageTitleMessageKey, messages(key))
+        case _ => messages(pageTitleMessageKey)
+    }
+    val h1 = entityName match {
+      case Some(e) =>  messages (h1MessageKey, e)
+      case _ => messages (h1MessageKey)
+    }
+
+    Json.obj(
+      "submitUrl" -> submitRoute(mode).url,
+      "form" -> form,
+      "pageTitle" -> pageTitle,
+      "h1" -> h1
+    ) ++ extraJson
+  }
+
+  private def countryJsonElement(tuple: (String, String),
+                                 isSelected: Boolean): JsArray =
+    Json.arr(if (isSelected) {
+      Json.obj("value" -> tuple._1, "text" -> tuple._2, "selected" -> true)
+    } else {
+      Json.obj("value" -> tuple._1, "text" -> tuple._2)
+    })
+
+  def jsonCountries(countrySelected: Option[String], config: FrontendAppConfig)(
+    implicit messages: Messages
+  ): JsArray = {
     config.validCountryCodes
       .map(countryCode => (countryCode, messages(s"country.$countryCode")))
       .sortWith(_._2 < _._2)
-      .foldLeft(JsArray(Seq(Json.obj("value" -> "", "text" -> "")))) { (acc, nextCountryTuple) =>
-        acc ++ countryJsonElement(nextCountryTuple, countrySelected.contains(nextCountryTuple._1))
+      .foldLeft(JsArray(Seq(Json.obj("value" -> "", "text" -> "")))) {
+        (acc, nextCountryTuple) =>
+          acc ++ countryJsonElement(
+            nextCountryTuple,
+            countrySelected.contains(nextCountryTuple._1)
+          )
       }
   }
-
 }
-

@@ -57,7 +57,7 @@ class IndividualAddressListControllerSpec extends ControllerSpecBase with Mockit
 
   private def onPageLoadUrl: String = routes.IndividualAddressListController.onPageLoad(NormalMode).url
 
-  private def enterManuallyUrl: Call = routes.IndividualAddressController.onPageLoad(NormalMode)
+  private def enterManuallyUrl: Call = routes.IndividualContactAddressController.onPageLoad(NormalMode)
 
   private def submitUrl: String = routes.IndividualAddressListController.onSubmit(NormalMode).url
 

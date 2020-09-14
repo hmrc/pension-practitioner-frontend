@@ -42,6 +42,8 @@ import pages.register.AreYouUKCompanyPage
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
+import play.api.libs.json.JsArray
+import play.api.libs.json.JsBoolean
 import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import play.api.mvc.Call
@@ -96,8 +98,10 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
 
   private val jsonToPassToTemplate: Form[Address] => JsObject =
     form => Json.obj(
-        "form" -> form,
-      "viewmodel" -> CommonViewModel("partnership", companyName, submitUrl)
+      "submitUrl" -> submitUrl,
+      "form" -> form,
+      "pageTitle" -> messages("address.title", messages("partnership")),
+      "h1" -> messages("address.title", companyName)
     )
 
   override def beforeEach: Unit = {
@@ -110,7 +114,7 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
   }
 
   "Partnership Enter Registered Address Controller" must {
-    "return OK and the correct view for a GET" in {
+    "return OK and the correct view for a GET with countries but no postcode" in {
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
@@ -121,7 +125,10 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
 
       templateCaptor.getValue mustEqual templateToBeRendered
+
       jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
+      (jsonCaptor.getValue \ "countries").asOpt[JsArray].isDefined mustBe true
+      (jsonCaptor.getValue \ "postcodeEntry").asOpt[JsBoolean].isDefined mustBe false
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {

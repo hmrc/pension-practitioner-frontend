@@ -33,7 +33,10 @@ class IndividualNavigatorSpec extends NavigatorBehaviour {
 
   private def areYouUKResident(flag: Boolean): UserAnswers = UserAnswers().setOrException(AreYouUKResidentPage, flag)
 
-  private def uaUseAddressForContact(flag: Boolean): UserAnswers = UserAnswers().setOrException(UseAddressForContactPage, flag)
+  private def uaUseAddressForContact(useAddress: Boolean, uk:Boolean): UserAnswers = UserAnswers()
+    .setOrException(AreYouUKResidentPage, uk)
+    .setOrException(UseAddressForContactPage, useAddress)
+
 
   "NormalMode" must {
     def normalModeRoutes: TableFor3[Page, UserAnswers, Call] =
@@ -43,15 +46,19 @@ class IndividualNavigatorSpec extends NavigatorBehaviour {
         row(AreYouUKResidentPage)(controllers.individual.routes.IsThisYouController.onPageLoad(NormalMode), Some(areYouUKResident(true))),
         row(AreYouUKResidentPage)(controllers.individual.routes.IndividualNameController.onPageLoad(), Some(areYouUKResident(false))),
         row(AreYouUKResidentPage)(controllers.routes.SessionExpiredController.onPageLoad(), None),
-        row(IndividualDetailsPage)(controllers.individual.routes.IndividualNonUKAddressController.onPageLoad(NormalMode), None),
+        row(IndividualDetailsPage)(controllers.individual.routes.IndividualEnterRegisteredAddressController.onPageLoad(NormalMode), None),
         row(IndividualAddressPage)(controllers.individual.routes.UseAddressForContactController.onPageLoad(NormalMode), Some(uaAddress("FR"))),
         row(IndividualAddressPage)(controllers.individual.routes.OutsideEuEeaController.onPageLoad(), Some(uaAddress("IN"))),
         row(IndividualAddressPage)(controllers.individual.routes.AreYouUKResidentController.onPageLoad(CheckMode), Some(uaAddress("GB"))),
         row(IsThisYouPage)(controllers.individual.routes.YouNeedToTellHMRCController.onPageLoad(), Some(uaIsThisYou(false))),
         row(IsThisYouPage)(controllers.individual.routes.UseAddressForContactController.onPageLoad(NormalMode), Some(uaIsThisYou(true))),
         row(IsThisYouPage)(controllers.routes.SessionExpiredController.onPageLoad(), None),
-        row(UseAddressForContactPage)(controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode), Some(uaUseAddressForContact(true))),
-        row(UseAddressForContactPage)(controllers.individual.routes.IndividualPostcodeController.onPageLoad(NormalMode), Some(uaUseAddressForContact(false))),
+        row(UseAddressForContactPage)(controllers.individual.routes.IndividualEmailController
+          .onPageLoad(NormalMode), Some(uaUseAddressForContact(useAddress = true, uk = false))),
+        row(UseAddressForContactPage)(controllers.individual.routes.IndividualPostcodeController
+          .onPageLoad(NormalMode), Some(uaUseAddressForContact(useAddress = false, uk = true))),
+        row(UseAddressForContactPage)(controllers.individual.routes.IndividualContactAddressController
+          .onPageLoad(NormalMode), Some(uaUseAddressForContact(useAddress = false, uk = false))),
         row(UseAddressForContactPage)(controllers.routes.SessionExpiredController.onPageLoad(), None),
         row(IndividualPostcodePage)(controllers.individual.routes.IndividualAddressListController.onPageLoad(NormalMode)),
         row(IndividualAddressListPage)(controllers.individual.routes.IndividualEmailController.onPageLoad(NormalMode)),

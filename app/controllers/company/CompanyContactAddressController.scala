@@ -17,23 +17,20 @@
 package controllers.company
 
 import config.FrontendAppConfig
-import connectors.RegistrationConnector
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import controllers.address.ManualAddressController
-import controllers.company.routes.IsCompanyRegisteredInUkController
-import forms.address.RegisteredAddressFormProvider
+import forms.address.AddressFormProvider
 import javax.inject.Inject
 import models.Address
 import models.AddressConfiguration
 import models.Mode
-import models.register.RegistrationLegalStatus
 import navigators.CompoundNavigator
 import pages.QuestionPage
-import pages.RegistrationInfoPage
-import pages.company.CompanyRegisteredAddressPage
+import pages.company.CompanyAddressPage
 import pages.company.BusinessNamePage
+import pages.register.AreYouUKCompanyPage
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.i18n.Messages
@@ -44,65 +41,49 @@ import play.api.mvc.Call
 import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.countryOptions.CountryOptions
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
-class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi: MessagesApi,
+class CompanyContactAddressController @Inject()(
+  override val messagesApi: MessagesApi,
   val userAnswersCacheConnector: UserAnswersCacheConnector,
   val navigator: CompoundNavigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: RegisteredAddressFormProvider,
+  formProvider: AddressFormProvider,
+  countryOptions: CountryOptions,
   val controllerComponents: MessagesControllerComponents,
   val config: FrontendAppConfig,
-  val renderer: Renderer,
-  registrationConnector:RegistrationConnector
-)(implicit ec: ExecutionContext) extends ManualAddressController
-  with Retrievals with I18nSupport with NunjucksSupport {
+  val renderer: Renderer
+)(implicit ec: ExecutionContext)
+    extends ManualAddressController
+    with Retrievals
+    with I18nSupport
+    with NunjucksSupport {
 
   def form(implicit messages: Messages): Form[Address] = formProvider()
 
-  override protected def addressPage: QuestionPage[Address] = CompanyRegisteredAddressPage
+  override protected def addressPage: QuestionPage[Address] = CompanyAddressPage
 
   override protected val pageTitleEntityTypeMessageKey = Some("company")
 
-  override protected val submitRoute: Mode => Call = mode => routes.CompanyEnterRegisteredAddressController.onSubmit(mode)
+  override protected val submitRoute: Mode => Call = mode => routes.CompanyContactAddressController.onSubmit(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
-      BusinessNamePage.retrieve.right.map { companyName =>
-          get(mode, Some(companyName), AddressConfiguration.CountryOnly)
+      (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
+        case areYouUKCompany ~ companyName =>
+          get(mode, Some(companyName), addressConfigurationForPostcodeAndCountry(areYouUKCompany))
       }
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
-      BusinessNamePage.retrieve.right.map { companyName =>
-        form
-          .bindFromRequest()
-          .fold(
-            formWithErrors => {
-              renderer.render(viewTemplate,
-                json(mode, Some(companyName), formWithErrors, AddressConfiguration.CountryOnly)).map(BadRequest(_))
-            },
-            value => {
-              val updatedUA = request.userAnswers.setOrException(addressPage, value)
-              val nextPage = navigator.nextPage(addressPage, mode, updatedUA)
-              val futureUA =
-                if (nextPage == IsCompanyRegisteredInUkController.onPageLoad()) {
-                  Future(updatedUA)
-                } else {
-                  registrationConnector
-                    .registerWithNoIdOrganisation(companyName, value, RegistrationLegalStatus.LimitedCompany)
-                    .map(updatedUA.setOrException(RegistrationInfoPage, _))
-                }
-              futureUA
-                .flatMap(ua => userAnswersCacheConnector.save(ua.data))
-                .map(_ => Redirect(nextPage))
-            }
-          )
+      (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
+        case areYouUKCompany ~ companyName =>
+          post(mode, Some(companyName), addressConfigurationForPostcodeAndCountry(areYouUKCompany))
       }
     }
 }

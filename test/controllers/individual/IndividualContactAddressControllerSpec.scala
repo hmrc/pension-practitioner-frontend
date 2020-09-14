@@ -14,49 +14,40 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers.individual
 
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import forms.address.AddressFormProvider
 import matchers.JsonMatchers
-import models.Address
-import models.NormalMode
-import models.UserAnswers
+import models.{NormalMode, Address, UserAnswers}
 import org.mockito.Matchers.any
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.when
-import org.mockito.ArgumentCaptor
-import org.mockito.Matchers
-import org.scalatest.OptionValues
-import org.scalatest.TryValues
+import org.mockito.Mockito.{times, when, verify}
+import org.mockito.{Matchers, ArgumentCaptor}
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.company.BusinessNamePage
-import pages.company.CompanyAddressPage
-import pages.register.AreYouUKCompanyPage
+import pages.individual.AreYouUKResidentPage
+import pages.individual.IndividualManualAddressPage
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
+import play.api.libs.json.JsArray
+import play.api.libs.json.JsBoolean
+import play.api.libs.json.{Json, JsObject}
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.InputOption
 import utils.countryOptions.CountryOptions
-import viewmodels.CommonViewModel
 
 import scala.concurrent.Future
 
-class CompanyAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class IndividualContactAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
                                 with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
-  private val companyName: String = "Company name"
-
-  val countryOptions: CountryOptions = mock[CountryOptions]
+  private val countryOptions: CountryOptions = mock[CountryOptions]
 
   private val application: Application =
     applicationBuilderMutableRetrievalAction(
@@ -66,20 +57,17 @@ class CompanyAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
   private val templateToBeRendered = "address/manualAddress.njk"
   private val form = new AddressFormProvider(countryOptions)()
 
-  val userAnswers: UserAnswers = UserAnswers().set(BusinessNamePage, companyName).toOption.value
-    .setOrException(AreYouUKCompanyPage, true)
-
-  private def onPageLoadUrl: String = routes.CompanyAddressController.onPageLoad(NormalMode).url
-  private def submitUrl: String = routes.CompanyAddressController.onSubmit(NormalMode).url
+  private def onPageLoadUrl: String = routes.IndividualContactAddressController.onPageLoad(NormalMode).url
+  private def submitUrl: String = routes.IndividualContactAddressController.onSubmit(NormalMode).url
   private val dummyCall: Call = Call("GET", "/foo")
-  private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("ZZ1 1ZZ"), "GB")
+  private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("ZZ1 1ZZ"), "UK")
 
   private val valuesValid: Map[String, Seq[String]] = Map(
     "line1" -> Seq("line1"),
     "line2" -> Seq("line2"),
     "line3" -> Seq("line3"),
     "line4" -> Seq("line4"),
-    "country" -> Seq("GB"),
+    "country" -> Seq("UK"),
     "postcode" -> Seq("ZZ1 1ZZ")
   )
 
@@ -87,21 +75,25 @@ class CompanyAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
 
   private val jsonToPassToTemplate: Form[Address] => JsObject =
     form => Json.obj(
-        "form" -> form,
-      "viewmodel" -> CommonViewModel("company", companyName, submitUrl)
+      "submitUrl" -> submitUrl,
+      "form" -> form,
+      "pageTitle" -> messages("individual.address.title"),
+      "h1" -> messages("individual.address.title")
     )
 
   override def beforeEach: Unit = {
     super.beforeEach
-    mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
+    mutableFakeDataRetrievalAction.setDataToReturn(Some(
+      UserAnswers().setOrException(AreYouUKResidentPage, true)
+    ))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-    when(countryOptions.options).thenReturn(Seq(InputOption("GB", "United Kingdom")))
-    when(mockAppConfig.validCountryCodes).thenReturn(Seq("GB"))
+    when(countryOptions.options).thenReturn(Seq(InputOption("UK", "United Kingdom")))
+    when(mockAppConfig.validCountryCodes).thenReturn(Seq("UK"))
   }
 
-  "CompanyAddress Controller" must {
-    "return OK and the correct view for a GET" in {
+  "IndividualAddress Controller" must {
+    "return OK and the correct view for a GET with countries and postcode" in {
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
@@ -113,6 +105,8 @@ class CompanyAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
 
       templateCaptor.getValue mustEqual templateToBeRendered
       jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
+      (jsonCaptor.getValue \ "countries").asOpt[JsArray].isDefined mustBe true
+      (jsonCaptor.getValue \ "postcodeEntry").asOpt[JsBoolean].isDefined mustBe true
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {
@@ -128,10 +122,9 @@ class CompanyAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
     "Save data to user answers and redirect to next page when valid data is submitted" in {
 
       val expectedJson = Json.obj(
-          BusinessNamePage.toString -> companyName,
-          CompanyAddressPage.toString -> address)
+          IndividualManualAddressPage.toString -> address)
 
-      when(mockCompoundNavigator.nextPage(Matchers.eq(CompanyAddressPage), any(), any())).thenReturn(dummyCall)
+      when(mockCompoundNavigator.nextPage(Matchers.eq(IndividualManualAddressPage), any(), any())).thenReturn(dummyCall)
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
       val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
