@@ -33,7 +33,7 @@ class SubscriptionConnector @Inject()(http: HttpClient,
                                       config: FrontendAppConfig) extends HttpResponseHelper {
 
   def subscribePsp(answers: UserAnswers)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[String] = {
-    val url = config.pspSubscriptionUrl
+      val url = config.pspSubscriptionUrl
     http.POST[JsObject, HttpResponse](url, answers.data).map {
       response =>
         response.status match {
