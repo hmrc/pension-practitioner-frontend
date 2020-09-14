@@ -48,7 +48,7 @@ class PartnershipNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCon
     case PartnershipUseSameAddressPage =>
       (ua.get(AreYouUKCompanyPage), ua.get(PartnershipUseSameAddressPage)) match {
         case (_, Some(true)) => controllers.partnership.routes.PartnershipEmailController.onPageLoad(NormalMode)
-        case (Some(false), Some(false)) => controllers.partnership.routes.PartnershipAddressController.onPageLoad(NormalMode)
+        case (Some(false), Some(false)) => controllers.partnership.routes.PartnershipContactAddressController.onPageLoad(NormalMode)
         case _ => controllers.partnership.routes.PartnershipPostcodeController.onPageLoad(NormalMode)
       }
 

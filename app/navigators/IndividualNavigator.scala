@@ -36,7 +36,7 @@ class IndividualNavigator @Inject()(countryOptions: CountryOptions) extends Navi
         case Some(false) => IndividualNameController.onPageLoad()
         case _ => controllers.routes.SessionExpiredController.onPageLoad()
       }
-    case IndividualDetailsPage => IndividualNonUKAddressController.onPageLoad(NormalMode)
+    case IndividualDetailsPage => IndividualEnterRegisteredAddressController.onPageLoad(NormalMode)
     case IndividualAddressPage => regionBasedNavigation(ua)
     case IsThisYouPage =>
       ua.get(IsThisYouPage) match {
@@ -45,9 +45,10 @@ class IndividualNavigator @Inject()(countryOptions: CountryOptions) extends Navi
         case _ => controllers.routes.SessionExpiredController.onPageLoad()
       }
     case UseAddressForContactPage =>
-      ua.get(UseAddressForContactPage) match {
-        case Some(true) => IndividualEmailController.onPageLoad(NormalMode)
-        case Some(false) => IndividualPostcodeController.onPageLoad(NormalMode)
+      (ua.get(AreYouUKResidentPage), ua.get(UseAddressForContactPage)) match {
+        case (_, Some(true)) => IndividualEmailController.onPageLoad(NormalMode)
+        case (Some(true), Some(false)) => IndividualPostcodeController.onPageLoad(NormalMode)
+        case (Some(false), Some(false)) => IndividualContactAddressController.onPageLoad(NormalMode)
         case _ => controllers.routes.SessionExpiredController.onPageLoad()
       }
     case IndividualPostcodePage => IndividualAddressListController.onPageLoad(NormalMode)

@@ -59,7 +59,7 @@ class PartnershipCYAService extends CYAService {
             Seq(
               partnershipName(name),
               partnershipAddress(address,
-                controllers.partnership.routes.PartnershipAddressController.onPageLoad(CheckMode)),
+                controllers.partnership.routes.PartnershipContactAddressController.onPageLoad(CheckMode)),
               partnershipEmail(name, email),
               partnershipPhone(name, phone)
             )

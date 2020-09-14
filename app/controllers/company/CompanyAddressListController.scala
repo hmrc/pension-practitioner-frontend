@@ -80,7 +80,7 @@ class CompanyAddressListController @Inject()(override val messagesApi: MessagesA
               "company",
               companyName,
               routes.CompanyAddressListController.onSubmit(mode).url,
-              Some(routes.CompanyAddressController.onPageLoad(mode).url)
+              Some(routes.CompanyContactAddressController.onPageLoad(mode).url)
             ))
       }
   )

@@ -64,7 +64,7 @@ class PartnershipNavigatorSpec extends NavigatorBehaviour {
         row(ConfirmAddressPage)(PartnershipUseSameAddressController.onPageLoad(), Some(uaConfirmAddressYes)),
         row(PartnershipUseSameAddressPage)(PartnershipEmailController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=true, uk=true))),
         row(PartnershipUseSameAddressPage)(PartnershipPostcodeController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=false, uk=true))),
-        row(PartnershipUseSameAddressPage)(PartnershipAddressController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=false, uk=false))),
+        row(PartnershipUseSameAddressPage)(PartnershipContactAddressController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=false, uk=false))),
         row(PartnershipPostcodePage)(PartnershipAddressListController.onPageLoad(NormalMode)),
         row(PartnershipAddressListPage)(PartnershipEmailController.onPageLoad(NormalMode)),
         row(PartnershipAddressPage)(PartnershipEmailController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(true))),

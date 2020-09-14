@@ -79,7 +79,7 @@ class PartnershipAddressListController @Inject()(override val messagesApi: Messa
               "partnership",
               partnershipName,
               routes.PartnershipAddressListController.onSubmit(mode).url,
-              Some(routes.PartnershipAddressController.onPageLoad(mode).url)
+              Some(routes.PartnershipContactAddressController.onPageLoad(mode).url)
             ))
       }
   )

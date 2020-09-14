@@ -81,7 +81,7 @@ class CompanyPostcodeController @Inject()(override val messagesApi: MessagesApi,
                 "company",
                 companyName,
                 routes.CompanyPostcodeController.onSubmit(mode).url,
-                Some(routes.CompanyAddressController.onPageLoad(mode).url)
+                Some(routes.CompanyContactAddressController.onPageLoad(mode).url)
               ))
         }
     )

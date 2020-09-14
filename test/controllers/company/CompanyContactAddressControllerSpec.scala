@@ -14,98 +14,98 @@
  * limitations under the License.
  */
 
-package controllers.individual
+package controllers.company
 
-import connectors.RegistrationConnector
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
-import forms.address.NonUKAddressFormProvider
+import forms.address.AddressFormProvider
 import matchers.JsonMatchers
-import models.register.{RegistrationCustomerType, RegistrationIdType, RegistrationInfo, RegistrationLegalStatus, TolerantIndividual}
-import models.{Address, NormalMode, TolerantAddress, UserAnswers}
+import models.Address
+import models.NormalMode
+import models.UserAnswers
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{times, verify, when}
-import org.mockito.{ArgumentCaptor, Matchers}
-import org.scalatest.{OptionValues, TryValues}
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.when
+import org.mockito.ArgumentCaptor
+import org.mockito.Matchers
+import org.scalatest.OptionValues
+import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
-import pages.individual.{IndividualAddressPage, IndividualDetailsPage}
+import pages.company.BusinessNamePage
+import pages.company.CompanyAddressPage
+import pages.register.AreYouUKCompanyPage
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.JsArray
+import play.api.libs.json.JsBoolean
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.InputOption
 import utils.countryOptions.CountryOptions
+import viewmodels.CommonViewModel
 
 import scala.concurrent.Future
 
-class IndividualNonUKAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
-  with JsonMatchers with OptionValues with TryValues {
+class CompanyContactAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+                                with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
-  private val countryOptions: CountryOptions = mock[CountryOptions]
-  private val mockRegistrationConnector: RegistrationConnector = mock[RegistrationConnector]
+  private val companyName: String = "Company name"
 
-  val regInfo: RegistrationInfo = RegistrationInfo(
-    RegistrationLegalStatus.LimitedCompany,
-    "sapNumber",
-    noIdentifier = false,
-    RegistrationCustomerType.UK,
-    Some(RegistrationIdType.UTR),
-    Some("utr")
-  )
+  val countryOptions: CountryOptions = mock[CountryOptions]
 
   private val application: Application =
     applicationBuilderMutableRetrievalAction(
       mutableFakeDataRetrievalAction,
-      extraModules = Seq(
-        bind[CountryOptions].toInstance(countryOptions),
-        bind[RegistrationConnector].toInstance(mockRegistrationConnector)
-      )
+      extraModules = Seq(bind[CountryOptions].toInstance(countryOptions))
     ).build()
-  private val templateToBeRendered = "individual/nonUKAddress.njk"
-  private val form = new NonUKAddressFormProvider(countryOptions)()
+  private val templateToBeRendered = "address/manualAddress.njk"
+  private val form = new AddressFormProvider(countryOptions)()
 
-  private def onPageLoadUrl: String = routes.IndividualNonUKAddressController.onPageLoad(NormalMode).url
+  val userAnswers: UserAnswers = UserAnswers().set(BusinessNamePage, companyName).toOption.value
+    .setOrException(AreYouUKCompanyPage, true)
 
-  private def submitUrl: String = routes.IndividualNonUKAddressController.onSubmit(NormalMode).url
-
+  private def onPageLoadUrl: String = routes.CompanyContactAddressController.onPageLoad(NormalMode).url
+  private def submitUrl: String = routes.CompanyContactAddressController.onSubmit(NormalMode).url
   private val dummyCall: Call = Call("GET", "/foo")
-  private val address: TolerantAddress = TolerantAddress(Some("line1"), Some("line2"), Some("line3"), Some("line4"), None, Some("IN"))
-  private val ua: UserAnswers = UserAnswers().setOrException(IndividualDetailsPage, TolerantIndividual(Some("first"), None, Some("last")))
+  private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("ZZ1 1ZZ"), "GB")
 
   private val valuesValid: Map[String, Seq[String]] = Map(
     "line1" -> Seq("line1"),
     "line2" -> Seq("line2"),
     "line3" -> Seq("line3"),
     "line4" -> Seq("line4"),
-    "country" -> Seq("IN")
+    "country" -> Seq("GB"),
+    "postcode" -> Seq("ZZ1 1ZZ")
   )
 
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
 
   private val jsonToPassToTemplate: Form[Address] => JsObject =
     form => Json.obj(
+      "submitUrl" -> submitUrl,
       "form" -> form,
-      "submitUrl" -> submitUrl
+      "pageTitle" -> messages("address.title", messages("company")),
+      "h1" -> messages("address.title", companyName)
     )
 
   override def beforeEach: Unit = {
     super.beforeEach
-    mutableFakeDataRetrievalAction.setDataToReturn(Some(ua))
+    mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
-    when(mockRegistrationConnector.registerWithNoIdIndividual(any(), any(), any())(any(), any()))
-      .thenReturn(Future.successful(regInfo))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-    when(countryOptions.options).thenReturn(Seq(InputOption("IN", "India")))
-    when(mockAppConfig.validCountryCodes).thenReturn(Seq("IN"))
+    when(countryOptions.options).thenReturn(Seq(InputOption("GB", "United Kingdom")))
+    when(mockAppConfig.validCountryCodes).thenReturn(Seq("GB"))
   }
 
-  "IndividualNonUKAddress Controller" must {
-    "return OK and the correct view for a GET" in {
+  "CompanyAddress Controller" must {
+    "return OK and the correct view for a GET with countries and postcode" in {
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
@@ -116,7 +116,10 @@ class IndividualNonUKAddressControllerSpec extends ControllerSpecBase with Mocki
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
 
       templateCaptor.getValue mustEqual templateToBeRendered
+
       jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
+      (jsonCaptor.getValue \ "countries").asOpt[JsArray].isDefined mustBe true
+      (jsonCaptor.getValue \ "postcodeEntry").asOpt[JsBoolean].isDefined mustBe true
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {
@@ -132,16 +135,16 @@ class IndividualNonUKAddressControllerSpec extends ControllerSpecBase with Mocki
     "Save data to user answers and redirect to next page when valid data is submitted" in {
 
       val expectedJson = Json.obj(
-        IndividualAddressPage.toString -> address)
+          BusinessNamePage.toString -> companyName,
+          CompanyAddressPage.toString -> address)
 
-      when(mockCompoundNavigator.nextPage(Matchers.eq(IndividualAddressPage), any(), any())).thenReturn(dummyCall)
+      when(mockCompoundNavigator.nextPage(Matchers.eq(CompanyAddressPage), any(), any())).thenReturn(dummyCall)
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
       val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
-
       jsonCaptor.getValue must containJson(expectedJson)
       redirectLocation(result) mustBe Some(dummyCall.url)
 

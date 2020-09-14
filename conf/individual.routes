@@ -38,10 +38,10 @@ POST       /addresses/address-results-individual             controllers.individ
 GET        /addresses/change-address-results-individual      controllers.individual.IndividualAddressListController.onPageLoad(mode: Mode = CheckMode)
 POST       /addresses/change-address-results-individual      controllers.individual.IndividualAddressListController.onSubmit(mode: Mode = CheckMode)
 
-GET        /addresses/address-manual-individual             controllers.individual.IndividualAddressController.onPageLoad(mode: Mode = NormalMode)
-POST       /addresses/address-manual-individual             controllers.individual.IndividualAddressController.onSubmit(mode: Mode = NormalMode)
-GET        /addresses/change-address-manual-individual      controllers.individual.IndividualAddressController.onPageLoad(mode: Mode = CheckMode)
-POST       /addresses/change-address-manual-individual      controllers.individual.IndividualAddressController.onSubmit(mode: Mode = CheckMode)
+GET        /addresses/address-manual-individual             controllers.individual.IndividualContactAddressController.onPageLoad(mode: Mode = NormalMode)
+POST       /addresses/address-manual-individual             controllers.individual.IndividualContactAddressController.onSubmit(mode: Mode = NormalMode)
+GET        /addresses/change-address-manual-individual      controllers.individual.IndividualContactAddressController.onPageLoad(mode: Mode = CheckMode)
+POST       /addresses/change-address-manual-individual      controllers.individual.IndividualContactAddressController.onSubmit(mode: Mode = CheckMode)
 
 GET        /check-your-answers-individual                        controllers.individual.CheckYourAnswersController.onPageLoad
 
@@ -53,10 +53,10 @@ GET        /registration-successful                         controllers.individu
 GET        /what-is-your-name                      controllers.individual.IndividualNameController.onPageLoad(mode: Mode = NormalMode)
 POST       /what-is-your-name                      controllers.individual.IndividualNameController.onSubmit(mode: Mode = NormalMode)
 
-GET         /address-manual                         controllers.individual.IndividualNonUKAddressController.onPageLoad(mode: Mode = NormalMode)
-POST        /address-manual                         controllers.individual.IndividualNonUKAddressController.onSubmit(mode: Mode = NormalMode)
-GET         /change-address-manual                  controllers.individual.IndividualNonUKAddressController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-address-manual                  controllers.individual.IndividualNonUKAddressController.onSubmit(mode: Mode = CheckMode)
+GET         /address-manual                         controllers.individual.IndividualEnterRegisteredAddressController.onPageLoad(mode: Mode = NormalMode)
+POST        /address-manual                         controllers.individual.IndividualEnterRegisteredAddressController.onSubmit(mode: Mode = NormalMode)
+GET         /change-address-manual                  controllers.individual.IndividualEnterRegisteredAddressController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-address-manual                  controllers.individual.IndividualEnterRegisteredAddressController.onSubmit(mode: Mode = CheckMode)
 
 GET         /outside-eu-eea                         controllers.individual.OutsideEuEeaController.onPageLoad()
 

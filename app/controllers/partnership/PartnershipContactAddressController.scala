@@ -17,91 +17,77 @@
 package controllers.partnership
 
 import config.FrontendAppConfig
-import connectors.RegistrationConnector
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import controllers.address.ManualAddressController
-import forms.address.RegisteredAddressFormProvider
+import forms.address.AddressFormProvider
 import javax.inject.Inject
+import models.requests.DataRequest
 import models.Address
 import models.AddressConfiguration
 import models.Mode
-import models.register.RegistrationLegalStatus
 import navigators.CompoundNavigator
 import pages.QuestionPage
-import pages.RegistrationInfoPage
 import pages.partnership.BusinessNamePage
-import pages.partnership.PartnershipRegisteredAddressPage
+import pages.partnership.PartnershipAddressPage
+import pages.register.AreYouUKCompanyPage
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Call
 import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.countryOptions.CountryOptions
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-class PartnershipEnterRegisteredAddressController @Inject()(override val messagesApi: MessagesApi,
+class PartnershipContactAddressController @Inject()(
+  override val messagesApi: MessagesApi,
   val userAnswersCacheConnector: UserAnswersCacheConnector,
   val navigator: CompoundNavigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: RegisteredAddressFormProvider,
+  formProvider: AddressFormProvider,
+  countryOptions: CountryOptions,
   val controllerComponents: MessagesControllerComponents,
   val config: FrontendAppConfig,
-  val renderer: Renderer,
-  registrationConnector:RegistrationConnector
-)(implicit ec: ExecutionContext) extends ManualAddressController
-  with Retrievals with I18nSupport with NunjucksSupport {
+  val renderer: Renderer
+)(implicit ec: ExecutionContext)
+  extends ManualAddressController
+    with Retrievals
+    with I18nSupport
+    with NunjucksSupport {
 
   def form(implicit messages: Messages): Form[Address] = formProvider()
 
-  override protected def addressPage: QuestionPage[Address] = PartnershipRegisteredAddressPage
+  override protected def addressPage: QuestionPage[Address] = PartnershipAddressPage
 
   override protected val pageTitleEntityTypeMessageKey = Some("partnership")
 
-  override protected val submitRoute: Mode => Call = mode => routes.PartnershipEnterRegisteredAddressController.onSubmit(mode)
+  override protected val submitRoute: Mode => Call = mode => routes.PartnershipContactAddressController.onSubmit(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
-      BusinessNamePage.retrieve.right.map { companyName =>
-        get(mode, Some(companyName), AddressConfiguration.CountryOnly)
+      (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
+        case areYouUKCompany ~ companyName =>
+          get(mode, Some(companyName), addressConfigurationForPostcodeAndCountry(areYouUKCompany))
       }
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
-      BusinessNamePage.retrieve.right.map { partnershipName =>
-        form
-          .bindFromRequest()
-          .fold(
-            formWithErrors => {
-              renderer.render(viewTemplate,
-                json(mode, Some(partnershipName), formWithErrors, AddressConfiguration.CountryOnly)).map(BadRequest(_))
-            },
-            value => {
-              val updatedUA = request.userAnswers.setOrException(addressPage, value)
-              val nextPage = navigator.nextPage(addressPage, mode, updatedUA)
-              val futureUA =
-                if (nextPage == controllers.partnership.routes.IsPartnershipRegisteredInUkController.onPageLoad()) {
-                  Future(updatedUA)
-                } else {
-                  registrationConnector
-                    .registerWithNoIdOrganisation(partnershipName, value, RegistrationLegalStatus.Partnership)
-                    .map(updatedUA.setOrException(RegistrationInfoPage, _))
-                }
-              futureUA
-                .flatMap(ua => userAnswersCacheConnector.save(ua.data))
-                .map(_ => Redirect(nextPage))
-            }
-          )
+      (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
+        case areYouUKCompany ~ partnershipName =>
+          post(mode, Some(partnershipName), addressConfigurationForPostcodeAndCountry(areYouUKCompany))
       }
     }
 }

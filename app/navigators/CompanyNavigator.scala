@@ -50,7 +50,7 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
     case CompanyUseSameAddressPage =>
       (ua.get(AreYouUKCompanyPage), ua.get(CompanyUseSameAddressPage)) match {
       case (_, Some(true)) => CompanyEmailController.onPageLoad(NormalMode)
-      case (Some(false), Some(false)) => CompanyAddressController.onPageLoad(NormalMode)
+      case (Some(false), Some(false)) => CompanyContactAddressController.onPageLoad(NormalMode)
       case _ => CompanyPostcodeController.onPageLoad(NormalMode)
     }
     case CompanyPostcodePage => CompanyAddressListController.onPageLoad(NormalMode)

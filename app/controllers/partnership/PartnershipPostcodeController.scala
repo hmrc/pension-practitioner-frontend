@@ -80,7 +80,7 @@ class PartnershipPostcodeController @Inject()(override val messagesApi: Messages
                 "partnership",
                 partnershipName,
                 routes.PartnershipPostcodeController.onSubmit(mode).url,
-                Some(routes.PartnershipAddressController.onPageLoad(mode).url)
+                Some(routes.PartnershipContactAddressController.onPageLoad(mode).url)
               ))
         }
     )

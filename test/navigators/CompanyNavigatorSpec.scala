@@ -66,7 +66,7 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
         row(ConfirmAddressPage)(CompanyUseSameAddressController.onPageLoad(), Some(uaConfirmAddressYes)),
         row(CompanyUseSameAddressPage)(CompanyEmailController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=true, uk=true))),
         row(CompanyUseSameAddressPage)(CompanyPostcodeController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=false, uk=true))),
-        row(CompanyUseSameAddressPage)(CompanyAddressController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=false, uk=false))),
+        row(CompanyUseSameAddressPage)(CompanyContactAddressController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=false, uk=false))),
         row(CompanyPostcodePage)(CompanyAddressListController.onPageLoad(NormalMode)),
         row(CompanyAddressListPage)(CompanyEmailController.onPageLoad(NormalMode)),
         row(CompanyAddressPage)(CompanyEmailController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(true))),
