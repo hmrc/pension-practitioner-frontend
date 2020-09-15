@@ -43,7 +43,7 @@ class SubscriptionConnector @Inject()(http: HttpClient,
                 case JsError(errors) => throw JsResultException(errors)
           }
           case _ =>
-            Logger.warn("Unable to post aft return")
+            Logger.warn("Unable to post psp subscription")
             handleErrorResponse("POST", url)(response)
         }
     }
