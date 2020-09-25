@@ -38,8 +38,8 @@ class SubscriptionConnector @Inject()(http: HttpClient,
       response =>
         response.status match {
           case OK =>
-            println( "\n>>>" + response.body)
-            (Json.parse(response.body) \ "pspid").validate[String] match {
+            println( "\n>>>" + response.json)
+            (response.json \ "pspid").validate[String] match {
                 case JsSuccess(value, _) => value
                 case JsError(errors) => throw JsResultException(errors)
           }
