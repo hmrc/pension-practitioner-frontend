@@ -18,7 +18,7 @@ package models
 
 import play.api.libs.json.{Format, Json}
 
-case class ExistingPSP(isExistingPSA: Boolean, existingPSAId: Option[String])
+case class ExistingPSP(isExistingPSP: Boolean, existingPSPId: Option[String])
 
 object ExistingPSP {
   implicit lazy val formats: Format[ExistingPSP] = Json.format[ExistingPSP]
