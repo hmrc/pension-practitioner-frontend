@@ -20,6 +20,7 @@ import com.google.inject.Inject
 import config.FrontendAppConfig
 import connectors.IdentityVerificationConnector
 import connectors.cache.UserAnswersCacheConnector
+import controllers.routes
 import models.UserAnswers
 import models.WhatTypeBusiness.Yourselfasindividual
 import models.requests.PSPUser
@@ -64,14 +65,34 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
         Retrievals.credentials
     ) {
       case cl ~ Some(affinityGroup) ~ enrolments ~ Some(credentials) =>
-        val authRequest = AuthenticatedRequest(request, pspUser(cl, affinityGroup, None, enrolments, credentials.providerId))
-        successRedirect(affinityGroup, cl, enrolments, authRequest, block)
+        redirectToInterceptPages(enrolments, affinityGroup).fold {
+          val authRequest = AuthenticatedRequest(request, pspUser(cl, affinityGroup, None, enrolments, credentials.providerId))
+          successRedirect(affinityGroup, cl, enrolments, authRequest, block)
+        } { result => Future.successful(result) }
       case _ =>
         Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
 
     } recover handleFailure
   }
 
+  private def redirectToInterceptPages[A](enrolments: Enrolments, affinityGroup: AffinityGroup): Option[Result] = {
+
+    //alreadyEnrolledInPODS(enrolments)
+
+    //if (isPSP(enrolments) && !isPSP(enrolments)) {
+    //  Some(Redirect(routes.PensionSchemePractitionerController.onPageLoad()))
+    //} else {
+    //  affinityGroup match {
+    //    case Agent =>
+    //      Some(Redirect(routes.AgentCannotRegisterController.onPageLoad()))
+    //    case Individual if !alreadyEnrolledInPODS(enrolments) =>
+    //      Some(Redirect(routes.UseOrganisationCredentialsController.onPageLoad()))
+    //    case _ =>
+    //      None
+    //  }
+    //}
+    None
+  }
 
   protected def successRedirect[A](affinityGroup: AffinityGroup, cl: ConfidenceLevel,
     enrolments: Enrolments, authRequest: AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
