@@ -39,7 +39,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class IndividualNameController @Inject()(override val messagesApi: MessagesApi,
                                          userAnswersCacheConnector: UserAnswersCacheConnector,
                                          navigator: CompoundNavigator,
-                                         identify: IdentifierAction,
+                                         authenticate: AuthAction,
                                          getData: DataRetrievalAction,
                                          requireData: DataRequiredAction,
                                          formProvider: IndividualNameFormProvider,
@@ -52,7 +52,7 @@ class IndividualNameController @Inject()(override val messagesApi: MessagesApi,
   private def form(implicit messages: Messages): Form[TolerantIndividual] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
+    (authenticate andThen getData andThen requireData).async {
       implicit request =>
         val formFilled = request.userAnswers.get(IndividualDetailsPage).fold(form)(form.fill)
         getJson(mode, formFilled) { json =>
@@ -61,7 +61,7 @@ class IndividualNameController @Inject()(override val messagesApi: MessagesApi,
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
+    (authenticate andThen getData andThen requireData).async {
       implicit request =>
         form.bindFromRequest().fold(
           formWithErrors =>

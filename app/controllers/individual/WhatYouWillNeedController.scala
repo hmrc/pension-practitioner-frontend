@@ -32,7 +32,7 @@ import scala.concurrent.ExecutionContext
 
 class WhatYouWillNeedController @Inject()(
                                            override val messagesApi: MessagesApi,
-                                           @AuthWithNoIV identify: IdentifierAction,
+                                           @AuthWithNoIV authenticate: AuthAction,
                                            getData: DataRetrievalAction,
                                            requireData: DataRequiredAction,
                                            navigator: CompoundNavigator,
@@ -40,7 +40,7 @@ class WhatYouWillNeedController @Inject()(
                                            renderer: Renderer
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       val nextPage = navigator.nextPage(WhatYouWillNeedPage, NormalMode, request.userAnswers)
       renderer.render(template = "individual/whatYouWillNeed.njk",

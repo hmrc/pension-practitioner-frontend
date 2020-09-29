@@ -62,7 +62,7 @@ class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
+    (authenticate andThen getData andThen requireData).async {
       implicit request =>
         form.bindFromRequest().fold(
           formWithErrors =>

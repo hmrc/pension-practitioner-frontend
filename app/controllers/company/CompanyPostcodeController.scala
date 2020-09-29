@@ -41,7 +41,7 @@ import scala.concurrent.ExecutionContext
 class CompanyPostcodeController @Inject()(override val messagesApi: MessagesApi,
                                           val userAnswersCacheConnector: UserAnswersCacheConnector,
                                           val navigator: CompoundNavigator,
-                                          identify: IdentifierAction,
+                                          authenticate: AuthAction,
                                           getData: DataRetrievalAction,
                                           requireData: DataRequiredAction,
                                           formProvider: PostcodeFormProvider,
@@ -58,13 +58,13 @@ class CompanyPostcodeController @Inject()(override val messagesApi: MessagesApi,
     )
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
+    (authenticate andThen getData andThen requireData).async {
       implicit request =>
         getFormToJson(mode).retrieve.right.map(get)
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
+    (authenticate andThen getData andThen requireData).async {
       implicit request =>
         getFormToJson(mode).retrieve.right.map(
           post(mode, _, CompanyPostcodePage, "company.postcode.error.invalid")

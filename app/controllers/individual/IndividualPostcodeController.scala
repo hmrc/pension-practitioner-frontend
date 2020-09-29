@@ -39,7 +39,7 @@ import scala.concurrent.ExecutionContext
 class IndividualPostcodeController @Inject()(override val messagesApi: MessagesApi,
                                              val userAnswersCacheConnector: UserAnswersCacheConnector,
                                              val navigator: CompoundNavigator,
-                                             identify: IdentifierAction,
+                                             authenticate: AuthAction,
                                              getData: DataRetrievalAction,
                                              requireData: DataRequiredAction,
                                              formProvider: PostcodeFormProvider,
@@ -57,12 +57,12 @@ class IndividualPostcodeController @Inject()(override val messagesApi: MessagesA
 
   override def viewTemplate: String = "individual/postcode.njk"
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       get(getFormToJson(mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       post(mode, getFormToJson(mode), IndividualPostcodePage, "individual.postcode.error.invalid")
   }

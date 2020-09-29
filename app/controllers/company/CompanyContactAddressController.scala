@@ -49,7 +49,7 @@ class CompanyContactAddressController @Inject()(
   override val messagesApi: MessagesApi,
   val userAnswersCacheConnector: UserAnswersCacheConnector,
   val navigator: CompoundNavigator,
-  identify: IdentifierAction,
+  authenticate: AuthAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: AddressFormProvider,
@@ -72,7 +72,7 @@ class CompanyContactAddressController @Inject()(
   override protected val submitRoute: Mode => Call = mode => routes.CompanyContactAddressController.onSubmit(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async { implicit request =>
+    (authenticate andThen getData andThen requireData).async { implicit request =>
       (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
         case areYouUKCompany ~ companyName =>
           get(mode, Some(companyName), addressConfigurationForPostcodeAndCountry(areYouUKCompany))
@@ -80,7 +80,7 @@ class CompanyContactAddressController @Inject()(
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async { implicit request =>
+    (authenticate andThen getData andThen requireData).async { implicit request =>
       (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
         case areYouUKCompany ~ companyName =>
           post(mode, Some(companyName), addressConfigurationForPostcodeAndCountry(areYouUKCompany))

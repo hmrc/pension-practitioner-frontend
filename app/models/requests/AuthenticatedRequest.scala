@@ -20,9 +20,5 @@ package models.requests
 import play.api.mvc.Request
 import play.api.mvc.WrappedRequest
 
-trait IdentifiedRequest {
-  def externalId: String
-}
-
-case class AuthenticatedRequest[A](request: Request[A], externalId: String, user: PSPUser) extends
-  WrappedRequest[A](request) with IdentifiedRequest
+case class AuthenticatedRequest[A](request: Request[A], user: PSPUser) extends
+  WrappedRequest[A](request)

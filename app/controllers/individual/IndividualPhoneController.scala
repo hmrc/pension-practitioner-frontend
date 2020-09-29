@@ -38,7 +38,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class IndividualPhoneController @Inject()(override val messagesApi: MessagesApi,
                                           userAnswersCacheConnector: UserAnswersCacheConnector,
                                           navigator: CompoundNavigator,
-                                          identify: IdentifierAction,
+                                          authenticate: AuthAction,
                                           getData: DataRetrievalAction,
                                           requireData: DataRequiredAction,
                                           formProvider: PhoneFormProvider,
@@ -51,7 +51,7 @@ class IndividualPhoneController @Inject()(override val messagesApi: MessagesApi,
     formProvider(messages("individual.phone.error.required"))
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
+    (authenticate andThen getData andThen requireData).async {
       implicit request =>
         val formFilled = request.userAnswers.get(IndividualPhonePage).fold(form)(form.fill)
         getJson(mode, formFilled) { json =>
@@ -60,7 +60,7 @@ class IndividualPhoneController @Inject()(override val messagesApi: MessagesApi,
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
+    (authenticate andThen getData andThen requireData).async {
       implicit request =>
         form.bindFromRequest().fold(
           formWithErrors =>

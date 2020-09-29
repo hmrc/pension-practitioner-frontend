@@ -37,7 +37,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
                                       userAnswersCacheConnector: UserAnswersCacheConnector,
                                       navigator: CompoundNavigator,
-                                      identify: IdentifierAction,
+                                      authenticate: AuthAction,
                                       getData: DataRetrievalAction,
                                       requireData: DataRequiredAction,
                                       formProvider: ConfirmNameFormProvider,
@@ -48,7 +48,7 @@ class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
 
   private val form = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       BusinessNamePage.retrieve.right.map { pspName =>
         val preparedForm = request.userAnswers.get (ConfirmNamePage) match {
@@ -68,7 +68,7 @@ class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
     }
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       BusinessNamePage.retrieve.right.map { pspName =>
         form.bindFromRequest().fold(

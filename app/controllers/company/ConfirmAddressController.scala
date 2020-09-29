@@ -57,7 +57,7 @@ import scala.concurrent.Future
 class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
                                          userAnswersCacheConnector: UserAnswersCacheConnector,
                                          navigator: CompoundNavigator,
-                                         identify: IdentifierAction,
+                                         authenticate: AuthAction,
                                          getData: DataRetrievalAction,
                                          registrationConnector: RegistrationConnector,
                                          requireData: DataRequiredAction,
@@ -84,7 +84,7 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
   private def formattedAddress(tolerantAddress: TolerantAddress) =
     Json.toJson(tolerantAddress.lines(countryOptions))
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       retrieveDataForRegistration { (pspName, utr, businessType) =>
         val organisation = Organisation(pspName, businessType)
@@ -115,7 +115,7 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
       }
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       BusinessNamePage.retrieve.right.map { pspName =>
         form.bindFromRequest().fold(

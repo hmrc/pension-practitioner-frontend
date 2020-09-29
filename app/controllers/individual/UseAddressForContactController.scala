@@ -41,7 +41,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class UseAddressForContactController @Inject()(override val messagesApi: MessagesApi,
                                                userAnswersCacheConnector: UserAnswersCacheConnector,
                                                navigator: CompoundNavigator,
-                                               identify: IdentifierAction,
+                                               authenticate: AuthAction,
                                                getData: DataRetrievalAction,
                                                requireData: DataRequiredAction,
                                                formProvider: UseAddressForContactFormProvider,
@@ -55,7 +55,7 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
   private def form(implicit messages: Messages): Form[Boolean] =
     formProvider(messages("useAddressForContact.error.required", messages("individual.you")))
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       val preparedForm = request.userAnswers.get(UseAddressForContactPage).fold(form)(form.fill)
       getJson(preparedForm) { json =>
@@ -63,7 +63,7 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
       }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       form.bindFromRequest().fold(
         formWithErrors => {

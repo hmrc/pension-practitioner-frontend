@@ -35,7 +35,7 @@ import scala.concurrent.ExecutionContext
 
 class BusinessDetailsNotFoundController @Inject()(
     override val messagesApi: MessagesApi,
-    identify: IdentifierAction,
+    authenticate: AuthAction,
     getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   navigator: CompoundNavigator,
@@ -44,7 +44,7 @@ class BusinessDetailsNotFoundController @Inject()(
     renderer: Renderer
 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       val enterDetailsUrl = navigator.nextPage(BusinessDetailsNotFoundPage, NormalMode, request.userAnswers).url
       val json = Json.obj(
