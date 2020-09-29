@@ -65,9 +65,13 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
         Retrievals.credentials
     ) {
       case cl ~ Some(affinityGroup) ~ enrolments ~ Some(credentials) =>
+        println("\n>>a")
         redirectToInterceptPages(enrolments, affinityGroup).fold {
-          val authRequest = AuthenticatedRequest(request, pspUser(cl, affinityGroup, None, enrolments, credentials.providerId))
-          successRedirect(affinityGroup, cl, enrolments, authRequest, block)
+          println("\n>>b")
+
+          println("\n>>agg")
+          successRedirect(affinityGroup, cl, enrolments,
+            AuthenticatedRequest(request, pspUser(cl, affinityGroup, None, enrolments, credentials.providerId)), block)
         } { result => Future.successful(result) }
       case _ =>
         Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
@@ -97,7 +101,6 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
   protected def successRedirect[A](affinityGroup: AffinityGroup, cl: ConfidenceLevel,
     enrolments: Enrolments, authRequest: AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
     (implicit hc: HeaderCarrier): Future[Result] = {
-
     getData(AreYouUKResidentPage).flatMap {
       case _ if alreadyEnrolledInPODS(enrolments) =>
         savePspIdAndReturnAuthRequest(enrolments, authRequest, block)
@@ -244,6 +247,8 @@ class AuthenticatedAuthActionWithNoIV @Inject()(override val authConnector: Auth
   override def successRedirect[A](affinityGroup: AffinityGroup, cl: ConfidenceLevel,
     enrolments: Enrolments, authRequest: AuthenticatedRequest[A],
     block: AuthenticatedRequest[A] => Future[Result])
-    (implicit hc: HeaderCarrier): Future[Result] =
+    (implicit hc: HeaderCarrier): Future[Result] = {
+    println("\nOOOOK")
     savePspIdAndReturnAuthRequest(enrolments, authRequest, block)
+  }
 }
