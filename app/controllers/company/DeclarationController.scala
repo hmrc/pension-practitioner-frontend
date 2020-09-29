@@ -81,8 +81,6 @@ class DeclarationController @Inject()(
       val ua = request.userAnswers
       .setOrException(ExistingPSPPage, ExistingPSP(request.user.isExistingPSP, request.user.existingPSPId))
 
-      println( "\n>>>UU" + ua)
-
       DataRetrievals.retrievePspNameAndEmail { (pspName, email) =>
         for {
           pspId <- subscriptionConnector.subscribePsp(ua)
