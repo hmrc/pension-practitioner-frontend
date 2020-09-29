@@ -75,6 +75,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
         when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
         val result = controller.onPageLoad()(fakeRequest)
         status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe Some(controllers.routes.AgentCannotRegisterController.onPageLoad().url)
       }
     }
 

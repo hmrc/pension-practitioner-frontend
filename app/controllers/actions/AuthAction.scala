@@ -95,9 +95,10 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
   }
 
   protected def successRedirect[A](affinityGroup: AffinityGroup, cl: ConfidenceLevel,
-    enrolments: Enrolments, authRequest: AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
+    enrolments: Enrolments, authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
     (implicit hc: HeaderCarrier): Future[Result] = {
     getData(AreYouUKResidentPage).flatMap {
+      case _ if affinityGroup == AffinityGroup.Agent => Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
       case _ if alreadyEnrolledInPODS(enrolments) =>
         savePspIdAndReturnAuthRequest(enrolments, authRequest, block)
       case Some(true) if affinityGroup == Organisation =>
@@ -241,7 +242,7 @@ class AuthenticatedAuthActionWithNoIV @Inject()(override val authConnector: Auth
   with AuthorisedFunctions {
 
   override def successRedirect[A](affinityGroup: AffinityGroup, cl: ConfidenceLevel,
-    enrolments: Enrolments, authRequest: AuthenticatedRequest[A],
+    enrolments: Enrolments, authRequest: => AuthenticatedRequest[A],
     block: AuthenticatedRequest[A] => Future[Result])
     (implicit hc: HeaderCarrier): Future[Result] = {
     savePspIdAndReturnAuthRequest(enrolments, authRequest, block)

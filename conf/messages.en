@@ -53,6 +53,13 @@ session_expired.guidance = The details you have given have been deleted because 
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
+agentCannotRegister.title = You cannot register as a pension scheme practitioner
+agentCannotRegister.heading = You cannot register as a pension scheme practitioner
+agentCannotRegister.p1 = Your Government Gateway account was set up giving you access to HMRC services as an agent.
+agentCannotRegister.p2 = Managing Pension Schemes can only be used by scheme administrators and practitioners.
+
+site.exitToGovUk = Exit to GOV.UK
+
 company = the company
 partnership = the partnership
 company.capitalised = The company
