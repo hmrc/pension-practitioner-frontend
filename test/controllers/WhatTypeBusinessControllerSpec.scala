@@ -28,6 +28,7 @@ import models.requests.UserType
 import models.{WhatTypeBusiness, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
+import org.mockito.Mockito.doNothing
 import org.mockito.Mockito.reset
 import org.mockito.Mockito.{times, when, verify}
 import org.scalatest.{OptionValues, TryValues}
@@ -69,6 +70,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
   override def beforeEach: Unit = {
     reset(mockAuditService)
+    doNothing().when(mockAuditService).sendEvent(any())(any(), any())
     super.beforeEach
   }
 
