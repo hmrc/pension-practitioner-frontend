@@ -65,11 +65,7 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
         Retrievals.credentials
     ) {
       case cl ~ Some(affinityGroup) ~ enrolments ~ Some(credentials) =>
-        println("\n>>a")
         redirectToInterceptPages(enrolments, affinityGroup).fold {
-          println("\n>>b")
-
-          println("\n>>agg")
           successRedirect(affinityGroup, cl, enrolments,
             AuthenticatedRequest(request, pspUser(cl, affinityGroup, None, enrolments, credentials.providerId)), block)
         } { result => Future.successful(result) }
@@ -248,7 +244,6 @@ class AuthenticatedAuthActionWithNoIV @Inject()(override val authConnector: Auth
     enrolments: Enrolments, authRequest: AuthenticatedRequest[A],
     block: AuthenticatedRequest[A] => Future[Result])
     (implicit hc: HeaderCarrier): Future[Result] = {
-    println("\nOOOOK")
     savePspIdAndReturnAuthRequest(enrolments, authRequest, block)
   }
 }
