@@ -58,6 +58,10 @@ agentCannotRegister.heading = You cannot register as a pension scheme practition
 agentCannotRegister.p1 = Your Government Gateway account was set up giving you access to HMRC services as an agent.
 agentCannotRegister.p2 = Managing Pension Schemes can only be used by scheme administrators and practitioners.
 
+alreadyRegistered.title = You have already registered as a pension scheme practitioner
+alreadyRegistered.heading = You have already registered as a pension scheme practitioner
+alreadyRegistered.p1 = This Government Gateway account has already been used to register as a pension scheme practitioner.
+
 needAnOrganisationAccount.title = You need to use an organisation’s Government Gateway account to register as a pension scheme practitioner
 needAnOrganisationAccount.heading = You need to use an organisation’s Government Gateway account to register as a pension scheme practitioner
 needAnOrganisationAccount.p1 = You are trying to register as a pension scheme practitioner using a Government Gateway account that was created for an individual.
