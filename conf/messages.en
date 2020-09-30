@@ -18,6 +18,7 @@ site.signOut = Sign out
 site.agree_and_submit = Agree and submit this AFT return
 site.finish = Finish
 site.finishAndSignOut = Finish and sign out
+site.continuePensionSchemes = Continue to your pension schemes
 
 error.title.prefix = Error:
 error.summary.title = There is a problem
