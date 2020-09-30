@@ -17,9 +17,11 @@
         </h1>
         <p class="govuk-body">{{messages('needAnOrganisationAccount.p1')}}</p>
         <p class="govuk-body">
-          {{messages('needAnOrganisationAccount.p2.part1')}}<a class="govuk-link" href="">{{messages("needAnOrganisationAccount.p2.part2")}}</a>{{messages('needAnOrganisationAccount.p2.part3')}}
+          {{messages('needAnOrganisationAccount.p2.part1')}} <a class="govuk-link" href="{{ registerAsPensionAdministratorUrl }}">{{messages("needAnOrganisationAccount.p2.part2")}}</a> {{messages('needAnOrganisationAccount.p2.part3')}}
         </p>
-        <p class="govuk-inset-text">{{messages('needAnOrganisationAccount.p3')}}</p>
+        <p class="govuk-inset-text">
+          {{messages('needAnOrganisationAccount.p3.part1')}} <a class="govuk-link" href="{{ createGovGatewayUrl }}">{{messages("needAnOrganisationAccount.p3.part2")}}</a>
+        </p>
 
         <a class="govuk-link" href="{{ govUkUrl }}">{{messages("site.exitToGovUk")}}</a>
 

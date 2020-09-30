@@ -36,6 +36,8 @@ class NeedAnOrganisationAccountController @Inject()(
 
   def onPageLoad: Action[AnyContent] = Action.async { implicit request =>
     val json = Json.obj(
+      "registerAsPensionAdministratorUrl" -> config.registerAsPensionAdministratorUrl,
+      "createGovGatewayUrl" -> config.createGovGatewayUrl,
       "govUkUrl" -> config.govUkUrl
     )
 
