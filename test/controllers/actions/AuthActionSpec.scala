@@ -93,7 +93,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
     "called for Organisation that is an assistant" must {
       "redirect" in {
         when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any()))
-          .thenReturn(authRetrievals(affinityGroup = Some(AffinityGroup.Organisation), role = Assistant))
+          .thenReturn(authRetrievals(affinityGroup = Some(AffinityGroup.Organisation), role = Some(Assistant)))
         val userAnswersData = Json.obj("areYouUKResident" -> true)
         when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
         val result = controller.onPageLoad()(fakeRequest)
@@ -267,7 +267,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 object AuthActionSpec {
   private val pspId = "A0000000"
   private val nino = uk.gov.hmrc.domain.Nino("AB100100A")
-  type authRetrievalsType = ConfidenceLevel ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~CredentialRole
+  type authRetrievalsType = ConfidenceLevel ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~Option[CredentialRole]
 
   private val enrolmentPODS = Enrolments(Set(Enrolment("HMRC-PODS-ORG", Seq(EnrolmentIdentifier("PSPID", pspId)), "")))
   private val startIVLink = "/start-iv-link"
@@ -276,7 +276,7 @@ object AuthActionSpec {
                              affinityGroup: Option[AffinityGroup] = Some(AffinityGroup.Organisation),
                              enrolments: Enrolments = Enrolments(Set()),
                              creds: Option[Credentials] = Option(Credentials(providerId = "test provider", providerType = "")),
-                            role: CredentialRole = User
+                            role: Option[CredentialRole] = Option(User)
                             ): Future[authRetrievalsType] = Future.successful(
     new ~(new ~(new ~(new ~(confidenceLevel,
       affinityGroup),
