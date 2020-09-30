@@ -57,16 +57,18 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
-    authorised(User).retrieve(
+    authorised(User or Assistant).retrieve(
       Retrievals.confidenceLevel and
         Retrievals.affinityGroup and
         Retrievals.allEnrolments and
-        Retrievals.credentials
+        Retrievals.credentials and
+        Retrievals.credentialRole
     ) {
-      case cl ~ Some(affinityGroup) ~ enrolments ~ Some(credentials) =>
+      case cl ~ Some(affinityGroup) ~ enrolments ~ Some(credentials) ~ credentialRole =>
         successRedirect(affinityGroup,
           cl,
           enrolments,
+          credentialRole,
           AuthenticatedRequest(request, pspUser(cl, affinityGroup, None, enrolments, credentials.providerId)),
           block
         )
@@ -77,13 +79,15 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
   }
 
   protected def successRedirect[A](affinityGroup: AffinityGroup, cl: ConfidenceLevel,
-    enrolments: Enrolments, authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
+    enrolments: Enrolments, role: Option[CredentialRole], authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
     (implicit hc: HeaderCarrier): Future[Result] = {
     getData(AreYouUKResidentPage).flatMap {
       case _ if affinityGroup == AffinityGroup.Agent =>
         Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
       case _ if affinityGroup == AffinityGroup.Individual =>
         Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
+      case _ if affinityGroup == AffinityGroup.Organisation && role.contains(Assistant) =>
+        Future.successful(Redirect(controllers.routes.AssistantNoAccessController.onPageLoad()))
       case _ if alreadyEnrolledInPODS(enrolments) =>
         savePspIdAndReturnAuthRequest(enrolments, authRequest, block)
       case Some(true) if affinityGroup == Organisation =>
@@ -227,7 +231,7 @@ class AuthenticatedAuthActionWithNoIV @Inject()(override val authConnector: Auth
   with AuthorisedFunctions {
 
   override def successRedirect[A](affinityGroup: AffinityGroup, cl: ConfidenceLevel,
-    enrolments: Enrolments, authRequest: => AuthenticatedRequest[A],
+    enrolments: Enrolments, role: Option[CredentialRole], authRequest: => AuthenticatedRequest[A],
     block: AuthenticatedRequest[A] => Future[Result])
     (implicit hc: HeaderCarrier): Future[Result] = {
     savePspIdAndReturnAuthRequest(enrolments, authRequest, block)
