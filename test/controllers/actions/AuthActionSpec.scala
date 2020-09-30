@@ -79,6 +79,17 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
       }
     }
 
+    "called for individual" must {
+      "redirect" in {
+        when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(affinityGroup = Some(AffinityGroup.Individual)))
+        val userAnswersData = Json.obj("areYouUKResident" -> true)
+        when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
+        val result = controller.onPageLoad()(fakeRequest)
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe Some(controllers.routes.NeedAnOrganisationAccountController.onPageLoad().url)
+      }
+    }
+
     "called for Organisation user" must {
       "redirect to Manual IV " when {
         "they want to register as Individual" in {

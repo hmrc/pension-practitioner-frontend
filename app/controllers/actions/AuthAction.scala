@@ -80,7 +80,10 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
     enrolments: Enrolments, authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
     (implicit hc: HeaderCarrier): Future[Result] = {
     getData(AreYouUKResidentPage).flatMap {
-      case _ if affinityGroup == AffinityGroup.Agent => Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
+      case _ if affinityGroup == AffinityGroup.Agent =>
+        Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
+      case _ if affinityGroup == AffinityGroup.Individual =>
+        Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
       case _ if alreadyEnrolledInPODS(enrolments) =>
         savePspIdAndReturnAuthRequest(enrolments, authRequest, block)
       case Some(true) if affinityGroup == Organisation =>
