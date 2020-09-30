@@ -64,9 +64,13 @@ needAnOrganisationAccount.p1 = You are trying to register as a pension scheme pr
 needAnOrganisationAccount.p2.part1 = To register, you need to
 needAnOrganisationAccount.p2.part2 = login with a Government Gateway account
 needAnOrganisationAccount.p2.part3 = that was created for an organisation.
-
 needAnOrganisationAccount.p3.part1 = If you do not have a Government Gateway account for an organisation, you should
 needAnOrganisationAccount.p3.part2 = create one first.
+
+assistantNoAccess.title = You do not have access to this service
+assistantNoAccess.heading = You do not have access to this service
+assistantNoAccess.p1 = You signed in to Government Gateway as a standard user. To access this service you must be an administrator user.
+assistantNoAccess.p2 = Contact the person who set up your Government Gateway.
 
 site.exitToGovUk = Exit to GOV.UK
 
