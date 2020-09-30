@@ -64,7 +64,7 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
         Retrievals.credentials and
         Retrievals.credentialRole
     ) {
-      case cl ~ Some(affinityGroup) ~ enrolments ~ Some(credentials) ~ credentialRole =>
+      case cl ~ Some(affinityGroup) ~ enrolments ~ Some(credentials) ~ Some(credentialRole) =>
         successRedirect(affinityGroup,
           cl,
           enrolments,
@@ -79,14 +79,14 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
   }
 
   protected def successRedirect[A](affinityGroup: AffinityGroup, cl: ConfidenceLevel,
-    enrolments: Enrolments, role: Option[CredentialRole], authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
+    enrolments: Enrolments, role: CredentialRole, authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
     (implicit hc: HeaderCarrier): Future[Result] = {
     getData(AreYouUKResidentPage).flatMap {
       case _ if affinityGroup == AffinityGroup.Agent =>
         Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
       case _ if affinityGroup == AffinityGroup.Individual =>
         Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
-      case _ if affinityGroup == AffinityGroup.Organisation && role.contains(Assistant) =>
+      case _ if affinityGroup == AffinityGroup.Organisation && role == Assistant =>
         Future.successful(Redirect(controllers.routes.AssistantNoAccessController.onPageLoad()))
       case _ if alreadyEnrolledInPODS(enrolments) =>
         savePspIdAndReturnAuthRequest(enrolments, authRequest, block)
@@ -231,7 +231,7 @@ class AuthenticatedAuthActionWithNoIV @Inject()(override val authConnector: Auth
   with AuthorisedFunctions {
 
   override def successRedirect[A](affinityGroup: AffinityGroup, cl: ConfidenceLevel,
-    enrolments: Enrolments, role: Option[CredentialRole], authRequest: => AuthenticatedRequest[A],
+    enrolments: Enrolments, role: CredentialRole, authRequest: => AuthenticatedRequest[A],
     block: AuthenticatedRequest[A] => Future[Result])
     (implicit hc: HeaderCarrier): Future[Result] = {
     savePspIdAndReturnAuthRequest(enrolments, authRequest, block)
