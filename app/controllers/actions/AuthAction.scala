@@ -65,7 +65,7 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
         Retrievals.credentialRole
     ) {
       case cl ~ Some(affinityGroup) ~ enrolments ~ Some(credentials) ~ Some(credentialRole) =>
-        successRedirect(affinityGroup,
+        allowAccess(affinityGroup,
           cl,
           enrolments,
           credentialRole,
@@ -78,23 +78,31 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
     } recover handleFailure
   }
 
-  protected def successRedirect[A](affinityGroup: AffinityGroup, cl: ConfidenceLevel,
+  protected def allowAccess[A](affinityGroup: AffinityGroup, cl: ConfidenceLevel,
     enrolments: Enrolments, role: CredentialRole, authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
     (implicit hc: HeaderCarrier): Future[Result] = {
-    getData(AreYouUKResidentPage).flatMap {
-      case _ if affinityGroup == AffinityGroup.Agent =>
-        Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
-      case _ if affinityGroup == AffinityGroup.Individual =>
-        Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
-      case _ if affinityGroup == AffinityGroup.Organisation && role == Assistant =>
-        Future.successful(Redirect(controllers.routes.AssistantNoAccessController.onPageLoad()))
-      case _ if alreadyEnrolledInPODS(enrolments) =>
-        savePspIdAndReturnAuthRequest(enrolments, authRequest, block)
-      case Some(true) if affinityGroup == Organisation =>
-        doManualIVAndRetrieveNino(authRequest, enrolments, block)
+    checkAffinityGroupAndRole(affinityGroup, role) match {
+      case Some(redirect) => Future.successful(redirect)
       case _ =>
-        block(authRequest)
+        getData(AreYouUKResidentPage).flatMap {
+          case _ if alreadyEnrolledInPODS(enrolments) =>
+            savePspIdAndReturnAuthRequest(enrolments, authRequest, block)
+          case Some(true) if affinityGroup == Organisation =>
+            doManualIVAndRetrieveNino(authRequest, enrolments, block)
+          case _ =>
+            block(authRequest)
+        }
     }
+  }
+
+  private def checkAffinityGroupAndRole(affinityGroup: AffinityGroup, role: CredentialRole):Option[Result]  = {
+    (affinityGroup, role) match {
+      case (AffinityGroup.Agent, _) => Some(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
+      case (AffinityGroup.Individual, _) => Some(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
+      case (AffinityGroup.Organisation, Assistant) => Some(Redirect(controllers.routes.AssistantNoAccessController.onPageLoad()))
+      case _ => None
+    }
+
   }
 
   protected def savePspIdAndReturnAuthRequest[A](enrolments: Enrolments, authRequest: AuthenticatedRequest[A],
@@ -230,7 +238,7 @@ class AuthenticatedAuthActionWithNoIV @Inject()(override val authConnector: Auth
 
   with AuthorisedFunctions {
 
-  override def successRedirect[A](affinityGroup: AffinityGroup, cl: ConfidenceLevel,
+  override def allowAccess[A](affinityGroup: AffinityGroup, cl: ConfidenceLevel,
     enrolments: Enrolments, role: CredentialRole, authRequest: => AuthenticatedRequest[A],
     block: AuthenticatedRequest[A] => Future[Result])
     (implicit hc: HeaderCarrier): Future[Result] = {
