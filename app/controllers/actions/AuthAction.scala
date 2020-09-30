@@ -87,7 +87,8 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
         getData(AreYouUKResidentPage).flatMap {
           case _ if alreadyEnrolledInPODS(enrolments) =>
             savePspIdAndReturnAuthRequest(enrolments, authRequest, block)
-          //case _ if alreadyEnrolledInPODSForPSP(enrolments) =>
+          case _ if alreadyEnrolledInPODSForPSP(enrolments) =>
+            Future.successful(Redirect(controllers.routes.AlreadyRegisteredController.onPageLoad()))
           case Some(true) if affinityGroup == Organisation =>
             doManualIVAndRetrieveNino(authRequest, enrolments, block)
           case _ =>
