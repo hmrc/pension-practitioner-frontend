@@ -87,7 +87,7 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
         getData(AreYouUKResidentPage).flatMap {
           case _ if alreadyEnrolledInPODS(enrolments) =>
             savePspIdAndReturnAuthRequest(enrolments, authRequest, block)
-          case _ if alreadyEnrolledInPODSForPSP(enrolments) =>
+          case _ if alreadyEnrolledThroughPODSForPSP(enrolments) =>
             Future.successful(Redirect(controllers.routes.AlreadyRegisteredController.onPageLoad()))
           case Some(true) if affinityGroup == Organisation =>
             doManualIVAndRetrieveNino(authRequest, enrolments, block)
@@ -206,8 +206,8 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
   protected def alreadyEnrolledInPODS(enrolments: Enrolments): Boolean =
     enrolments.getEnrolment("HMRC-PODS-ORG").nonEmpty
 
-  protected def alreadyEnrolledInPODSForPSP(enrolments: Enrolments): Boolean =
-    enrolments.getEnrolment("HMRC-PP-ORG").nonEmpty
+  protected def alreadyEnrolledThroughPODSForPSP(enrolments: Enrolments): Boolean =
+    enrolments.getEnrolment("HMRC-PODSPP-ORG").nonEmpty
 
   protected def userType(affinityGroup: AffinityGroup, cl: ConfidenceLevel): UserType = {
     affinityGroup match {
