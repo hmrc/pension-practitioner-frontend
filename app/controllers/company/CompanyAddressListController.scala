@@ -41,7 +41,7 @@ import scala.concurrent.ExecutionContext
 class CompanyAddressListController @Inject()(override val messagesApi: MessagesApi,
                                              val userAnswersCacheConnector: UserAnswersCacheConnector,
                                              val navigator: CompoundNavigator,
-                                             identify: IdentifierAction,
+                                             authenticate: AuthAction,
                                              getData: DataRetrievalAction,
                                              requireData: DataRequiredAction,
                                              formProvider: AddressListFormProvider,
@@ -56,13 +56,13 @@ class CompanyAddressListController @Inject()(override val messagesApi: MessagesA
     formProvider(messages("addressList.error.required", messages("company")))
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
+    (authenticate andThen getData andThen requireData).async {
       implicit request =>
         getFormToJson(mode).retrieve.right.map(get)
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
+    (authenticate andThen getData andThen requireData).async {
       implicit request =>
         val addressPages: AddressPages = AddressPages(CompanyPostcodePage, CompanyAddressListPage, CompanyAddressPage)
         getFormToJson(mode).retrieve.right.map(post(mode, _, addressPages))

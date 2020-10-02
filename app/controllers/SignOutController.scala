@@ -18,8 +18,8 @@ package controllers
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
+import controllers.actions.AuthAction
 import controllers.actions.DataRetrievalAction
-import controllers.actions.IdentifierAction
 import javax.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.mvc.Action
@@ -31,7 +31,7 @@ import scala.concurrent.ExecutionContext
 
 class SignOutController @Inject()(
     config: FrontendAppConfig,
-    identify: IdentifierAction,
+    authenticate: AuthAction,
     getData: DataRetrievalAction,
     val controllerComponents: MessagesControllerComponents,
     userAnswersCacheConnector: UserAnswersCacheConnector
@@ -39,7 +39,7 @@ class SignOutController @Inject()(
     extends FrontendBaseController
     with I18nSupport {
 
-  def signOut(): Action[AnyContent] = identify.async {
+  def signOut(): Action[AnyContent] = authenticate.async {
     implicit request =>
       userAnswersCacheConnector.removeAll.map { _ =>
         Redirect(config.signOutUrl).withNewSession

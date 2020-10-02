@@ -33,8 +33,11 @@ class Module extends AbstractModule {
     bind(classOf[UserAnswersCacheConnector]).to(classOf[UserAnswersCacheConnectorImpl]).asEagerSingleton()
     bind(classOf[DataRetrievalAction]).to(classOf[DataRetrievalActionImpl]).asEagerSingleton()
     bind(classOf[DataRequiredAction]).to(classOf[DataRequiredActionImpl]).asEagerSingleton()
-    bind(classOf[IdentifierAction]).to(classOf[AuthenticatedIdentifierActionWithIV]).asEagerSingleton()
-    bind(classOf[IdentifierAction]).annotatedWith(classOf[AuthWithNoIV]).to(classOf[AuthenticatedIdentifierActionWithNoIV]).asEagerSingleton()
+
+    bind(classOf[AuthAction]).to(classOf[AuthenticatedAuthActionWithIV]).asEagerSingleton()
+    bind(classOf[AuthAction]).annotatedWith(classOf[AuthWithNoIV]).to(classOf[AuthenticatedAuthActionWithNoIV]).asEagerSingleton()
+
+
     bind(classOf[CompoundNavigator]).to(classOf[CompoundNavigatorImpl])
 
 

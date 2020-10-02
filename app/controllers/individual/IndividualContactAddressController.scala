@@ -16,7 +16,6 @@
 
 package controllers.individual
 
-import controllers.actions.IdentifierAction
 import models.Address
 import play.api.mvc.AnyContent
 
@@ -35,14 +34,13 @@ import models.Mode
 import play.api.i18n.I18nSupport
 import utils.countryOptions.CountryOptions
 import controllers.Retrievals
+import controllers.actions.AuthAction
 import play.api.i18n.MessagesApi
 import renderer.Renderer
 import play.api.i18n.Messages
 import controllers.actions.DataRequiredAction
-import models.AddressConfiguration
 import pages.QuestionPage
 import pages.individual.AreYouUKResidentPage
-import pages.individual.IndividualDetailsPage
 import pages.individual.IndividualManualAddressPage
 import play.api.mvc.Call
 import uk.gov.hmrc.viewmodels.NunjucksSupport
@@ -52,7 +50,7 @@ class IndividualContactAddressController @Inject()(
   override val messagesApi: MessagesApi,
   val userAnswersCacheConnector: UserAnswersCacheConnector,
   val navigator: CompoundNavigator,
-  identify: IdentifierAction,
+  authenticate: AuthAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: AddressFormProvider,
@@ -76,14 +74,14 @@ class IndividualContactAddressController @Inject()(
   override protected val submitRoute: Mode => Call = mode => routes.IndividualContactAddressController.onSubmit(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async { implicit request =>
+    (authenticate andThen getData andThen requireData).async { implicit request =>
       AreYouUKResidentPage.retrieve.right.map { areYouUKResident =>
           get(mode, None, addressConfigurationForPostcodeAndCountry(areYouUKResident))
       }
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async { implicit request =>
+    (authenticate andThen getData andThen requireData).async { implicit request =>
       AreYouUKResidentPage.retrieve.right.map { areYouUKResident =>
           post(mode, None, addressConfigurationForPostcodeAndCountry(areYouUKResident))
       }

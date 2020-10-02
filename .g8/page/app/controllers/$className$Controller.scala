@@ -11,14 +11,14 @@ import scala.concurrent.ExecutionContext
 
 class $className$Controller @Inject()(
     override val messagesApi: MessagesApi,
-    identify: IdentifierAction,
+    authenticate: AuthAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
     val controllerComponents: MessagesControllerComponents,
     renderer: Renderer
 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
 
       renderer.render("$className;format="decap"$.njk").map(Ok(_))

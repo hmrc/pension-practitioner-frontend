@@ -18,6 +18,7 @@ site.signOut = Sign out
 site.agree_and_submit = Agree and submit this AFT return
 site.finish = Finish
 site.finishAndSignOut = Finish and sign out
+site.continuePensionSchemes = Continue to your pension schemes
 
 error.title.prefix = Error:
 error.summary.title = There is a problem
@@ -30,7 +31,7 @@ footer.links.privacy = Privacy policy
 footer.links.terms = Terms and conditions
 
 language.cymraeg = Cymraeg
-language.change.cymraeg = Newid yr iaith i'r Gymraeg
+language.change.cymraeg = Newid yr iaith i’r Gymraeg
 language.english = English
 language.change.english = Change the language to English
 language.switcher = Language switcher
@@ -52,6 +53,31 @@ session_expired.guidance = The details you have given have been deleted because 
 
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
+
+agentCannotRegister.title = You cannot register as a pension scheme practitioner
+agentCannotRegister.heading = You cannot register as a pension scheme practitioner
+agentCannotRegister.p1 = Your Government Gateway account was set up giving you access to HMRC services as an agent.
+agentCannotRegister.p2 = Managing Pension Schemes can only be used by scheme administrators and practitioners.
+
+alreadyRegistered.title = You have already registered as a pension scheme practitioner
+alreadyRegistered.heading = You have already registered as a pension scheme practitioner
+alreadyRegistered.p1 = This Government Gateway account has already been used to register as a pension scheme practitioner.
+
+needAnOrganisationAccount.title = You need to use an organisation’s Government Gateway account to register as a pension scheme practitioner
+needAnOrganisationAccount.heading = You need to use an organisation’s Government Gateway account to register as a pension scheme practitioner
+needAnOrganisationAccount.p1 = You are trying to register as a pension scheme practitioner using a Government Gateway account that was created for an individual.
+needAnOrganisationAccount.p2.part1 = To register, you need to
+needAnOrganisationAccount.p2.part2 = login with a Government Gateway account
+needAnOrganisationAccount.p2.part3 = that was created for an organisation.
+needAnOrganisationAccount.p3.part1 = If you do not have a Government Gateway account for an organisation, you should
+needAnOrganisationAccount.p3.part2 = create one first.
+
+assistantNoAccess.title = You do not have access to this service
+assistantNoAccess.heading = You do not have access to this service
+assistantNoAccess.p1 = You signed in to Government Gateway as a standard user. To access this service you must be an administrator user.
+assistantNoAccess.p2 = Contact the person who set up your Government Gateway.
+
+site.exitToGovUk = Exit to GOV.UK
 
 company = the company
 partnership = the partnership

@@ -40,7 +40,7 @@ import scala.concurrent.ExecutionContext
 class PartnershipAddressListController @Inject()(override val messagesApi: MessagesApi,
                                                  val userAnswersCacheConnector: UserAnswersCacheConnector,
                                                  val navigator: CompoundNavigator,
-                                                 identify: IdentifierAction,
+                                                 authenticate: AuthAction,
                                                  getData: DataRetrievalAction,
                                                  requireData: DataRequiredAction,
                                                  formProvider: AddressListFormProvider,
@@ -55,13 +55,13 @@ class PartnershipAddressListController @Inject()(override val messagesApi: Messa
     formProvider(messages("addressList.error.required", messages("partnership")))
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
+    (authenticate andThen getData andThen requireData).async {
       implicit request =>
         getFormToJson(mode).retrieve.right.map(get)
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
+    (authenticate andThen getData andThen requireData).async {
       implicit request =>
         val addressPages: AddressPages = AddressPages(PartnershipPostcodePage, PartnershipAddressListPage, PartnershipAddressPage)
         getFormToJson(mode).retrieve.right.map(post(mode, _, addressPages))

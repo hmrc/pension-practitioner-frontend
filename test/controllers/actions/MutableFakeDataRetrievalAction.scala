@@ -17,7 +17,7 @@
 package controllers.actions
 
 import models.UserAnswers
-import models.requests.{IdentifierRequest, OptionalDataRequest}
+import models.requests.{AuthenticatedRequest, OptionalDataRequest}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -26,7 +26,7 @@ class MutableFakeDataRetrievalAction extends DataRetrievalAction {
 
   def setDataToReturn(userAnswers: Option[UserAnswers]): Unit = dataToReturn = userAnswers
 
-  override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] =
+  override protected def transform[A](request: AuthenticatedRequest[A]): Future[OptionalDataRequest[A]] =
     Future(OptionalDataRequest(request.request, request.user, dataToReturn))
 
   override protected implicit val executionContext: ExecutionContext =

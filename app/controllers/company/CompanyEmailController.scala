@@ -40,7 +40,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
                                        userAnswersCacheConnector: UserAnswersCacheConnector,
                                        navigator: CompoundNavigator,
-                                       identify: IdentifierAction,
+                                       authenticate: AuthAction,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        formProvider: EmailFormProvider,
@@ -53,7 +53,7 @@ class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
     formProvider(messages("email.error.required", messages("company")))
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
+    (authenticate andThen getData andThen requireData).async {
       implicit request =>
         val formFilled = request.userAnswers.get(CompanyEmailPage).fold(form)(form.fill)
         getJson(mode, formFilled) { json =>
@@ -62,7 +62,7 @@ class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
+    (authenticate andThen getData andThen requireData).async {
       implicit request =>
         form.bindFromRequest().fold(
           formWithErrors =>

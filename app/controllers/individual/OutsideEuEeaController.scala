@@ -31,7 +31,7 @@ import scala.concurrent.ExecutionContext
 
 class OutsideEuEeaController @Inject()(
                                            override val messagesApi: MessagesApi,
-                                           identify: IdentifierAction,getData: DataRetrievalAction,
+                                           authenticate: AuthAction,getData: DataRetrievalAction,
                                            requireData: DataRequiredAction,
                                            val controllerComponents: MessagesControllerComponents,
                                            countryOptions: CountryOptions,
@@ -39,7 +39,7 @@ class OutsideEuEeaController @Inject()(
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController
                                            with I18nSupport with Retrievals {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       IndividualAddressPage.retrieve.right.map { address =>
         val json = Json.obj("country" -> countryOptions.getCountryNameFromCode(address.toAddress))

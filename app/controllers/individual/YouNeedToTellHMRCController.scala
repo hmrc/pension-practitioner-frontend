@@ -28,7 +28,7 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import scala.concurrent.ExecutionContext
 
 class YouNeedToTellHMRCController @Inject()(override val messagesApi: MessagesApi,
-                                            identify: IdentifierAction,
+                                            authenticate: AuthAction,
                                             getData: DataRetrievalAction,
                                             requireData: DataRequiredAction,
                                             val controllerComponents: MessagesControllerComponents,
@@ -36,7 +36,7 @@ class YouNeedToTellHMRCController @Inject()(override val messagesApi: MessagesAp
                                             renderer: Renderer
                                            )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       renderer.render(template = "individual/youNeedToTellHMRC.njk",
         Json.obj(fields = "changeOfDetailsGovUKLink" -> config.tellHMRCChangesUrl)).map(Ok(_))

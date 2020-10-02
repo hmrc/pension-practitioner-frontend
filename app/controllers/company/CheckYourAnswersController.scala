@@ -19,9 +19,9 @@ package controllers.company
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
+import controllers.actions.AuthAction
 import controllers.actions.DataRequiredAction
 import controllers.actions.DataRetrievalAction
-import controllers.actions.IdentifierAction
 import navigators.CompoundNavigator
 import play.api.i18n.I18nSupport
 import play.api.i18n.MessagesApi
@@ -38,7 +38,7 @@ import scala.concurrent.ExecutionContext
 
 class CheckYourAnswersController @Inject()(config: FrontendAppConfig,
                                            override val messagesApi: MessagesApi,
-                                           identify: IdentifierAction,
+                                           authenticate: AuthAction,
                                            getData: DataRetrievalAction,
                                            requireData: DataRequiredAction,
                                            userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -51,7 +51,7 @@ class CheckYourAnswersController @Inject()(config: FrontendAppConfig,
     with NunjucksSupport {
 
   def onPageLoad: Action[AnyContent] =
-    (identify andThen getData andThen requireData).async { implicit request =>
+    (authenticate andThen getData andThen requireData).async { implicit request =>
 
       val json = Json.obj(
         "redirectUrl" -> controllers.company.routes.DeclarationController.onPageLoad().url,

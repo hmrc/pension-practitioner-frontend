@@ -57,7 +57,7 @@ import scala.util.Try
 class PartnershipUseSameAddressController @Inject()(override val messagesApi: MessagesApi,
   userAnswersCacheConnector: UserAnswersCacheConnector,
   navigator: CompoundNavigator,
-  identify: IdentifierAction,
+  authenticate: AuthAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: UseAddressForContactFormProvider,
@@ -70,7 +70,7 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
   private def form(implicit messages: Messages): Form[Boolean] =
     formProvider(messages("useAddressForContact.error.required", messages("company")))
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       val preparedForm = request.userAnswers.get(PartnershipUseSameAddressPage).fold(form)(form.fill)
       getJson(preparedForm) { json =>
@@ -78,7 +78,7 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
       }
   }
 
-  def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       form.bindFromRequest().fold(
         formWithErrors => {

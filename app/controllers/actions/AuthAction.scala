@@ -22,15 +22,9 @@ import connectors.IdentityVerificationConnector
 import connectors.cache.UserAnswersCacheConnector
 import models.UserAnswers
 import models.WhatTypeBusiness.Yourselfasindividual
-import models.requests.UserType.UserType
-import models.requests.IdentifierRequest
 import models.requests.PSPUser
 import models.requests.UserType
-import pages.{JourneyPage, QuestionPage, WhatTypeBusinessPage}
-import pages.individual.AreYouUKResidentPage
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
-import play.api.libs.json.Reads
+import models.requests.UserType.UserType
 import play.api.mvc.Results._
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AffinityGroup._
@@ -40,56 +34,84 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.UnauthorizedException
 import uk.gov.hmrc.play.HeaderCarrierConverter
+import models.requests.AuthenticatedRequest
+import pages.JourneyPage
+import pages.QuestionPage
+import pages.WhatTypeBusinessPage
+import pages.individual.AreYouUKResidentPage
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
+import play.api.libs.json.Reads
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-class AuthenticatedIdentifierActionWithIV @Inject()(override val authConnector: AuthConnector,
-                                                    config: FrontendAppConfig,
-                                                    userAnswersCacheConnector: UserAnswersCacheConnector,
-                                                    ivConnector: IdentityVerificationConnector,
-                                                    val parser: BodyParsers.Default
-                                                   )
-                                                   (implicit val executionContext: ExecutionContext) extends IdentifierAction with AuthorisedFunctions {
+class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthConnector,
+  config: FrontendAppConfig,
+  userAnswersCacheConnector: UserAnswersCacheConnector,
+  ivConnector: IdentityVerificationConnector,
+  val parser: BodyParsers.Default
+)
+  (implicit val executionContext: ExecutionContext) extends AuthAction with AuthorisedFunctions {
 
-  override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
+  override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
-    authorised(User).retrieve(
+    authorised(User or Assistant).retrieve(
       Retrievals.confidenceLevel and
         Retrievals.affinityGroup and
         Retrievals.allEnrolments and
-        Retrievals.credentials
+        Retrievals.credentials and
+        Retrievals.credentialRole
     ) {
-      case cl ~ Some(affinityGroup) ~ enrolments ~ Some(credentials) =>
-        val authRequest = IdentifierRequest(request, pspUser(cl, affinityGroup, None, enrolments, credentials.providerId))
-        successRedirect(affinityGroup, cl, enrolments, authRequest, block)
+      case cl ~ Some(affinityGroup) ~ enrolments ~ Some(credentials) ~ Some(credentialRole) =>
+        allowAccess(affinityGroup,
+          cl,
+          enrolments,
+          credentialRole,
+          AuthenticatedRequest(request, pspUser(cl, affinityGroup, None, enrolments, credentials.providerId)),
+          block
+        )
       case _ =>
         Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
 
     } recover handleFailure
   }
 
-
-  protected def successRedirect[A](affinityGroup: AffinityGroup, cl: ConfidenceLevel,
-                                   enrolments: Enrolments, authRequest: IdentifierRequest[A], block: IdentifierRequest[A] => Future[Result])
-                                  (implicit hc: HeaderCarrier): Future[Result] = {
-
-    getData(AreYouUKResidentPage).flatMap {
-      case _ if alreadyEnrolledInPODS(enrolments) =>
-        savePspIdAndReturnAuthRequest(enrolments, authRequest, block)
-      case Some(true) if affinityGroup == Organisation =>
-        doManualIVAndRetrieveNino(authRequest, enrolments, block)
+  protected def allowAccess[A](affinityGroup: AffinityGroup, cl: ConfidenceLevel,
+    enrolments: Enrolments, role: CredentialRole, authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
+    (implicit hc: HeaderCarrier): Future[Result] = {
+    checkAffinityGroupAndRole(affinityGroup, role) match {
+      case Some(redirect) => Future.successful(redirect)
       case _ =>
-        block(authRequest)
+        getData(AreYouUKResidentPage).flatMap {
+          case _ if alreadyEnrolledInPODS(enrolments) =>
+            savePspIdAndReturnAuthRequest(enrolments, authRequest, block)
+          case _ if alreadyEnrolledThroughPODSForPSP(enrolments) =>
+            Future.successful(Redirect(controllers.routes.AlreadyRegisteredController.onPageLoad()))
+          case Some(true) if affinityGroup == Organisation =>
+            doManualIVAndRetrieveNino(authRequest, enrolments, block)
+          case _ =>
+            block(authRequest)
+        }
     }
   }
 
-  protected def savePspIdAndReturnAuthRequest[A](enrolments: Enrolments, authRequest: IdentifierRequest[A],
-                                                 block: IdentifierRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
+  private def checkAffinityGroupAndRole(affinityGroup: AffinityGroup, role: CredentialRole):Option[Result]  = {
+    (affinityGroup, role) match {
+      case (AffinityGroup.Agent, _) => Some(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
+      case (AffinityGroup.Individual, _) => Some(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
+      case (AffinityGroup.Organisation, Assistant) => Some(Redirect(controllers.routes.AssistantNoAccessController.onPageLoad()))
+      case _ => None
+    }
+
+  }
+
+  protected def savePspIdAndReturnAuthRequest[A](enrolments: Enrolments, authRequest: AuthenticatedRequest[A],
+    block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
     if (alreadyEnrolledInPODS(enrolments)) {
       val pspId = getPSPId(enrolments)
-      block(IdentifierRequest(authRequest.request, authRequest.user.copy(alreadyEnrolledPspId = Some(pspId))))
+      block(AuthenticatedRequest(authRequest.request, authRequest.user.copy(alreadyEnrolledPspId = Some(pspId))))
     }
     else {
       block(authRequest)
@@ -97,8 +119,8 @@ class AuthenticatedIdentifierActionWithIV @Inject()(override val authConnector: 
   }
 
 
-  private def doManualIVAndRetrieveNino[A](authRequest: IdentifierRequest[A], enrolments: Enrolments,
-                                           block: IdentifierRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
+  private def doManualIVAndRetrieveNino[A](authRequest: AuthenticatedRequest[A], enrolments: Enrolments,
+    block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
     val journeyId = authRequest.request.getQueryString(key = "journeyId")
     getData(JourneyPage).flatMap {
       case Some(journey) =>
@@ -117,11 +139,11 @@ class AuthenticatedIdentifierActionWithIV @Inject()(override val authConnector: 
     }
   }
 
-  private def getNinoAndUpdateAuthRequest[A](journeyId: String, block: IdentifierRequest[A] => Future[Result],
-                                             authRequest: IdentifierRequest[A])(implicit hc: HeaderCarrier): Future[Result] = {
+  private def getNinoAndUpdateAuthRequest[A](journeyId: String, block: AuthenticatedRequest[A] => Future[Result],
+    authRequest: AuthenticatedRequest[A])(implicit hc: HeaderCarrier): Future[Result] = {
     ivConnector.retrieveNinoFromIV(journeyId).flatMap {
       case Some(nino) =>
-        val updatedAuth = IdentifierRequest(authRequest.request, authRequest.user.copy(nino = Some(nino)))
+        val updatedAuth = AuthenticatedRequest(authRequest.request, authRequest.user.copy(nino = Some(nino)))
         block(updatedAuth)
       case _ =>
         getUa.flatMap { answers =>
@@ -134,8 +156,8 @@ class AuthenticatedIdentifierActionWithIV @Inject()(override val authConnector: 
     }
   }
 
-  private def orgManualIV[A](authRequest: IdentifierRequest[A],
-                             block: IdentifierRequest[A] => Future[Result])(implicit hc: HeaderCarrier) = {
+  private def orgManualIV[A](authRequest: AuthenticatedRequest[A],
+    block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier) = {
 
     getData(WhatTypeBusinessPage).flatMap {
       case Some(Yourselfasindividual) =>
@@ -184,6 +206,9 @@ class AuthenticatedIdentifierActionWithIV @Inject()(override val authConnector: 
   protected def alreadyEnrolledInPODS(enrolments: Enrolments): Boolean =
     enrolments.getEnrolment("HMRC-PODS-ORG").nonEmpty
 
+  protected def alreadyEnrolledThroughPODSForPSP(enrolments: Enrolments): Boolean =
+    enrolments.getEnrolment("HMRC-PODSPP-ORG").nonEmpty
+
   protected def userType(affinityGroup: AffinityGroup, cl: ConfidenceLevel): UserType = {
     affinityGroup match {
       case Individual =>
@@ -196,7 +221,7 @@ class AuthenticatedIdentifierActionWithIV @Inject()(override val authConnector: 
   }
 
   protected def pspUser(cl: ConfidenceLevel, affinityGroup: AffinityGroup,
-                        nino: Option[uk.gov.hmrc.domain.Nino], enrolments: Enrolments, userId: String): PSPUser = {
+    nino: Option[uk.gov.hmrc.domain.Nino], enrolments: Enrolments, userId: String): PSPUser = {
     val psp = existingPSP(enrolments)
     PSPUser(userType(affinityGroup, cl), nino, psp.nonEmpty, psp, None, userId)
   }
@@ -206,21 +231,22 @@ class AuthenticatedIdentifierActionWithIV @Inject()(override val authConnector: 
       .getOrElse(throw new RuntimeException("PSP ID missing"))
 }
 
-trait IdentifierAction extends ActionBuilder[IdentifierRequest, AnyContent] with ActionFunction[Request, IdentifierRequest]
+trait AuthAction extends ActionBuilder[AuthenticatedRequest, AnyContent] with ActionFunction[Request, AuthenticatedRequest]
 
-class AuthenticatedIdentifierActionWithNoIV @Inject()(override val authConnector: AuthConnector,
-                                                      config: FrontendAppConfig,
-                                                      userAnswersCacheConnector: UserAnswersCacheConnector,
-                                                      identityVerificationConnector: IdentityVerificationConnector,
-                                                      parser: BodyParsers.Default
-                                                     )(implicit executionContext: ExecutionContext) extends
-  AuthenticatedIdentifierActionWithIV(authConnector, config, userAnswersCacheConnector, identityVerificationConnector, parser)
+class AuthenticatedAuthActionWithNoIV @Inject()(override val authConnector: AuthConnector,
+  config: FrontendAppConfig,
+  userAnswersCacheConnector: UserAnswersCacheConnector,
+  identityVerificationConnector: IdentityVerificationConnector,
+  parser: BodyParsers.Default
+)(implicit executionContext: ExecutionContext) extends
+  AuthenticatedAuthActionWithIV(authConnector, config, userAnswersCacheConnector, identityVerificationConnector, parser)
 
   with AuthorisedFunctions {
 
-  override def successRedirect[A](affinityGroup: AffinityGroup, cl: ConfidenceLevel,
-                                  enrolments: Enrolments, authRequest: IdentifierRequest[A],
-                                  block: IdentifierRequest[A] => Future[Result])
-                                 (implicit hc: HeaderCarrier): Future[Result] =
+  override def allowAccess[A](affinityGroup: AffinityGroup, cl: ConfidenceLevel,
+    enrolments: Enrolments, role: CredentialRole, authRequest: => AuthenticatedRequest[A],
+    block: AuthenticatedRequest[A] => Future[Result])
+    (implicit hc: HeaderCarrier): Future[Result] = {
     savePspIdAndReturnAuthRequest(enrolments, authRequest, block)
+  }
 }
