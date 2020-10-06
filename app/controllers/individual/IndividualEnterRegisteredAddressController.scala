@@ -42,7 +42,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class IndividualEnterRegisteredAddressController @Inject()(override val messagesApi: MessagesApi,
                                                  val userAnswersCacheConnector: UserAnswersCacheConnector,
                                                  val navigator: CompoundNavigator,
-                                                 identify: IdentifierAction,
+                                                 authenticate: AuthAction,
                                                  getData: DataRetrievalAction,
                                                  requireData: DataRequiredAction,
                                                  formProvider: NonUKAddressFormProvider,
@@ -59,13 +59,13 @@ class IndividualEnterRegisteredAddressController @Inject()(override val messages
   override def viewTemplate: String = "individual/nonUKAddress.njk"
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
+    (authenticate andThen getData andThen requireData).async {
       implicit request =>
         get(getFormToJson(mode), IndividualAddressPage)
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async {
+    (authenticate andThen getData andThen requireData).async {
       implicit request =>
         IndividualDetailsPage.retrieve.right.map { individual =>
           (individual.firstName, individual.lastName) match {

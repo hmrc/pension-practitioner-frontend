@@ -1,0 +1,31 @@
+{% extends "includes/layout.njk" %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "macros/title.njk"                         import title %}
+
+{% block pageTitle %}
+  {{ title(messages("alreadyRegistered.title")) }}
+{% endblock %}
+
+{% block mainContent %}
+
+  <div class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+
+        <h1 class="govuk-heading-xl">
+          {{ messages("alreadyRegistered.title") }}
+        </h1>
+        <p class="govuk-body">{{messages('alreadyRegistered.p1')}}</p>
+        <p>
+          {{ govukButton({
+            text: messages('site.continuePensionSchemes')
+          }) }}
+        </p>
+        <a class="govuk-link" href="{{ govUkUrl }}">{{messages("site.exitToGovUk")}}</a>
+
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

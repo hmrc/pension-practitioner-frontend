@@ -40,7 +40,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class BusinessUTRController @Inject()(override val messagesApi: MessagesApi,
                                       userAnswersCacheConnector: UserAnswersCacheConnector,
                                       navigator: CompoundNavigator,
-                                      identify: IdentifierAction,
+                                      authenticate: AuthAction,
                                       getData: DataRetrievalAction,
                                       requireData: DataRequiredAction,
                                       formProvider: BusinessUTRFormProvider,
@@ -53,7 +53,7 @@ class BusinessUTRController @Inject()(override val messagesApi: MessagesApi,
   (implicit request: DataRequest[AnyContent]): Form[String] = formProvider.apply(
     "businessUTR.partnership.error.required", "businessUTR.partnership.error.invalid")
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       BusinessTypePage.retrieve.right.map { businessType =>
         val preparedForm = request.userAnswers.get(BusinessUTRPage) match {
@@ -71,7 +71,7 @@ class BusinessUTRController @Inject()(override val messagesApi: MessagesApi,
       }
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       BusinessTypePage.retrieve.right.map { businessType =>
         form.bindFromRequest().fold(

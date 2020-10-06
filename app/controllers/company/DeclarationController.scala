@@ -52,7 +52,7 @@ class DeclarationController @Inject()(
   subscriptionConnector: SubscriptionConnector,
   userAnswersCacheConnector: UserAnswersCacheConnector,
   navigator: CompoundNavigator,
-  identify: IdentifierAction,
+  authenticate: AuthAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
@@ -66,7 +66,7 @@ class DeclarationController @Inject()(
     with NunjucksSupport {
 
   def onPageLoad: Action[AnyContent] =
-    (identify andThen getData andThen requireData).async { implicit request =>
+    (authenticate andThen getData andThen requireData).async { implicit request =>
       renderer
         .render(
           "register/declaration.njk",
@@ -76,10 +76,9 @@ class DeclarationController @Inject()(
     }
 
   def onSubmit: Action[AnyContent] =
-    (identify andThen getData andThen requireData).async { implicit request =>
-
+    (authenticate andThen getData andThen requireData).async { implicit request =>
       val ua = request.userAnswers
-      .setOrException(ExistingPSPPage, ExistingPSP(request.user.isExistingPSP, request.user.existingPSPId))
+        .setOrException(ExistingPSPPage, ExistingPSP(request.user.isExistingPSP, request.user.existingPSPId))
 
       DataRetrievals.retrievePspNameAndEmail { (pspName, email) =>
         for {

@@ -18,10 +18,12 @@ package controllers.individual
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
+import controllers.actions.AuthAction
 import controllers.actions.DataRequiredAction
 import controllers.actions.DataRequiredActionImpl
-import controllers.actions.FakeIdentifierAction
-import controllers.actions.IdentifierAction
+import controllers.actions.FakeAuthAction
+import controllers.actions.FakeAuthAction
+import controllers.actions.AuthAction
 import controllers.base.ControllerSpecBase
 import forms.individual.AreYouUKResidentFormProvider
 import matchers.JsonMatchers
@@ -63,7 +65,7 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
 
   override def modules: Seq[GuiceableModule] = Seq(
     bind[DataRequiredAction].to[DataRequiredActionImpl],
-    bind[IdentifierAction].qualifiedWith(classOf[AuthWithNoIV]).to[FakeIdentifierAction],
+    bind[AuthAction].qualifiedWith(classOf[AuthWithNoIV]).to[FakeAuthAction],
     bind[NunjucksRenderer].toInstance(mockRenderer),
     bind[FrontendAppConfig].toInstance(mockAppConfig),
     bind[UserAnswersCacheConnector].toInstance(mockUserAnswersCacheConnector),

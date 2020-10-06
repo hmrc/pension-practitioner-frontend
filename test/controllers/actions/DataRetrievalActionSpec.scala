@@ -18,7 +18,10 @@ package controllers.actions
 
 import base.SpecBase
 import connectors.cache.UserAnswersCacheConnector
-import models.requests.{IdentifierRequest, OptionalDataRequest, PSPUser, UserType}
+import models.requests.AuthenticatedRequest
+import models.requests.OptionalDataRequest
+import models.requests.PSPUser
+import models.requests.UserType
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
@@ -31,7 +34,7 @@ import scala.concurrent.Future
 class DataRetrievalActionSpec extends SpecBase with MockitoSugar with ScalaFutures {
 
   class Harness(dataCacheConnector: UserAnswersCacheConnector) extends DataRetrievalActionImpl(dataCacheConnector) {
-    def callTransform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] = transform(request)
+    def callTransform[A](request: AuthenticatedRequest[A]): Future[OptionalDataRequest[A]] = transform(request)
   }
 
   private val dataCacheConnector: UserAnswersCacheConnector = mock[UserAnswersCacheConnector]
@@ -42,7 +45,7 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar with ScalaFutur
         when(dataCacheConnector.fetch(any(), any())) thenReturn Future(None)
         val action = new Harness(dataCacheConnector)
 
-        val futureResult = action.callTransform(IdentifierRequest(fakeRequest,
+        val futureResult = action.callTransform(AuthenticatedRequest(fakeRequest,
           PSPUser(UserType.Organisation, None, isExistingPSP = false, None, None)))
 
         whenReady(futureResult) { result =>
@@ -56,7 +59,7 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar with ScalaFutur
         when(dataCacheConnector.fetch(any(), any())) thenReturn Future.successful(Some(Json.obj()))
         val action = new Harness(dataCacheConnector)
 
-        val futureResult = action.callTransform(IdentifierRequest(fakeRequest,
+        val futureResult = action.callTransform(AuthenticatedRequest(fakeRequest,
           PSPUser(UserType.Organisation, None, isExistingPSP = false, None, None)))
 
         whenReady(futureResult) { result =>

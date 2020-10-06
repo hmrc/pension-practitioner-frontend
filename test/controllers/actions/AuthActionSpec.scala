@@ -37,9 +37,9 @@ import uk.gov.hmrc.http.UnauthorizedException
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class IdentifierActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
+class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
-  import IdentifierActionSpec._
+  import AuthActionSpec._
 
   private val mockUserAnswersCacheConnector: UserAnswersCacheConnector = mock[UserAnswersCacheConnector]
   private val mockIVConnector: IdentityVerificationConnector = mock[IdentityVerificationConnector]
@@ -50,15 +50,14 @@ class IdentifierActionSpec extends SpecBase with MockitoSugar with BeforeAndAfte
     Mockito.reset(mockUserAnswersCacheConnector)
   }
 
-  val authAction = new AuthenticatedIdentifierActionWithIV(authConnector, frontendAppConfig,
+  val authAction = new AuthenticatedAuthActionWithIV(authConnector, frontendAppConfig,
     mockUserAnswersCacheConnector, mockIVConnector, bodyParsers)
 
   val controller = new Harness(authAction)
 
-  "Identifier Action" when {
+  "Auth Action" when {
 
     "called for already enrolled User" must {
-
       "return OK" when {
         "coming from any page" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = enrolmentPODS))
@@ -69,7 +68,53 @@ class IdentifierActionSpec extends SpecBase with MockitoSugar with BeforeAndAfte
       }
     }
 
-    "called for Organisation user" must {
+    "called for a user already enrolled in PODS for PSP" must {
+      "return OK" when {
+        "coming from any page" in {
+          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = enrolmentThroughPODSForPSP))
+          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
+          val result = controller.onPageLoad()(fakeRequest)
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some(controllers.routes.AlreadyRegisteredController.onPageLoad().url)
+        }
+      }
+    }
+
+    "called for agent" must {
+      "redirect" in {
+        when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(affinityGroup = Some(AffinityGroup.Agent)))
+        val userAnswersData = Json.obj("areYouUKResident" -> true)
+        when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
+        val result = controller.onPageLoad()(fakeRequest)
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe Some(controllers.routes.AgentCannotRegisterController.onPageLoad().url)
+      }
+    }
+
+    "called for individual" must {
+      "redirect" in {
+        when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(affinityGroup = Some(AffinityGroup.Individual)))
+        val userAnswersData = Json.obj("areYouUKResident" -> true)
+        when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
+        val result = controller.onPageLoad()(fakeRequest)
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe Some(controllers.routes.NeedAnOrganisationAccountController.onPageLoad().url)
+      }
+    }
+
+    "called for Organisation that is an assistant" must {
+      "redirect" in {
+        when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any()))
+          .thenReturn(authRetrievals(affinityGroup = Some(AffinityGroup.Organisation), role = Some(Assistant)))
+        val userAnswersData = Json.obj("areYouUKResident" -> true)
+        when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
+        val result = controller.onPageLoad()(fakeRequest)
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe Some(controllers.routes.AssistantNoAccessController.onPageLoad().url)
+      }
+    }
+
+    "called for Organisation user that is not an assistant" must {
       "redirect to Manual IV " when {
         "they want to register as Individual" in {
           val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Yourselfasindividual.toString)
@@ -212,14 +257,14 @@ class IdentifierActionSpec extends SpecBase with MockitoSugar with BeforeAndAfte
     }
   }
 
-  "AuthenticatedIdentifierActionWithNoIV" when {
+  "AuthenticatedAuthActionWithNoIV" when {
     "called for Company user" must {
       "return OK and able to view the page and not redirect to IV" when {
         "they want to register as Individual" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
           val userAnswersData = Json.obj("areYouInUK" -> true, "registerAsBusiness" -> false)
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          val authAction = new AuthenticatedIdentifierActionWithNoIV(authConnector, frontendAppConfig,
+          val authAction = new AuthenticatedAuthActionWithNoIV(authConnector, frontendAppConfig,
             mockUserAnswersCacheConnector, mockIVConnector, bodyParsers)
 
           val controller = new Harness(authAction)
@@ -231,27 +276,30 @@ class IdentifierActionSpec extends SpecBase with MockitoSugar with BeforeAndAfte
   }
 }
 
-object IdentifierActionSpec {
+object AuthActionSpec {
   private val pspId = "A0000000"
   private val nino = uk.gov.hmrc.domain.Nino("AB100100A")
-  type authRetrievalsType = ConfidenceLevel ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials]
+  type authRetrievalsType = ConfidenceLevel ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~Option[CredentialRole]
 
   private val enrolmentPODS = Enrolments(Set(Enrolment("HMRC-PODS-ORG", Seq(EnrolmentIdentifier("PSPID", pspId)), "")))
+  private val enrolmentThroughPODSForPSP = Enrolments(Set(Enrolment("HMRC-PODSPP-ORG", Seq(EnrolmentIdentifier("PSPID", pspId)), "")))
   private val startIVLink = "/start-iv-link"
 
   private def authRetrievals(confidenceLevel: ConfidenceLevel = ConfidenceLevel.L50,
                              affinityGroup: Option[AffinityGroup] = Some(AffinityGroup.Organisation),
                              enrolments: Enrolments = Enrolments(Set()),
-                             creds: Option[Credentials] = Option(Credentials(providerId = "test provider", providerType = ""))
+                             creds: Option[Credentials] = Option(Credentials(providerId = "test provider", providerType = "")),
+                            role: Option[CredentialRole] = Option(User)
                             ): Future[authRetrievalsType] = Future.successful(
-    new ~(new ~(new ~(confidenceLevel,
+    new ~(new ~(new ~(new ~(confidenceLevel,
       affinityGroup),
       enrolments),
-      creds
+      creds),
+      role
     )
   )
 
-  class Harness(identifierAction: IdentifierAction) {
+  class Harness(identifierAction: AuthAction) {
     def onPageLoad(): Action[AnyContent] = identifierAction {
       implicit request =>
         Ok(Json.obj("userId" -> request.user.userId))

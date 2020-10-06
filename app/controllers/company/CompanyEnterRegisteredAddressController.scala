@@ -51,7 +51,7 @@ import scala.concurrent.Future
 class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi: MessagesApi,
   val userAnswersCacheConnector: UserAnswersCacheConnector,
   val navigator: CompoundNavigator,
-  identify: IdentifierAction,
+  authenticate: AuthAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: RegisteredAddressFormProvider,
@@ -71,14 +71,14 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
   override protected val submitRoute: Mode => Call = mode => routes.CompanyEnterRegisteredAddressController.onSubmit(mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async { implicit request =>
+    (authenticate andThen getData andThen requireData).async { implicit request =>
       BusinessNamePage.retrieve.right.map { companyName =>
           get(mode, Some(companyName), AddressConfiguration.CountryOnly)
       }
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async { implicit request =>
+    (authenticate andThen getData andThen requireData).async { implicit request =>
       BusinessNamePage.retrieve.right.map { companyName =>
         form
           .bindFromRequest()

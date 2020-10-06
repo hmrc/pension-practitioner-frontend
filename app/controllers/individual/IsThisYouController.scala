@@ -42,7 +42,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
                                     userAnswersCacheConnector: UserAnswersCacheConnector,
                                     navigator: CompoundNavigator,
-                                    identify: IdentifierAction,
+                                    authenticate: AuthAction,
                                     getData: DataRetrievalAction,
                                     requireData: DataRequiredAction,
                                     formProvider: IsThisYouFormProvider,
@@ -56,7 +56,7 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
 
   private val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       val ua = request.userAnswers
       val preparedForm = ua.get(IsThisYouPage).fold(form)(form.fill)
@@ -90,7 +90,7 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
 
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       form.bindFromRequest().fold(
         (formWithErrors: Form[_]) => {

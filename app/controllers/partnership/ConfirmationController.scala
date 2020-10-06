@@ -37,7 +37,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
                                        userAnswersCacheConnector: UserAnswersCacheConnector,
-                                       identify: IdentifierAction,
+                                       authenticate: AuthAction,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
@@ -45,7 +45,7 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController
                                         with Retrievals with I18nSupport with NunjucksSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       (BusinessNamePage and PartnershipEmailPage and PspIdPage).retrieve.right.map {
         case name ~ email ~ pspid =>

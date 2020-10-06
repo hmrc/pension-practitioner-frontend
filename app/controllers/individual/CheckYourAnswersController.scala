@@ -19,11 +19,16 @@ package controllers.individual
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
+import controllers.actions.AuthAction
+import controllers.actions.DataRequiredAction
+import controllers.actions.DataRetrievalAction
 import navigators.CompoundNavigator
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.I18nSupport
+import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import services.IndividualCYAService
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
@@ -33,7 +38,7 @@ import scala.concurrent.ExecutionContext
 
 class CheckYourAnswersController @Inject()(config: FrontendAppConfig,
                                            override val messagesApi: MessagesApi,
-                                           identify: IdentifierAction,
+                                           authenticate: AuthAction,
                                            getData: DataRetrievalAction,
                                            requireData: DataRequiredAction,
                                            userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -46,7 +51,7 @@ class CheckYourAnswersController @Inject()(config: FrontendAppConfig,
     with NunjucksSupport {
 
   def onPageLoad: Action[AnyContent] =
-    (identify andThen getData andThen requireData).async { implicit request =>
+    (authenticate andThen getData andThen requireData).async { implicit request =>
 
       val json = Json.obj(
         "redirectUrl" -> controllers.individual.routes.DeclarationController.onPageLoad().url,

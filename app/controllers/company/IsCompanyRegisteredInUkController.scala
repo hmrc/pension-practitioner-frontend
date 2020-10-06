@@ -44,7 +44,7 @@ import scala.concurrent.Future
 class IsCompanyRegisteredInUkController @Inject()(override val messagesApi: MessagesApi,
                                       userAnswersCacheConnector: UserAnswersCacheConnector,
                                       navigator: CompoundNavigator,
-                                      identify: IdentifierAction,
+                                      authenticate: AuthAction,
                                       getData: DataRetrievalAction,
                                       requireData: DataRequiredAction,
                                       formProvider: IsCompanyRegisteredInUkFormProvider,
@@ -56,7 +56,7 @@ class IsCompanyRegisteredInUkController @Inject()(override val messagesApi: Mess
 
   private val form = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       val preparedForm = request.userAnswers.get (IsCompanyRegisteredInUkPage) match {
         case None => form
@@ -72,7 +72,7 @@ class IsCompanyRegisteredInUkController @Inject()(override val messagesApi: Mess
     renderer.render ("company/isCompanyRegisteredInUk.njk", json).map(Ok (_))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       form.bindFromRequest().fold(
         formWithErrors => {
