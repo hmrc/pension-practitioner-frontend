@@ -19,7 +19,9 @@
         <p class="govuk-body">{{messages('alreadyRegistered.p1')}}</p>
         <p>
           {{ govukButton({
-            text: messages('site.continuePensionSchemes')
+            text: messages('site.continuePensionSchemes'),
+            href: returnToPensionSchemesUrl,
+            attributes: {id: "submit"}
           }) }}
         </p>
         <a class="govuk-link" href="{{ govUkUrl }}">{{messages("site.exitToGovUk")}}</a>
