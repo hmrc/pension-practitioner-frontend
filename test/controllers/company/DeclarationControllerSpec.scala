@@ -22,6 +22,7 @@ import connectors.SubscriptionConnector
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import matchers.JsonMatchers
+import models.ExistingPSP
 import org.mockito.Matchers
 import play.api.mvc.Call
 import models.UserAnswers
@@ -42,6 +43,7 @@ import pages.company.CompanyEmailPage
 import pages.company.DeclarationPage
 import pages.register.AreYouUKCompanyPage
 import pages.register.BusinessTypePage
+import pages.register.ExistingPSPPage
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.JsObject
@@ -125,8 +127,10 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val expectedJson = Json.obj(PspIdPage.toString -> pspId)
 
+      val uaCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
+
       when(mockCompoundNavigator.nextPage(Matchers.eq(DeclarationPage), any(), any())).thenReturn(dummyCall)
-      when(mockSubscriptionConnector.subscribePsp(any())(any(), any())).thenReturn(Future.successful(pspId))
+      when(mockSubscriptionConnector.subscribePsp(uaCaptor.capture())(any(), any())).thenReturn(Future.successful(pspId))
       when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
@@ -134,7 +138,9 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
+
       jsonCaptor.getValue must containJson(expectedJson)
+      uaCaptor.getValue.getOrException(ExistingPSPPage) mustBe ExistingPSP(isExistingPSP = false, existingPSPId = None)
       redirectLocation(result) mustBe Some(dummyCall.url)
     }
 

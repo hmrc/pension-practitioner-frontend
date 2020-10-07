@@ -27,11 +27,13 @@ import controllers.DataRetrievals
 import controllers.Retrievals
 import controllers.actions._
 import javax.inject.Inject
+import models.ExistingPSP
 import models.NormalMode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.PspIdPage
 import pages.individual.DeclarationPage
+import pages.register.ExistingPSPPage
 import play.api.i18n.Messages
 import play.api.i18n.I18nSupport
 import play.api.i18n.MessagesApi
@@ -77,9 +79,12 @@ class DeclarationController @Inject()(
 
   def onSubmit: Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
+      val ua = request.userAnswers
+        .setOrException(ExistingPSPPage, ExistingPSP(request.user.isExistingPSP, request.user.existingPSPId))
+
       DataRetrievals.retrievePspNameAndEmail { (pspName, email) =>
         for {
-          pspId <- subscriptionConnector.subscribePsp(request.userAnswers)
+          pspId <- subscriptionConnector.subscribePsp(ua)
           updatedAnswers <- Future.fromTry(
             request.userAnswers.set(PspIdPage, pspId)
           )

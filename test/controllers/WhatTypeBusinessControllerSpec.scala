@@ -16,23 +16,35 @@
 
 package controllers
 
+import audit.AuditEvent
+import audit.AuditService
+import audit.PSPStartEvent
+import connectors.AddressLookupConnector
 import controllers.base.ControllerSpecBase
 import data.SampleData._
 import forms.WhatTypeBusinessFormProvider
 import matchers.JsonMatchers
-import models.{UserAnswers, WhatTypeBusiness}
+import models.requests.UserType
+import models.{WhatTypeBusiness, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.doNothing
+import org.mockito.Mockito.reset
+import org.mockito.Mockito.{times, when, verify}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
+import pages.PspIdPage
 import pages.WhatTypeBusinessPage
-import play.api.libs.json.{JsObject, Json}
+import play.api.Application
+import play.api.inject.bind
+import play.api.inject.guice.GuiceableModule
+import play.api.libs.json.{Json, JsObject}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.countryOptions.CountryOptions
 
 import scala.concurrent.Future
 
@@ -46,13 +58,29 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
   private val formProvider = new WhatTypeBusinessFormProvider()
   private val form = formProvider()
 
+  private val mockAuditService = mock[AuditService]
+
+  private val extraModules: Seq[GuiceableModule] = Seq(
+    bind[AuditService].toInstance(mockAuditService)
+  )
+
+  private def buildApp(userAnswers:Option[UserAnswers]): Application =
+    applicationBuilder(userAnswers,
+      extraModules = extraModules).build()
+
+  override def beforeEach: Unit = {
+    reset(mockAuditService)
+    doNothing().when(mockAuditService).sendEvent(any())(any(), any())
+    super.beforeEach
+  }
+
   val answers: UserAnswers = userAnswersWithCompanyName.set(WhatTypeBusinessPage, WhatTypeBusiness.values.head).success.value
 
   "WhatTypeBusiness Controller" must {
     "return OK and the correct view for a GET" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName)).overrides().build()
+      val application = buildApp(userAnswers = Some(userAnswersWithCompanyName))
       val request = FakeRequest(GET, whatTypeBusinessRoute)
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
@@ -75,7 +103,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
     "populate the view correctly on a GET when the question has previously been answered" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(answers)).build()
+      val application = buildApp(userAnswers = Some(answers))
 
       val request = FakeRequest(GET, whatTypeBusinessRoute)
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
@@ -102,7 +130,9 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName)).overrides().build()
+      val pspId = "test-id"
+
+      val application = buildApp(userAnswers = Some(userAnswersWithCompanyName.setOrException(PspIdPage, pspId)))
 
       val request = FakeRequest(POST, whatTypeBusinessRoute).withFormUrlEncodedBody(("value", WhatTypeBusiness.values.head.toString))
 
@@ -112,13 +142,18 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
       redirectLocation(result).value mustEqual onwardRoute.url
 
+      val eventCaptor = ArgumentCaptor.forClass(classOf[AuditEvent])
+
+      verify(mockAuditService, times(1)).sendEvent(eventCaptor.capture())(any(), any())
+      eventCaptor.getValue mustBe PSPStartEvent(UserType.Organisation, existingUser = false)
+
       application.stop()
     }
 
     "return a Bad Request and errors when invalid data is submitted" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName)).overrides().build()
+      val application = buildApp(userAnswers = Some(userAnswersWithCompanyName))
       val request = FakeRequest(POST, whatTypeBusinessRoute).withFormUrlEncodedBody(("value", "invalid value"))
       val boundForm = form.bind(Map("value" -> "invalid value"))
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])

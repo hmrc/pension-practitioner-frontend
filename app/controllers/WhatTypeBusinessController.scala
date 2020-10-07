@@ -16,22 +16,31 @@
 
 package controllers
 
+import audit.AuditService
+import audit.PSPStartEvent
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import forms.WhatTypeBusinessFormProvider
 import javax.inject.Inject
-import models.{NormalMode, UserAnswers, WhatTypeBusiness}
+import models.NormalMode
+import models.UserAnswers
+import models.WhatTypeBusiness
 import navigators.CompoundNavigator
+import pages.PspIdPage
 import pages.WhatTypeBusinessPage
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.I18nSupport
+import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi,
                                            userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -42,7 +51,8 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
                                            formProvider: WhatTypeBusinessFormProvider,
                                            val controllerComponents: MessagesControllerComponents,
                                            config: FrontendAppConfig,
-                                           renderer: Renderer
+                                           renderer: Renderer,
+                                           auditService: AuditService
                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
 
   private val form = formProvider()
@@ -78,13 +88,15 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
             renderer.render("whatTypeBusiness.njk", json).map(BadRequest(_))
           },
           value => {
-
             val ua = request.userAnswers.getOrElse(UserAnswers())
-
             for {
               updatedAnswers <- Future.fromTry(ua.set(WhatTypeBusinessPage, value))
               _ <- userAnswersCacheConnector.save( updatedAnswers.data)
-            } yield Redirect(navigator.nextPage(WhatTypeBusinessPage, NormalMode, updatedAnswers))
+            } yield {
+
+              auditService.sendEvent(PSPStartEvent(request.user.userType, request.user.isExistingPSP))
+              Redirect(navigator.nextPage(WhatTypeBusinessPage, NormalMode, updatedAnswers))
+            }
           }
         )
   }
