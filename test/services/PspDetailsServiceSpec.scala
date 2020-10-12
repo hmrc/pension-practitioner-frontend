@@ -169,7 +169,7 @@ object PspDetailsServiceSpec {
     }
 
   def expected(typeText: String, name: String, ninoUtr: JsObject, address: JsObject = ukAddress): JsObject = Json.obj(
-    "title" -> s"$typeText details",
+    "pageTitle" -> s"$typeText details",
     "heading" -> s"$name’s details",
     "list" -> list(typeText, name, ninoUtr, address),
     "nextPage" -> "/pension-scheme-practitioner/declare"

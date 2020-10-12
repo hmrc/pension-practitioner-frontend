@@ -6,7 +6,7 @@
 {% from "macros/title.njk"                         import title %}
 
 {% block pageTitle %}
-  {{ title(messages("checkYourAnswers.title")) }}
+  {{ title(pageTitle) }}
 {% endblock %}
 
 {% block mainContent %}
@@ -15,7 +15,7 @@
       <div class="govuk-grid-column-two-thirds">
 
         <h1 class="govuk-heading-xl">
-          {{ messages("checkYourAnswers.title") }}
+          {{ heading }}
         </h1>
 
         {{ govukSummaryList({
@@ -23,8 +23,8 @@
         }) }}
 
         {{ govukButton({
-            text: messages("site.continue"),
-            href: redirectUrl,
+            text: messages("site.save_and_continue"),
+            href: nextPage,
             attributes: {id: "submit"}
           }) }}
 

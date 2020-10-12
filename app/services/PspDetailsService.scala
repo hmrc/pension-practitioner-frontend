@@ -54,7 +54,7 @@ class PspDetailsService @Inject()(subscriptionConnector: SubscriptionConnector,
             case Individual =>
               val title: String = individualMessage("viewDetails.title").resolve
               Json.obj(
-                "title" -> title,
+                "pageTitle" -> title,
                 "heading" -> ua.get(IndividualDetailsPage).fold(title)(name => heading(name.fullName)),
                 "list" -> individualDetails(ua, pspId),
                 "nextPage" -> nextPage
@@ -62,7 +62,7 @@ class PspDetailsService @Inject()(subscriptionConnector: SubscriptionConnector,
             case LimitedCompany =>
               val title: String = companyMessage("viewDetails.title").resolve
               Json.obj(
-                "title" -> title,
+                "pageTitle" -> title,
                 "heading" -> ua.get(comp.BusinessNamePage).fold(title)(name => heading(name)),
                 "list" -> companyDetails(ua, pspId),
                 "nextPage" -> nextPage
@@ -70,7 +70,7 @@ class PspDetailsService @Inject()(subscriptionConnector: SubscriptionConnector,
             case Partnership =>
               val title: String = partnershipMessage("viewDetails.title").resolve
               Json.obj(
-                "title" -> title,
+                "pageTitle" -> title,
                 "heading" -> ua.get(BusinessNamePage).fold(title)(name => heading(name)),
                 "list" -> partnershipDetails(ua, pspId),
                 "nextPage" -> nextPage
