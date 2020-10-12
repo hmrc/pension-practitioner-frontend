@@ -26,9 +26,11 @@ import scala.util.Try
 
 final case class UserAnswers(data: JsObject = Json.obj()) {
 
-  def get[A](page: QuestionPage[A])(implicit rds: Reads[A]): Option[A] = Reads.optionNoError(Reads.at(page.path)).reads(data).getOrElse(None)
+  def get[A](page: QuestionPage[A])(implicit rds: Reads[A]): Option[A] =
+    Reads.optionNoError(Reads.at(page.path)).reads(data).getOrElse(None)
 
-  def get(path: JsPath)(implicit rds: Reads[JsValue]): Option[JsValue] = Reads.optionNoError(Reads.at(path)).reads(data).getOrElse(None)
+  def get(path: JsPath)(implicit rds: Reads[JsValue]): Option[JsValue] =
+    Reads.optionNoError(Reads.at(path)).reads(data).getOrElse(None)
 
   def getOrException[A](page: QuestionPage[A])(implicit rds: Reads[A]): A =
     get(page).getOrElse(throw new RuntimeException("Expected a value but none found for " + page))

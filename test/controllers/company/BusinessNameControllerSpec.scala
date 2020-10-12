@@ -53,8 +53,6 @@ class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar wi
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(UserAnswers()))
-        .overrides(
-        )
         .build()
       val request = FakeRequest(GET, companyNameRoute)
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])

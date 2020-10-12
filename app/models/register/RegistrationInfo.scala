@@ -30,3 +30,14 @@ case class RegistrationInfo(
 object RegistrationInfo {
   implicit lazy val formatsRegistrationInfo: Format[RegistrationInfo] = Json.format[RegistrationInfo]
 }
+
+case class RegistrationDetails(
+                             legalStatus: RegistrationLegalStatus,
+                             customerType: RegistrationCustomerType,
+                             idType: Option[RegistrationIdType],
+                             idNumber: Option[String]
+                           )
+
+object RegistrationDetails {
+  implicit lazy val formatsRegistrationInfo: Format[RegistrationDetails] = Json.format[RegistrationDetails]
+}
