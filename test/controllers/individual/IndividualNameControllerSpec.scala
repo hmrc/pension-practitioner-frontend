@@ -20,7 +20,7 @@ import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import forms.individual.IndividualNameFormProvider
 import matchers.JsonMatchers
-import models.UserAnswers
+import models.{NormalMode, UserAnswers}
 import models.register.TolerantIndividual
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -51,9 +51,9 @@ class IndividualNameControllerSpec extends ControllerSpecBase with MockitoSugar 
   private val name = TolerantIndividual(Some(firstName), None, Some(lastName))
   private val dummyCall: Call = Call("GET", "/foo")
 
-  private def onPageLoadUrl: String = routes.IndividualNameController.onPageLoad().url
+  private def onPageLoadUrl: String = routes.IndividualNameController.onPageLoad(NormalMode).url
 
-  private def submitUrl: String = routes.IndividualNameController.onSubmit().url
+  private def submitUrl: String = routes.IndividualNameController.onSubmit(NormalMode).url
 
   private val valuesValid: Map[String, Seq[String]] = Map("firstName" -> Seq(firstName), "lastName" -> Seq(lastName))
 

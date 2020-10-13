@@ -46,3 +46,5 @@ GET        /practitioner-details                                     controllers
 
 GET        /declare                                                  controllers.amend.DeclarationController.onPageLoad()
 POST       /declare                                                  controllers.amend.DeclarationController.onSubmit()
+
+GET        /success                                                  controllers.amend.ConfirmationController.onPageLoad()

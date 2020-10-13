@@ -35,7 +35,7 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
 
   //scalastyle:off cyclomatic.complexity
   override protected def routeMap(ua: UserAnswers): PartialFunction[Page, Call] = {
-    case BusinessUTRPage => CompanyNameController.onPageLoad()
+    case BusinessUTRPage => CompanyNameController.onPageLoad(NormalMode)
     case BusinessNamePage =>
       ua.get(AreYouUKCompanyPage) match {
         case Some(true) => ConfirmNameController.onPageLoad()

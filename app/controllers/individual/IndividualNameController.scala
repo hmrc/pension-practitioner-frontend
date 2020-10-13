@@ -87,7 +87,7 @@ class IndividualNameController @Inject()(override val messagesApi: MessagesApi,
                      (implicit request: DataRequest[AnyContent]): Future[Result] =
     block(Json.obj(
       "form" -> form,
-      "submitUrl" -> routes.IndividualNameController.onSubmit().url
+      "submitUrl" -> routes.IndividualNameController.onSubmit(mode).url
     ))
 
 }

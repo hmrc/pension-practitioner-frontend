@@ -19,8 +19,10 @@ POST       /addresses/change-contact-address           controllers.company.Compa
 GET        /business-utr                        controllers.company.BusinessUTRController.onPageLoad()
 POST       /business-utr                        controllers.company.BusinessUTRController.onSubmit()
 
-GET        /org-name                        controllers.company.CompanyNameController.onPageLoad()
-POST       /org-name                        controllers.company.CompanyNameController.onSubmit()
+GET        /org-name                        controllers.company.CompanyNameController.onPageLoad(mode: Mode = NormalMode)
+POST       /org-name                        controllers.company.CompanyNameController.onSubmit(mode: Mode = NormalMode)
+GET        /change-org-name                 controllers.company.CompanyNameController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-org-name                 controllers.company.CompanyNameController.onSubmit(mode: Mode = CheckMode)
 
 GET        /confirm-name                        controllers.company.ConfirmNameController.onPageLoad()
 POST       /confirm-name                        controllers.company.ConfirmNameController.onSubmit()

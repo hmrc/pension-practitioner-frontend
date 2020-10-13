@@ -1,8 +1,10 @@
 GET        /business-utr                        controllers.partnership.BusinessUTRController.onPageLoad()
 POST       /business-utr                        controllers.partnership.BusinessUTRController.onSubmit()
 
-GET        /org-name                        controllers.partnership.PartnershipNameController.onPageLoad()
-POST       /org-name                        controllers.partnership.PartnershipNameController.onSubmit()
+GET        /org-name                        controllers.partnership.PartnershipNameController.onPageLoad(mode: Mode = NormalMode)
+POST       /org-name                        controllers.partnership.PartnershipNameController.onSubmit(mode: Mode = NormalMode)
+GET        /change-org-name                 controllers.partnership.PartnershipNameController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-org-name                 controllers.partnership.PartnershipNameController.onSubmit(mode: Mode = CheckMode)
 
 GET        /confirm-name                        controllers.partnership.ConfirmNameController.onPageLoad()
 POST       /confirm-name                        controllers.partnership.ConfirmNameController.onSubmit()

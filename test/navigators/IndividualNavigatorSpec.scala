@@ -44,7 +44,7 @@ class IndividualNavigatorSpec extends NavigatorBehaviour {
         ("Id", "UserAnswers", "Next Page"),
         row(WhatYouWillNeedPage)(controllers.individual.routes.AreYouUKResidentController.onPageLoad(NormalMode)),
         row(AreYouUKResidentPage)(controllers.individual.routes.IsThisYouController.onPageLoad(NormalMode), Some(areYouUKResident(true))),
-        row(AreYouUKResidentPage)(controllers.individual.routes.IndividualNameController.onPageLoad(), Some(areYouUKResident(false))),
+        row(AreYouUKResidentPage)(controllers.individual.routes.IndividualNameController.onPageLoad(NormalMode), Some(areYouUKResident(false))),
         row(AreYouUKResidentPage)(controllers.routes.SessionExpiredController.onPageLoad(), None),
         row(IndividualDetailsPage)(controllers.individual.routes.IndividualEnterRegisteredAddressController.onPageLoad(NormalMode), None),
         row(IndividualAddressPage)(controllers.individual.routes.UseAddressForContactController.onPageLoad(NormalMode), Some(uaAddress("FR"))),
@@ -76,7 +76,7 @@ class IndividualNavigatorSpec extends NavigatorBehaviour {
       Table(
         ("Id", "UserAnswers", "Next Page"),
         row(AreYouUKResidentPage)(controllers.individual.routes.IsThisYouController.onPageLoad(NormalMode), Some(areYouUKResident(true))),
-        row(AreYouUKResidentPage)(controllers.individual.routes.IndividualNameController.onPageLoad(), Some(areYouUKResident(false))),
+        row(AreYouUKResidentPage)(controllers.individual.routes.IndividualNameController.onPageLoad(NormalMode), Some(areYouUKResident(false))),
         row(IndividualPostcodePage)(controllers.individual.routes.IndividualAddressListController.onPageLoad(CheckMode)),
         row(IndividualAddressListPage)(controllers.individual.routes.CheckYourAnswersController.onPageLoad()),
         row(IndividualManualAddressPage)(controllers.individual.routes.CheckYourAnswersController.onPageLoad()),

@@ -22,5 +22,5 @@ case object NameChange extends QuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "businessNameChange"
+  override def toString: String = "nameChange"
 }

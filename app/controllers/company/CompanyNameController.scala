@@ -22,7 +22,7 @@ import controllers.Variation
 import controllers.actions._
 import forms.BusinessNameFormProvider
 import javax.inject.Inject
-import models.NormalMode
+import models.{Mode, NormalMode}
 import navigators.CompoundNavigator
 import pages.NameChange
 import pages.company.BusinessNamePage
@@ -55,7 +55,7 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
 
   private val form = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
         val preparedForm = request.userAnswers.get(BusinessNamePage) match {
           case None => form
@@ -69,21 +69,21 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
 
         val json = Json.obj(
           "form" -> preparedForm,
-          "submitUrl" -> routes.CompanyNameController.onSubmit().url,
+          "submitUrl" -> routes.CompanyNameController.onSubmit(mode).url,
           "entityName" -> "company"
         ) ++ extraJson
 
         renderer.render("businessName.njk", json).map(Ok(_))
   }
 
-  def onSubmit(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
         form.bindFromRequest().fold(
           formWithErrors => {
 
             val json = Json.obj(
               "form" -> formWithErrors,
-              "submitUrl" -> routes.CompanyNameController.onSubmit().url,
+              "submitUrl" -> routes.CompanyNameController.onSubmit(mode).url,
               "entityName" -> "company"
             )
 
@@ -94,7 +94,7 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
               ua <- Future.fromTry(request.userAnswers.set(BusinessNamePage, value))
               updatedAnswers <- Future.fromTry(setChangeFlag(ua, NameChange))
               _ <- userAnswersCacheConnector.save( updatedAnswers.data)
-            } yield Redirect(navigator.nextPage(BusinessNamePage, NormalMode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(BusinessNamePage, mode, updatedAnswers))
         )
   }
 }

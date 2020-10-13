@@ -20,7 +20,7 @@ import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import forms.BusinessNameFormProvider
 import matchers.JsonMatchers
-import models.UserAnswers
+import models.{NormalMode, UserAnswers}
 import org.mockito.Matchers.any
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
@@ -57,8 +57,8 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   val userAnswers: UserAnswers = UserAnswers()
 
-  private def onPageLoadUrl: String = routes.CompanyNameController.onPageLoad().url
-  private def submitUrl: String = routes.CompanyNameController.onSubmit().url
+  private def onPageLoadUrl: String = routes.CompanyNameController.onPageLoad(NormalMode).url
+  private def submitUrl: String = routes.CompanyNameController.onSubmit(NormalMode).url
 
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq(name))
 
@@ -67,7 +67,7 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
   private val jsonToPassToTemplate: Form[String] => JsObject =
     form => Json.obj(
     "form" -> form,
-    "submitUrl" -> routes.CompanyNameController.onSubmit().url,
+    "submitUrl" -> routes.CompanyNameController.onSubmit(NormalMode).url,
     "entityName" -> "company"
     )
 

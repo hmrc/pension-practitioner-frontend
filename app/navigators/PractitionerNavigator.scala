@@ -19,12 +19,12 @@ package navigators
 import com.google.inject.Inject
 import connectors.cache.UserAnswersCacheConnector
 import models.register.BusinessRegistrationType
-import models.{WhatTypeBusiness, UserAnswers}
+import models.{NormalMode, UserAnswers, WhatTypeBusiness}
 import models.register.BusinessType
 import pages.register.BusinessDetailsNotFoundPage
 import pages.register.BusinessRegistrationTypePage
-import pages.register.{AreYouUKCompanyPage, WhatYouWillNeedPage, BusinessTypePage}
-import pages.{WhatTypeBusinessPage, Page}
+import pages.register.{AreYouUKCompanyPage, BusinessTypePage, WhatYouWillNeedPage}
+import pages.{Page, WhatTypeBusinessPage}
 import play.api.mvc.Call
 
 class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector)
@@ -50,8 +50,8 @@ class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCo
     case BusinessDetailsNotFoundPage => controllers.routes.WhatTypeBusinessController.onPageLoad()
     case BusinessRegistrationTypePage =>
       ua.get(BusinessRegistrationTypePage) match {
-        case Some(BusinessRegistrationType.Company) => controllers.company.routes.CompanyNameController.onPageLoad()
-        case _ => controllers.partnership.routes.PartnershipNameController.onPageLoad()
+        case Some(BusinessRegistrationType.Company) => controllers.company.routes.CompanyNameController.onPageLoad(NormalMode)
+        case _ => controllers.partnership.routes.PartnershipNameController.onPageLoad(NormalMode)
       }
 
   }

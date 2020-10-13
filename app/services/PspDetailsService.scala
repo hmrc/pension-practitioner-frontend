@@ -17,6 +17,7 @@
 package services
 
 import com.google.inject.Inject
+import config.FrontendAppConfig
 import connectors.SubscriptionConnector
 import connectors.cache.UserAnswersCacheConnector
 import controllers.amend.routes
@@ -44,8 +45,9 @@ import play.api.mvc.Call
 import scala.util.Try
 import scala.concurrent.{ExecutionContext, Future}
 
-class PspDetailsService @Inject()(subscriptionConnector: SubscriptionConnector,
-                                 userAnswersCacheConnector: UserAnswersCacheConnector) extends CYAService {
+class PspDetailsService @Inject()(appConfig: FrontendAppConfig,
+                                  subscriptionConnector: SubscriptionConnector,
+                                  userAnswersCacheConnector: UserAnswersCacheConnector) extends CYAService {
 
   val halfWidth: Seq[String] = Seq("govuk-!-width-one-half")
   val thirdWidth: Seq[String] = Seq("govuk-!-width-one-third")
@@ -65,7 +67,10 @@ class PspDetailsService @Inject()(subscriptionConnector: SubscriptionConnector,
                 "pageTitle" -> title,
                 "heading" -> ua.get(IndividualDetailsPage).fold(title)(name => heading(name.fullName)),
                 "list" -> individualDetails(ua, pspId),
-                "nextPage" -> nextPage
+                "nextPage" -> nextPage,
+                "returnUrl" -> appConfig.returnToOverviewUrl,
+                "returnLink" -> ua.get(IndividualDetailsPage)
+                  .fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name.fullName))
               )
             case LimitedCompany =>
               val title: String = companyMessage("viewDetails.title").resolve
@@ -73,7 +78,10 @@ class PspDetailsService @Inject()(subscriptionConnector: SubscriptionConnector,
                 "pageTitle" -> title,
                 "heading" -> ua.get(comp.BusinessNamePage).fold(title)(name => heading(name)),
                 "list" -> companyDetails(ua, pspId),
-                "nextPage" -> nextPage
+                "nextPage" -> nextPage,
+                "returnUrl" -> appConfig.returnToOverviewUrl,
+                "returnLink" -> ua.get(comp.BusinessNamePage)
+                  .fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name))
               )
             case Partnership =>
               val title: String = partnershipMessage("viewDetails.title").resolve
@@ -81,7 +89,10 @@ class PspDetailsService @Inject()(subscriptionConnector: SubscriptionConnector,
                 "pageTitle" -> title,
                 "heading" -> ua.get(BusinessNamePage).fold(title)(name => heading(name)),
                 "list" -> partnershipDetails(ua, pspId),
-                "nextPage" -> nextPage
+                "nextPage" -> nextPage,
+                "returnUrl" -> appConfig.returnToOverviewUrl,
+                "returnLink" -> ua.get(BusinessNamePage)
+                  .fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name))
               )
           }
         }.getOrElse(Json.obj())
@@ -152,7 +163,7 @@ class PspDetailsService @Inject()(subscriptionConnector: SubscriptionConnector,
       case (Some(name), Some(regInfo), Some(address), Some(email), Some(phone)) =>
        practitionerIdRow(pspId) ++ Seq(
           Row(Key(individualMessage("viewDetails.name"), halfWidth), Value(Literal(name.fullName), thirdWidth),
-            nameLink(indRoutes.IndividualNameController.onPageLoad(), regInfo, name.fullName))) ++
+            nameLink(indRoutes.IndividualNameController.onPageLoad(CheckMode), regInfo, name.fullName))) ++
           regDetailsRow(regInfo) ++ Seq(
           Row(Key(individualMessage("viewDetails.address"), halfWidth), Value(addressAnswer(address), thirdWidth),
             addressLink(indRoutes.IndividualPostcodeController.onPageLoad(CheckMode))),
@@ -179,12 +190,12 @@ class PspDetailsService @Inject()(subscriptionConnector: SubscriptionConnector,
     (ua.get(comp.BusinessNamePage), ua.get(RegistrationDetailsPage), ua.get(CompanyAddressPage),
       ua.get(CompanyEmailPage), ua.get(CompanyPhonePage)) match {
       case (Some(name), Some(regInfo), Some(address), Some(email), Some(phone)) =>
-        practitionerIdRow(pspId) ++ Seq(
+        practitionerIdRow(pspId) ++ regDetailsRow(regInfo) ++ Seq(
           Row(Key(companyMessage("viewDetails.name"), halfWidth), Value(Literal(name), thirdWidth),
-            nameLink(compRoutes.CompanyNameController.onPageLoad(), regInfo, name))) ++
-          regDetailsRow(regInfo) ++ Seq(
+            nameLink(compRoutes.CompanyNameController.onPageLoad(CheckMode), regInfo, name))) ++
+          Seq(
           Row(Key(companyMessage("viewDetails.address"), halfWidth), Value(addressAnswer(address), thirdWidth),
-            addressLink(compRoutes.CompanyContactAddressController.onPageLoad(CheckMode))),
+            addressLink(compRoutes.CompanyPostcodeController.onPageLoad(CheckMode))),
           Row(Key(companyMessage("viewDetails.email"), halfWidth), Value(Literal(email), thirdWidth),
             emailLink(compRoutes.CompanyEmailController.onPageLoad(CheckMode), name)),
           Row(Key(companyMessage("viewDetails.phone"), halfWidth), Value(Literal(phone), thirdWidth),
@@ -199,12 +210,12 @@ class PspDetailsService @Inject()(subscriptionConnector: SubscriptionConnector,
     (ua.get(BusinessNamePage), ua.get(RegistrationDetailsPage), ua.get(PartnershipAddressPage),
       ua.get(PartnershipEmailPage), ua.get(PartnershipPhonePage)) match {
       case (Some(name), Some(regInfo), Some(address), Some(email), Some(phone)) =>
-        practitionerIdRow(pspId) ++ Seq(
+        practitionerIdRow(pspId) ++ regDetailsRow(regInfo) ++ Seq(
           Row(Key(partnershipMessage("viewDetails.name"), halfWidth), Value(Literal(name), thirdWidth),
-            nameLink(partRoutes.PartnershipNameController.onPageLoad(), regInfo, name))) ++
-          regDetailsRow(regInfo) ++ Seq(
+            nameLink(partRoutes.PartnershipNameController.onPageLoad(CheckMode), regInfo, name))) ++
+          Seq(
           Row(Key(partnershipMessage("viewDetails.address"), halfWidth), Value(addressAnswer(address), thirdWidth),
-            addressLink(partRoutes.PartnershipContactAddressController.onPageLoad(CheckMode))),
+            addressLink(partRoutes.PartnershipPostcodeController.onPageLoad(CheckMode))),
           Row(Key(partnershipMessage("viewDetails.email"), halfWidth), Value(Literal(email), thirdWidth),
             emailLink(partRoutes.PartnershipEmailController.onPageLoad(CheckMode), name)),
           Row(Key(partnershipMessage("viewDetails.phone"), halfWidth), Value(Literal(phone), thirdWidth),

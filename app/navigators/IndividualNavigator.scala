@@ -34,7 +34,7 @@ class IndividualNavigator @Inject()(countryOptions: CountryOptions) extends Navi
     case AreYouUKResidentPage =>
       ua.get(AreYouUKResidentPage) match {
         case Some(true) => IsThisYouController.onPageLoad(NormalMode)
-        case Some(false) => IndividualNameController.onPageLoad()
+        case Some(false) => IndividualNameController.onPageLoad(NormalMode)
         case _ => controllers.routes.SessionExpiredController.onPageLoad()
       }
     case IndividualDetailsPage => IndividualEnterRegisteredAddressController.onPageLoad(NormalMode)
@@ -64,7 +64,7 @@ class IndividualNavigator @Inject()(countryOptions: CountryOptions) extends Navi
     case AreYouUKResidentPage =>
       userAnswers.get(AreYouUKResidentPage) match {
         case Some(true) => IsThisYouController.onPageLoad(NormalMode)
-        case Some(false) => IndividualNameController.onPageLoad()
+        case Some(false) => IndividualNameController.onPageLoad(NormalMode)
         case _ => controllers.routes.SessionExpiredController.onPageLoad()
       }
     case IndividualDetailsPage => variationNavigator(userAnswers)

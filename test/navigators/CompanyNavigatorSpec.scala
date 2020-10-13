@@ -32,21 +32,21 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
   private val uaConfirmAddressYes = SampleData
     .emptyUserAnswers.setOrException(ConfirmAddressPage, SampleData.addressUK)
 
-  private def uaConfirmName(v:Boolean) = SampleData
+  private def uaConfirmName(v:Boolean): UserAnswers = SampleData
     .emptyUserAnswers.setOrException(ConfirmNamePage, v)
 
-  private def uaUseSameAddress(sameAddress:Boolean, uk:Boolean) =
+  private def uaUseSameAddress(sameAddress:Boolean, uk:Boolean): UserAnswers =
     SampleData.emptyUserAnswers
     .setOrException(AreYouUKCompanyPage, uk)
     .setOrException(CompanyUseSameAddressPage, sameAddress)
 
-  private def uaAreYouUKCompany(v:Boolean) = SampleData
+  private def uaAreYouUKCompany(v:Boolean): UserAnswers = SampleData
     .emptyUserAnswers.setOrException(AreYouUKCompanyPage, v)
 
-  private def uaIsCompanyRegisteredInUkPage(v:Boolean) =
+  private def uaIsCompanyRegisteredInUkPage(v:Boolean): UserAnswers =
     SampleData.emptyUserAnswers.setOrException(IsCompanyRegisteredInUkPage, v)
 
-  private def uaNotInUKButCountryGB =
+  private def uaNotInUKButCountryGB: UserAnswers =
     SampleData.emptyUserAnswers
       .setOrException(AreYouUKCompanyPage, false)
     .setOrException(CompanyRegisteredAddressPage, Address("addr1", "addr2", None, None, None, "GB"))
@@ -57,7 +57,7 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
     def normalModeRoutes: TableFor3[Page, UserAnswers, Call] =
       Table(
         ("Id", "UserAnswers", "Next Page"),
-        row(BusinessUTRPage)(CompanyNameController.onPageLoad()),
+        row(BusinessUTRPage)(CompanyNameController.onPageLoad(NormalMode)),
         row(BusinessNamePage)(ConfirmNameController.onPageLoad(), Some(uaAreYouUKCompany(true))),
         row(BusinessNamePage)(CompanyEnterRegisteredAddressController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(false))),
         row(ConfirmNamePage)(ConfirmAddressController.onPageLoad(), Some(uaConfirmName(true))),
