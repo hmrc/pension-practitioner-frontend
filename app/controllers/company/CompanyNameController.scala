@@ -18,11 +18,13 @@ package controllers.company
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
+import controllers.Variation
 import controllers.actions._
 import forms.BusinessNameFormProvider
 import javax.inject.Inject
 import models.NormalMode
 import navigators.CompoundNavigator
+import pages.NameChange
 import pages.company.BusinessNamePage
 import pages.register.AreYouUKCompanyPage
 import play.api.i18n.I18nSupport
@@ -48,7 +50,8 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
                                       val controllerComponents: MessagesControllerComponents,
                                       config: FrontendAppConfig,
                                       renderer: Renderer
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
+                                     )(implicit ec: ExecutionContext) extends FrontendBaseController
+                                      with I18nSupport with NunjucksSupport with Variation {
 
   private val form = formProvider()
 
@@ -88,7 +91,8 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
           },
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessNamePage, value))
+              ua <- Future.fromTry(request.userAnswers.set(BusinessNamePage, value))
+              updatedAnswers <- Future.fromTry(setChangeFlag(ua, NameChange))
               _ <- userAnswersCacheConnector.save( updatedAnswers.data)
             } yield Redirect(navigator.nextPage(BusinessNamePage, NormalMode, updatedAnswers))
         )

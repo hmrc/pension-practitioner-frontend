@@ -17,11 +17,11 @@
 package controllers.address
 
 import connectors.cache.UserAnswersCacheConnector
-import controllers.Retrievals
+import controllers.{Retrievals, Variation}
 import models.requests.DataRequest
 import models.{Address, Mode, TolerantAddress}
 import navigators.CompoundNavigator
-import pages.QuestionPage
+import pages.{AddressChange, QuestionPage}
 import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.libs.json.{JsObject, Json}
@@ -33,7 +33,7 @@ import utils.countryOptions.CountryOptions
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait AddressListController extends FrontendBaseController with Retrievals {
+trait AddressListController extends FrontendBaseController with Retrievals with Variation {
 
   protected def renderer: Renderer
   protected def userAnswersCacheConnector: UserAnswersCacheConnector
@@ -54,8 +54,9 @@ trait AddressListController extends FrontendBaseController with Retrievals {
               for {
                 updatedAnswers <- Future.fromTry(request.userAnswers.set(pages.addressPage,
                   addresses(value).copy(country = Some("GB")).toAddress))
-                _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-              } yield Redirect(navigator.nextPage(pages.addressListPage, mode, updatedAnswers))
+                answersWithChangeFlag <- Future.fromTry(setChangeFlag(updatedAnswers, AddressChange))
+                _ <- userAnswersCacheConnector.save(answersWithChangeFlag.data)
+              } yield Redirect(navigator.nextPage(pages.addressListPage, mode, answersWithChangeFlag))
             }
         )
   }

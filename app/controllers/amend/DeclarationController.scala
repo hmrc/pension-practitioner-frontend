@@ -16,19 +16,54 @@
 
 package controllers.amend
 
+import connectors.SubscriptionConnector
+import connectors.cache.UserAnswersCacheConnector
+import controllers.Retrievals
+import controllers.actions._
 import javax.inject.Inject
-import play.api.i18n.I18nSupport
+import models.{ExistingPSP, NormalMode}
+import navigators.CompoundNavigator
+import pages.PspIdPage
+import pages.company.DeclarationPage
+import pages.register.ExistingPSPPage
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
+import uk.gov.hmrc.viewmodels.NunjucksSupport
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class DeclarationController @Inject()(
-                                       val controllerComponents: MessagesControllerComponents
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                       override val messagesApi: MessagesApi,
+                                       subscriptionConnector: SubscriptionConnector,
+                                       userAnswersCacheConnector: UserAnswersCacheConnector,
+                                       navigator: CompoundNavigator,
+                                       authenticate: AuthAction,
+                                       getData: DataRetrievalAction,
+                                       requireData: DataRequiredAction,
+                                       val controllerComponents: MessagesControllerComponents,
+                                       renderer: Renderer
+                                     )(implicit ec: ExecutionContext)
+                                        extends FrontendBaseController with Retrievals with I18nSupport
+                                        with NunjucksSupport {
 
-  def onPageLoad: Action[AnyContent] = Action {
-    implicit request =>
-      Ok
-  }
+  def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
+      implicit request =>
+      renderer.render("amend/declaration.njk",
+          Json.obj("submitUrl" -> routes.DeclarationController.onSubmit().url)).map(Ok(_))
+    }
+
+  def onSubmit: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
+      implicit request =>
+      val ua = request.userAnswers
+        .setOrException(ExistingPSPPage, ExistingPSP(request.user.isExistingPSP, request.user.existingPSPId))
+
+        for {
+          pspId <- subscriptionConnector.subscribePsp(ua)
+          updatedAnswers <- Future.fromTry(request.userAnswers.set(PspIdPage, pspId))
+          _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+        } yield Redirect(navigator.nextPage(DeclarationPage, NormalMode, updatedAnswers))
+    }
 }

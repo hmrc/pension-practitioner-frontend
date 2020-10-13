@@ -21,11 +21,14 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.company.routes._
 import models.CheckMode
 import models.NormalMode
+import models.SubscriptionType.Variation
 import models.UserAnswers
-import pages.Page
+import pages.{Page, SubscriptionTypePage}
 import pages.company._
 import pages.register.AreYouUKCompanyPage
 import play.api.mvc.Call
+
+import scala.util.Try
 
 class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector)
   extends Navigator {
@@ -73,10 +76,18 @@ class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnect
   //scalastyle:off cyclomatic.complexity
 
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {
+    case BusinessNamePage => variationNavigator(userAnswers)
     case CompanyPostcodePage => CompanyAddressListController.onPageLoad(CheckMode)
-    case CompanyAddressListPage => CheckYourAnswersController.onPageLoad()
-    case CompanyAddressPage => CheckYourAnswersController.onPageLoad()
-    case CompanyEmailPage => CheckYourAnswersController.onPageLoad()
-    case CompanyPhonePage => CheckYourAnswersController.onPageLoad()
+    case CompanyAddressListPage => variationNavigator(userAnswers)
+    case CompanyAddressPage => variationNavigator(userAnswers)
+    case CompanyEmailPage => variationNavigator(userAnswers)
+    case CompanyPhonePage => variationNavigator(userAnswers)
+  }
+
+  def variationNavigator(ua: UserAnswers): Call = {
+    ua.get(SubscriptionTypePage) match {
+      case Some(Variation) => controllers.amend.routes.ViewDetailsController.onPageLoad()
+      case _ => CheckYourAnswersController.onPageLoad()
+    }
   }
 }

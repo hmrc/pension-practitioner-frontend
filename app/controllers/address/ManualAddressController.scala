@@ -19,7 +19,7 @@ package controllers.address
 import controllers.company.routes
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import controllers.Retrievals
+import controllers.{Retrievals, Variation}
 import models.requests.DataRequest
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import models.Address
@@ -27,7 +27,7 @@ import models.AddressConfiguration
 import models.AddressConfiguration.AddressConfiguration
 import models.Mode
 import navigators.CompoundNavigator
-import pages.QuestionPage
+import pages.{AddressChange, QuestionPage}
 import pages.company.CompanyAddressPage
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -48,7 +48,8 @@ trait ManualAddressController
     extends FrontendBaseController
     with Retrievals
     with I18nSupport
-    with NunjucksSupport {
+    with NunjucksSupport
+    with Variation {
 
   protected def renderer: Renderer
 
@@ -100,11 +101,11 @@ trait ManualAddressController
         },
         value =>
           for {
-            updatedAnswers <- Future
-              .fromTry(request.userAnswers.set(addressPage, value))
-            _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(addressPage, value))
+            answersWithChangeFlag <- Future.fromTry(setChangeFlag(updatedAnswers, AddressChange))
+            _ <- userAnswersCacheConnector.save(answersWithChangeFlag.data)
           } yield {
-            Redirect(navigator.nextPage(addressPage, mode, updatedAnswers))
+            Redirect(navigator.nextPage(addressPage, mode, answersWithChangeFlag))
         }
       )
   }
