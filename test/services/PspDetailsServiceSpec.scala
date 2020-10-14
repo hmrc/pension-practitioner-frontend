@@ -19,7 +19,7 @@ package services
 import base.SpecBase
 import connectors.SubscriptionConnector
 import connectors.cache.UserAnswersCacheConnector
-import models.CheckMode
+import models.{CheckMode, UserAnswers}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.{reset, when}
 import org.scalatest.BeforeAndAfterEach
@@ -51,16 +51,14 @@ class PspDetailsServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
       when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
         .thenReturn(Future.successful(uaIndividualUK))
 
-      whenReady(service.getJson(pspId)) { result =>
+      whenReady(service.getJson(None, pspId)) { result =>
         result mustBe expected("Individual", "Stephen Wood", nino)
       }
     }
 
     "return appropriate json for Company" in {
-      when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
-        .thenReturn(Future.successful(uaCompanyUk))
 
-      whenReady(service.getJson(pspId)) { result =>
+      whenReady(service.getJson(Some(UserAnswers(uaCompanyUk)), pspId)) { result =>
         result mustBe expected("Company", "Test Ltd", utr)
       }
     }
@@ -69,7 +67,7 @@ class PspDetailsServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
       when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
         .thenReturn(Future.successful(uaPartnershipNonUK))
 
-      whenReady(service.getJson(pspId)) { result =>
+      whenReady(service.getJson(None, pspId)) { result =>
         result mustBe expected("Partnership", "Testing Ltd", Json.obj(), nonUkAddress)
       }
     }

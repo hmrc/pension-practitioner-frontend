@@ -52,7 +52,7 @@ class ViewDetailsControllerSpec extends ControllerSpecBase with MockitoSugar {
 
   override def beforeEach: Unit = {
     super.beforeEach
-    when(pspDetailsService.getJson(any())(any(), any(), any())).thenReturn(Future.successful(json))
+    when(pspDetailsService.getJson(any(), any())(any(), any(), any())).thenReturn(Future.successful(json))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
   }
 

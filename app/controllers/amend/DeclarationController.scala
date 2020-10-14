@@ -38,7 +38,6 @@ class DeclarationController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        subscriptionConnector: SubscriptionConnector,
                                        userAnswersCacheConnector: UserAnswersCacheConnector,
-                                       navigator: CompoundNavigator,
                                        authenticate: AuthAction,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
@@ -56,11 +55,9 @@ class DeclarationController @Inject()(
 
   def onSubmit: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
       implicit request =>
-      val ua = request.userAnswers
-        .setOrException(ExistingPSPPage, ExistingPSP(request.user.isExistingPSP, request.user.existingPSPId))
 
         for {
-          pspId <- subscriptionConnector.subscribePsp(ua)
+          pspId <- subscriptionConnector.subscribePsp(request.userAnswers)
           updatedAnswers <- Future.fromTry(request.userAnswers.set(PspIdPage, pspId))
           _ <- userAnswersCacheConnector.save(updatedAnswers.data)
         } yield Redirect(routes.ConfirmationController.onPageLoad())

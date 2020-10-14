@@ -21,29 +21,29 @@ import config.FrontendAppConfig
 import connectors.SubscriptionConnector
 import connectors.cache.UserAnswersCacheConnector
 import controllers.amend.routes
-import models.{CheckMode, UserAnswers}
+import controllers.company.{routes => compRoutes}
+import controllers.individual.{routes => indRoutes}
+import controllers.partnership.{routes => partRoutes}
+import models.SubscriptionType.Variation
+import models.register.RegistrationCustomerType.{NonUK, UK}
 import models.register.RegistrationLegalStatus._
 import models.register.{RegistrationDetails, RegistrationIdType}
+import models.{CheckMode, UserAnswers}
 import pages.company.{CompanyAddressPage, CompanyEmailPage, CompanyPhonePage}
 import pages.individual._
-import pages.register._
 import pages.partnership._
-import pages.{RegistrationDetailsPage, SubscriptionTypePage, company => comp}
+import pages.register._
+import pages.{PspIdPage, RegistrationDetailsPage, SubscriptionTypePage, company => comp}
 import play.api.i18n.Messages
 import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.mvc.Call
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.viewmodels.SummaryList.{Action, Key, Row, Value}
 import uk.gov.hmrc.viewmodels.Text.Literal
 import uk.gov.hmrc.viewmodels._
-import controllers.individual.{routes => indRoutes}
-import controllers.company.{routes => compRoutes}
-import controllers.partnership.{routes => partRoutes}
-import models.SubscriptionType.Variation
-import models.register.RegistrationCustomerType.{NonUK, UK}
-import play.api.mvc.Call
 
-import scala.util.Try
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class PspDetailsService @Inject()(appConfig: FrontendAppConfig,
                                   subscriptionConnector: SubscriptionConnector,
@@ -53,13 +53,12 @@ class PspDetailsService @Inject()(appConfig: FrontendAppConfig,
   val thirdWidth: Seq[String] = Seq("govuk-!-width-one-third")
   def nextPage: String = routes.DeclarationController.onPageLoad().url
 
-  def getJson(pspId: String)(implicit messages: Messages, hc: HeaderCarrier, ec: ExecutionContext): Future[JsObject] = {
+  def getJson(userAnswers: Option[UserAnswers], pspId: String)(implicit messages: Messages,
+                             hc: HeaderCarrier, ec: ExecutionContext): Future[JsObject] =
+      extractUserAnswers(userAnswers, pspId).map { ua =>
 
-    subscriptionConnector.getSubscriptionDetails(pspId).flatMap { pspDetails =>
-
-      val ua: UserAnswers = UserAnswers(pspDetails.as[JsObject])
-      updateAndSave(ua).map { _ =>
         ua.get(RegistrationDetailsPage).map { regInfo =>
+          
           regInfo.legalStatus match {
             case Individual =>
               val title: String = individualMessage("viewDetails.title").resolve
@@ -97,29 +96,33 @@ class PspDetailsService @Inject()(appConfig: FrontendAppConfig,
           }
         }.getOrElse(Json.obj())
       }
-    }
-  }
 
-  private def updateAndSave(ua: UserAnswers)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[JsValue] = {
-    val uaWithUkAnswer = ua.get(RegistrationDetailsPage).map {regInfo =>
-      (regInfo.customerType, regInfo.legalStatus) match {
-        case (UK, Individual) => ua.set(AreYouUKResidentPage, true)
-        case (NonUK, Individual) => ua.set(AreYouUKResidentPage, false)
-        case (UK, LimitedCompany) => ua.set(AreYouUKCompanyPage, true)
-        case (NonUK, LimitedCompany) => ua.set(AreYouUKCompanyPage, false)
-        case (UK, Partnership) => ua.set(IsPartnershipRegisteredInUkPage, true)
-        case (NonUK, Partnership) => ua.set(IsPartnershipRegisteredInUkPage, false)
+  private def extractUserAnswers(userAnswers: Option[UserAnswers], pspId: String)(implicit ec: ExecutionContext,
+                                           hc: HeaderCarrier): Future[UserAnswers] =
+    userAnswers match {
+      case Some(ua) => Future.successful(ua)
+      case _ =>
+        subscriptionConnector.getSubscriptionDetails(pspId).flatMap { pspDetails =>
+        for {
+          ua1 <- Future.fromTry(uaWithUkAnswer(uaFromJsValue(pspDetails), pspId))
+          ua2 <- Future.fromTry(ua1.set(SubscriptionTypePage, Variation))
+          _ <- userAnswersCacheConnector.save(ua2.data)
+        } yield ua2
       }
-    }.getOrElse(Try(ua))
+    }
 
-    for {
-      ua1 <- Future.fromTry(uaWithUkAnswer)
-      userAnswers <- Future.fromTry(ua1.set(SubscriptionTypePage, Variation))
-      jsValue <- userAnswersCacheConnector.save(userAnswers.data)
-    } yield jsValue
+  def uaWithUkAnswer(userAnswers: UserAnswers, pspId: String): Try[UserAnswers] =
+  userAnswers.get(RegistrationDetailsPage).map { regInfo =>
+    val ua: UserAnswers = userAnswers.set(PspIdPage, pspId).getOrElse(userAnswers)
+    (regInfo.customerType, regInfo.legalStatus) match {
+      case (UK, Individual) => ua.set(AreYouUKResidentPage, true)
+      case (NonUK, Individual) => ua.set(AreYouUKResidentPage, false)
+      case (UK, _) => ua.set(AreYouUKCompanyPage, true)
+      case (NonUK, _) => ua.set(AreYouUKCompanyPage, false)
+    }
+  }.getOrElse(Try(userAnswers))
 
-  }
-
+  private def uaFromJsValue(jsValue: JsValue): UserAnswers = UserAnswers(jsValue.as[JsObject])
   private def heading(name: String)(implicit messages: Messages): String = messages("viewDetails.heading", name)
 
   private def nameLink(href: Call, regInfo: RegistrationDetails, name: String)(implicit messages: Messages): Seq[Action] =

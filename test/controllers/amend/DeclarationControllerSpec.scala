@@ -89,7 +89,6 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
 
       jsonCaptor.getValue must containJson(expectedJson)
-      uaCaptor.getValue.getOrException(ExistingPSPPage) mustBe ExistingPSP(isExistingPSP = false, existingPSPId = None)
       redirectLocation(result) mustBe Some(routes.ConfirmationController.onPageLoad().url)
     }
   }

@@ -36,7 +36,7 @@ class ViewDetailsController @Inject()(authenticate: AuthAction,
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData).async {
     implicit request =>
       request.user.alreadyEnrolledPspId.map { pspId =>
-        pspDetailsService.getJson(pspId).flatMap { json =>
+        pspDetailsService.getJson(request.userAnswers, pspId).flatMap { json =>
           renderer.render("amend/viewDetails.njk", json).map(Ok(_))
         }
       }.getOrElse(
