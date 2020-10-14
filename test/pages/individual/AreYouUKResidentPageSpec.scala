@@ -17,9 +17,6 @@
 package pages.individual
 
 import data.SampleData
-import models.register.{RegistrationCustomerType, RegistrationInfo, RegistrationLegalStatus, TolerantIndividual}
-import models.{Address, TolerantAddress, UserAnswers}
-import pages.{PageConstants, RegistrationInfoPage, WhatTypeBusinessPage}
 import pages.behaviours.PageBehaviours
 import pages.{PageConstants, WhatTypeBusinessPage}
 import queries.Gettable

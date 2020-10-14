@@ -22,7 +22,9 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import models.{UserAnswers, WireMockHelper}
 import org.scalatest._
 import play.api.http.Status
-import play.api.libs.json.Json
+import play.api.http.Status.OK
+import play.api.libs.json.{JsValue, Json}
+import play.api.test.Helpers._
 import uk.gov.hmrc.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -35,6 +37,7 @@ class SubscriptionConnectorSpec extends AsyncWordSpec with MustMatchers with Wir
 
   private lazy val connector: SubscriptionConnector = injector.instanceOf[SubscriptionConnector]
   private val pspSubscriptionUrl = "/pension-practitioner/subscribePsp"
+  private val subscriptionDetailsUrl = "/pension-practitioner/getPsp"
   private val pspId: String = "12345678"
   private val validResponse = Json.obj(
     "processingDate" -> LocalDate.now,
@@ -43,6 +46,7 @@ class SubscriptionConnectorSpec extends AsyncWordSpec with MustMatchers with Wir
           "nino" -> "AA123000A",
           "countryCode" -> "AD"
   )
+  private val getPspDetailsResponse: JsValue = Json.obj("test-key" -> "test-value")
 
   "subscribePsp" must {
 
@@ -108,6 +112,114 @@ class SubscriptionConnectorSpec extends AsyncWordSpec with MustMatchers with Wir
 
       recoverToExceptionIf[UpstreamErrorResponse](connector.subscribePsp(UserAnswers(data))) map {
         _.statusCode mustBe Status.INTERNAL_SERVER_ERROR
+      }
+    }
+  }
+
+  "getPspDetails" must {
+    "return 200" in {
+
+      server.stubFor(
+        get(urlEqualTo(subscriptionDetailsUrl)).withHeader("pspId", equalTo(pspId))
+          .willReturn(
+            aResponse()
+              .withStatus(OK).withBody(getPspDetailsResponse.toString())
+          )
+      )
+
+      connector.getSubscriptionDetails(pspId).map {
+        result =>
+          result mustBe getPspDetailsResponse
+          server.findAll(getRequestedFor(urlEqualTo(subscriptionDetailsUrl))
+            .withHeader("pspId", equalTo(pspId))).size() mustBe 1
+      }
+
+    }
+
+    "throw badrequest if INVALID_IDVALUE" in {
+      server.stubFor(
+        get(urlEqualTo(subscriptionDetailsUrl)).withHeader("pspId", equalTo(pspId))
+          .willReturn(
+            aResponse()
+              .withStatus(BAD_REQUEST).withBody("INVALID_IDVALUE")
+          )
+      )
+
+      recoverToExceptionIf[PspIdInvalidSubscriptionException] {
+        connector.getSubscriptionDetails(pspId)
+      } map {
+        _ =>
+          server.findAll(getRequestedFor(urlEqualTo(subscriptionDetailsUrl))
+            .withHeader("pspId", equalTo(pspId))).size() mustBe 1
+      }
+    }
+
+    "throw badrequest if INVALID_CORRELATIONID" in {
+      server.stubFor(
+        get(urlEqualTo(subscriptionDetailsUrl)).withHeader("pspId", equalTo(pspId))
+          .willReturn(
+            aResponse()
+              .withStatus(BAD_REQUEST).withBody("INVALID_CORRELATIONID")
+          )
+      )
+
+      recoverToExceptionIf[CorrelationIdInvalidSubscriptionException] {
+        connector.getSubscriptionDetails(pspId)
+      } map {
+        _ =>
+          server.findAll(getRequestedFor(urlEqualTo(subscriptionDetailsUrl))
+            .withHeader("pspId", equalTo(pspId))).size() mustBe 1
+      }
+    }
+
+    "throw Not Found" in {
+      server.stubFor(
+        get(urlEqualTo(subscriptionDetailsUrl)).withHeader("pspId", equalTo(pspId))
+          .willReturn(
+            notFound()
+          )
+      )
+
+      recoverToExceptionIf[PspIdNotFoundSubscriptionException] {
+        connector.getSubscriptionDetails(pspId)
+      } map {
+        _ =>
+          server.findAll(getRequestedFor(urlEqualTo(subscriptionDetailsUrl))
+            .withHeader("pspId", equalTo(pspId))).size() mustBe 1
+      }
+    }
+
+    "throw UpstreamErrorResponse for internal server error" in {
+      server.stubFor(
+        get(urlEqualTo(subscriptionDetailsUrl)).withHeader("pspId", equalTo(pspId))
+          .willReturn(
+            serverError()
+          )
+      )
+
+      recoverToExceptionIf[UpstreamErrorResponse] {
+        connector.getSubscriptionDetails(pspId)
+      } map {
+        _ =>
+          server.findAll(getRequestedFor(urlEqualTo(subscriptionDetailsUrl))
+            .withHeader("pspId", equalTo(pspId))).size() mustBe 1
+      }
+    }
+
+    "throw Generic exception for all others" in {
+      server.stubFor(
+        get(urlEqualTo(subscriptionDetailsUrl)).withHeader("pspId", equalTo(pspId))
+          .willReturn(
+            serverError()
+          )
+      )
+
+      recoverToExceptionIf[Exception] {
+        connector.getSubscriptionDetails(pspId)
+      } map {
+        _ =>
+          server.findAll(getRequestedFor(urlEqualTo(subscriptionDetailsUrl))
+            .withHeader("pspId", equalTo(pspId))).size() mustBe 1
       }
     }
   }

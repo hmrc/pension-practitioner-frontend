@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import config.FrontendAppConfig
 import models._
 import play.Logger
-import play.api.http.Status.OK
+import play.api.http.Status.{BAD_REQUEST, NOT_FOUND, OK}
 import play.api.libs.json._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -28,6 +28,7 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import utils.HttpResponseHelper
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Failure
 
 class SubscriptionConnector @Inject()(http: HttpClient,
                                       config: FrontendAppConfig) extends HttpResponseHelper {
@@ -49,5 +50,27 @@ class SubscriptionConnector @Inject()(http: HttpClient,
     }
   }
 
+  def getSubscriptionDetails(pspId:String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
+
+    val psaIdHC = hc.withExtraHeaders("pspId"-> pspId)
+    val url  = config.subscriptionDetailsUrl
+
+    http.GET[HttpResponse](url)(implicitly, psaIdHC, implicitly) map { response =>
+      response.status match {
+        case OK => response.json
+        case BAD_REQUEST if response.body.contains("INVALID_IDVALUE") => throw new PspIdInvalidSubscriptionException
+        case BAD_REQUEST if response.body.contains("INVALID_CORRELATIONID") => throw new CorrelationIdInvalidSubscriptionException
+        case NOT_FOUND => throw new PspIdNotFoundSubscriptionException
+        case _ => handleErrorResponse("GET", config.subscriptionDetailsUrl)(response)
+      }
+    } andThen {
+      case Failure(t: Throwable) => Logger.warn("Unable to get PSP subscription details", t)
+    }
+  }
 
 }
+
+abstract class SubscriptionException extends Exception
+class PspIdInvalidSubscriptionException extends SubscriptionException
+class CorrelationIdInvalidSubscriptionException extends SubscriptionException
+class PspIdNotFoundSubscriptionException extends SubscriptionException

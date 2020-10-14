@@ -592,3 +592,16 @@ isPartnershipRegisteredInUk.heading = Is the partnership registered in the UK?
 isPartnershipRegisteredInUk.p1 = You selected that you are not based in the UK but have given a UK address.
 isPartnershipRegisteredInUk.p2 = If you are not based in the UK, you need to give an address that is not in the UK.
 isPartnershipRegisteredInUk.error.required = Select yes if the partnership is registered in the UK
+
+viewDetails.practitioner.id = Practitioner ID
+viewDetails.practitioner.utr = Unique Taxpayer Reference
+viewDetails.practitioner.nino = Individual’s National Insurance number
+viewDetails.title = {0} details
+viewDetails.heading = {0}’s details
+viewDetails.company = Company
+viewDetails.individual = Individual
+viewDetails.partnership = Partnership
+viewDetails.name = {0} name
+viewDetails.address = {0}’s contact address
+viewDetails.email = {0}’s email address
+viewDetails.phone = {0}’s phone number

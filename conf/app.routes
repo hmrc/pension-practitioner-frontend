@@ -42,3 +42,5 @@ GET        /register/business-details-not-found                      controllers
 GET        /register/what-is-business-registered-as                  controllers.register.BusinessRegistrationTypeController.onPageLoad()
 POST       /register/what-is-business-registered-as                  controllers.register.BusinessRegistrationTypeController.onSubmit()
 
+GET        /practitioner-details                                     controllers.amend.ViewDetailsController.onPageLoad()
+GET        /declare                                                  controllers.amend.DeclarationController.onPageLoad()
