@@ -111,7 +111,7 @@ class PspDetailsService @Inject()(appConfig: FrontendAppConfig,
       }
     }
 
-  def uaWithUkAnswer(userAnswers: UserAnswers, pspId: String): Try[UserAnswers] =
+  private def uaWithUkAnswer(userAnswers: UserAnswers, pspId: String): Try[UserAnswers] =
   userAnswers.get(RegistrationDetailsPage).map { regInfo =>
     val ua: UserAnswers = userAnswers.set(PspIdPage, pspId).getOrElse(userAnswers)
     (regInfo.customerType, regInfo.legalStatus) match {
