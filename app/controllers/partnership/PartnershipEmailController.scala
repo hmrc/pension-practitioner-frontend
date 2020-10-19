@@ -17,13 +17,14 @@
 package controllers.partnership
 
 import connectors.cache.UserAnswersCacheConnector
-import controllers.Retrievals
+import controllers.{Retrievals, Variation}
 import controllers.actions._
 import forms.EmailFormProvider
 import javax.inject.Inject
 import models.Mode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
+import pages.AddressChange
 import pages.partnership.{BusinessNamePage, PartnershipEmailPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -46,7 +47,7 @@ class PartnershipEmailController @Inject()(override val messagesApi: MessagesApi
                                            val controllerComponents: MessagesControllerComponents,
                                            renderer: Renderer
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController
-  with Retrievals with I18nSupport with NunjucksSupport {
+  with Retrievals with I18nSupport with NunjucksSupport with Variation {
 
   private def form(implicit messages: Messages): Form[String] =
     formProvider(messages("email.error.required", messages("partnership")))
@@ -71,8 +72,9 @@ class PartnershipEmailController @Inject()(override val messagesApi: MessagesApi
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(PartnershipEmailPage, value))
-              _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-            } yield Redirect(navigator.nextPage(PartnershipEmailPage, mode, updatedAnswers))
+              answersWithChangeFlag <- Future.fromTry(setChangeFlag(updatedAnswers, AddressChange))
+              _ <- userAnswersCacheConnector.save(answersWithChangeFlag.data)
+            } yield Redirect(navigator.nextPage(PartnershipEmailPage, mode, answersWithChangeFlag))
         )
 
     }

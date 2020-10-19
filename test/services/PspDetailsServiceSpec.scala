@@ -19,6 +19,7 @@ package services
 import base.SpecBase
 import connectors.SubscriptionConnector
 import connectors.cache.UserAnswersCacheConnector
+import models.{CheckMode, UserAnswers}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.{reset, when}
 import org.scalatest.BeforeAndAfterEach
@@ -37,7 +38,7 @@ class PspDetailsServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
   private val pspId: String = "psp-id"
   private val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
   private val mockUserAnswersCacheConnector: UserAnswersCacheConnector = mock[UserAnswersCacheConnector]
-  private val service: PspDetailsService = new PspDetailsService(mockSubscriptionConnector, mockUserAnswersCacheConnector)
+  private val service: PspDetailsService = new PspDetailsService(frontendAppConfig, mockSubscriptionConnector, mockUserAnswersCacheConnector)
 
   override def beforeEach: Unit = {
     super.beforeEach
@@ -50,16 +51,14 @@ class PspDetailsServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
       when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
         .thenReturn(Future.successful(uaIndividualUK))
 
-      whenReady(service.getJson(pspId)) { result =>
+      whenReady(service.getJson(None, pspId)) { result =>
         result mustBe expected("Individual", "Stephen Wood", nino)
       }
     }
 
     "return appropriate json for Company" in {
-      when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
-        .thenReturn(Future.successful(uaCompanyUk))
 
-      whenReady(service.getJson(pspId)) { result =>
+      whenReady(service.getJson(Some(UserAnswers(uaCompanyUk)), pspId)) { result =>
         result mustBe expected("Company", "Test Ltd", utr)
       }
     }
@@ -68,7 +67,7 @@ class PspDetailsServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
       when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
         .thenReturn(Future.successful(uaPartnershipNonUK))
 
-      whenReady(service.getJson(pspId)) { result =>
+      whenReady(service.getJson(None, pspId)) { result =>
         result mustBe expected("Partnership", "Testing Ltd", Json.obj(), nonUkAddress)
       }
     }
@@ -79,13 +78,16 @@ class PspDetailsServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
 
 object PspDetailsServiceSpec {
 
+  val halfWidth: String = "govuk-!-width-one-half"
+  val thirdWidth: String = "govuk-!-width-one-third"
+
   val utr: JsObject = Json.obj(
     "key" -> Json.obj(
-      "classes" -> "govuk-!-width-one-half",
+      "classes" -> halfWidth,
       "text" -> "Unique Taxpayer Reference"
     ),
     "value" -> Json.obj(
-      "classes" -> "govuk-!-width-one-third",
+      "classes" -> thirdWidth,
       "text" -> "1234567890"
     )
   )
@@ -93,86 +95,160 @@ object PspDetailsServiceSpec {
   val nino: JsObject = Json.obj(
     "key" -> Json.obj(
       "text" -> s"Individual’s National Insurance number",
-      "classes" -> "govuk-!-width-one-half"
+      "classes" -> halfWidth
     ),
     "value" -> Json.obj(
       "text" -> "AB123456C",
-      "classes" -> "govuk-!-width-one-third"
+      "classes" -> thirdWidth
+    )
+  )
+
+  val pspIdRow: JsObject = Json.obj(
+    "key" -> Json.obj(
+      "text" -> "Practitioner ID",
+      "classes" -> halfWidth
+    ),
+    "value" -> Json.obj(
+      "text" -> "psp-id",
+      "classes" -> thirdWidth
+    )
+  )
+
+  def addressRow(typeText: String, address: JsObject, href: String): JsObject = Json.obj(
+    "key" -> Json.obj(
+      "text" -> s"$typeText’s contact address",
+      "classes" -> halfWidth
+    ),
+    "value" -> address,
+    "actions" -> Json.obj(
+      "items" -> Json.arr(
+        Json.obj(
+          "href" -> href,
+          "text" -> "Change",
+          "visuallyHiddenText" -> "Contact address"
+        )
+      )
+    )
+  )
+
+  def emailRow(typeText: String, name: String, href: String): JsObject = Json.obj(
+    "key" -> Json.obj(
+      "text" -> s"$typeText’s email address",
+      "classes" -> halfWidth
+    ),
+    "value" -> Json.obj(
+      "text" -> "sdd@ds.sd",
+      "classes" -> thirdWidth
+    ),
+    "actions" -> Json.obj(
+      "items" -> Json.arr(
+        Json.obj(
+          "href" -> href,
+          "text" -> "Change",
+          "visuallyHiddenText" -> s"$name’s email address?"
+        )
+      )
+    )
+  )
+
+  def phoneRow(typeText: String, name: String, href: String): JsObject = Json.obj(
+    "key" -> Json.obj(
+      "text" -> s"$typeText’s phone number",
+      "classes" -> halfWidth
+    ),
+    "value" -> Json.obj(
+      "text" -> "3445",
+      "classes" -> thirdWidth
+    ),
+    "actions" -> Json.obj(
+      "items" -> Json.arr(
+        Json.obj(
+          "href" -> href,
+          "text" -> "Change",
+          "visuallyHiddenText" -> s"$name’s phone number?"
+        )
+      )
     )
   )
 
   val nonUkAddress: JsObject = Json.obj(
     "html" -> "<span class=\"govuk-!-display-block\">4 Other Place</span><span class=\"govuk-!-display-block\">Some District</span><span class=\"govuk-!-display-block\">Anytown</span><span class=\"govuk-!-display-block\">Somerset</span><span class=\"govuk-!-display-block\">France</span>",
-    "classes" -> "govuk-!-width-one-third")
+    "classes" -> thirdWidth)
   val ukAddress: JsObject = Json.obj(
     "html" -> "<span class=\"govuk-!-display-block\">4 Other Place</span><span class=\"govuk-!-display-block\">Some District</span><span class=\"govuk-!-display-block\">Anytown</span><span class=\"govuk-!-display-block\">Somerset</span><span class=\"govuk-!-display-block\">ZZ1 1ZZ</span><span class=\"govuk-!-display-block\">United Kingdom</span>",
-    "classes" -> "govuk-!-width-one-third")
+    "classes" -> thirdWidth)
 
-  def listBasic1(typeText: String, name: String, address: JsObject): JsArray = Json.arr(
-    Json.obj(
+  def nameRow(typeText: String, name: String): JsObject = Json.obj(
       "key" -> Json.obj(
-        "text" -> "Practitioner ID",
-        "classes" -> "govuk-!-width-one-half"
-      ),
-      "value" -> Json.obj(
-        "text" -> "psp-id",
-        "classes" -> "govuk-!-width-one-third"
-      )
-    ),
-    Json.obj(
-      "key" -> Json.obj(
-        "text" -> s"$typeText name",
-        "classes" -> "govuk-!-width-one-half"
+        "text" -> s"$typeText’s name",
+        "classes" -> halfWidth
       ),
       "value" -> Json.obj(
         "text" -> name,
-        "classes" -> "govuk-!-width-one-third"
+        "classes" -> thirdWidth
+      )
+  )
+
+  def nonUkNameRow(typeText: String, name: String, href: String): JsObject = Json.obj(
+    "key" -> Json.obj(
+      "text" -> s"$typeText’s name",
+      "classes" -> halfWidth
+    ),
+    "value" -> Json.obj(
+      "text" -> name,
+      "classes" -> thirdWidth
+    ),
+    "actions" -> Json.obj(
+      "items" -> Json.arr(
+        Json.obj(
+          "href" -> href,
+          "text" -> "Change",
+          "visuallyHiddenText" -> s"$name’s name"
+        )
       )
     )
   )
 
-  def listBasic2(typeText: String, address: JsObject): JsArray = Json.arr(
-    Json.obj(
-      "key" -> Json.obj(
-        "text" -> s"$typeText’s contact address",
-        "classes" -> "govuk-!-width-one-half"
-      ),
-      "value" -> address
-    ),
-    Json.obj(
-      "key" -> Json.obj(
-        "text" -> s"$typeText’s email address",
-        "classes" -> "govuk-!-width-one-half"
-      ),
-      "value" -> Json.obj(
-        "text" -> "sdd@ds.sd",
-        "classes" -> "govuk-!-width-one-third"
-      )
-    ),
-    Json.obj(
-      "key" -> Json.obj(
-        "text" -> s"$typeText’s phone number",
-        "classes" -> "govuk-!-width-one-half"
-      ),
-      "value" -> Json.obj(
-        "text" -> "3445",
-        "classes" -> "govuk-!-width-one-third"
-      )
-    )
+  def individualList(typeText: String, name: String, address: JsObject): JsArray = Json.arr(
+    pspIdRow,
+    nameRow(typeText, name),
+    nino,
+    addressRow(typeText, address, controllers.individual.routes.IndividualPostcodeController.onPageLoad(CheckMode).url),
+    emailRow(typeText, name, controllers.individual.routes.IndividualEmailController.onPageLoad(CheckMode).url),
+    phoneRow(typeText, name, controllers.individual.routes.IndividualPhoneController.onPageLoad(CheckMode).url)
   )
 
-  def list(typeText: String, name: String, ninoUtr: JsObject, address: JsObject): JsArray =
-    if(ninoUtr != Json.obj()) {
-      (listBasic1(typeText, name, address):+ninoUtr) ++ listBasic2(typeText, address)
-    } else {
-      listBasic1(typeText, name, address) ++ listBasic2(typeText, address)
+  def companyList(typeText: String, name: String, address: JsObject): JsArray = Json.arr(
+    pspIdRow,
+    utr,
+    nameRow(typeText, name),
+    addressRow(typeText, address, controllers.company.routes.CompanyPostcodeController.onPageLoad(CheckMode).url),
+    emailRow(typeText, name, controllers.company.routes.CompanyEmailController.onPageLoad(CheckMode).url),
+    phoneRow(typeText, name, controllers.company.routes.CompanyPhoneController.onPageLoad(CheckMode).url)
+  )
+
+  def partnershipList(typeText: String, name: String, address: JsObject): JsArray = Json.arr(
+    pspIdRow,
+    nonUkNameRow(typeText, name, controllers.partnership.routes.PartnershipNameController.onPageLoad(CheckMode).url),
+    addressRow(typeText, address, controllers.partnership.routes.PartnershipPostcodeController.onPageLoad(CheckMode).url),
+    emailRow(typeText, name, controllers.partnership.routes.PartnershipEmailController.onPageLoad(CheckMode).url),
+    phoneRow(typeText, name, controllers.partnership.routes.PartnershipPhoneController.onPageLoad(CheckMode).url)
+  )
+
+  def list(typeText: String, name: String, address: JsObject): JsArray =
+    typeText match {
+      case "Individual" => individualList(typeText, name, address)
+      case "Company" => companyList(typeText, name, address)
+      case _ => partnershipList(typeText, name, address)
     }
 
   def expected(typeText: String, name: String, ninoUtr: JsObject, address: JsObject = ukAddress): JsObject = Json.obj(
     "pageTitle" -> s"$typeText details",
     "heading" -> s"$name’s details",
-    "list" -> list(typeText, name, ninoUtr, address),
-    "nextPage" -> "/pension-scheme-practitioner/declare"
+    "list" -> list(typeText, name, address),
+    "nextPage" -> "/pension-scheme-practitioner/declare",
+    "returnLink" -> s"Return to $name",
+    "returnUrl" -> "http://localhost:8204/manage-pension-schemes/overview"
   )
 
 

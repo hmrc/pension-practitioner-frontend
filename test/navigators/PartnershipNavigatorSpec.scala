@@ -33,18 +33,18 @@ class PartnershipNavigatorSpec extends NavigatorBehaviour {
   private def uaConfirmName(v: Boolean): UserAnswers = SampleData
     .emptyUserAnswers.setOrException(partnership.ConfirmNamePage, v)
 
-  private def uaUseSameAddress(sameAddress:Boolean, uk:Boolean) =
+  private def uaUseSameAddress(sameAddress:Boolean, uk:Boolean): UserAnswers =
     SampleData.emptyUserAnswers
       .setOrException(AreYouUKCompanyPage, uk)
       .setOrException(PartnershipUseSameAddressPage, sameAddress)
 
-  private def uaAreYouUKCompany(v:Boolean) = SampleData
+  private def uaAreYouUKCompany(v:Boolean): UserAnswers = SampleData
     .emptyUserAnswers.setOrException(AreYouUKCompanyPage, v)
 
-  private def uaIsPartnershipRegisteredInUkPage(v:Boolean) =
+  private def uaIsPartnershipRegisteredInUkPage(v:Boolean): UserAnswers =
     SampleData.emptyUserAnswers.setOrException(IsPartnershipRegisteredInUkPage, v)
 
-  private def uaNotInUKButCountryGB =
+  private def uaNotInUKButCountryGB: UserAnswers =
     SampleData.emptyUserAnswers
       .setOrException(AreYouUKCompanyPage, false)
       .setOrException(PartnershipRegisteredAddressPage, Address("addr1", "addr2", None, None, None, "GB"))
@@ -55,7 +55,7 @@ class PartnershipNavigatorSpec extends NavigatorBehaviour {
     def normalModeRoutes: TableFor3[Page, UserAnswers, Call] =
       Table(
         ("Id", "UserAnswers", "Next Page"),
-        row(BusinessUTRPage)(PartnershipNameController.onPageLoad()),
+        row(BusinessUTRPage)(PartnershipNameController.onPageLoad(NormalMode)),
         row(BusinessNamePage)(ConfirmNameController.onPageLoad(), Some(uaAreYouUKCompany(true))),
         row(BusinessNamePage)(PartnershipEnterRegisteredAddressController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(false))),
         row(ConfirmNamePage)(ConfirmAddressController.onPageLoad(), Some(uaConfirmName(true))),

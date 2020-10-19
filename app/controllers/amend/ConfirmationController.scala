@@ -16,50 +16,55 @@
 
 package controllers.amend
 
-import connectors.SubscriptionConnector
+import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import javax.inject.Inject
-import models.ExistingPSP
-import navigators.CompoundNavigator
 import pages.PspIdPage
-import pages.register.ExistingPSPPage
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
+import pages.company.{BusinessNamePage, CompanyEmailPage}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.twirl.api.Html
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import viewmodels.CommonViewModel
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class DeclarationController @Inject()(
+class ConfirmationController @Inject()(appConfig: FrontendAppConfig,
                                        override val messagesApi: MessagesApi,
-                                       subscriptionConnector: SubscriptionConnector,
                                        userAnswersCacheConnector: UserAnswersCacheConnector,
                                        authenticate: AuthAction,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        renderer: Renderer
-                                     )(implicit ec: ExecutionContext)
-                                        extends FrontendBaseController with Retrievals with I18nSupport
-                                        with NunjucksSupport {
+                                      )(implicit ec: ExecutionContext) extends FrontendBaseController
+  with Retrievals with I18nSupport with NunjucksSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
-      implicit request =>
-      renderer.render("amend/declaration.njk",
-          Json.obj("submitUrl" -> routes.DeclarationController.onSubmit().url)).map(Ok(_))
-    }
+    implicit request =>
+      (CompanyEmailPage and PspIdPage).retrieve.right.map {
+        case email ~ pspid =>
+          val json: JsObject = Json.obj(
+            "panelHtml" -> confirmationPanelText(pspid).toString(),
+            "email" -> email,
+            "submitUrl" -> appConfig.returnToOverviewUrl
+          )
 
-  def onSubmit: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
-      implicit request =>
+          userAnswersCacheConnector.removeAll.flatMap { _ =>
+            renderer.render("amend/confirmation.njk", json).map(Ok(_))
+          }
+        case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+      }
+  }
 
-        for {
-          pspId <- subscriptionConnector.subscribePsp(request.userAnswers)
-          updatedAnswers <- Future.fromTry(request.userAnswers.set(PspIdPage, pspId))
-          _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-        } yield Redirect(routes.ConfirmationController.onPageLoad())
-    }
+  private def confirmationPanelText(pspId: String)(implicit messages: Messages): Html = {
+    Html(s"""<p>${{ messages("confirmation.psp.id") }}</p>
+            |<span class="heading-large govuk-!-font-weight-bold">$pspId</span>""".stripMargin)
+  }
+
 }

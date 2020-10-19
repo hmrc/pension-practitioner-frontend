@@ -17,15 +17,17 @@
 package controllers.individual
 
 import connectors.cache.UserAnswersCacheConnector
-import controllers.Retrievals
+import controllers.{Retrievals, Variation}
 import controllers.actions._
 import forms.individual.IndividualNameFormProvider
 import javax.inject.Inject
-import models.Mode
+import models.SubscriptionType.Variation
+import models.{Mode, UserAnswers}
 import models.register.TolerantIndividual
 import models.requests.DataRequest
 import navigators.CompoundNavigator
-import pages.individual.IndividualDetailsPage
+import pages.{NameChange, QuestionPage, SubscriptionTypePage}
+import pages.individual._
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
@@ -35,6 +37,7 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class IndividualNameController @Inject()(override val messagesApi: MessagesApi,
                                          userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -46,7 +49,7 @@ class IndividualNameController @Inject()(override val messagesApi: MessagesApi,
                                          val controllerComponents: MessagesControllerComponents,
                                          renderer: Renderer
                                         )(implicit ec: ExecutionContext) extends FrontendBaseController
-  with Retrievals with I18nSupport with NunjucksSupport {
+  with Retrievals with I18nSupport with NunjucksSupport with Variation {
 
 
   private def form(implicit messages: Messages): Form[TolerantIndividual] = formProvider()
@@ -71,17 +74,20 @@ class IndividualNameController @Inject()(override val messagesApi: MessagesApi,
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(IndividualDetailsPage, value))
-              _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-            } yield Redirect(navigator.nextPage(IndividualDetailsPage, mode, updatedAnswers))
+              answersWithChangeFlag <- Future.fromTry(setChangeFlag(updatedAnswers, NameChange))
+              _ <- userAnswersCacheConnector.save(answersWithChangeFlag.data)
+            } yield Redirect(navigator.nextPage(IndividualDetailsPage, mode, answersWithChangeFlag))
         )
 
     }
+
+
 
   private def getJson(mode: Mode, form: Form[TolerantIndividual])(block: JsObject => Future[Result])
                      (implicit request: DataRequest[AnyContent]): Future[Result] =
     block(Json.obj(
       "form" -> form,
-      "submitUrl" -> routes.IndividualNameController.onSubmit().url
+      "submitUrl" -> routes.IndividualNameController.onSubmit(mode).url
     ))
 
 }

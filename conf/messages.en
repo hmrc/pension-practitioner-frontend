@@ -19,6 +19,8 @@ site.agree_and_submit = Agree and submit this AFT return
 site.finish = Finish
 site.finishAndSignOut = Finish and sign out
 site.continuePensionSchemes = Continue to your pension schemes
+site.return_to = Return to {0}
+site.return_to_dashboard = Return to dashboard
 
 error.title.prefix = Error:
 error.summary.title = There is a problem
@@ -519,6 +521,10 @@ declaration.title = Declaration
 declaration.text = I confirm that the details entered are correct.
 declaration.submit = Agree and register as a practitioner
 
+amendDeclaration.title = Declaration
+amendDeclaration.text = I confirm that the changes made to my pension scheme practitioner details are correct.
+amendDeclaration.submit = Agree and continue
+
 individual.confirmation.title = You have been registered as a pension scheme practitioner
 
 confirmation.title = {0} has been registered as a pension scheme practitioner
@@ -601,7 +607,10 @@ viewDetails.heading = {0}’s details
 viewDetails.company = Company
 viewDetails.individual = Individual
 viewDetails.partnership = Partnership
-viewDetails.name = {0} name
+viewDetails.name = {0}’s name
 viewDetails.address = {0}’s contact address
 viewDetails.email = {0}’s email address
 viewDetails.phone = {0}’s phone number
+
+amendConfirmation.title = Your pension scheme practitioner details have been updated
+amendConfirmation.return = Return to your practitioner dashboard

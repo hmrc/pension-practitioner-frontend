@@ -1,0 +1,39 @@
+{% extends "includes/layout.njk" %}
+
+{% from "macros/title.njk"                         import title %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+
+
+{% block pageTitle %}
+  {{ title(messages("declaration.title")) }}
+{% endblock %}
+
+{% block mainContent %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+      <h1 class="govuk-heading-xl">
+        {{ messages("amendDeclaration.title") }}
+      </h1>
+
+      <p class="govuk-body">
+        {{ messages("amendDeclaration.text") }}
+      </p>
+
+      <form action="{{ submitUrl }}" method="post" novalidate>
+          {{ csrf() | safe }}
+
+          {{ govukButton({
+            attributes: {id: "submit"},
+            text: messages("amendDeclaration.submit")
+          }) }}
+      </form>
+
+    </div>
+  </div>
+
+
+
+{% endblock %}

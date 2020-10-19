@@ -20,13 +20,14 @@ import controllers.base.ControllerSpecBase
 import data.SampleData._
 import forms.BusinessNameFormProvider
 import matchers.JsonMatchers
-import models.UserAnswers
+import models.{NormalMode, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.BusinessNamePage
+import play.api.data.Form
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -37,13 +38,13 @@ import uk.gov.hmrc.viewmodels.NunjucksSupport
 import scala.concurrent.Future
 
 class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
-  def onwardRoute = Call("GET", "/foo")
+  def onwardRoute: Call = Call("GET", "/foo")
 
   val formProvider = new BusinessNameFormProvider()
-  val form = formProvider()
+  val form: Form[String] = formProvider()
 
-  private def companyNameRoute = routes.CompanyNameController.onPageLoad().url
-  private def companyNameSubmitRoute = routes.CompanyNameController.onSubmit().url
+  private def companyNameRoute = routes.CompanyNameController.onPageLoad(NormalMode).url
+  private def companyNameSubmitRoute = routes.CompanyNameController.onSubmit(NormalMode).url
 
   val answers: UserAnswers = userAnswersWithCompanyName.set(BusinessNamePage, "answer").success.value
 

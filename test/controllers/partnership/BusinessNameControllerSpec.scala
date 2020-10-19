@@ -19,7 +19,7 @@ package controllers.partnership
 import controllers.base.ControllerSpecBase
 import forms.BusinessNameFormProvider
 import matchers.JsonMatchers
-import models.UserAnswers
+import models.{NormalMode, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -36,13 +36,13 @@ import uk.gov.hmrc.viewmodels.NunjucksSupport
 import scala.concurrent.Future
 
 class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
-  def onwardRoute = Call("GET", "/foo")
+  def onwardRoute: Call = Call("GET", "/foo")
 
   private val formProvider = new BusinessNameFormProvider()
   private val form = formProvider("partnershipName.error.required", "partnershipName.error.invalid", "partnershipName.error.length")
 
-  private def partnershipNameRoute = routes.PartnershipNameController.onPageLoad().url
-  private def partnershipNameSubmitRoute = routes.PartnershipNameController.onSubmit().url
+  private def partnershipNameRoute = routes.PartnershipNameController.onPageLoad(NormalMode).url
+  private def partnershipNameSubmitRoute = routes.PartnershipNameController.onSubmit(NormalMode).url
 
   val answers: UserAnswers = UserAnswers().set(BusinessNamePage, "answer").success.value
 

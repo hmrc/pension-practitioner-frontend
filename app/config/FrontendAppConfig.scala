@@ -101,6 +101,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val createGovGatewayUrl: String = configuration.get[String]("urls.createGovGateway")
 
   lazy val returnToPensionSchemesUrl: String = configuration.get[String]("urls.pensionSchemesList")
+  lazy val returnToOverviewUrl: String = configuration.get[String]("urls.overview")
 
   lazy val govUkUrl: String = configuration.get[String]("urls.govUK")
 

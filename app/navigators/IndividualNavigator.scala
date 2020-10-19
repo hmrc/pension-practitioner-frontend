@@ -18,10 +18,11 @@ package navigators
 
 import com.google.inject.Inject
 import models.{CheckMode, NormalMode, UserAnswers}
-import pages.Page
+import pages.{Page, SubscriptionTypePage}
 import pages.individual._
 import play.api.mvc.Call
 import controllers.individual.routes._
+import models.SubscriptionType.Variation
 import models.register.InternationalRegion.{EuEea, RestOfTheWorld, UK}
 import utils.countryOptions.CountryOptions
 
@@ -33,7 +34,7 @@ class IndividualNavigator @Inject()(countryOptions: CountryOptions) extends Navi
     case AreYouUKResidentPage =>
       ua.get(AreYouUKResidentPage) match {
         case Some(true) => IsThisYouController.onPageLoad(NormalMode)
-        case Some(false) => IndividualNameController.onPageLoad()
+        case Some(false) => IndividualNameController.onPageLoad(NormalMode)
         case _ => controllers.routes.SessionExpiredController.onPageLoad()
       }
     case IndividualDetailsPage => IndividualEnterRegisteredAddressController.onPageLoad(NormalMode)
@@ -63,15 +64,16 @@ class IndividualNavigator @Inject()(countryOptions: CountryOptions) extends Navi
     case AreYouUKResidentPage =>
       userAnswers.get(AreYouUKResidentPage) match {
         case Some(true) => IsThisYouController.onPageLoad(NormalMode)
-        case Some(false) => IndividualNameController.onPageLoad()
+        case Some(false) => IndividualNameController.onPageLoad(NormalMode)
         case _ => controllers.routes.SessionExpiredController.onPageLoad()
       }
+    case IndividualDetailsPage => variationNavigator(userAnswers)
     case IndividualPostcodePage => IndividualAddressListController.onPageLoad(CheckMode)
-    case IndividualAddressListPage => CheckYourAnswersController.onPageLoad()
-    case IndividualManualAddressPage => CheckYourAnswersController.onPageLoad()
+    case IndividualAddressListPage => variationNavigator(userAnswers)
+    case IndividualManualAddressPage => variationNavigator(userAnswers)
     case IndividualAddressPage => CheckYourAnswersController.onPageLoad()
-    case IndividualEmailPage => CheckYourAnswersController.onPageLoad()
-    case IndividualPhonePage => CheckYourAnswersController.onPageLoad()
+    case IndividualEmailPage => variationNavigator(userAnswers)
+    case IndividualPhonePage => variationNavigator(userAnswers)
   }
 
   private def regionBasedNavigation(answers: UserAnswers): Call = {
@@ -84,5 +86,12 @@ class IndividualNavigator @Inject()(countryOptions: CountryOptions) extends Navi
         case _ => controllers.routes.SessionExpiredController.onPageLoad()
       }
     )
+  }
+
+  def variationNavigator(ua: UserAnswers): Call = {
+    ua.get(SubscriptionTypePage) match {
+      case Some(Variation) => controllers.amend.routes.ViewDetailsController.onPageLoad()
+      case _ => CheckYourAnswersController.onPageLoad()
+    }
   }
 }

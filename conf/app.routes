@@ -43,4 +43,8 @@ GET        /register/what-is-business-registered-as                  controllers
 POST       /register/what-is-business-registered-as                  controllers.register.BusinessRegistrationTypeController.onSubmit()
 
 GET        /practitioner-details                                     controllers.amend.ViewDetailsController.onPageLoad()
+
 GET        /declare                                                  controllers.amend.DeclarationController.onPageLoad()
+POST       /declare                                                  controllers.amend.DeclarationController.onSubmit()
+
+GET        /success                                                  controllers.amend.ConfirmationController.onPageLoad()
