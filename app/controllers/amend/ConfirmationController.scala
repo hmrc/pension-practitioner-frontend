@@ -22,7 +22,7 @@ import controllers.Retrievals
 import controllers.actions._
 import javax.inject.Inject
 import pages.PspIdPage
-import pages.company.{BusinessNamePage, CompanyEmailPage}
+import pages.company.CompanyEmailPage
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -30,7 +30,6 @@ import play.twirl.api.Html
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import viewmodels.CommonViewModel
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -52,7 +51,7 @@ class ConfirmationController @Inject()(appConfig: FrontendAppConfig,
           val json: JsObject = Json.obj(
             "panelHtml" -> confirmationPanelText(pspid).toString(),
             "email" -> email,
-            "submitUrl" -> appConfig.returnToOverviewUrl
+            "submitUrl" -> appConfig.returnToPspDashboardUrl
           )
 
           userAnswersCacheConnector.removeAll.flatMap { _ =>
