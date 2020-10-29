@@ -50,7 +50,7 @@ class DataRetrievalsSpec extends ControllerSpecBase with MockitoSugar with Resul
   private val defaultUserType = UserType.Organisation
   private val pspUser = PSPUser(defaultUserType, Some(Nino("AB100100A")), isExistingPSP = false, None, Some(defaultPspId))
 
-  private def request(ua:UserAnswers):DataRequest[AnyContent] = DataRequest(FakeRequest.apply(), pspUser, ua)
+  private def request(ua:UserAnswers):DataRequest[AnyContent] = DataRequest(FakeRequest.apply(), "id", pspUser, ua)
   private def createResult(name:String, email:String) = Ok(s"name=$name and email=$email")
   private val block: (String, String) => Future[Result] =
     (name, email) => Future.successful(createResult(name, email))

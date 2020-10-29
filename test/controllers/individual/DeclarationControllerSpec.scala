@@ -16,19 +16,16 @@
 
 package controllers.individual
 
-import connectors.EmailConnector
-import connectors.EmailSent
-import connectors.SubscriptionConnector
+import connectors.{EmailConnector, EmailSent, EnrolmentConnector, SubscriptionConnector}
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import data.SampleData
 import matchers.JsonMatchers
-import models.ExistingPSP
-import models.UserAnswers
+import models.{ExistingPSP, KnownFact, KnownFacts, UserAnswers}
 import models.WhatTypeBusiness.Yourselfasindividual
-import org.mockito.{Matchers, ArgumentCaptor}
+import org.mockito.{ArgumentCaptor, Matchers}
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{times, when, verify}
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.PspIdPage
@@ -40,11 +37,13 @@ import pages.individual.IndividualEmailPage
 import pages.register.ExistingPSPPage
 import play.api.Application
 import play.api.inject.bind
-import play.api.libs.json.{Json, JsObject}
+import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
+import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.KnownFactsRetrieval
 
 import scala.concurrent.Future
 
@@ -54,15 +53,25 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
   private val mockEmailConnector: EmailConnector = mock[EmailConnector]
+  private val mockEnrolmentConnector: EnrolmentConnector = mock[EnrolmentConnector]
+  private val knownFactsRetrieval: KnownFactsRetrieval = mock[KnownFactsRetrieval]
 
   private val application: Application =
     applicationBuilderMutableRetrievalAction(
       mutableFakeDataRetrievalAction,
       Seq(
         bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
-        bind[EmailConnector].toInstance(mockEmailConnector)
+        bind[EmailConnector].toInstance(mockEmailConnector),
+        bind[EnrolmentConnector].toInstance(mockEnrolmentConnector),
+        bind[KnownFactsRetrieval].toInstance(knownFactsRetrieval)
       )
     ).build()
+
+  private val knownFacts = Some(KnownFacts(
+    Set(KnownFact("PSPID", "test-psa")),
+    Set(KnownFact("NINO", "test-nino")
+    )))
+
   private val templateToBeRendered = "individual/declaration.njk"
   private val dummyCall: Call = Call("GET", "/foo")
   private val valuesValid: Map[String, Seq[String]] = Map()
@@ -115,6 +124,9 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
         .setOrException(AreYouUKResidentPage, true)
         .setOrException(IndividualDetailsPage, SampleData.tolerantIndividual)
         .setOrException(IndividualEmailPage, email)
+      when(mockEnrolmentConnector.enrol(any(), any())(any(), any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse.apply(NO_CONTENT, "")))
+      when(knownFactsRetrieval.retrieve(any())(any())).thenReturn(knownFacts)
       mutableFakeDataRetrievalAction.setDataToReturn(Some(ua))
 
       val expectedJson = Json.obj(PspIdPage.toString -> pspId)

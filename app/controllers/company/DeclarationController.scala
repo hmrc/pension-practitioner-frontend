@@ -17,9 +17,7 @@
 package controllers.company
 
 import config.FrontendAppConfig
-import connectors.EmailConnector
-import connectors.EmailStatus
-import connectors.SubscriptionConnector
+import connectors.{EmailConnector, EmailStatus, EnrolmentConnector, SubscriptionConnector}
 import connectors.cache.UserAnswersCacheConnector
 import controllers.DataRetrievals
 import controllers.Retrievals
@@ -32,6 +30,7 @@ import navigators.CompoundNavigator
 import pages.PspIdPage
 import pages.company.DeclarationPage
 import pages.register.ExistingPSPPage
+import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.i18n.Messages
 import play.api.i18n.MessagesApi
@@ -40,30 +39,33 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.KnownFactsRetrieval
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 class DeclarationController @Inject()(
-  override val messagesApi: MessagesApi,
-  subscriptionConnector: SubscriptionConnector,
-  userAnswersCacheConnector: UserAnswersCacheConnector,
-  navigator: CompoundNavigator,
-  authenticate: AuthAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  val controllerComponents: MessagesControllerComponents,
-  renderer: Renderer,
-  emailConnector: EmailConnector,
-  config: FrontendAppConfig
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
-    with Retrievals
-    with I18nSupport
-    with NunjucksSupport {
+                                        override val messagesApi: MessagesApi,
+                                        subscriptionConnector: SubscriptionConnector,
+                                        userAnswersCacheConnector: UserAnswersCacheConnector,
+                                        navigator: CompoundNavigator,
+                                        authenticate: AuthAction,
+                                        getData: DataRetrievalAction,
+                                        requireData: DataRequiredAction,
+                                        val controllerComponents: MessagesControllerComponents,
+                                        renderer: Renderer,
+                                        emailConnector: EmailConnector,
+                                        knownFactsRetrieval: KnownFactsRetrieval,
+                                        enrolment: EnrolmentConnector,
+                                        config: FrontendAppConfig
+                                      )(implicit ec: ExecutionContext)
+                                          extends FrontendBaseController
+                                          with Retrievals
+                                          with I18nSupport
+                                          with NunjucksSupport {
 
   def onPageLoad: Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
@@ -83,10 +85,9 @@ class DeclarationController @Inject()(
       DataRetrievals.retrievePspNameAndEmail { (pspName, email) =>
         for {
           pspId <- subscriptionConnector.subscribePsp(ua)
-          updatedAnswers <- Future.fromTry(
-            request.userAnswers.set(PspIdPage, pspId)
-          )
+          updatedAnswers <- Future.fromTry(request.userAnswers.set(PspIdPage, pspId))
           _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+          _ <- enrol(pspId)
           _ <- sendEmail(email, pspId, pspName)
         } yield
           Redirect(
@@ -95,15 +96,19 @@ class DeclarationController @Inject()(
       }
     }
 
-  private def sendEmail(email: String, pspId: String, pspName: String)(
-    implicit request: DataRequest[_],
-    hc: HeaderCarrier,
-    messages: Messages
-  ): Future[EmailStatus] =
+  private def enrol(pspId: String)(implicit hc: HeaderCarrier, request: DataRequest[AnyContent]): Future[HttpResponse] =
+    knownFactsRetrieval.retrieve(pspId) map { knownFacts =>
+      enrolment.enrol(pspId, knownFacts)
+    } getOrElse Future.failed(KnownFactsRetrievalException())
+
+  case class KnownFactsRetrievalException() extends Exception {
+    def apply(): Unit = Logger.error("Could not retrieve Known Facts")
+  }
+
+  private def sendEmail(email: String, pspId: String, pspName: String)
+                       (implicit request: DataRequest[_], hc: HeaderCarrier, messages: Messages ): Future[EmailStatus] =
     emailConnector.sendEmail(
-      requestId = hc.requestId
-        .map(_.value)
-        .getOrElse(request.headers.get("X-Session-ID").getOrElse("")),
+      requestId = hc.requestId .map(_.value) .getOrElse(request.headers.get("X-Session-ID").getOrElse("")),
       pspId,
       journeyType = "PSPSubscription",
       email,

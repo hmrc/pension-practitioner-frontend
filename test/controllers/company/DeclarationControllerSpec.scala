@@ -16,65 +16,63 @@
 
 package controllers.company
 
-import connectors.EmailConnector
-import connectors.EmailSent
-import connectors.SubscriptionConnector
+import connectors.{EmailConnector, EmailSent, EnrolmentConnector, SubscriptionConnector}
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import matchers.JsonMatchers
-import models.ExistingPSP
-import org.mockito.Matchers
-import play.api.mvc.Call
-import models.UserAnswers
 import models.WhatTypeBusiness.Companyorpartnership
 import models.register.BusinessType
+import models.{ExistingPSP, KnownFact, KnownFacts, UserAnswers}
+import org.mockito.{ArgumentCaptor, Matchers}
 import org.mockito.Matchers.any
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.when
-import org.mockito.ArgumentCaptor
-import org.scalatest.OptionValues
-import org.scalatest.TryValues
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.PspIdPage
-import pages.WhatTypeBusinessPage
-import pages.company.BusinessNamePage
-import pages.company.CompanyEmailPage
-import pages.company.DeclarationPage
-import pages.register.AreYouUKCompanyPage
-import pages.register.BusinessTypePage
-import pages.register.ExistingPSPPage
+import pages.{PspIdPage, WhatTypeBusinessPage}
+import pages.company.{BusinessNamePage, CompanyEmailPage, DeclarationPage}
+import pages.register.{AreYouUKCompanyPage, BusinessTypePage, ExistingPSPPage}
 import play.api.Application
 import play.api.inject.bind
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
+import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.KnownFactsRetrieval
 
 import scala.concurrent.Future
 
 class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
   with JsonMatchers with OptionValues with TryValues {
 
+  import DeclarationControllerSpec._
+
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
   private val mockEmailConnector: EmailConnector = mock[EmailConnector]
+  private val mockEnrolmentConnector: EnrolmentConnector = mock[EnrolmentConnector]
+  private val knownFactsRetrieval: KnownFactsRetrieval = mock[KnownFactsRetrieval]
 
   private val application: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction,
       Seq(
         bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
-        bind[EmailConnector].toInstance(mockEmailConnector)
+        bind[EmailConnector].toInstance(mockEmailConnector),
+        bind[EnrolmentConnector].toInstance(mockEnrolmentConnector),
+        bind[KnownFactsRetrieval].toInstance(knownFactsRetrieval)
       )).build()
+
   private val templateToBeRendered = "register/declaration.njk"
   private val dummyCall: Call = Call("GET", "/foo")
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq("true"))
+  private val knownFacts = Some(KnownFacts(
+    Set(KnownFact("PSPID", "test-psa")),
+    Set(KnownFact("NINO", "test-nino")
+    )))
 
   private def onPageLoadUrl: String = routes.DeclarationController.onPageLoad().url
   private def submitUrl: String = routes.DeclarationController.onSubmit().url
-  private val partnershipName = "Acme Ltd"
-  private val email = "a@a.c"
 
   override def beforeEach: Unit = {
     super.beforeEach
@@ -116,13 +114,11 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
           Matchers.eq(email),
           Matchers.eq(templateId),any())(any(),any()))
         .thenReturn(Future.successful(EmailSent))
+      when(mockEnrolmentConnector.enrol(any(), any())(any(), any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse.apply(NO_CONTENT, "")))
+      when(knownFactsRetrieval.retrieve(any())(any())).thenReturn(knownFacts)
       when(mockAppConfig.emailPspSubscriptionTemplateId).thenReturn(templateId)
-      val ua = UserAnswers()
-        .setOrException(WhatTypeBusinessPage, Companyorpartnership)
-        .setOrException(AreYouUKCompanyPage, true)
-        .setOrException(BusinessTypePage, BusinessType.BusinessPartnership)
-        .setOrException(BusinessNamePage, partnershipName)
-        .setOrException(CompanyEmailPage, email)
+
       mutableFakeDataRetrievalAction.setDataToReturn(Some(ua))
 
       val expectedJson = Json.obj(PspIdPage.toString -> pspId)
@@ -154,4 +150,17 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
       redirectLocation(result).value mustBe controllers.routes.SessionExpiredController.onPageLoad().url
     }
   }
+}
+
+object DeclarationControllerSpec {
+
+  private val partnershipName = "Acme Ltd"
+  private val email = "a@a.c"
+
+  val ua: UserAnswers = UserAnswers()
+    .setOrException(WhatTypeBusinessPage, Companyorpartnership)
+    .setOrException(AreYouUKCompanyPage, true)
+    .setOrException(BusinessTypePage, BusinessType.BusinessPartnership)
+    .setOrException(BusinessNamePage, partnershipName)
+    .setOrException(CompanyEmailPage, email)
 }

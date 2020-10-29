@@ -14,20 +14,11 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package audit
 
-import models.UserAnswers
-import models.requests.{AuthenticatedRequest, OptionalDataRequest}
+case class PSPEnrolment(userId: String, pspId:String) extends AuditEvent {
 
-import scala.concurrent.{ExecutionContext, Future}
-
-class FakeDataRetrievalAction(json: Option[UserAnswers]) extends DataRetrievalAction {
-  override protected def transform[A](request: AuthenticatedRequest[A]): Future[OptionalDataRequest[A]] = {
-    Future(OptionalDataRequest(request.request, "id", request.user, json))
-  }
-
-  override protected implicit val executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
+  override def auditType: String = "PSPEnrolment"
+  override def details: Map[String, String] = Map("userId" -> userId, "pspId" -> pspId)
 }
-
 

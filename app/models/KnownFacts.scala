@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package models
 
-import models.UserAnswers
-import models.requests.{AuthenticatedRequest, OptionalDataRequest}
+import play.api.libs.json.{Format, Json}
 
-import scala.concurrent.{ExecutionContext, Future}
+case class KnownFact(key: String, value: String)
 
-class FakeDataRetrievalAction(json: Option[UserAnswers]) extends DataRetrievalAction {
-  override protected def transform[A](request: AuthenticatedRequest[A]): Future[OptionalDataRequest[A]] = {
-    Future(OptionalDataRequest(request.request, "id", request.user, json))
-  }
-
-  override protected implicit val executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
+object KnownFact {
+  implicit val format: Format[KnownFact] = Json.format[KnownFact]
 }
 
+case class KnownFacts(identifiers: Set[KnownFact], verifiers: Set[KnownFact])
 
+object KnownFacts {
+  implicit val format: Format[KnownFacts] = Json.format[KnownFacts]
+}

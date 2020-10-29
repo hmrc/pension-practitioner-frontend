@@ -52,10 +52,10 @@ class SubscriptionConnector @Inject()(http: HttpClient,
 
   def getSubscriptionDetails(pspId:String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
 
-    val psaIdHC = hc.withExtraHeaders("pspId"-> pspId)
+    val pspIdHC = hc.withExtraHeaders("pspId"-> pspId)
     val url  = config.subscriptionDetailsUrl
 
-    http.GET[HttpResponse](url)(implicitly, psaIdHC, implicitly) map { response =>
+    http.GET[HttpResponse](url)(implicitly, pspIdHC, implicitly) map { response =>
       response.status match {
         case OK => response.json
         case BAD_REQUEST if response.body.contains("INVALID_IDVALUE") => throw new PspIdInvalidSubscriptionException

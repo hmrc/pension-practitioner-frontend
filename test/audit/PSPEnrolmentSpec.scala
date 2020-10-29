@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package audit
 
-import models.UserAnswers
-import models.requests.{AuthenticatedRequest, OptionalDataRequest}
+import base.SpecBase
 
-import scala.concurrent.{ExecutionContext, Future}
+class PSPEnrolmentSpec extends SpecBase {
 
-class FakeDataRetrievalAction(json: Option[UserAnswers]) extends DataRetrievalAction {
-  override protected def transform[A](request: AuthenticatedRequest[A]): Future[OptionalDataRequest[A]] = {
-    Future(OptionalDataRequest(request.request, "id", request.user, json))
+  private val userId = "user"
+  private val pspId = "psp"
+
+  "details" should {
+    "return the correct values" in {
+      val result = PSPEnrolment(userId, pspId)
+      result.details mustBe Map("userId" -> userId, "pspId" -> pspId)
+    }
   }
-
-  override protected implicit val executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
 }
-
-

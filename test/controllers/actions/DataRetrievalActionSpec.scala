@@ -45,7 +45,7 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar with ScalaFutur
         when(dataCacheConnector.fetch(any(), any())) thenReturn Future(None)
         val action = new Harness(dataCacheConnector)
 
-        val futureResult = action.callTransform(AuthenticatedRequest(fakeRequest,
+        val futureResult = action.callTransform(AuthenticatedRequest(fakeRequest, "id",
           PSPUser(UserType.Organisation, None, isExistingPSP = false, None, None)))
 
         whenReady(futureResult) { result =>
@@ -59,7 +59,7 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar with ScalaFutur
         when(dataCacheConnector.fetch(any(), any())) thenReturn Future.successful(Some(Json.obj()))
         val action = new Harness(dataCacheConnector)
 
-        val futureResult = action.callTransform(AuthenticatedRequest(fakeRequest,
+        val futureResult = action.callTransform(AuthenticatedRequest(fakeRequest, "id",
           PSPUser(UserType.Organisation, None, isExistingPSP = false, None, None)))
 
         whenReady(futureResult) { result =>
