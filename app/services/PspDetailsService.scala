@@ -67,7 +67,7 @@ class PspDetailsService @Inject()(appConfig: FrontendAppConfig,
                 "heading" -> ua.get(IndividualDetailsPage).fold(title)(name => heading(name.fullName)),
                 "list" -> individualDetails(ua, pspId),
                 "nextPage" -> nextPage,
-                "returnUrl" -> appConfig.returnToOverviewUrl,
+                "returnUrl" -> appConfig.returnToPspDashboardUrl,
                 "returnLink" -> ua.get(IndividualDetailsPage)
                   .fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name.fullName))
               )
@@ -78,7 +78,7 @@ class PspDetailsService @Inject()(appConfig: FrontendAppConfig,
                 "heading" -> ua.get(comp.BusinessNamePage).fold(title)(name => heading(name)),
                 "list" -> companyDetails(ua, pspId),
                 "nextPage" -> nextPage,
-                "returnUrl" -> appConfig.returnToOverviewUrl,
+                "returnUrl" -> appConfig.returnToPspDashboardUrl,
                 "returnLink" -> ua.get(comp.BusinessNamePage)
                   .fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name))
               )
@@ -89,7 +89,7 @@ class PspDetailsService @Inject()(appConfig: FrontendAppConfig,
                 "heading" -> ua.get(BusinessNamePage).fold(title)(name => heading(name)),
                 "list" -> partnershipDetails(ua, pspId),
                 "nextPage" -> nextPage,
-                "returnUrl" -> appConfig.returnToOverviewUrl,
+                "returnUrl" -> appConfig.returnToPspDashboardUrl,
                 "returnLink" -> ua.get(BusinessNamePage)
                   .fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name))
               )

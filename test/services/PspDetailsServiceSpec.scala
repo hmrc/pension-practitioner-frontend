@@ -17,6 +17,7 @@
 package services
 
 import base.SpecBase
+import config.FrontendAppConfig
 import connectors.SubscriptionConnector
 import connectors.cache.UserAnswersCacheConnector
 import models.{CheckMode, UserAnswers}
@@ -38,12 +39,14 @@ class PspDetailsServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
   private val pspId: String = "psp-id"
   private val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
   private val mockUserAnswersCacheConnector: UserAnswersCacheConnector = mock[UserAnswersCacheConnector]
-  private val service: PspDetailsService = new PspDetailsService(frontendAppConfig, mockSubscriptionConnector, mockUserAnswersCacheConnector)
+  private val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
+  private val service: PspDetailsService = new PspDetailsService(mockAppConfig, mockSubscriptionConnector, mockUserAnswersCacheConnector)
 
   override def beforeEach: Unit = {
     super.beforeEach
-    reset(mockSubscriptionConnector)
+    reset(mockSubscriptionConnector, mockUserAnswersCacheConnector, mockAppConfig)
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
+    when(mockAppConfig.returnToPspDashboardUrl).thenReturn(frontendAppConfig.returnToPspDashboardUrl)
   }
 
   "getJson" must {
@@ -248,7 +251,7 @@ object PspDetailsServiceSpec {
     "list" -> list(typeText, name, address),
     "nextPage" -> "/pension-scheme-practitioner/declare",
     "returnLink" -> s"Return to $name",
-    "returnUrl" -> "http://localhost:8204/manage-pension-schemes/overview"
+    "returnUrl" -> "http://localhost:8204/manage-pension-schemes/dashboard"
   )
 
 

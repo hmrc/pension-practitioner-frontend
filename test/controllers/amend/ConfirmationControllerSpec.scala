@@ -26,7 +26,7 @@ import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.company.{BusinessNamePage, CompanyEmailPage}
+import pages.company.CompanyEmailPage
 import pages.{PspIdPage, WhatTypeBusinessPage}
 import play.api.Application
 import play.api.libs.json.{JsObject, Json}
@@ -34,7 +34,6 @@ import play.api.mvc.Results.Ok
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import viewmodels.CommonViewModel
 
 import scala.concurrent.Future
 
@@ -55,7 +54,7 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
     .setOrException(PspIdPage, pspId)
 
   private def onPageLoadUrl: String = routes.ConfirmationController.onPageLoad().url
-  private def submitUrl: String = frontendAppConfig.returnToOverviewUrl
+  private def submitUrl: String = frontendAppConfig.returnToPspDashboardUrl
 
   private val jsonToPassToTemplate: JsObject =
     Json.obj("submitUrl" -> submitUrl,
@@ -68,7 +67,7 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
   override def beforeEach: Unit = {
     super.beforeEach
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
-    when(mockAppConfig.returnToOverviewUrl).thenReturn(submitUrl)
+    when(mockAppConfig.returnToPspDashboardUrl).thenReturn(submitUrl)
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
   }
 
