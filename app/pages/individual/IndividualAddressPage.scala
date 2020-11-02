@@ -16,11 +16,11 @@
 
 package pages.individual
 
-import models.TolerantAddress
+import models.Address
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object IndividualAddressPage extends QuestionPage[TolerantAddress] {
+case object IndividualAddressPage extends QuestionPage[Address] {
 
   override def path: JsPath = JsPath \ toString
 

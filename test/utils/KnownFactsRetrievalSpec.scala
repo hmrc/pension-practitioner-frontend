@@ -21,8 +21,7 @@ import models.register.{RegistrationCustomerType, RegistrationIdType, Registrati
 import models.requests.{DataRequest, PSPUser, UserType}
 import models.{Address, KnownFact, KnownFacts, TolerantAddress, UserAnswers}
 import pages.RegistrationInfoPage
-import pages.company.{ConfirmAddressPage => ConfirmCompanyAddressPage}
-import pages.partnership.{ConfirmAddressPage => ConfirmPartnershipAddressPage}
+import pages.company.CompanyRegisteredAddressPage
 import play.api.libs.json.Json
 import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
@@ -59,7 +58,7 @@ class KnownFactsRetrievalSpec extends SpecBase {
             FakeRequest(), "id",
             PSPUser(UserType.Individual, Some(nino), isExistingPSP = false, None, None),
             UserAnswers(Json.obj(
-              ConfirmCompanyAddressPage.toString -> Address("1 Street", "Somewhere", None, None, Some("ZZ1 1ZZ"), "GB"),
+              CompanyRegisteredAddressPage.toString -> Address("1 Street", "Somewhere", None, None, Some("ZZ1 1ZZ"), "GB"),
               RegistrationInfoPage.toString -> registration
             ))
           )
@@ -92,7 +91,7 @@ class KnownFactsRetrievalSpec extends SpecBase {
               FakeRequest(), "id",
               PSPUser(UserType.Organisation, None, isExistingPSP = false, None, None),
               UserAnswers(Json.obj(
-                ConfirmCompanyAddressPage.toString -> Address("1 Street", "Somewhere", None, None, Some("ZZ1 1ZZ"), "GB"),
+                CompanyRegisteredAddressPage.toString -> Address("1 Street", "Somewhere", None, None, Some("ZZ1 1ZZ"), "GB"),
                 RegistrationInfoPage.toString -> registration
               ))
             )
@@ -122,11 +121,11 @@ class KnownFactsRetrievalSpec extends SpecBase {
               FakeRequest(), "id",
               PSPUser(UserType.Organisation, None, isExistingPSP = false, None, None),
               UserAnswers(Json.obj(
-                ConfirmPartnershipAddressPage.toString -> TolerantAddress(
-                  Some("1 Street"),
-                  Some("Somewhere"),
+                CompanyRegisteredAddressPage.toString -> Address(
+                  "1 Street",
+                  "Somewhere",
                   None, None, None,
-                  Some(nonUk)
+                  nonUk
                 ),
                 RegistrationInfoPage.toString -> registration
               ))
@@ -159,7 +158,7 @@ class KnownFactsRetrievalSpec extends SpecBase {
               FakeRequest(), "id",
               PSPUser(UserType.Organisation, None, isExistingPSP = false, None, None),
               UserAnswers(Json.obj(
-                ConfirmCompanyAddressPage.toString -> Address("1 Street", "Somewhere", None, None, Some("ZZ1 1ZZ"), "GB"),
+                CompanyRegisteredAddressPage.toString -> Address("1 Street", "Somewhere", None, None, Some("ZZ1 1ZZ"), "GB"),
                 RegistrationInfoPage.toString -> registration
               ))
             )
@@ -189,12 +188,7 @@ class KnownFactsRetrievalSpec extends SpecBase {
               FakeRequest(), "id",
               PSPUser(UserType.Organisation, None, isExistingPSP = false, None, None),
               UserAnswers(Json.obj(
-                ConfirmCompanyAddressPage.toString -> TolerantAddress(
-                  Some("1 Street"),
-                  Some("Somewhere"),
-                  None, None, None,
-                  Some(nonUk)
-                ),
+                CompanyRegisteredAddressPage.toString -> Address("1 Street", "Somewhere", None, None, None, nonUk),
                 RegistrationInfoPage.toString -> registration
               ))
             )

@@ -42,7 +42,7 @@ class OutsideEuEeaController @Inject()(
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       IndividualAddressPage.retrieve.right.map { address =>
-        val json = Json.obj("country" -> countryOptions.getCountryNameFromCode(address.toAddress))
+        val json = Json.obj("country" -> countryOptions.getCountryNameFromCode(address))
       renderer.render(template = "individual/outsideEuEea.njk", json).map(Ok(_))
     }
   }

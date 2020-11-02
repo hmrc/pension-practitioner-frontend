@@ -149,7 +149,7 @@ object SampleData {
       .setOrException(WhatTypeBusinessPage, value = Yourselfasindividual)
       .setOrException(AreYouUKResidentPage, false)
       .setOrException(IndividualDetailsPage, tolerantIndividual)
-      .setOrException(IndividualAddressPage, tolerantAddress)
+      .setOrException(IndividualAddressPage, address)
       .setOrException(UseAddressForContactPage, false)
       .setOrException(IndividualPostcodePage, Seq(tolerantAddress))
       .setOrException(IndividualAddressListPage, 0)

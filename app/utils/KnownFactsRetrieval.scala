@@ -17,13 +17,14 @@
 package utils
 
 import models.register.RegistrationCustomerType.{NonUK, UK}
+import models.register.RegistrationLegalStatus
 import models.register.RegistrationLegalStatus.{Individual, LimitedCompany, Partnership}
 import models.requests.DataRequest
-import models.{KnownFact, KnownFacts}
+import models.{Address, KnownFact, KnownFacts}
 import pages.RegistrationInfoPage
-import pages.company.{ConfirmAddressPage => ConfirmCompanyAddressPage}
+import pages.company.CompanyRegisteredAddressPage
 import pages.individual.IndividualAddressPage
-import pages.partnership.{ConfirmAddressPage => ConfirmPartnershipAddressPage}
+import pages.partnership.PartnershipRegisteredAddressPage
 import play.api.mvc.AnyContent
 
 class KnownFactsRetrieval {
@@ -45,17 +46,17 @@ class KnownFactsRetrieval {
         case (Partnership, Some(idNumber), UK) =>
           Some(KnownFacts(Set(KnownFact(pspKey, pspId)), Set(KnownFact(saUtrKey, idNumber))))
         case (legalStatus, _, NonUK) =>
-          for {
-            address <- legalStatus match {
-              case LimitedCompany => request.userAnswers.get(ConfirmCompanyAddressPage)
-              case Partnership => request.userAnswers.get(ConfirmPartnershipAddressPage)
-              case Individual => request.userAnswers.get(IndividualAddressPage)
-            }
-            country <- address.country
-          } yield {
-            KnownFacts(Set(KnownFact(pspKey, pspId)), Set(KnownFact(countryKey, country)))
-          }
+          addOpt(legalStatus).fold[Option[KnownFacts]](None)(address =>
+            Some(KnownFacts(Set(KnownFact(pspKey, pspId)), Set(KnownFact(countryKey, address.country)))))
+
         case _ => None
       }
+    }
+
+  private def addOpt(legalStatus: RegistrationLegalStatus)(implicit request: DataRequest[AnyContent]): Option[Address] =
+    legalStatus match {
+      case LimitedCompany => request.userAnswers.get(CompanyRegisteredAddressPage)
+      case Partnership => request.userAnswers.get(PartnershipRegisteredAddressPage)
+      case Individual => request.userAnswers.get(IndividualAddressPage)
     }
 }

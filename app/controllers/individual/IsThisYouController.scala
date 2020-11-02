@@ -23,8 +23,8 @@ import controllers.Retrievals
 import controllers.actions._
 import forms.individual.IsThisYouFormProvider
 import javax.inject.Inject
-import models.{Mode, TolerantAddress}
 import models.register.TolerantIndividual
+import models.{Address, Mode}
 import navigators.CompoundNavigator
 import pages.RegistrationInfoPage
 import pages.individual.{IndividualAddressPage, IndividualDetailsPage, IsThisYouPage}
@@ -74,12 +74,12 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
             case Some(nino) =>
               registrationConnector.registerWithIdIndividual(nino).flatMap { registration =>
                 Future.fromTry(ua.set(IndividualDetailsPage, registration.response.individual).flatMap(
-                  _.set(IndividualAddressPage, registration.response.address)).flatMap(
+                  _.set(IndividualAddressPage, registration.response.address.toAddress)).flatMap(
                   _.set(RegistrationInfoPage, registration.info)
                 )).flatMap { uaWithRegInfo =>
                   userAnswersCacheConnector.save(uaWithRegInfo.data).flatMap { _ =>
                     renderer.render(template = "individual/isThisYou.njk", json ++
-                      jsonWithNameAndAddress(registration.response.individual, registration.response.address)).map(Ok(_))
+                      jsonWithNameAndAddress(registration.response.individual, registration.response.address.toAddress)).map(Ok(_))
                   }
                 }
               }
@@ -114,7 +114,7 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
       )
   }
 
-  private def jsonWithNameAndAddress(individual: TolerantIndividual, address: TolerantAddress): JsObject = {
+  private def jsonWithNameAndAddress(individual: TolerantIndividual, address: Address): JsObject = {
     Json.obj(
       "name" -> individual.fullName,
       "address" -> address.lines(countryOptions)
