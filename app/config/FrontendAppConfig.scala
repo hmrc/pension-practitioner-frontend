@@ -103,6 +103,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   lazy val returnToPensionSchemesUrl: String = configuration.get[String]("urls.pensionSchemesList")
   lazy val returnToOverviewUrl: String = configuration.get[String]("urls.overview")
+  lazy val returnToPspDashboardUrl: String = configuration.get[String]("urls.pspDashboard")
 
   lazy val govUkUrl: String = configuration.get[String]("urls.govUK")
   lazy val taxEnrolmentsUrl: String = s"$enrolmentBase${configuration.get[String]("urls.tax-enrolments")}"
