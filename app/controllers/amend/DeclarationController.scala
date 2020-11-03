@@ -43,31 +43,26 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 class DeclarationController @Inject()(
-  override val messagesApi: MessagesApi,
-  subscriptionConnector: SubscriptionConnector,
-  userAnswersCacheConnector: UserAnswersCacheConnector,
-  authenticate: AuthAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  val controllerComponents: MessagesControllerComponents,
-  renderer: Renderer,
-  emailConnector: EmailConnector,
-  config: FrontendAppConfig
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
-    with Retrievals
-    with I18nSupport
-    with NunjucksSupport {
+                                      override val messagesApi: MessagesApi,
+                                      subscriptionConnector: SubscriptionConnector,
+                                      userAnswersCacheConnector: UserAnswersCacheConnector,
+                                      authenticate: AuthAction,
+                                      getData: DataRetrievalAction,
+                                      requireData: DataRequiredAction,
+                                      val controllerComponents: MessagesControllerComponents,
+                                      renderer: Renderer,
+                                      emailConnector: EmailConnector,
+                                      config: FrontendAppConfig
+                                     )(implicit ec: ExecutionContext)
+    extends FrontendBaseController with Retrievals with I18nSupport with NunjucksSupport {
 
   def onPageLoad: Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
-        renderer
-          .render(
+        renderer.render(
             "amend/declaration.njk",
             Json.obj("submitUrl" -> routes.DeclarationController.onSubmit().url)
-          )
-          .map(Ok(_))
+          ).map(Ok(_))
     }
 
   def onSubmit: Action[AnyContent] =
@@ -76,24 +71,18 @@ class DeclarationController @Inject()(
         DataRetrievals.retrievePspNameAndEmail { (pspName, email) =>
           for {
             pspId <- subscriptionConnector.subscribePsp(request.userAnswers)
-            updatedAnswers <- Future.fromTry(
-              request.userAnswers.set(PspIdPage, pspId)
-            )
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(PspIdPage, pspId))
             _ <- userAnswersCacheConnector.save(updatedAnswers.data)
             _ <- sendEmail(email, pspId, pspName)
           } yield Redirect(routes.ConfirmationController.onPageLoad())
         }
     }
 
-  private def sendEmail(email: String, pspId: String, pspName: String)(
-    implicit request: DataRequest[_],
-    hc: HeaderCarrier,
-    messages: Messages
-  ): Future[EmailStatus] = {
+  private def sendEmail(email: String, pspId: String, pspName: String)(implicit request: DataRequest[_],
+                                                    hc: HeaderCarrier,
+                                                    messages: Messages): Future[EmailStatus] = {
     emailConnector.sendEmail(
-      requestId = hc.requestId
-        .map(_.value)
-        .getOrElse(request.headers.get("X-Session-ID").getOrElse("")),
+      requestId = hc.requestId.map(_.value).getOrElse(request.headers.get("X-Session-ID").getOrElse("")),
       pspId,
       journeyType = "PSPAmendment",
       email,
