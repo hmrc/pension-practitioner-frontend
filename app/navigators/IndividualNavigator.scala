@@ -79,7 +79,7 @@ class IndividualNavigator @Inject()(countryOptions: CountryOptions) extends Navi
   private def regionBasedNavigation(answers: UserAnswers): Call = {
     answers.get(IndividualAddressPage)
       .fold(controllers.routes.SessionExpiredController.onPageLoad())(address =>
-      countryOptions.regions(address.country.getOrElse("")) match {
+      countryOptions.regions(address.country) match {
         case UK => AreYouUKResidentController.onPageLoad(CheckMode)
         case EuEea => UseAddressForContactController.onPageLoad(NormalMode)
         case RestOfTheWorld => OutsideEuEeaController.onPageLoad()

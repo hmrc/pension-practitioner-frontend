@@ -80,6 +80,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val identityVerificationFrontend: String = servicesConfig.baseUrl("identity-verification-frontend")
 
   lazy val identityVerificationProxy: String = servicesConfig.baseUrl("identity-verification-proxy")
+  lazy val enrolmentBase: String = servicesConfig.baseUrl("tax-enrolments")
 
   lazy val ivRegisterOrganisationAsIndividualUrl: String = s"$identityVerificationProxy${configuration.get[String]("urls.ivRegisterOrganisationAsIndividual")}"
 
@@ -106,6 +107,11 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val returnToPspDashboardUrl: String = configuration.get[String]("urls.pspDashboard")
 
   lazy val govUkUrl: String = configuration.get[String]("urls.govUK")
+  lazy val taxEnrolmentsUrl: String = s"$enrolmentBase${configuration.get[String]("urls.tax-enrolments")}"
+
+  lazy val retryAttempts: Int = configuration.getOptional[Int]("retry.max.attempts").getOrElse(1)
+  lazy val retryWaitMs: Int = configuration.getOptional[Int]("retry.initial.wait.ms").getOrElse(1)
+  lazy val retryWaitFactor: Double = configuration.getOptional[Double]("retry.wait.factor").getOrElse(1)
 
   def languageMap: Map[String, Lang] = Map(
     "english" -> Lang("en"),

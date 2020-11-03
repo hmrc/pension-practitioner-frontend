@@ -19,7 +19,7 @@ package controllers.individual
 import controllers.base.ControllerSpecBase
 import forms.address.UseAddressForContactFormProvider
 import matchers.JsonMatchers
-import models.{Address, NormalMode, TolerantAddress, UserAnswers}
+import models.{Address, NormalMode, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.{times, verify, when}
@@ -50,7 +50,7 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
 
   private def useAddressForContactPostRoute: String = routes.UseAddressForContactController.onSubmit().url
 
-  private val address = TolerantAddress(Some("line1"), Some("line2"), Some("line3"), Some("line4"), Some("post code"), Some("GB"))
+  private val address = Address("line1", "line2", Some("line3"), Some("line4"), Some("post code"), "GB")
   private val manualAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("post code"), "GB")
   private val countryOptions: CountryOptions = mock[CountryOptions]
   private val templateCaptor = ArgumentCaptor.forClass(classOf[String])
@@ -66,7 +66,7 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
 
   override def beforeEach: Unit = {
     super.beforeEach
-    when(countryOptions.getCountryNameFromCode(eqTo(address))).thenReturn(Some("United Kingdom"))
+    when(countryOptions.getCountryNameFromCode(eqTo(address))).thenReturn("United Kingdom")
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
   }
 

@@ -21,7 +21,7 @@ import controllers.base.ControllerSpecBase
 import forms.individual.IsThisYouFormProvider
 import matchers.JsonMatchers
 import models.register._
-import models.{NormalMode, TolerantAddress, UserAnswers}
+import models.{Address, NormalMode, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.{times, verify, when}
@@ -69,7 +69,7 @@ class IsThisYouControllerSpec extends ControllerSpecBase with MockitoSugar with 
 
   override def beforeEach: Unit = {
     super.beforeEach
-    when(countryOptions.getCountryNameFromCode(eqTo(address))).thenReturn(Some("United Kingdom"))
+    when(countryOptions.getCountryNameFromCode(eqTo(address))).thenReturn("United Kingdom")
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
   }
 
@@ -114,7 +114,7 @@ class IsThisYouControllerSpec extends ControllerSpecBase with MockitoSugar with 
 
       "return OK with the correct view, call register with id and save the individual details in the cache if we have a valid nino" in {
         when(registrationConnector.registerWithIdIndividual(any())(any(), any())).
-          thenReturn(Future.successful(IndividualRegistration(IndividualRegisterWithIdResponse(individual, address), registrationInfo)))
+          thenReturn(Future.successful(IndividualRegistration(IndividualRegisterWithIdResponse(individual, address.toTolerantAddress), registrationInfo)))
         when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
 
         val application = applicationBuilder(userAnswers = Some(UserAnswers()),
@@ -214,7 +214,7 @@ class IsThisYouControllerSpec extends ControllerSpecBase with MockitoSugar with 
 
 object IsThisYouControllerSpec extends TryValues {
   private val individual = TolerantIndividual(Some("first"), None, Some("last"))
-  private val address = TolerantAddress(Some("line1"), Some("line2"), Some("line3"), Some("line4"), Some("post code"), Some("GB"))
+  private val address = Address("line1", "line2", Some("line3"), Some("line4"), Some("post code"), "GB")
   private val registrationInfo = RegistrationInfo(
     RegistrationLegalStatus.Individual,
     "test-sap",

@@ -18,7 +18,7 @@ package services
 
 import play.api.libs.json.{JsObject, Json}
 
-object PsaDetailsHelper {
+object PspDetailsHelper {
 
   private val individualDetails: JsObject = Json.obj(
     "individualDetails" -> Json.obj(

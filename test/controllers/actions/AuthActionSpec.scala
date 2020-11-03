@@ -68,18 +68,6 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
       }
     }
 
-    "called for a user already enrolled in PODS for PSP" must {
-      "return OK" when {
-        "coming from any page" in {
-          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = enrolmentThroughPODSForPSP))
-          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
-          val result = controller.onPageLoad()(fakeRequest)
-          status(result) mustBe SEE_OTHER
-          redirectLocation(result) mustBe Some(controllers.routes.AlreadyRegisteredController.onPageLoad().url)
-        }
-      }
-    }
-
     "called for agent" must {
       "redirect" in {
         when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(affinityGroup = Some(AffinityGroup.Agent)))
@@ -277,12 +265,11 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 }
 
 object AuthActionSpec {
-  private val pspId = "A0000000"
+  private val pspId = "00000000"
   private val nino = uk.gov.hmrc.domain.Nino("AB100100A")
-  type authRetrievalsType = ConfidenceLevel ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~Option[CredentialRole]
+  type authRetrievalsType = Option[String] ~ ConfidenceLevel ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~Option[CredentialRole]
 
-  private val enrolmentPODS = Enrolments(Set(Enrolment("HMRC-PODS-ORG", Seq(EnrolmentIdentifier("PSPID", pspId)), "")))
-  private val enrolmentThroughPODSForPSP = Enrolments(Set(Enrolment("HMRC-PODSPP-ORG", Seq(EnrolmentIdentifier("PSPID", pspId)), "")))
+  private val enrolmentPODS = Enrolments(Set(Enrolment("HMRC-PODSPP-ORG", Seq(EnrolmentIdentifier("PSPID", pspId)), "")))
   private val startIVLink = "/start-iv-link"
 
   private def authRetrievals(confidenceLevel: ConfidenceLevel = ConfidenceLevel.L50,
@@ -291,7 +278,7 @@ object AuthActionSpec {
                              creds: Option[Credentials] = Option(Credentials(providerId = "test provider", providerType = "")),
                             role: Option[CredentialRole] = Option(User)
                             ): Future[authRetrievalsType] = Future.successful(
-    new ~(new ~(new ~(new ~(confidenceLevel,
+    new ~(new ~(new ~(new ~(new ~(Some("id"), confidenceLevel),
       affinityGroup),
       enrolments),
       creds),

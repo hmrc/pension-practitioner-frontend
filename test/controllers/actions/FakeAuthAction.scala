@@ -42,7 +42,7 @@ case class FakeAuthAction @Inject()(bodyParsers: PlayBodyParsers) extends AuthAc
   ): Future[Result] =
     block(
       AuthenticatedRequest(
-        request,
+        request, "id",
         PSPUser(defaultUserType, Some(Nino("AB100100A")), isExistingPSP = false, None, Some(defaultPspId))
       )
     )

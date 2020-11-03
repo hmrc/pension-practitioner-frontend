@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package pages.individual
+package models
 
-import models.Address
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import play.api.libs.json.{Format, Json}
 
-case object IndividualAddressPage extends QuestionPage[Address] {
+case class KnownFact(key: String, value: String)
 
-  override def path: JsPath = JsPath \ toString
+object KnownFact {
+  implicit val format: Format[KnownFact] = Json.format[KnownFact]
+}
 
-  override def toString: String = "registeredAddress"
+case class KnownFacts(identifiers: Set[KnownFact], verifiers: Set[KnownFact])
+
+object KnownFacts {
+  implicit val format: Format[KnownFacts] = Json.format[KnownFacts]
 }

@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-package pages.individual
+package audit
 
-import models.Address
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import base.SpecBase
 
-case object IndividualAddressPage extends QuestionPage[Address] {
+class PSPEnrolmentSpec extends SpecBase {
 
-  override def path: JsPath = JsPath \ toString
+  private val userId = "user"
+  private val pspId = "psp"
 
-  override def toString: String = "registeredAddress"
+  "details" should {
+    "return the correct values" in {
+      val result = PSPEnrolment(userId, pspId)
+      result.details mustBe Map("userId" -> userId, "pspId" -> pspId)
+    }
+  }
 }

@@ -45,7 +45,7 @@ import pages.register.BusinessTypePage
 object SampleData {
   //scalastyle.off: magic.number
   val userAnswersId = "id"
-  val psaId = "A0000000"
+  val pspId = "A0000000"
   val pspName = "psp"
 
   def emptyUserAnswers: UserAnswers = UserAnswers()
@@ -54,12 +54,12 @@ object SampleData {
 
   def userAnswersWithPartnershipName: UserAnswers = UserAnswers().setOrException(pages.partnership.BusinessNamePage, pspName)
 
-  val tolerantAddress = TolerantAddress(Some("line1"), Some("line2"), Some("line3"), Some("line4"), Some("post code"), Some("GB"))
-  val addressUK = TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
-  val address = Address("line1", "line2", Some("line3"), Some("line4"), Some("post code"), "GB")
-  def registrationInfo(registrationLegalStatus:RegistrationLegalStatus) =
+  val tolerantAddress: TolerantAddress = TolerantAddress(Some("line1"), Some("line2"), Some("line3"), Some("line4"), Some("post code"), Some("GB"))
+  val addressUK: TolerantAddress = TolerantAddress(Some("addr1"), Some("addr2"), None, None, Some(""), Some(""))
+  val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("post code"), "GB")
+  def registrationInfo(registrationLegalStatus:RegistrationLegalStatus): RegistrationInfo =
     RegistrationInfo(registrationLegalStatus, "", noIdentifier = false, RegistrationCustomerType.UK, None, None)
-  val tolerantIndividual = TolerantIndividual(
+  val tolerantIndividual: TolerantIndividual = TolerantIndividual(
     Some("John"),
     Some("T"),
     Some("Doe")
@@ -149,7 +149,7 @@ object SampleData {
       .setOrException(WhatTypeBusinessPage, value = Yourselfasindividual)
       .setOrException(AreYouUKResidentPage, false)
       .setOrException(IndividualDetailsPage, tolerantIndividual)
-      .setOrException(IndividualAddressPage, tolerantAddress)
+      .setOrException(IndividualAddressPage, address)
       .setOrException(UseAddressForContactPage, false)
       .setOrException(IndividualPostcodePage, Seq(tolerantAddress))
       .setOrException(IndividualAddressListPage, 0)

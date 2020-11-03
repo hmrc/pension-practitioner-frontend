@@ -74,9 +74,10 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
         value => {
           IndividualAddressPage.retrieve.right.map { address =>
             val ua = request.userAnswers.setOrException(UseAddressForContactPage, value)
-            val updatedAnswers = (value, getResolvedAddress(address)) match {
-              case (true, Some(validAddress)) => ua.setOrException(IndividualManualAddressPage, validAddress)
-              case _ => ua
+            val updatedAnswers = if (value) {
+              ua.setOrException(IndividualManualAddressPage, address)
+            } else {
+              ua
             }
             userAnswersCacheConnector.save(updatedAnswers.data).map { _ =>
               Redirect(navigator.nextPage(UseAddressForContactPage, NormalMode, updatedAnswers))

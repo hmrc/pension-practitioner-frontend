@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package pages.individual
+package audit
 
-import models.Address
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+case class PSPEnrolment(userId: String, pspId:String) extends AuditEvent {
 
-case object IndividualAddressPage extends QuestionPage[Address] {
-
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "registeredAddress"
+  override def auditType: String = "PSPEnrolment"
+  override def details: Map[String, String] = Map("userId" -> userId, "pspId" -> pspId)
 }
+

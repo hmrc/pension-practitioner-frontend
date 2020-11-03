@@ -21,8 +21,8 @@ import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import forms.address.NonUKAddressFormProvider
 import matchers.JsonMatchers
-import models.register.{RegistrationCustomerType, RegistrationIdType, RegistrationInfo, RegistrationLegalStatus, TolerantIndividual}
-import models.{Address, NormalMode, TolerantAddress, UserAnswers}
+import models.register._
+import models.{Address, NormalMode, UserAnswers}
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.{ArgumentCaptor, Matchers}
@@ -74,7 +74,7 @@ class IndividualEnterRegisteredAddressControllerSpec extends ControllerSpecBase 
   private def submitUrl: String = routes.IndividualEnterRegisteredAddressController.onSubmit(NormalMode).url
 
   private val dummyCall: Call = Call("GET", "/foo")
-  private val address: TolerantAddress = TolerantAddress(Some("line1"), Some("line2"), Some("line3"), Some("line4"), None, Some("IN"))
+  private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), None, "IN")
   private val ua: UserAnswers = UserAnswers().setOrException(IndividualDetailsPage, TolerantIndividual(Some("first"), None, Some("last")))
 
   private val valuesValid: Map[String, Seq[String]] = Map(

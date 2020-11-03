@@ -22,7 +22,7 @@ import controllers.Retrievals
 import models.register.InternationalRegion.{EuEea, RestOfTheWorld}
 import models.register.RegistrationInfo
 import models.requests.DataRequest
-import models.{Address, Mode, TolerantAddress}
+import models.{Address, Mode}
 import navigators.CompoundNavigator
 import pages.{QuestionPage, RegistrationInfoPage}
 import play.api.data.Form
@@ -47,13 +47,13 @@ trait NonUKManualAddressController extends FrontendBaseController with Retrieval
 
   protected def viewTemplate = "address/nonUKAddress.njk"
 
-  def get(json: Form[Address] => JsObject, addressPage: QuestionPage[TolerantAddress])
+  def get(json: Form[Address] => JsObject, addressPage: QuestionPage[Address])
          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
-    val formFilled = request.userAnswers.get(addressPage).fold(form)(v => form.fill(v.toAddress))
+    val formFilled = request.userAnswers.get(addressPage).fold(form)(v => form.fill(v))
     renderer.render(viewTemplate, json(formFilled)).map(Ok(_))
   }
 
-  def post(mode: Mode, json: Form[Address] => JsObject, addressPage: QuestionPage[TolerantAddress],
+  def post(mode: Mode, json: Form[Address] => JsObject, addressPage: QuestionPage[Address],
            regCall: Address => Future[RegistrationInfo])
           (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
     form.bindFromRequest().fold(
@@ -70,7 +70,7 @@ trait NonUKManualAddressController extends FrontendBaseController with Retrieval
 
         for {
           answersWithReg <- answersWithRegInfo
-          updatedAnswers <- Future.fromTry(answersWithReg.set(addressPage, address.toTolerantAddress))
+          updatedAnswers <- Future.fromTry(answersWithReg.set(addressPage, address))
           _ <- userAnswersCacheConnector.save(updatedAnswers.data)
         } yield {
           Redirect(navigator.nextPage(addressPage, mode, updatedAnswers))
