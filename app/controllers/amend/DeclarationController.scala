@@ -16,31 +16,24 @@
 
 package controllers.amend
 
+import audit.{AuditService, PSPAmendment}
 import config.FrontendAppConfig
-import connectors.EmailConnector
-import connectors.EmailStatus
-import connectors.SubscriptionConnector
 import connectors.cache.UserAnswersCacheConnector
-import controllers.DataRetrievals
-import controllers.Retrievals
+import connectors.{EmailConnector, SubscriptionConnector}
 import controllers.actions._
+import controllers.{DataRetrievals, Retrievals}
 import javax.inject.Inject
 import models.requests.DataRequest
 import pages.PspIdPage
-import play.api.i18n.Messages
-import play.api.i18n.I18nSupport
-import play.api.i18n.MessagesApi
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class DeclarationController @Inject()(
                                       override val messagesApi: MessagesApi,
@@ -52,6 +45,7 @@ class DeclarationController @Inject()(
                                       val controllerComponents: MessagesControllerComponents,
                                       renderer: Renderer,
                                       emailConnector: EmailConnector,
+                                      auditService: AuditService,
                                       config: FrontendAppConfig
                                      )(implicit ec: ExecutionContext)
     extends FrontendBaseController with Retrievals with I18nSupport with NunjucksSupport {
@@ -79,16 +73,13 @@ class DeclarationController @Inject()(
     }
 
   private def sendEmail(email: String, pspId: String, pspName: String)(implicit request: DataRequest[_],
-                                                    hc: HeaderCarrier,
-                                                    messages: Messages): Future[EmailStatus] = {
-    emailConnector.sendEmail(
-      requestId = hc.requestId.map(_.value).getOrElse(request.headers.get("X-Session-ID").getOrElse("")),
-      pspId,
-      journeyType = "PSPAmendment",
-      email,
-      templateName = config.emailPspAmendmentTemplateId,
-      templateParams = Map("pspName" -> pspName)
-    )
+                                                                       hc: HeaderCarrier,
+                                                                       messages: Messages): Future[Unit] = {
+    val requestId: String = hc.requestId.map(_.value).getOrElse(request.headers.get("X-Session-ID").getOrElse(""))
+    emailConnector.sendEmail(requestId, pspId, "PSPAmendment",
+      email, config.emailPspAmendmentTemplateId, Map("pspName" -> pspName)).map { _ =>
+      auditService.sendEvent(PSPAmendment(pspId, email))
+    }
   }
 
 }
