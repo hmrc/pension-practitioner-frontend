@@ -58,6 +58,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   lazy val pspSubscriptionUrl: String = s"$pspUrl${configuration.get[String]("urls.subscribePsp")}"
   lazy val subscriptionDetailsUrl: String = s"$pspUrl${configuration.get[String]("urls.pspDetails")}"
+  lazy val pspDeregistrationUrl: String = s"$pspUrl${configuration.get[String]("urls.deregisterPsp")}"
+  lazy val canDeregisterUrl: String = s"$pspUrl${configuration.get[String]("urls.canDeregister")}"
 
   lazy val emailApiUrl: String = servicesConfig.baseUrl("email")
   lazy val emailSendForce: Boolean = configuration.getOptional[Boolean]("email.force").getOrElse(false)
