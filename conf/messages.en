@@ -614,3 +614,5 @@ viewDetails.phone = {0}’s phone number
 
 amendConfirmation.title = Your pension scheme practitioner details have been updated
 amendConfirmation.return = Return to your practitioner dashboard
+
+confirmDeregister.company.error = Select yes if you want to stop the company or partnership being a pension scheme practitioner
