@@ -44,6 +44,7 @@ class Module extends AbstractModule {
     navigators.addBinding().to(classOf[PractitionerNavigator])
     navigators.addBinding().to(classOf[CompanyNavigator])
     navigators.addBinding().to(classOf[PartnershipNavigator])
+    navigators.addBinding().to(classOf[DeregisterNavigator])
 
     bind(classOf[CompoundNavigator]).to(classOf[CompoundNavigatorImpl])
 

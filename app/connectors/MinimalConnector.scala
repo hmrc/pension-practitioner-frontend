@@ -32,11 +32,11 @@ import scala.util.Failure
 
 @ImplementedBy(classOf[MinimalConnectorImpl])
 trait MinimalConnector {
-  def getMinimalPsaDetails(pspId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[MinimalPSP]
+  def getMinimalPspDetails(pspId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[MinimalPSP]
 }
 
 class MinimalConnectorImpl @Inject()(http: HttpClient, config: FrontendAppConfig) extends MinimalConnector with HttpResponseHelper {
-  override def getMinimalPsaDetails(pspId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[MinimalPSP] = {
+  override def getMinimalPspDetails(pspId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[MinimalPSP] = {
     val psaHc = hc.withExtraHeaders("pspId" -> pspId)
 
     http.GET[HttpResponse](config.minimalDetailsUrl)(implicitly, psaHc, implicitly) map { response =>

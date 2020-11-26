@@ -5,6 +5,7 @@
 ->         /register/company                                        company.Routes
 
 ->         /register/partnership                                    partnership.Routes
+->         /remove-psp                                              deregister.Routes
 
 GET        /                                                        controllers.IndexController.onPageLoad
 

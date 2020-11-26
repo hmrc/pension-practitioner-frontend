@@ -35,7 +35,15 @@ case class MinimalPSP(
                        email: String,
                        organisationName: Option[String],
                        individualDetails: Option[IndividualDetails]
-                     )
+                     ){
+  def name: Option[String] = {
+    (individualDetails, organisationName) match {
+      case (Some(individual), None) => Some(individual.fullName)
+      case (None, Some(org)) => Some(s"$org")
+      case _ => None
+    }
+  }
+}
 
 object MinimalPSP {
   implicit val format: Format[MinimalPSP] = Json.format[MinimalPSP]

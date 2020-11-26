@@ -38,8 +38,8 @@ class DeregistrationConnectorSpec extends AsyncWordSpec with MustMatchers with W
   private lazy val connector: DeregistrationConnector = injector.instanceOf[DeregistrationConnector]
   private val pspId: String = "12345678"
   private val deregistrationUrl = s"/pension-practitioner/deregisterPsp/$pspId"
-  private val canDeregisterUrl = s"/pension-practitioner/canDeregister/$pspId"
-  private val requestBody = Json.obj()
+  private val canDeregisterUrl = s"/pension-practitioner/can-deregister/$pspId"
+  private val date = LocalDate.parse("2020-01-01")
   private val validResponse = Json.obj(
     "processingDate" -> LocalDate.now,
     "formBundleNumber" -> "12345678912",
@@ -47,7 +47,10 @@ class DeregistrationConnectorSpec extends AsyncWordSpec with MustMatchers with W
     "nino" -> "AA123000A",
     "countryCode" -> "AD"
   )
-  private val getPspDetailsResponse: JsValue = Json.obj("test-key" -> "test-value")
+  private val requestBody: JsValue = Json.obj(
+    "deregistrationDate"-> date.toString,
+    "reason" -> "1"
+  )
 
   "deregisterPsp" must {
 
@@ -62,7 +65,7 @@ class DeregistrationConnectorSpec extends AsyncWordSpec with MustMatchers with W
           )
       )
 
-      connector.deregister(pspId) map {
+      connector.deregister(pspId, date) map {
         response => response.status mustBe OK
       }
     }
@@ -78,7 +81,7 @@ class DeregistrationConnectorSpec extends AsyncWordSpec with MustMatchers with W
       )
 
       recoverToExceptionIf[BadRequestException] {
-        connector.deregister(pspId)
+        connector.deregister(pspId, date)
       } map {
         _.responseCode mustEqual Status.BAD_REQUEST
       }
@@ -95,7 +98,7 @@ class DeregistrationConnectorSpec extends AsyncWordSpec with MustMatchers with W
       )
 
       recoverToExceptionIf[NotFoundException] {
-        connector.deregister(pspId)
+        connector.deregister(pspId, date)
       } map {
         _.responseCode mustEqual Status.NOT_FOUND
       }
@@ -111,7 +114,7 @@ class DeregistrationConnectorSpec extends AsyncWordSpec with MustMatchers with W
           )
       )
 
-      recoverToExceptionIf[UpstreamErrorResponse](connector.deregister(pspId)) map {
+      recoverToExceptionIf[UpstreamErrorResponse](connector.deregister(pspId, date)) map {
         _.statusCode mustBe Status.INTERNAL_SERVER_ERROR
       }
     }

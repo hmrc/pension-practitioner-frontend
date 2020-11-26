@@ -16,6 +16,8 @@
 
 package connectors
 
+import java.time.LocalDate
+
 import com.google.inject.{ImplementedBy, Inject}
 import config.FrontendAppConfig
 import play.api.Logger
@@ -31,15 +33,18 @@ import scala.util.Failure
 
 @ImplementedBy(classOf[DeregistrationConnectorImpl])
 trait DeregistrationConnector {
-  def deregister(pspId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext) : Future[HttpResponse]
+  def deregister(pspId: String, date: LocalDate)(implicit hc: HeaderCarrier, ec: ExecutionContext) : Future[HttpResponse]
 
   def canDeRegister(psaId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean]
 }
 
 class DeregistrationConnectorImpl @Inject()(http: HttpClient, config: FrontendAppConfig) extends DeregistrationConnector with HttpResponseHelper {
-  override def deregister(pspId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
+  override def deregister(pspId: String, date: LocalDate)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
     val deregisterUrl = config.pspDeregistrationUrl.format(pspId)
-    val data: JsObject = Json.obj()
+    val data: JsObject = Json.obj(
+      "deregistrationDate"-> date.toString,
+      "reason" -> "1"
+    )
 
       http.POST[JsObject, HttpResponse](deregisterUrl, data).map { response =>
       response.status match {

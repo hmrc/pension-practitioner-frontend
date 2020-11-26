@@ -1,0 +1,36 @@
+{% extends "includes/layout.njk" %}
+
+{% from "macros/title.njk"                         import title %}
+{% from "govuk/components/panel/macro.njk" import govukPanel %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+
+{% block beforeContent %}
+  {% include "includes/phase-banner.njk" %}
+{% endblock %}
+
+{% block pageTitle %}
+  {{ title(messages("deregistrationSuccess.individual.title")) }}
+{% endblock %}
+
+{% set panelH1 %}
+     {{ messages("deregistrationSuccess.individual.title") }}
+{% endset %}
+
+{% block mainContent %}
+
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+
+        {{ govukPanel({
+                titleText: panelH1
+        }) }}
+
+        <p class="govuk-body">{{messages("deregistrationSuccess.individual.p1")}}</p>
+
+        <p class="govuk-body"><a href="{{ submitUrl }}">{{ messages("site.exit") }}</a></p>
+
+      </div>
+    </div>
+
+{% endblock %}

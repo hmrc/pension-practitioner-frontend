@@ -16,7 +16,7 @@
 
 package connectors
 
-import audit.{AuditService, PSPEnrolment}
+import audit.{AuditService, DeenrolmentEvent, PSPEnrolment}
 import com.google.inject.{ImplementedBy, Singleton}
 import config.FrontendAppConfig
 import javax.inject.Inject
@@ -25,7 +25,7 @@ import models.requests.DataRequest
 import play.api.Logger
 import play.api.http.Status._
 import play.api.libs.json.{Json, Writes}
-import play.api.mvc.AnyContent
+import play.api.mvc.{AnyContent, RequestHeader}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -38,6 +38,9 @@ import scala.util.{Failure, Try}
 trait EnrolmentConnector {
   def enrol(enrolmentKey: String, knownFacts: KnownFacts)
            (implicit w: Writes[KnownFacts], hc: HeaderCarrier, executionContext: ExecutionContext, request: DataRequest[AnyContent]): Future[HttpResponse]
+
+  def deEnrol(groupId: String, pspId: String, userId: String)
+             (implicit hc: HeaderCarrier, ec: ExecutionContext, rh: RequestHeader): Future[HttpResponse]
 
 }
 
@@ -78,10 +81,35 @@ class EnrolmentConnectorImpl @Inject()(val http: HttpClient,
     }
   }
 
-
   private def logExceptions(knownFacts: KnownFacts): PartialFunction[Try[HttpResponse], Unit] = {
     case Failure(t: Throwable) =>
       Logger.error("Unable to connect to Tax Enrolments", t)
       Logger.debug(s"Known Facts: ${Json.toJson(knownFacts)}")
+  }
+
+  override def deEnrol(groupId: String, pspId: String, userId: String)
+             (implicit hc: HeaderCarrier, ec: ExecutionContext, rh: RequestHeader): Future[HttpResponse] = {
+    retryOnFailure(() => deEnrolmentRequest(groupId, pspId, userId), config)
+  } andThen {
+    logDeEnrolmentExceptions
+  }
+
+  private def deEnrolmentRequest(groupId: String, pspId: String, userId: String)
+                                (implicit hc: HeaderCarrier, ec: ExecutionContext, rh: RequestHeader): Future[HttpResponse] = {
+
+    val enrolmentKey = s"HMRC-PODSPP-ORG~PSPID~$pspId"
+    val deEnrolmentUrl = config.taxDeEnrolmentUrl.format(groupId, enrolmentKey)
+    http.DELETE[HttpResponse](deEnrolmentUrl) flatMap {
+      case response if response.status equals NO_CONTENT =>
+        auditService.sendEvent(DeenrolmentEvent(userId, pspId))
+        Future.successful(response)
+      case response =>
+        Future.failed(new HttpException(response.body, response.status))
+    }
+  }
+
+  private def logDeEnrolmentExceptions: PartialFunction[Try[HttpResponse], Unit] = {
+    case Failure(t: Throwable) =>
+      Logger.error("Unable to connect to Tax Enrolments to de enrol the PSA", t)
   }
 }
