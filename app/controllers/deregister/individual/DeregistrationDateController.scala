@@ -18,6 +18,7 @@ package controllers.deregister.individual
 
 import java.time.LocalDate
 
+import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import connectors.{DeregistrationConnector, EnrolmentConnector}
 import controllers.Retrievals
@@ -37,7 +38,8 @@ import uk.gov.hmrc.viewmodels.{DateInput, NunjucksSupport}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class DeregistrationDateController @Inject()(override val messagesApi: MessagesApi,
+class DeregistrationDateController @Inject()(config: FrontendAppConfig,
+                                             override val messagesApi: MessagesApi,
                                              userAnswersCacheConnector: UserAnswersCacheConnector,
                                              navigator: CompoundNavigator,
                                              authenticate: AuthAction,
@@ -59,7 +61,8 @@ class DeregistrationDateController @Inject()(override val messagesApi: MessagesA
           val json = Json.obj(
                     "form" -> preparedForm,
                     "submitUrl" -> routes.DeregistrationDateController.onSubmit().url,
-                    "date" -> DateInput.localDate(preparedForm("deregistrationDate"))
+                    "date" -> DateInput.localDate(preparedForm("deregistrationDate")),
+            "returnUrl" -> config.returnToPspDashboardUrl
                   )
           renderer.render("deregister/individual/deregistrationDate.njk", json).map(Ok(_))
 

@@ -623,7 +623,7 @@ amendConfirmation.title = Your pension scheme practitioner details have been upd
 amendConfirmation.return = Return to your practitioner dashboard
 
 confirmDeregister.company.error = Select yes if you want to stop the company or partnership being a pension scheme practitioner
-confirmDeregister.company.title = Are you sure you want to stop being a pension scheme administrator?
+confirmDeregister.company.title = Are you sure you want to stop being a pension scheme practitioner?
 confirmDeregister.company.heading = Are you sure you want to stop {0} being a pension scheme practitioner?
 confirmDeregister.company.p1 = {0} will no longer be able to access this service using this practitioner ID when it stops being a pension scheme practitioner.
 confirmDeregister.company.p2 = {0} will have to register as a pension scheme practitioner again if it needs a practitioner ID in the future.
@@ -644,7 +644,7 @@ deregistrationSuccess.company.heading = {0} is no longer a pension scheme practi
 deregistrationSuccess.company.p1 = {0} can no longer access the Managing Pension Schemes service using its practitioner ID.
 
 confirmDeregister.individual.error = Select yes if you want to stop being a pension scheme practitioner
-confirmDeregister.individual.title = Are you sure you want to stop being a pension scheme administrator?
+confirmDeregister.individual.title = Are you sure you want to stop being a pension scheme practitioner?
 confirmDeregister.individual.heading = Are you sure you want to stop being a pension scheme practitioner?
 confirmDeregister.individual.p1 = You will no longer be able to access this service using this practitioner ID when you stop being a pension scheme practitioner.
 confirmDeregister.individual.p2 = You will have to register as a pension scheme practitioner again if you need a practitioner ID in the future.

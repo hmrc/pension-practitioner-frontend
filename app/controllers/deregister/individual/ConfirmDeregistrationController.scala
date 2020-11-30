@@ -16,6 +16,7 @@
 
 package controllers.deregister.individual
 
+import config.FrontendAppConfig
 import connectors.DeregistrationConnector
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
@@ -34,7 +35,8 @@ import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ConfirmDeregistrationController @Inject()(override val messagesApi: MessagesApi,
+class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
+                                                override val messagesApi: MessagesApi,
                                                 userAnswersCacheConnector: UserAnswersCacheConnector,
                                                 navigator: CompoundNavigator,
                                                 authenticate: AuthAction,
@@ -58,7 +60,8 @@ class ConfirmDeregistrationController @Inject()(override val messagesApi: Messag
             val json = Json.obj(
               "form" -> form,
               "submitUrl" -> routes.ConfirmDeregistrationController.onSubmit().url,
-              "radios" -> Radios.yesNo(form("value"))
+              "radios" -> Radios.yesNo(form("value")),
+              "returnUrl" -> config.returnToPspDashboardUrl
             )
             renderer.render("deregister/individual/confirmDeregistration.njk", json).map(Ok(_))
 
