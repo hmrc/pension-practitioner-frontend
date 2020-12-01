@@ -49,7 +49,7 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
   private def onwardRoute = Call("GET", "/foo")
 
   private val formProvider = new ConfirmDeregistrationFormProvider()
-  private val form = formProvider()
+  private val form = formProvider("individual")
   private val pspName = "test-psp"
   private val mockMinimalConnector = mock[MinimalConnector]
   private val mockDeregistrationConnector = mock[DeregistrationConnector]

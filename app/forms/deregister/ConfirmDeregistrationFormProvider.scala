@@ -22,5 +22,5 @@ import play.api.data.Form
 
 class ConfirmDeregistrationFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[Boolean] = Form("value" -> boolean("confirmDeregister.company.error"))
+  def apply(pspType: String = "company"): Form[Boolean] = Form("value" -> boolean(s"confirmDeregister.$pspType.error"))
 }
