@@ -48,7 +48,7 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
                                                )(implicit ec: ExecutionContext) extends FrontendBaseController
                                                 with I18nSupport with NunjucksSupport with Retrievals {
 
-  private val form = formProvider()
+  private val form = formProvider("individual")
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData).async {
     implicit request =>
