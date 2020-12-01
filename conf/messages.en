@@ -21,6 +21,13 @@ site.finishAndSignOut = Finish and sign out
 site.continuePensionSchemes = Continue to your pension schemes
 site.return_to = Return to {0}
 site.return_to_dashboard = Return to dashboard
+site.return_to_overview = Return to dashboard
+site.view_schemes = View your pension schemes
+site.day.capitalized = Day
+site.month.capitalized = Month
+site.year.capitalized = Year
+site.date.example = For example, 31 3 2020
+site.exit = Exit to your Business Tax Account
 
 error.title.prefix = Error:
 error.summary.title = There is a problem
@@ -614,3 +621,39 @@ viewDetails.phone = {0}’s phone number
 
 amendConfirmation.title = Your pension scheme practitioner details have been updated
 amendConfirmation.return = Return to your practitioner dashboard
+
+confirmDeregister.company.error = Select yes if you want to stop the company or partnership being a pension scheme practitioner
+confirmDeregister.company.title = Are you sure you want to stop being a pension scheme practitioner?
+confirmDeregister.company.heading = Are you sure you want to stop {0} being a pension scheme practitioner?
+confirmDeregister.company.p1 = {0} will no longer be able to access this service using this practitioner ID when it stops being a pension scheme practitioner.
+confirmDeregister.company.p2 = {0} will have to register as a pension scheme practitioner again if it needs a practitioner ID in the future.
+
+cannotDeregister.title = You must deauthorise yourself from all open schemes first
+cannotDeregister.p1 = You cannot stop being a pension scheme practitioner until you deauthorise yourself from all open schemes you are currently a practitioner for.
+
+deregistrationDate.company.title = When did they stop being a pension scheme practitioner?
+deregistrationDate.company.heading = When did {0} stop being a pension scheme practitioner?
+deregistrationDate.company.p1 = {0} registered as a pension scheme practitioner on this service on {1}. The date it stopped must be between {1} and today.
+deregistrationDate.company.error.invalid = Enter a real date for the date  the company or partnership stopped being a pension scheme practitioner
+deregistrationDate.company.error.required.all = Enter a date the company or partnership stopped being a pension scheme practitioner
+deregistrationDate.company.error.required.two = The date the company or partnership stopped being a pension scheme practitioner must include a day, month and year
+deregistrationDate.company.error.futureDate = The date the company or partnership stopped being a pension scheme practitioner must be today or in the past.
+
+deregistrationSuccess.company.title = You are no longer a pension scheme practitioner
+deregistrationSuccess.company.heading = {0} is no longer a pension scheme practitioner
+deregistrationSuccess.company.p1 = {0} can no longer access the Managing Pension Schemes service using its practitioner ID.
+
+confirmDeregister.individual.error = Select yes if you want to stop being a pension scheme practitioner
+confirmDeregister.individual.title = Are you sure you want to stop being a pension scheme practitioner?
+confirmDeregister.individual.heading = Are you sure you want to stop being a pension scheme practitioner?
+confirmDeregister.individual.p1 = You will no longer be able to access this service using this practitioner ID when you stop being a pension scheme practitioner.
+confirmDeregister.individual.p2 = You will have to register as a pension scheme practitioner again if you need a practitioner ID in the future.
+
+deregistrationDate.individual.title = When did you stop being a pension scheme practitioner?
+deregistrationDate.individual.error.invalid = Enter a real date for the date you stopped being a pension scheme practitioner
+deregistrationDate.individual.error.required.all = Enter a date you stopped being a pension scheme practitioner
+deregistrationDate.individual.error.required.two = The date you stopped being a pension scheme practitioner must include a day, month and year
+deregistrationDate.individual.error.futureDate = The date you stopped being a pension scheme practitioner must be today or in the past.
+
+deregistrationSuccess.individual.title = You are no longer a pension scheme practitioner
+deregistrationSuccess.individual.p1 = You can no longer access the Managing Pension Schemes service using its practitioner ID.

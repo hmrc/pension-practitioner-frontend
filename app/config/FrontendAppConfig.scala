@@ -58,6 +58,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   lazy val pspSubscriptionUrl: String = s"$pspUrl${configuration.get[String]("urls.subscribePsp")}"
   lazy val subscriptionDetailsUrl: String = s"$pspUrl${configuration.get[String]("urls.pspDetails")}"
+  lazy val pspDeregistrationUrl: String = s"$pspUrl${configuration.get[String]("urls.deregisterPsp")}"
+  lazy val canDeregisterUrl: String = s"$pspUrl${configuration.get[String]("urls.canDeregister")}"
+  lazy val minimalDetailsUrl: String = s"$pspUrl${configuration.get[String]("urls.minimalDetails")}"
 
   lazy val emailApiUrl: String = servicesConfig.baseUrl("email")
   lazy val emailSendForce: Boolean = configuration.getOptional[Boolean]("email.force").getOrElse(false)
@@ -105,10 +108,11 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val returnToPensionSchemesUrl: String = configuration.get[String]("urls.pensionSchemesList")
   lazy val returnToOverviewUrl: String = configuration.get[String]("urls.overview")
   lazy val returnToPspDashboardUrl: String = configuration.get[String]("urls.pspDashboard")
+  lazy val pspListSchemesUrl: String = configuration.get[String]("urls.pspListSchemes")
 
   lazy val govUkUrl: String = configuration.get[String]("urls.govUK")
   lazy val taxEnrolmentsUrl: String = s"$enrolmentBase${configuration.get[String]("urls.tax-enrolments")}"
-
+  lazy val taxDeEnrolmentUrl: String = s"$enrolmentBase${configuration.get[String]("urls.tax-de-enrolment")}"
   lazy val retryAttempts: Int = configuration.getOptional[Int]("retry.max.attempts").getOrElse(1)
   lazy val retryWaitMs: Int = configuration.getOptional[Int]("retry.initial.wait.ms").getOrElse(1)
   lazy val retryWaitFactor: Double = configuration.getOptional[Double]("retry.wait.factor").getOrElse(1)

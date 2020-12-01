@@ -1,0 +1,59 @@
+{% extends "includes/layout.njk" %}
+
+{% from "govuk/components/back-link/macro.njk"     import govukBackLink %}
+{% from "govuk/components/date-input/macro.njk"    import govukDateInput %}
+{% from "govuk/components/button/macro.njk"        import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "macros/title.njk"                         import title %}
+
+{% block pageTitle %}
+  {{ title(messages("deregistrationDate.individual.title"), form.errors) }}
+{% endblock %}
+
+{% block mainContent %}
+
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+
+        <h1 class="govuk-heading-xl">
+              {{ messages("deregistrationDate.individual.title") }}
+            </h1>
+
+        {% if form.errors.length > 0 %}
+          {{ govukErrorSummary({
+            "titleText": messages("error.summary.title"),
+            "errorList": form.errors
+          }) }}
+        {% endif %}
+
+        <form action="{{ submitUrl }}" method="post" autocomplete="off">
+
+          {{ csrf() | safe }}
+            <p class="form-hint">{{ messages("site.date.example") }}</p>
+
+          {{ govukDateInput({
+                      id: "deregistrationDateWrapper",
+                      fieldset: {
+                        legend: {
+                          text: messages('deregistrationDate.individual.title'),
+                          isPageHeading: false,
+                          classes: "govuk-fieldset__legend--s govuk-visually-hidden"
+                        }
+                      },
+                      errorMessage: date.error,
+                      items: date.items
+                    }) }}
+
+          {{ govukButton({
+            text: messages("site.save_and_continue"),
+            attributes: {id: "submit"}
+          }) }}
+
+        </form>
+
+        <p class="govuk-body"><a href="{{ returnUrl }}">{{ messages("site.return_to_overview") }}</a></p>
+
+      </div>
+    </div>
+
+{% endblock %}

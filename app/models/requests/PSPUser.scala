@@ -25,9 +25,13 @@ case class PSPUser(userType: UserType,
                    existingPSPId: Option[String],
                    alreadyEnrolledPspId: Option[String] = None,
                    userId: String = ""
-                  )
+                  ){
+  def pspIdOrException: String = alreadyEnrolledPspId.getOrElse(throw PspIdNotFoundException)
+}
 
 object UserType extends Enumeration {
   type UserType = Value
   val Individual, Organisation = Value
 }
+
+case object PspIdNotFoundException extends Exception

@@ -3,7 +3,7 @@
 {% from "macros/title.njk"                         import title %}
 
 {% block pageTitle %}
-  {{ title(messages("agentCannotRegister.title")) }}
+  {{ title(messages("cannotDeregister.title")) }}
 {% endblock %}
 
 {% block mainContent %}
@@ -13,12 +13,11 @@
       <div class="govuk-grid-column-two-thirds">
 
         <h1 class="govuk-heading-xl">
-          {{ messages("agentCannotRegister.title") }}
+          {{ messages("cannotDeregister.title") }}
         </h1>
-        <p class="govuk-body">{{messages('agentCannotRegister.p1')}}</p>
-        <p class="govuk-body">{{messages('agentCannotRegister.p2')}}</p>
+        <p class="govuk-body">{{messages('cannotDeregister.p1')}}</p>
 
-        <a class="govuk-link" href="{{ config.returnToPspDashboardUrl }}">{{messages("site.exitToGovUk")}}</a>
+        <a class="govuk-link" href="{{ returnUrl }}">{{messages("site.view_schemes")}}</a>
 
       </div>
     </div>
