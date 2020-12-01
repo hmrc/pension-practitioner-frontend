@@ -85,6 +85,7 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
             renderer.render("deregister/individual/confirmDeregistration.njk", json).map(BadRequest(_))
           },
           value =>
+            
             for {
               updatedAnswers <- Future.fromTry(UserAnswers().set(ConfirmDeregistrationPage, value))
               _ <- userAnswersCacheConnector.save(updatedAnswers.data)

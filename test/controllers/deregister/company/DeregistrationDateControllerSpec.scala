@@ -17,7 +17,6 @@
 package controllers.deregister.company
 
 import java.time.LocalDate
-import java.time.LocalDate
 
 import connectors.EmailConnector
 import connectors.EmailSent
@@ -28,9 +27,6 @@ import controllers.base.ControllerSpecBase
 import forms.deregister.DeregistrationDateFormProvider
 import matchers.JsonMatchers
 import models.UserAnswers
-import models.WhatTypeBusiness
-import models.WhatTypeBusiness.Companyorpartnership
-import models.register.BusinessType
 import org.mockito.Matchers.any
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
@@ -42,12 +38,7 @@ import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
 import pages.PspEmailPage
 import pages.PspNamePage
-import pages.WhatTypeBusinessPage
-import pages.company.BusinessNamePage
-import pages.company.CompanyEmailPage
 import pages.deregister.DeregistrationDateCompanyPage
-import pages.register.AreYouUKCompanyPage
-import pages.register.BusinessTypePage
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind

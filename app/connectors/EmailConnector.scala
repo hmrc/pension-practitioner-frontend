@@ -66,7 +66,7 @@ class EmailConnector @Inject()(
 
     val sendEmailReq = SendEmailRequest(List(emailAddress), templateName, templateParams, appConfig.emailSendForce,
       callBackUrl(requestId, journeyType, pspId, emailAddress))
-
+println( "\n>>>EMAIOL=" + sendEmailReq)
     val jsonData = Json.toJson(sendEmailReq)
 
     http.POST[JsValue, HttpResponse](emailServiceUrl, jsonData).map { response =>
