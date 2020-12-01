@@ -21,9 +21,9 @@ import java.time.LocalDate
 import config.FrontendAppConfig
 import connectors.EmailConnector
 import connectors.EmailStatus
-import connectors.{EnrolmentConnector, DeregistrationConnector}
+import connectors.DeregistrationConnector
+import connectors.EnrolmentConnector
 import connectors.cache.UserAnswersCacheConnector
-import controllers.DataRetrievals
 import controllers.Retrievals
 import controllers.actions._
 import forms.deregister.DeregistrationDateFormProvider
@@ -31,18 +31,25 @@ import javax.inject.Inject
 import models.NormalMode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
+import pages.PspEmailPage
 import pages.PspNamePage
 import pages.deregister.DeregistrationDateCompanyPage
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.I18nSupport
+import play.api.i18n.Messages
+import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, DateInput}
+import uk.gov.hmrc.viewmodels.DateInput
+import uk.gov.hmrc.viewmodels.NunjucksSupport
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 class DeregistrationDateController @Inject()(config: FrontendAppConfig,
                                              override val messagesApi: MessagesApi,
@@ -80,7 +87,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
   def onSubmit: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       val pspId = request.user.pspIdOrException
-      DataRetrievals.retrievePspNameAndEmail { (pspName, email) =>
+      (PspNamePage and PspEmailPage).retrieve.right.map { case pspName ~ email =>
         form.bindFromRequest().fold(
           formWithErrors => {
             val json = Json.obj(

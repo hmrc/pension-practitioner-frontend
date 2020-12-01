@@ -40,6 +40,7 @@ import org.mockito.Matchers
 import org.scalatest.OptionValues
 import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
+import pages.PspEmailPage
 import pages.PspNamePage
 import pages.WhatTypeBusinessPage
 import pages.company.BusinessNamePage
@@ -81,11 +82,8 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
   private def submitUrl: String = routes.DeregistrationDateController.onSubmit().url
 
   private val ua: UserAnswers = UserAnswers()
-    .setOrException(WhatTypeBusinessPage, Companyorpartnership)
-    .setOrException(AreYouUKCompanyPage, true)
-    .setOrException(BusinessTypePage, BusinessType.BusinessPartnership)
-    .setOrException(BusinessNamePage, companyName)
-    .setOrException(CompanyEmailPage, email)
+    .setOrException(PspNamePage, companyName)
+    .setOrException(PspEmailPage, email)
 
   private val valuesValid: Map[String, Seq[String]] = Map(
     "deregistrationDate.day" -> Seq("3"),
@@ -175,12 +173,9 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       val pspId = "test psp id"
 
       val expectedJson = Json.obj(
-        WhatTypeBusinessPage.toString -> Companyorpartnership.toString,
-        BusinessNamePage.toString -> companyName,
+        PspNamePage.toString -> companyName,
         DeregistrationDateCompanyPage.toString -> "2020-04-03",
-        AreYouUKCompanyPage.toString -> true,
-        BusinessTypePage.toString -> BusinessType.BusinessPartnership.toString,
-        CompanyEmailPage.toString -> email
+        PspEmailPage.toString -> email
       )
       mutableFakeDataRetrievalAction.setDataToReturn(Some(ua))
       when(mockCompoundNavigator.nextPage(Matchers.eq(DeregistrationDateCompanyPage), any(), any())).thenReturn(dummyCall)
