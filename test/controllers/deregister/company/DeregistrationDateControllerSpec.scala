@@ -18,6 +18,8 @@ package controllers.deregister.company
 
 import java.time.LocalDate
 
+import audit.AuditService
+import audit.PSPDeregistrationEmail
 import connectors.EmailConnector
 import connectors.EmailSent
 import connectors.DeregistrationConnector
@@ -33,6 +35,8 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.when
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers
+import org.mockito.Mockito.doNothing
+import org.mockito.Mockito.reset
 import org.scalatest.OptionValues
 import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
@@ -65,6 +69,8 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
   private val mockDeregistrationConnector = mock[DeregistrationConnector]
   private val mockEnrolmentConnector = mock[EnrolmentConnector]
   private val mockEmailConnector: EmailConnector = mock[EmailConnector]
+  private val mockAuditService = mock[AuditService]
+
   private val email = "a@a.c"
   private val companyName = "acme"
   private val userAnswers: UserAnswers = UserAnswers().set(PspNamePage, companyName).toOption.value
@@ -100,13 +106,15 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
   def extraModules: Seq[GuiceableModule] = Seq(
     bind[DeregistrationConnector].toInstance(mockDeregistrationConnector),
     bind[EnrolmentConnector].toInstance(mockEnrolmentConnector),
-    bind[EmailConnector].toInstance(mockEmailConnector)
+    bind[EmailConnector].toInstance(mockEmailConnector),
+    bind[AuditService].toInstance(mockAuditService)
   )
 
   private val application: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction, extraModules).build()
   override def beforeEach: Unit = {
     super.beforeEach
+    reset(mockAuditService)
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockEnrolmentConnector.deEnrol(any(), any(), any())(any(), any(), any()))
       .thenReturn(Future.successful(HttpResponse(OK, "")))
@@ -114,6 +122,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       .thenReturn(Future.successful(HttpResponse(OK, "")))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
+    doNothing().when(mockAuditService).sendEvent(any())(any(), any())
   }
 
   "DeregistrationDate Controller" must {
@@ -159,7 +168,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       redirectLocation(result).value mustBe controllers.routes.SessionExpiredController.onPageLoad().url
     }
 
-    "Save data to user answers, redirect to next page when valid data is submitted and send email" in {
+    "Save data to user answers, redirect to next page when valid data is submitted and send email and email audit event" in {
       val templateId = "dummyTemplateId"
       val pspId = "test psp id"
 
@@ -180,10 +189,11 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
       verify(mockEmailConnector, times(1))
-        .sendEmail(any(), Matchers.eq(pspId), Matchers.eq("PSPDeregistration"), Matchers.eq(email), Matchers.eq(templateId), any())(any(), any())
+        .sendEmail(any(), Matchers.eq(pspId), Matchers.eq("PSPDeregistrationEmail"), Matchers.eq(email), Matchers.eq(templateId), any())(any(), any())
       jsonCaptor.getValue must containJson(expectedJson)
       redirectLocation(result) mustBe Some(dummyCall.url)
-
+      verify(mockAuditService, times(1))
+        .sendEvent(Matchers.eq(PSPDeregistrationEmail(pspId, email)))(any(), any())
     }
 
     "return a BAD REQUEST when invalid data is submitted" in {
@@ -194,15 +204,15 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
 
       verify(mockUserAnswersCacheConnector, times(0)).save(any())(any(), any())
     }
-    //
-    //"redirect to Session Expired page for a POST when there is no data" in {
-    //  mutableFakeDataRetrievalAction.setDataToReturn(None)
-    //
-    //  val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
-    //
-    //  status(result) mustEqual SEE_OTHER
-    //
-    //  redirectLocation(result).value mustBe controllers.routes.SessionExpiredController.onPageLoad().url
-    //}
+
+    "redirect to Session Expired page for a POST when there is no data" in {
+      mutableFakeDataRetrievalAction.setDataToReturn(None)
+
+      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+
+      status(result) mustEqual SEE_OTHER
+
+      redirectLocation(result).value mustBe controllers.routes.SessionExpiredController.onPageLoad().url
+    }
   }
 }

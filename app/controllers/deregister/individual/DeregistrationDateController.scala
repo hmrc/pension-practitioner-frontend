@@ -18,6 +18,9 @@ package controllers.deregister.individual
 
 import java.time.LocalDate
 
+import audit.AuditService
+import audit.PSPAmendment
+import audit.PSPDeregistrationEmail
 import config.FrontendAppConfig
 import connectors.EmailConnector
 import connectors.EmailStatus
@@ -56,7 +59,8 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
                                              enrolmentConnector: EnrolmentConnector,
                                              val controllerComponents: MessagesControllerComponents,
                                              renderer: Renderer,
-                                             emailConnector: EmailConnector
+                                             emailConnector: EmailConnector,
+                                             auditService: AuditService
                                                )(implicit ec: ExecutionContext)
   extends FrontendBaseController with Retrievals with I18nSupport with NunjucksSupport {
 
@@ -111,6 +115,9 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
       email,
       templateName = config.emailPspDeregistrationTemplateId,
       templateParams = Map("pspName" -> pspName)
-    )
+    ).map { status =>
+        auditService.sendEvent(PSPDeregistrationEmail(pspId, email))
+        status
+    }
 
 }

@@ -18,6 +18,8 @@ package controllers.deregister.individual
 
 import java.time.LocalDate
 
+import audit.AuditService
+import audit.PSPDeregistrationEmail
 import connectors.EmailConnector
 import connectors.EmailSent
 import connectors.{EnrolmentConnector, DeregistrationConnector}
@@ -27,6 +29,8 @@ import forms.deregister.DeregistrationDateFormProvider
 import matchers.JsonMatchers
 import models.UserAnswers
 import org.mockito.Matchers.any
+import org.mockito.Mockito.doNothing
+import org.mockito.Mockito.reset
 import org.mockito.Mockito.{times, when, verify}
 import org.mockito.{Matchers, ArgumentCaptor}
 import org.scalatest.{OptionValues, TryValues}
@@ -59,6 +63,8 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
   private val mockDeregistrationConnector = mock[DeregistrationConnector]
   private val mockEnrolmentConnector = mock[EnrolmentConnector]
   private val mockEmailConnector: EmailConnector = mock[EmailConnector]
+
+  private val mockAuditService = mock[AuditService]
 
   private val email = "a@a.c"
 
@@ -94,7 +100,8 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
   def extraModules: Seq[GuiceableModule] = Seq(
     bind[DeregistrationConnector].toInstance(mockDeregistrationConnector),
     bind[EnrolmentConnector].toInstance(mockEnrolmentConnector),
-    bind[EmailConnector].toInstance(mockEmailConnector)
+    bind[EmailConnector].toInstance(mockEmailConnector),
+    bind[AuditService].toInstance(mockAuditService)
   )
 
   private val application: Application =
@@ -102,6 +109,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
 
   override def beforeEach: Unit = {
     super.beforeEach
+    reset(mockAuditService)
     mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
     when(mockEnrolmentConnector.deEnrol(any(), any(), any())(any(), any(), any()))
       .thenReturn(Future.successful(HttpResponse(OK, "")))
@@ -109,6 +117,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       .thenReturn(Future.successful(HttpResponse(OK, "")))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
+    doNothing().when(mockAuditService).sendEvent(any())(any(), any())
   }
 
   "DeregistrationDate Controller" must {
@@ -154,7 +163,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       redirectLocation(result).value mustBe controllers.routes.SessionExpiredController.onPageLoad().url
     }
 
-    "Save data to user answers, redirect to next page when valid data is submitted and send email" in {
+    "Save data to user answers, redirect to next page when valid data is submitted and send email and email audit event" in {
       val templateId = "dummyTemplateId"
       val pspId = "test psp id"
 
@@ -175,9 +184,11 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
       verify(mockEmailConnector, times(1))
-        .sendEmail(any(), Matchers.eq(pspId), Matchers.eq("PSPDeregistration"), Matchers.eq(email), Matchers.eq(templateId), any())(any(), any())
+        .sendEmail(any(), Matchers.eq(pspId), Matchers.eq("PSPDeregistrationEmail"), Matchers.eq(email), Matchers.eq(templateId), any())(any(), any())
       jsonCaptor.getValue must containJson(expectedJson)
       redirectLocation(result) mustBe Some(dummyCall.url)
+      verify(mockAuditService, times(1))
+        .sendEvent(Matchers.eq(PSPDeregistrationEmail(pspId, email)))(any(), any())
     }
 
     "return a BAD REQUEST when invalid data is submitted" in {
