@@ -159,7 +159,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       redirectLocation(result).value mustBe controllers.routes.SessionExpiredController.onPageLoad().url
     }
 
-    "Save data to user answers and redirect to next page when valid data is submitted and send email" in {
+    "Save data to user answers, redirect to next page when valid data is submitted and send email" in {
       val templateId = "dummyTemplateId"
       val pspId = "test psp id"
 

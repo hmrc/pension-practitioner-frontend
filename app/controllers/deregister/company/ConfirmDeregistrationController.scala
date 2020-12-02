@@ -71,17 +71,12 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
                       "returnUrl" -> config.returnToPspDashboardUrl
                     )
 
-                  val updatedAnswers = UserAnswers()
-                    .setOrException(PspNamePage, name)
-                    .setOrException(PspEmailPage, email)
+                    val updatedAnswers = UserAnswers()
+                      .setOrException(PspNamePage, name)
+                      .setOrException(PspEmailPage, email)
 
-                    renderer.render("deregister/company/confirmDeregistration.njk", json).flatMap { view =>
-                      for {
-                        _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-                      } yield {
-                        Ok(view)
-                      }
-                    }
+                    renderer.render("deregister/company/confirmDeregistration.njk", json)
+                      .flatMap( view => userAnswersCacheConnector.save(updatedAnswers.data).map( _ => Ok(view)))
 
                 case _ => sessionExpired
               }
@@ -116,5 +111,5 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
       }
   }
 
-  val sessionExpired: Future[Result] = Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+  private val sessionExpired: Future[Result] = Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
 }
