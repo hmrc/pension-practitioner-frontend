@@ -189,7 +189,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
       verify(mockEmailConnector, times(1))
-        .sendEmail(any(), Matchers.eq(pspId), Matchers.eq("PSPDeregistrationEmail"), Matchers.eq(email), Matchers.eq(templateId), any())(any(), any())
+        .sendEmail(any(), Matchers.eq(pspId), Matchers.eq("PSPDeregistration"), Matchers.eq(email), Matchers.eq(templateId), any())(any(), any())
       jsonCaptor.getValue must containJson(expectedJson)
       redirectLocation(result) mustBe Some(dummyCall.url)
       verify(mockAuditService, times(1))
