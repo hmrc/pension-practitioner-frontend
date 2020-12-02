@@ -19,6 +19,7 @@ package controllers.deregister.company
 import java.time.LocalDate
 
 import audit.AuditService
+import audit.PSPDeregistration
 import audit.PSPDeregistrationEmail
 import connectors.EmailConnector
 import connectors.EmailSent
@@ -168,7 +169,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       redirectLocation(result).value mustBe controllers.routes.SessionExpiredController.onPageLoad().url
     }
 
-    "Save data to user answers, redirect to next page when valid data is submitted and send email and email audit event" in {
+    "Save data to user answers, redirect to next page when valid data is submitted and send email, audit event and email audit event" in {
       val templateId = "dummyTemplateId"
       val pspId = "test psp id"
 
@@ -194,6 +195,8 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       redirectLocation(result) mustBe Some(dummyCall.url)
       verify(mockAuditService, times(1))
         .sendEvent(Matchers.eq(PSPDeregistrationEmail(pspId, email)))(any(), any())
+      verify(mockAuditService, times(1))
+        .sendEvent(Matchers.eq(PSPDeregistration(pspId)))(any(), any())
     }
 
     "return a BAD REQUEST when invalid data is submitted" in {

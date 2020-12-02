@@ -19,6 +19,7 @@ package controllers.deregister.company
 import java.time.LocalDate
 
 import audit.AuditService
+import audit.PSPDeregistration
 import audit.PSPDeregistrationEmail
 import config.FrontendAppConfig
 import connectors.EmailConnector
@@ -108,6 +109,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
               updatedAnswers <- Future.fromTry(request.userAnswers.set(DeregistrationDateCompanyPage, value))
               _ <- userAnswersCacheConnector.save(updatedAnswers.data)
               _ <- deregistrationConnector.deregister(pspId, value)
+              _ <- Future(auditService.sendEvent(PSPDeregistration(pspId)))
               _ <- enrolmentConnector.deEnrol(request.user.userId, pspId, request.externalId)
               _ <- sendEmail(email, pspId, pspName)
             } yield Redirect(navigator.nextPage(DeregistrationDateCompanyPage, NormalMode, updatedAnswers))
