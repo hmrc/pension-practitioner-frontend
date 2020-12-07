@@ -29,7 +29,7 @@
         <form action="{{ submitUrl }}" method="post" autocomplete="off">
 
           {{ csrf() | safe }}
-            <p class="form-hint">{{ messages("site.date.example") }}</p>
+            <p class="govuk-body">{{ messages("site.date.example") }}</p>
 
           {{ govukDateInput({
                       id: "deregistrationDateWrapper",
