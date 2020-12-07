@@ -21,7 +21,6 @@
             "errorList": form.errors
           }) }}
         {% endif %}
-
         <h1 class="govuk-heading-xl">
               {{ messages("deregistrationDate.individual.title") }}
             </h1>
@@ -29,7 +28,6 @@
         <form action="{{ submitUrl }}" method="post" autocomplete="off">
 
           {{ csrf() | safe }}
-            <p class="govuk-body">{{ messages("site.date.example") }}</p>
 
           {{ govukDateInput({
                       id: "deregistrationDateWrapper",
@@ -39,6 +37,9 @@
                           isPageHeading: false,
                           classes: "govuk-fieldset__legend--s govuk-visually-hidden"
                         }
+                      },
+                     hint: {
+                        text: messages("site.date.example")
                       },
                       errorMessage: date.error,
                       items: date.items
