@@ -19,18 +19,18 @@ package controllers.partnership
 import connectors.{EmailConnector, EmailSent, EnrolmentConnector, SubscriptionConnector}
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
+import data.SampleData
 import matchers.JsonMatchers
-import models.WhatTypeBusiness.Companyorpartnership
-import models.register.BusinessType
+import models.register.RegistrationLegalStatus
 import models.{ExistingPSP, KnownFact, KnownFacts, UserAnswers}
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{PspIdPage, WhatTypeBusinessPage}
 import pages.partnership.{BusinessNamePage, DeclarationPage, PartnershipEmailPage}
-import pages.register.{AreYouUKCompanyPage, BusinessTypePage, ExistingPSPPage}
+import pages.register.ExistingPSPPage
+import pages.{PspIdPage, RegistrationInfoPage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
@@ -119,10 +119,8 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
         .thenReturn(Future.successful(EmailSent))
       when(mockAppConfig.emailPspSubscriptionTemplateId).thenReturn(templateId)
       val ua = UserAnswers()
-          .setOrException(WhatTypeBusinessPage, Companyorpartnership)
-          .setOrException(AreYouUKCompanyPage, true)
-          .setOrException(BusinessTypePage, BusinessType.LimitedCompany)
-          .setOrException(BusinessNamePage, companyName)
+        .setOrException(RegistrationInfoPage, SampleData.registrationInfo(RegistrationLegalStatus.Partnership))
+        .setOrException(BusinessNamePage, companyName)
           .setOrException(PartnershipEmailPage, email)
       when(mockEnrolmentConnector.enrol(any(), any())(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse.apply(NO_CONTENT, "")))
