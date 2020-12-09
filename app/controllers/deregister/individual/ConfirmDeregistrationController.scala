@@ -18,6 +18,7 @@ package controllers.deregister.individual
 
 import config.FrontendAppConfig
 import connectors.DeregistrationConnector
+import connectors.MinimalConnector
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
@@ -25,15 +26,18 @@ import forms.deregister.ConfirmDeregistrationFormProvider
 import javax.inject.Inject
 import models.{NormalMode, UserAnswers}
 import navigators.CompoundNavigator
+import pages.PspEmailPage
+import pages.PspNamePage
 import pages.deregister.ConfirmDeregistrationPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.Result
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
                                                 override val messagesApi: MessagesApi,
@@ -41,9 +45,11 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
                                                 navigator: CompoundNavigator,
                                                 authenticate: AuthAction,
                                                 getData: DataRetrievalAction,
+                                                requireData: DataRequiredAction,
                                                 formProvider: ConfirmDeregistrationFormProvider,
                                                 val controllerComponents: MessagesControllerComponents,
                                                 deregistrationConnector: DeregistrationConnector,
+                                                minimalConnector: MinimalConnector,
                                                 renderer: Renderer
                                                )(implicit ec: ExecutionContext) extends FrontendBaseController
                                                 with I18nSupport with NunjucksSupport with Retrievals {
@@ -52,26 +58,34 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData).async {
     implicit request =>
-
       request.user.alreadyEnrolledPspId.map { pspId =>
         deregistrationConnector.canDeRegister(pspId).flatMap {
           case true =>
+            minimalConnector.getMinimalPspDetails(pspId).flatMap { minimalDetails =>
+                (minimalDetails.name, minimalDetails.email) match {
+                  case (Some(name), email) =>
+                    val json = Json.obj(
+                      "form" -> form,
+                      "submitUrl" -> routes.ConfirmDeregistrationController.onSubmit().url,
+                      "radios" -> Radios.yesNo(form("value")),
+                      "returnUrl" -> config.returnToPspDashboardUrl
+                    )
 
-            val json = Json.obj(
-              "form" -> form,
-              "submitUrl" -> routes.ConfirmDeregistrationController.onSubmit().url,
-              "radios" -> Radios.yesNo(form("value")),
-              "returnUrl" -> config.returnToPspDashboardUrl
-            )
-            renderer.render("deregister/individual/confirmDeregistration.njk", json).map(Ok(_))
-
+                    val updatedAnswers = UserAnswers()
+                      .setOrException(PspNamePage, name)
+                      .setOrException(PspEmailPage, email)
+                    renderer.render("deregister/individual/confirmDeregistration.njk", json)
+                      .flatMap( view => userAnswersCacheConnector.save(updatedAnswers.data).map( _ => Ok(view)))
+                  case _ => sessionExpired
+                }
+              }
           case false =>
             Future.successful(Redirect(controllers.deregister.routes.CannotDeregisterController.onPageLoad()))
         }
-      }.getOrElse(Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad())))
+      }.getOrElse(sessionExpired)
   }
 
-  def onSubmit: Action[AnyContent] = (authenticate andThen getData).async {
+  def onSubmit: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
 
         form.bindFromRequest().fold(
@@ -86,10 +100,11 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
           },
           value =>
             for {
-              updatedAnswers <- Future.fromTry(UserAnswers().set(ConfirmDeregistrationPage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(ConfirmDeregistrationPage, value))
               _ <- userAnswersCacheConnector.save(updatedAnswers.data)
             } yield Redirect(navigator.nextPage(ConfirmDeregistrationPage, NormalMode, updatedAnswers))
         )
   }
 
+  private val sessionExpired: Future[Result] = Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
 }

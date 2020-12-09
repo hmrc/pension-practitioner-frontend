@@ -65,6 +65,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val emailApiUrl: String = servicesConfig.baseUrl("email")
   lazy val emailSendForce: Boolean = configuration.getOptional[Boolean]("email.force").getOrElse(false)
   lazy val emailPspSubscriptionTemplateId: String = configuration.get[String]("email.pspSubscriptionTemplateId")
+  lazy val emailPspDeregistrationTemplateId: String = configuration.get[String]("email.pspDeregistrationTemplateId")
   lazy val emailPspAmendmentTemplateId: String = configuration.get[String]("email.pspAmendmentTemplateId")
 
   def emailCallback(journeyType: String, requestId: String, encryptedEmail: String, encryptedPspId: String) =
