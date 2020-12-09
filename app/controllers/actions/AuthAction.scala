@@ -54,7 +54,7 @@ abstract class AuthenticatedAuthActionWithIV @Inject()(override val authConnecto
 )
   (implicit val executionContext: ExecutionContext) extends AuthAction with AuthorisedFunctions {
 
-  protected def enrolmentsRedirect(enrolments:Enrolments): Option[Result]
+  protected def enrolmentsRedirect[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result]
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
@@ -82,10 +82,7 @@ abstract class AuthenticatedAuthActionWithIV @Inject()(override val authConnecto
     } recover handleFailure
   }
 
-  /*
-      If enrolled but on register page: Future.successful(Redirect(controllers.routes.AlreadyRegisteredController.onPageLoad()))
-      If not enrolled but on a non-register page: Redirect to manage you-need-to-register page (config.youNeedToRegisterUrl)
-   */
+
 
   protected def allowAccess[A](externalId: String, affinityGroup: AffinityGroup, cl: ConfidenceLevel,
     enrolments: Enrolments, role: CredentialRole, authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
@@ -96,7 +93,7 @@ abstract class AuthenticatedAuthActionWithIV @Inject()(override val authConnecto
       case (AffinityGroup.Individual, _) => Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
       case (AffinityGroup.Organisation, Assistant) => Future.successful(Redirect(controllers.routes.AssistantNoAccessController.onPageLoad()))
       case (AffinityGroup.Organisation, _) =>
-        enrolmentsRedirect(enrolments) match {
+        enrolmentsRedirect(authRequest) match {
           case Some(redirect) => Future.successful(redirect)
           case _ =>
             getData(AreYouUKResidentPage).flatMap {
@@ -234,7 +231,7 @@ class AuthenticatedAuthActionWithNoIV @Inject()(override val authConnector: Auth
   AuthenticatedAuthActionWithIV(authConnector, config, userAnswersCacheConnector, identityVerificationConnector, parser)
 
   with AuthorisedFunctions {
-  override protected def enrolmentsRedirect(enrolments:Enrolments): Option[Result] = None
+  override protected def enrolmentsRedirect[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] = None
   override def allowAccess[A](externalId: String, affinityGroup: AffinityGroup, cl: ConfidenceLevel,
     enrolments: Enrolments, role: CredentialRole, authRequest: => AuthenticatedRequest[A],
     block: AuthenticatedRequest[A] => Future[Result])
@@ -250,8 +247,8 @@ class AuthenticatedAuthActionWithIVNoEnrolment @Inject()(override val authConnec
   AuthenticatedAuthActionWithIV(authConnector, config, userAnswersCacheConnector, identityVerificationConnector, parser)
 
   with AuthorisedFunctions {
-  override protected def enrolmentsRedirect(enrolments:Enrolments): Option[Result] = {
-    None
+  override protected def enrolmentsRedirect[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] = {
+    authenticatedRequest.user.alreadyEnrolledPspId.map(_ => Redirect(controllers.routes.AlreadyRegisteredController.onPageLoad()))
   }
 }
 
@@ -263,7 +260,10 @@ class AuthenticatedAuthActionWithIVEnrolment @Inject()(override val authConnecto
 )(implicit executionContext: ExecutionContext) extends
   AuthenticatedAuthActionWithIV(authConnector, config, userAnswersCacheConnector, identityVerificationConnector, parser)
   with AuthorisedFunctions {
-  override protected def enrolmentsRedirect(enrolments:Enrolments): Option[Result] = {
-    None
+  override protected def enrolmentsRedirect[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] = {
+    authenticatedRequest.user.alreadyEnrolledPspId match {
+      case Some(_) => None
+      case _ => Some(Redirect(config.youNeedToRegisterUrl))
+    }
   }
 }
