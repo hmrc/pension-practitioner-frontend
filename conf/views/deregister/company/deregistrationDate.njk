@@ -22,10 +22,6 @@
           }) }}
         {% endif %}
 
-        <h1 class="govuk-heading-xl">
-              {{ messages("deregistrationDate.company.heading", pspName) }}
-            </h1>
-
         <form action="{{ submitUrl }}" method="post" autocomplete="off">
 
           {{ csrf() | safe }}
@@ -33,9 +29,9 @@
                       id: "deregistrationDateWrapper",
                       fieldset: {
                         legend: {
-                          text: messages('deregistrationDate.company.title'),
-                          isPageHeading: false,
-                          classes: "govuk-fieldset__legend--s govuk-visually-hidden"
+                          text: messages("deregistrationDate.company.heading", pspName),
+                          isPageHeading: true,
+                          classes: "govuk-label--xl"
                         }
                       },
                         hint: {
@@ -52,7 +48,7 @@
 
         </form>
 
-        <p class="govuk-body"><a href="{{ returnUrl }}">{{ messages("site.return_to", pspName) }}</a></p>
+        <p class="govuk-body"><a href="{{ returnUrl }}" class="govuk-link">{{ messages("site.return_to", pspName) }}</a></p>
 
       </div>
     </div>
