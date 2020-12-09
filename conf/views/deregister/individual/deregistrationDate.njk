@@ -21,9 +21,6 @@
             "errorList": form.errors
           }) }}
         {% endif %}
-        <h1 class="govuk-heading-xl">
-              {{ messages("deregistrationDate.individual.title") }}
-            </h1>
 
         <form action="{{ submitUrl }}" method="post" autocomplete="off">
 
@@ -34,8 +31,8 @@
                       fieldset: {
                         legend: {
                           text: messages('deregistrationDate.individual.title'),
-                          isPageHeading: false,
-                          classes: "govuk-fieldset__legend--s govuk-visually-hidden"
+                          isPageHeading: true,
+                          classes: "govuk-label--xl"
                         }
                       },
                      hint: {
@@ -52,7 +49,7 @@
 
         </form>
 
-        <p class="govuk-body"><a href="{{ returnUrl }}">{{ messages("site.return_to_overview") }}</a></p>
+        <p class="govuk-body"><a href="{{ returnUrl }}" class="govuk-link">{{ messages("site.return_to_overview") }}</a></p>
 
       </div>
     </div>

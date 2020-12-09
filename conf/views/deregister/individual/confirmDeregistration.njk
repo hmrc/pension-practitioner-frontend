@@ -23,7 +23,7 @@
         {% endif %}
 
         <h1 class="govuk-heading-xl">
-              {{ messages("confirmDeregister.company.title") }}
+              {{ messages("confirmDeregister.individual.title") }}
             </h1>
 
          <p class="govuk-body">{{ messages("confirmDeregister.individual.p1") }}</p>
@@ -39,7 +39,7 @@
             name: 'value',
             fieldset: {
               legend: {
-                text: messages("confirmDeregister.company.heading"),
+                text: messages("confirmDeregister.individual.heading"),
                 isPageHeading: false,
                 classes: "govuk-visually-hidden"
               }
@@ -55,7 +55,7 @@
 
         </form>
 
-        <p class="govuk-body"><a href="{{ returnUrl }}">{{ messages("site.return_to_overview") }}</a></p>
+        <p class="govuk-body"><a href="{{ returnUrl }}" class="govuk-link">{{ messages("site.return_to_overview") }}</a></p>
 
       </div>
     </div>
