@@ -47,7 +47,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
     Mockito.reset(mockUserAnswersCacheConnector, authConnector, mockIVConnector)
   }
 
-  "Auth Action AuthenticatedAuthActionWithIVEnrolment" when {
+  "Auth Action AuthenticatedAuthActionWithIVEnrolmentRequired" when {
     "called for already enrolled User" must {
       "return OK" when {
         "coming from any page" in {
@@ -339,7 +339,7 @@ object AuthActionSpec extends SpecBase with MockitoSugar {
   private val authConnector: AuthConnector = mock[AuthConnector]
   private val bodyParsers: BodyParsers.Default = app.injector.instanceOf[BodyParsers.Default]
 
-  val authActionWithIVEnrolment = new AuthenticatedAuthActionWithIVEnrolment(
+  val authActionWithIVEnrolment = new AuthenticatedAuthActionWithIVEnrolmentRequired(
     authConnector, frontendAppConfig,
     mockUserAnswersCacheConnector, mockIVConnector, bodyParsers
   )

@@ -35,7 +35,7 @@ class Module extends AbstractModule {
     bind(classOf[DataRetrievalAction]).to(classOf[DataRetrievalActionImpl]).asEagerSingleton()
     bind(classOf[DataRequiredAction]).to(classOf[DataRequiredActionImpl]).asEagerSingleton()
 
-    bind(classOf[AuthAction]).to(classOf[AuthenticatedAuthActionWithIVEnrolment]).asEagerSingleton()
+    bind(classOf[AuthAction]).to(classOf[AuthenticatedAuthActionWithIVEnrolmentRequired]).asEagerSingleton()
     bind(classOf[AuthAction]).annotatedWith(classOf[AuthWithIVNoEnrolment]).to(classOf[AuthenticatedAuthActionWithIVNoEnrolment]).asEagerSingleton()
     bind(classOf[AuthAction]).annotatedWith(classOf[AuthWithNoIV]).to(classOf[AuthenticatedAuthActionWithNoIV]).asEagerSingleton()
 

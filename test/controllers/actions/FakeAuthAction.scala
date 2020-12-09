@@ -16,7 +16,7 @@
 
 package controllers.actions
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import models.requests.AuthenticatedRequest
 import models.requests.PSPUser
 import models.requests.UserType
@@ -44,6 +44,24 @@ case class FakeAuthAction @Inject()(bodyParsers: PlayBodyParsers) extends AuthAc
       AuthenticatedRequest(
         request, "id",
         PSPUser(defaultUserType, Some(Nino("AB100100A")), isExistingPSP = false, None, Some(defaultPspId))
+      )
+    )
+  override def parser: BodyParser[AnyContent] =
+    bodyParsers.default
+}
+
+case class FakeAuthActionNoEnrolment @Inject()(bodyParsers: PlayBodyParsers) extends AuthAction {
+  private val defaultUserType: UserType = UserType.Organisation
+  implicit val executionContext: ExecutionContextExecutor =
+    scala.concurrent.ExecutionContext.Implicits.global
+  override def invokeBlock[A](
+    request: Request[A],
+    block: AuthenticatedRequest[A] => Future[Result]
+  ): Future[Result] =
+    block(
+      AuthenticatedRequest(
+        request, "id",
+        PSPUser(defaultUserType, Some(Nino("AB100100A")), isExistingPSP = false, None, None)
       )
     )
   override def parser: BodyParser[AnyContent] =

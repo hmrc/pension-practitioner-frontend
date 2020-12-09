@@ -78,11 +78,8 @@ abstract class AuthenticatedAuthActionWithIV @Inject()(override val authConnecto
         )
       case _ =>
         Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
-
     } recover handleFailure
   }
-
-
 
   protected def allowAccess[A](externalId: String, affinityGroup: AffinityGroup, cl: ConfidenceLevel,
     enrolments: Enrolments, role: CredentialRole, authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
@@ -252,7 +249,7 @@ class AuthenticatedAuthActionWithIVNoEnrolment @Inject()(override val authConnec
   }
 }
 
-class AuthenticatedAuthActionWithIVEnrolment @Inject()(override val authConnector: AuthConnector,
+class AuthenticatedAuthActionWithIVEnrolmentRequired @Inject()(override val authConnector: AuthConnector,
   config: FrontendAppConfig,
   userAnswersCacheConnector: UserAnswersCacheConnector,
   identityVerificationConnector: IdentityVerificationConnector,
