@@ -16,30 +16,31 @@
 
 package controllers.amend
 
-import audit.{AuditService, PSPAmendment}
+import audit.{PSPAmendment, AuditService}
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import connectors.{EmailConnector, SubscriptionConnector}
+import connectors.{SubscriptionConnector, EmailConnector}
 import controllers.actions._
-import controllers.{DataRetrievals, Retrievals}
+import controllers.{Retrievals, DataRetrievals}
 import javax.inject.Inject
 import models.requests.DataRequest
 import pages.PspIdPage
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.annotations.AuthWithIVEnrolmentRequired
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 class DeclarationController @Inject()(
                                       override val messagesApi: MessagesApi,
                                       subscriptionConnector: SubscriptionConnector,
                                       userAnswersCacheConnector: UserAnswersCacheConnector,
-                                      authenticate: AuthAction,
+                                      @AuthWithIVEnrolmentRequired authenticate: AuthAction,
                                       getData: DataRetrievalAction,
                                       requireData: DataRequiredAction,
                                       val controllerComponents: MessagesControllerComponents,

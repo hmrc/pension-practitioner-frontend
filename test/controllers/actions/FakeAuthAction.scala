@@ -67,3 +67,4 @@ case class FakeAuthActionNoEnrolment @Inject()(bodyParsers: PlayBodyParsers) ext
   override def parser: BodyParser[AnyContent] =
     bodyParsers.default
 }
+

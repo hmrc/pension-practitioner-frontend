@@ -19,7 +19,7 @@ package controllers.deregister.company
 import java.time.LocalDate
 
 import config.FrontendAppConfig
-import connectors.{DeregistrationConnector, EnrolmentConnector}
+import connectors.{EnrolmentConnector, DeregistrationConnector}
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
@@ -32,18 +32,19 @@ import pages.deregister.DeregistrationDateCompanyPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.{DateInput, NunjucksSupport}
+import uk.gov.hmrc.viewmodels.{NunjucksSupport, DateInput}
+import utils.annotations.AuthWithIVEnrolmentRequired
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 class DeregistrationDateController @Inject()(config: FrontendAppConfig,
                                              override val messagesApi: MessagesApi,
                                              userAnswersCacheConnector: UserAnswersCacheConnector,
                                              navigator: CompoundNavigator,
-                                             authenticate: AuthAction,
+                                             @AuthWithIVEnrolmentRequired authenticate: AuthAction,
                                              getData: DataRetrievalAction,
                                              requireData: DataRequiredAction,
                                              formProvider: DeregistrationDateFormProvider,

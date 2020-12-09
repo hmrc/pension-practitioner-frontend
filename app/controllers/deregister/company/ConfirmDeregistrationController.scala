@@ -18,7 +18,7 @@ package controllers.deregister.company
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import connectors.{DeregistrationConnector, MinimalConnector}
+import connectors.{MinimalConnector, DeregistrationConnector}
 import controllers.Retrievals
 import controllers.actions._
 import forms.deregister.ConfirmDeregistrationFormProvider
@@ -29,18 +29,19 @@ import pages.PspNamePage
 import pages.deregister.ConfirmDeregistrationCompanyPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import utils.annotations.AuthWithIVEnrolmentRequired
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
                                                 override val messagesApi: MessagesApi,
                                                 userAnswersCacheConnector: UserAnswersCacheConnector,
                                                 navigator: CompoundNavigator,
-                                                authenticate: AuthAction,
+                                                @AuthWithIVEnrolmentRequired authenticate: AuthAction,
                                                 getData: DataRetrievalAction,
                                                 requireData: DataRequiredAction,
                                                 formProvider: ConfirmDeregistrationFormProvider,

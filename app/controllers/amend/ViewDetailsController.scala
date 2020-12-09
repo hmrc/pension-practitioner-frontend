@@ -19,14 +19,15 @@ package controllers.amend
 import com.google.inject.Inject
 import controllers.actions.{AuthAction, DataRetrievalAction}
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import services.PspDetailsService
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
+import utils.annotations.AuthWithIVEnrolmentRequired
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
-class ViewDetailsController @Inject()(authenticate: AuthAction,
+class ViewDetailsController @Inject()(@AuthWithIVEnrolmentRequired authenticate: AuthAction,
                                      getData: DataRetrievalAction,
                                      pspDetailsService: PspDetailsService,
                                      renderer: Renderer,
