@@ -41,19 +41,9 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 
   import AuthActionSpec._
 
-  private val mockUserAnswersCacheConnector: UserAnswersCacheConnector = mock[UserAnswersCacheConnector]
-  private val mockIVConnector: IdentityVerificationConnector = mock[IdentityVerificationConnector]
-  private val authConnector: AuthConnector = mock[AuthConnector]
-  private val bodyParsers: BodyParsers.Default = app.injector.instanceOf[BodyParsers.Default]
-
   override def beforeEach: Unit = {
-    Mockito.reset(mockUserAnswersCacheConnector)
+    Mockito.reset(mockUserAnswersCacheConnector, authConnector, mockIVConnector)
   }
-
-  val authAction = new AuthenticatedAuthActionWithIV(authConnector, frontendAppConfig,
-    mockUserAnswersCacheConnector, mockIVConnector, bodyParsers)
-
-  val controller = new Harness(authAction)
 
   "Auth Action" when {
 
@@ -62,7 +52,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
         "coming from any page" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = enrolmentPODS))
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
-          val result = controller.onPageLoad()(fakeRequest)
+          val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
           status(result) mustBe OK
         }
       }
@@ -73,7 +63,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
         when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(affinityGroup = Some(AffinityGroup.Agent)))
         val userAnswersData = Json.obj("areYouUKResident" -> true)
         when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-        val result = controller.onPageLoad()(fakeRequest)
+        val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(controllers.routes.AgentCannotRegisterController.onPageLoad().url)
       }
@@ -84,7 +74,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
         when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(affinityGroup = Some(AffinityGroup.Individual)))
         val userAnswersData = Json.obj("areYouUKResident" -> true)
         when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-        val result = controller.onPageLoad()(fakeRequest)
+        val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(controllers.routes.NeedAnOrganisationAccountController.onPageLoad().url)
       }
@@ -96,7 +86,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
           .thenReturn(authRetrievals(affinityGroup = Some(AffinityGroup.Organisation), role = Some(Assistant)))
         val userAnswersData = Json.obj("areYouUKResident" -> true)
         when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-        val result = controller.onPageLoad()(fakeRequest)
+        val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(controllers.routes.AssistantNoAccessController.onPageLoad().url)
       }
@@ -109,7 +99,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
           when(mockIVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          val result = controller.onPageLoad()(fakeRequest)
+          val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
           status(result) mustBe SEE_OTHER
           redirectLocation(result) mustBe Some(frontendAppConfig.identityVerificationFrontend + startIVLink)
         }
@@ -117,20 +107,23 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
         "journey Id is correct and in the cache but no nino returned from IV" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
           when(mockIVConnector.retrieveNinoFromIV(any())(any(), any())).thenReturn(Future(None))
+          when(mockIVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
           val userAnswersData = Json.obj("areYouUKResident" -> true,
             "whatTypeBusiness" -> Yourselfasindividual.toString, "journeyId" -> "test-journey")
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
           when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future(userAnswersData))
-          val result = controller.onPageLoad()(fakeRequest)
+          val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
           status(result) mustBe SEE_OTHER
           redirectLocation(result) mustBe Some(frontendAppConfig.identityVerificationFrontend + startIVLink)
         }
 
         "journey Id is not present in url and not in the cache" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
+          when(mockIVConnector.retrieveNinoFromIV(any())(any(), any())).thenReturn(Future(None))
+          when(mockIVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
           val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Yourselfasindividual.toString)
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          val result = controller.onPageLoad()(fakeRequest)
+          val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
           status(result) mustBe SEE_OTHER
           redirectLocation(result) mustBe Some(frontendAppConfig.identityVerificationFrontend + startIVLink)
         }
@@ -145,17 +138,19 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
             "whatTypeBusiness" -> Yourselfasindividual.toString, "journeyId" -> "test-journey")
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
 
-          val result = controller.onPageLoad()(fakeRequest)
+          val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
           status(result) mustBe OK
         }
 
         "journey Id is not in user answers but present in url" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
+          when(mockIVConnector.retrieveNinoFromIV(any())(any(), any())).thenReturn(Future(Some(nino)))
+          when(mockIVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
           val journeyId = "test-journey-id"
           val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Yourselfasindividual.toString)
           when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future(Json.obj()))
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          val result = controller.onPageLoad()(FakeRequest("", s"/url?journeyId=$journeyId"))
+          val result = controllerWithIVEnrolment.onPageLoad()(FakeRequest("", s"/url?journeyId=$journeyId"))
           status(result) mustBe OK
           verify(mockUserAnswersCacheConnector, times(1)).save(any())(any(), any())
         }
@@ -166,7 +161,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
           val userAnswersData = Json.obj("areYouUKResident" -> false)
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          val result = controller.onPageLoad()(fakeRequest)
+          val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
           status(result) mustBe OK
         }
 
@@ -175,7 +170,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
           val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Companyorpartnership.toString)
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
 
-          val result = controller.onPageLoad()(fakeRequest)
+          val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
           status(result) mustBe OK
         }
       }
@@ -184,7 +179,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
     "the user hasn't logged in" must {
       "redirect the user to log in " in {
         when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(Future.failed(new MissingBearerToken))
-        val result = controller.onPageLoad()(fakeRequest)
+        val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must startWith(frontendAppConfig.loginUrl)
       }
@@ -193,7 +188,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
     "the user's session has expired" must {
       "redirect the user to log in " in {
         when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(Future.failed(new BearerTokenExpired))
-        val result = controller.onPageLoad()(fakeRequest)
+        val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must startWith(frontendAppConfig.loginUrl)
       }
@@ -202,28 +197,28 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
     "redirect the user to the unauthorised page" when {
       "the user doesn't have sufficient enrolments" in {
         when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(Future.failed(new InsufficientEnrolments))
-        val result = controller.onPageLoad()(fakeRequest)
+        val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(controllers.routes.UnauthorisedController.onPageLoad().url)
       }
 
       "the user doesn't have sufficient confidence level" in {
         when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(Future.failed(new InsufficientConfidenceLevel))
-        val result = controller.onPageLoad()(fakeRequest)
+        val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(controllers.routes.UnauthorisedController.onPageLoad().url)
       }
 
       "the user used an unaccepted auth provider" in {
         when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(Future.failed(new UnsupportedAuthProvider))
-        val result = controller.onPageLoad()(fakeRequest)
+        val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(controllers.routes.UnauthorisedController.onPageLoad().url)
       }
 
       "the user has an unsupported affinity group" in {
         when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(Future.failed(new UnsupportedAffinityGroup))
-        val result = controller.onPageLoad()(fakeRequest)
+        val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(controllers.routes.UnauthorisedController.onPageLoad().url)
       }
@@ -231,14 +226,14 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
       "there is no affinity group" in {
         when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(affinityGroup = None))
 
-        val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
+        val result = controllerWithIVEnrolment.onPageLoad()(FakeRequest("GET", "/foo"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(controllers.routes.UnauthorisedController.onPageLoad().url)
       }
 
       "the user is not an authorised user" in {
         when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(Future.failed(new UnauthorizedException("Unknown User")))
-        val result = controller.onPageLoad()(fakeRequest)
+        val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(controllers.routes.UnauthorisedController.onPageLoad().url)
       }
@@ -264,7 +259,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
   }
 }
 
-object AuthActionSpec {
+object AuthActionSpec extends SpecBase with MockitoSugar {
   private val pspId = "00000000"
   private val nino = uk.gov.hmrc.domain.Nino("AB100100A")
   type authRetrievalsType = Option[String] ~ ConfidenceLevel ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~Option[CredentialRole]
@@ -292,4 +287,21 @@ object AuthActionSpec {
         Ok(Json.obj("userId" -> request.user.userId))
     }
   }
+  private val mockUserAnswersCacheConnector: UserAnswersCacheConnector = mock[UserAnswersCacheConnector]
+  private val mockIVConnector: IdentityVerificationConnector = mock[IdentityVerificationConnector]
+  private val authConnector: AuthConnector = mock[AuthConnector]
+  private val bodyParsers: BodyParsers.Default = app.injector.instanceOf[BodyParsers.Default]
+
+  val authActionWithIVEnrolment = new AuthenticatedAuthActionWithIVEnrolment(
+    authConnector, frontendAppConfig,
+    mockUserAnswersCacheConnector, mockIVConnector, bodyParsers
+  )
+
+  val authActionWithIVNoEnrolment = new AuthenticatedAuthActionWithIVNoEnrolment(
+    authConnector, frontendAppConfig,
+    mockUserAnswersCacheConnector, mockIVConnector, bodyParsers
+  )
+
+  val controllerWithIVEnrolment = new Harness(authActionWithIVEnrolment)
+  val controllerWithIVNoEnrolment = new Harness(authActionWithIVNoEnrolment)
 }
