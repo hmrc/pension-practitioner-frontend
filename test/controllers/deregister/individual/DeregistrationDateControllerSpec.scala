@@ -18,28 +18,38 @@ package controllers.deregister.individual
 
 import java.time.LocalDate
 
-import connectors.{DeregistrationConnector, EnrolmentConnector}
+import audit.AuditService
+import audit.PSPDeregistration
+import audit.PSPDeregistrationEmail
+import connectors.EmailConnector
+import connectors.EmailSent
+import connectors.{EnrolmentConnector, DeregistrationConnector}
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import forms.deregister.DeregistrationDateFormProvider
 import matchers.JsonMatchers
 import models.UserAnswers
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{times, verify, when}
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.Mockito.doNothing
+import org.mockito.Mockito.reset
+import org.mockito.Mockito.{times, when, verify}
+import org.mockito.{Matchers, ArgumentCaptor}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
+import pages.PspEmailPage
+import pages.PspNamePage
+import pages.deregister.DeregistrationDateCompanyPage
 import pages.deregister.DeregistrationDatePage
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{Json, JsObject}
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.viewmodels.{DateInput, NunjucksSupport}
+import uk.gov.hmrc.viewmodels.{NunjucksSupport, DateInput}
 
 import scala.concurrent.Future
 
@@ -53,6 +63,17 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
   private val dummyCall: Call = Call("GET", "/foo")
   private val mockDeregistrationConnector = mock[DeregistrationConnector]
   private val mockEnrolmentConnector = mock[EnrolmentConnector]
+  private val mockEmailConnector: EmailConnector = mock[EmailConnector]
+
+  private val mockAuditService = mock[AuditService]
+
+  private val email = "a@a.c"
+
+  private val name = "name"
+
+  private val ua: UserAnswers = UserAnswers()
+    .setOrException(PspNamePage, name)
+    .setOrException(PspEmailPage, email)
 
   private def onPageLoadUrl: String = routes.DeregistrationDateController.onPageLoad().url
   private def submitUrl: String = routes.DeregistrationDateController.onSubmit().url
@@ -79,7 +100,9 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
     )
   def extraModules: Seq[GuiceableModule] = Seq(
     bind[DeregistrationConnector].toInstance(mockDeregistrationConnector),
-    bind[EnrolmentConnector].toInstance(mockEnrolmentConnector)
+    bind[EnrolmentConnector].toInstance(mockEnrolmentConnector),
+    bind[EmailConnector].toInstance(mockEmailConnector),
+    bind[AuditService].toInstance(mockAuditService)
   )
 
   private val application: Application =
@@ -87,6 +110,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
 
   override def beforeEach: Unit = {
     super.beforeEach
+    reset(mockAuditService)
     mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
     when(mockEnrolmentConnector.deEnrol(any(), any(), any())(any(), any(), any()))
       .thenReturn(Future.successful(HttpResponse(OK, "")))
@@ -94,6 +118,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       .thenReturn(Future.successful(HttpResponse(OK, "")))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
+    doNothing().when(mockAuditService).sendEvent(any())(any(), any())
   }
 
   "DeregistrationDate Controller" must {
@@ -139,24 +164,38 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       redirectLocation(result).value mustBe controllers.routes.SessionExpiredController.onPageLoad().url
     }
 
-    "Save data to user answers and redirect to next page when valid data is submitted" in {
+    "Save data to user answers, redirect to next page when valid data is submitted and send email, audit event and email audit event" in {
+      val templateId = "dummyTemplateId"
+      val pspId = "test psp id"
 
-      val expectedJson = Json.obj(DeregistrationDatePage.toString -> "2020-04-03")
+      val expectedJson = Json.obj(
+        PspNamePage.toString -> name,
+        DeregistrationDatePage.toString -> "2020-04-03",
+        PspEmailPage.toString -> email
+      )
 
+      mutableFakeDataRetrievalAction.setDataToReturn(Some(ua))
       when(mockCompoundNavigator.nextPage(Matchers.eq(DeregistrationDatePage), any(), any())).thenReturn(dummyCall)
-
+      when(mockEmailConnector.sendEmail(any(), any(), any(), any(), any(),any())(any(),any()))
+        .thenReturn(Future.successful(EmailSent))
+      when(mockAppConfig.emailPspDeregistrationTemplateId).thenReturn(templateId)
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
       val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
+      verify(mockEmailConnector, times(1))
+        .sendEmail(any(), Matchers.eq(pspId), Matchers.eq("PSPDeregistration"), Matchers.eq(email), Matchers.eq(templateId), any())(any(), any())
       jsonCaptor.getValue must containJson(expectedJson)
       redirectLocation(result) mustBe Some(dummyCall.url)
-
+      verify(mockAuditService, times(1))
+        .sendEvent(Matchers.eq(PSPDeregistrationEmail(pspId, email)))(any(), any())
+      verify(mockAuditService, times(1))
+        .sendEvent(Matchers.eq(PSPDeregistration(pspId)))(any(), any())
     }
 
     "return a BAD REQUEST when invalid data is submitted" in {
-
+      mutableFakeDataRetrievalAction.setDataToReturn(Some(ua))
       val result = route(application, httpPOSTRequest(submitUrl, valuesInvalid)).value
 
       status(result) mustEqual BAD_REQUEST

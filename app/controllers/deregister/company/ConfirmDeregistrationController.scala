@@ -18,23 +18,24 @@ package controllers.deregister.company
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import connectors.{DeregistrationConnector, MinimalConnector}
+import connectors.{MinimalConnector, DeregistrationConnector}
 import controllers.Retrievals
 import controllers.actions._
 import forms.deregister.ConfirmDeregistrationFormProvider
 import javax.inject.Inject
 import models.{NormalMode, UserAnswers}
 import navigators.CompoundNavigator
+import pages.PspEmailPage
 import pages.PspNamePage
 import pages.deregister.ConfirmDeregistrationCompanyPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
                                                 override val messagesApi: MessagesApi,
@@ -60,8 +61,8 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
         deregistrationConnector.canDeRegister(pspId).flatMap {
           case true =>
             minimalConnector.getMinimalPspDetails(pspId).flatMap { minimalDetails =>
-              minimalDetails.name match {
-                case Some(name) =>
+              (minimalDetails.name, minimalDetails.email) match {
+                case (Some(name), email) =>
                     val json = Json.obj(
                       "form" -> form,
                       "pspName" -> name,
@@ -69,14 +70,13 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
                       "radios" -> Radios.yesNo(form("value")),
                       "returnUrl" -> config.returnToPspDashboardUrl
                     )
-                    renderer.render("deregister/company/confirmDeregistration.njk", json).flatMap { view =>
-                      for {
-                        updatedAnswers <- Future.fromTry(UserAnswers().set(PspNamePage, name))
-                        _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-                      } yield {
-                        Ok(view)
-                      }
-                    }
+
+                    val updatedAnswers = UserAnswers()
+                      .setOrException(PspNamePage, name)
+                      .setOrException(PspEmailPage, email)
+
+                    renderer.render("deregister/company/confirmDeregistration.njk", json)
+                      .flatMap( view => userAnswersCacheConnector.save(updatedAnswers.data).map( _ => Ok(view)))
 
                 case _ => sessionExpired
               }
@@ -111,5 +111,5 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
       }
   }
 
-  val sessionExpired: Future[Result] = Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+  private val sessionExpired: Future[Result] = Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
 }
