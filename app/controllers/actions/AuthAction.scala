@@ -80,6 +80,11 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
     } recover handleFailure
   }
 
+  /*
+      If enrolled but on register page: Future.successful(Redirect(controllers.routes.AlreadyRegisteredController.onPageLoad()))
+      If not enrolled but on a non-register page: Redirect to manage you-need-to-register page (config.youNeedToRegisterUrl)
+   */
+
   protected def allowAccess[A](externalId: String, affinityGroup: AffinityGroup, cl: ConfidenceLevel,
     enrolments: Enrolments, role: CredentialRole, authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
     (implicit hc: HeaderCarrier): Future[Result] = {
