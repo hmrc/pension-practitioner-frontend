@@ -15,10 +15,6 @@
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
 
-        <h1 class="govuk-heading-xl">
-              {{ messages("deregistrationDate.company.heading", pspName) }}
-            </h1>
-
         {% if form.errors.length > 0 %}
           {{ govukErrorSummary({
             "titleText": messages("error.summary.title"),
@@ -26,11 +22,13 @@
           }) }}
         {% endif %}
 
+        <h1 class="govuk-heading-xl">
+              {{ messages("deregistrationDate.company.heading", pspName) }}
+            </h1>
+
         <form action="{{ submitUrl }}" method="post" autocomplete="off">
 
           {{ csrf() | safe }}
-            <p class="form-hint">{{ messages("site.date.example") }}</p>
-
           {{ govukDateInput({
                       id: "deregistrationDateWrapper",
                       fieldset: {
@@ -40,6 +38,9 @@
                           classes: "govuk-fieldset__legend--s govuk-visually-hidden"
                         }
                       },
+                        hint: {
+                           text: messages("site.date.example")
+                         },
                       errorMessage: date.error,
                       items: date.items
                     }) }}
