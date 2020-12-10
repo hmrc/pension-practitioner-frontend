@@ -17,16 +17,15 @@
 package controllers.individual
 
 import connectors.cache.UserAnswersCacheConnector
-import controllers.{Retrievals, Variation}
 import controllers.actions._
+import controllers.{Retrievals, Variation}
 import forms.individual.IndividualNameFormProvider
 import javax.inject.Inject
-import models.SubscriptionType.Variation
-import models.{Mode, UserAnswers}
+import models.Mode
 import models.register.TolerantIndividual
 import models.requests.DataRequest
 import navigators.CompoundNavigator
-import pages.{NameChange, QuestionPage, SubscriptionTypePage}
+import pages.NameChange
 import pages.individual._
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -37,7 +36,6 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 class IndividualNameController @Inject()(override val messagesApi: MessagesApi,
                                          userAnswersCacheConnector: UserAnswersCacheConnector,
