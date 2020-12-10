@@ -81,25 +81,6 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
     } recover handleFailure
   }
 
-  /*
-    protected def allowAccess[A](externalId: String, affinityGroup: AffinityGroup, cl: ConfidenceLevel,
-    enrolments: Enrolments, role: CredentialRole, authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
-    (implicit hc: HeaderCarrier): Future[Result] = {
-    checkAffinityGroupAndRole(affinityGroup, role) match {
-      case Some(redirect) => Future.successful(redirect)
-      case _ =>
-        getData(AreYouUKResidentPage).flatMap {
-          case _ if alreadyEnrolledInPODS(enrolments) =>
-            savePspIdAndReturnAuthRequest(externalId, enrolments, authRequest, block)
-          case Some(true) if affinityGroup == Organisation =>
-            doManualIVAndRetrieveNino(externalId, authRequest, block)
-          case _ =>
-            block(authRequest)
-        }
-    }
-  }
-   */
-
   protected def allowAccess[A](externalId: String, affinityGroup: AffinityGroup, cl: ConfidenceLevel,
     enrolments: Enrolments, role: CredentialRole, authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
     (implicit hc: HeaderCarrier): Future[Result] = {
