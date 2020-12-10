@@ -19,12 +19,13 @@ package controllers.actions
 import base.SpecBase
 import connectors.IdentityVerificationConnector
 import connectors.cache.UserAnswersCacheConnector
-import controllers.Assets.Redirect
-import controllers.actions.AuthActionSpec.frontendAppConfig
-import models.WhatTypeBusiness.{Companyorpartnership, Yourselfasindividual}
+import models.WhatTypeBusiness.Companyorpartnership
+import models.WhatTypeBusiness.Yourselfasindividual
 import org.mockito.Matchers.any
 import org.mockito.Mockito
-import org.mockito.Mockito.{times, when, verify}
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
@@ -33,7 +34,8 @@ import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
+import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.UnauthorizedException
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -183,8 +185,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
           val userAnswersData = Json.obj("areYouInUK" -> true, "registerAsBusiness" -> false)
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          val authAction = new AuthenticatedAuthActionWithNoIV(authConnector, frontendAppConfig,
-            mockUserAnswersCacheConnector, mockIVConnector, bodyParsers)
+          val authAction = new AuthenticatedAuthActionWithNoIV(authConnector, frontendAppConfig, bodyParsers)
 
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(fakeRequest)
@@ -305,18 +306,18 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 object AuthActionSpec extends SpecBase with MockitoSugar {
   private val pspId = "00000000"
   private val nino = uk.gov.hmrc.domain.Nino("AB100100A")
-  type authRetrievalsType = Option[String] ~ ConfidenceLevel ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~Option[CredentialRole]
+  type authRetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~Option[CredentialRole]
 
   private val enrolmentPODS = Enrolments(Set(Enrolment("HMRC-PODSPP-ORG", Seq(EnrolmentIdentifier("PSPID", pspId)), "")))
   private val startIVLink = "/start-iv-link"
 
-  private def authRetrievals(confidenceLevel: ConfidenceLevel = ConfidenceLevel.L50,
-                             affinityGroup: Option[AffinityGroup] = Some(AffinityGroup.Organisation),
+  private def authRetrievals(affinityGroup: Option[AffinityGroup] = Some(AffinityGroup.Organisation),
                              enrolments: Enrolments = Enrolments(Set()),
                              creds: Option[Credentials] = Option(Credentials(providerId = "test provider", providerType = "")),
                             role: Option[CredentialRole] = Option(User)
                             ): Future[authRetrievalsType] = Future.successful(
-    new ~(new ~(new ~(new ~(new ~(Some("id"), confidenceLevel),
+    new ~(new ~(new ~(new ~(
+      Some("id"),
       affinityGroup),
       enrolments),
       creds),
