@@ -91,6 +91,88 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 
     behave like authAction(controllerWithIVNoEnrolment, enrolments = Enrolments(Set()))
 
+    "called for Organisation user that is not an assistant" must {
+      "redirect to Manual IV " when {
+        "they want to register as Individual" in {
+          val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Yourselfasindividual.toString)
+          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
+          when(mockIVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
+          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
+          val result = controllerWithIVNoEnrolment.onPageLoad()(fakeRequest)
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some(frontendAppConfig.identityVerificationFrontend + startIVLink)
+        }
+
+        "journey Id is correct and in the cache but no nino returned from IV" in {
+          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
+          when(mockIVConnector.retrieveNinoFromIV(any())(any(), any())).thenReturn(Future(None))
+          when(mockIVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
+          val userAnswersData = Json.obj("areYouUKResident" -> true,
+            "whatTypeBusiness" -> Yourselfasindividual.toString, "journeyId" -> "test-journey")
+          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
+          when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future(userAnswersData))
+          val result = controllerWithIVNoEnrolment.onPageLoad()(fakeRequest)
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some(frontendAppConfig.identityVerificationFrontend + startIVLink)
+        }
+
+        "journey Id is not present in url and not in the cache" in {
+          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
+          when(mockIVConnector.retrieveNinoFromIV(any())(any(), any())).thenReturn(Future(None))
+          when(mockIVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
+          val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Yourselfasindividual.toString)
+          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
+          val result = controllerWithIVNoEnrolment.onPageLoad()(fakeRequest)
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some(frontendAppConfig.identityVerificationFrontend + startIVLink)
+        }
+      }
+
+      "return OK, retrieve the nino from IV when selected as Individual" when {
+        "journey Id is saved in user answers" in {
+          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
+          when(mockIVConnector.retrieveNinoFromIV(any())(any(), any())).thenReturn(Future(Some(nino)))
+          val userAnswersData = Json.obj("areYouUKResident" -> true,
+            "whatTypeBusiness" -> Yourselfasindividual.toString, "journeyId" -> "test-journey")
+          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
+
+          val result = controllerWithIVNoEnrolment.onPageLoad()(fakeRequest)
+          status(result) mustBe OK
+        }
+
+        "journey Id is not in user answers but present in url" in {
+          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
+          when(mockIVConnector.retrieveNinoFromIV(any())(any(), any())).thenReturn(Future(Some(nino)))
+          when(mockIVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
+          val journeyId = "test-journey-id"
+          val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Yourselfasindividual.toString)
+          when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future(Json.obj()))
+          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
+          val result = controllerWithIVNoEnrolment.onPageLoad()(FakeRequest("", s"/url?journeyId=$journeyId"))
+          status(result) mustBe OK
+          verify(mockUserAnswersCacheConnector, times(1)).save(any())(any(), any())
+        }
+      }
+
+      "return OK" when {
+        "the user is non uk user" in {
+          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
+          val userAnswersData = Json.obj("areYouUKResident" -> false)
+          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
+          val result = controllerWithIVNoEnrolment.onPageLoad()(fakeRequest)
+          status(result) mustBe OK
+        }
+
+        "user is in UK and wants to register as Organisation" in {
+          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
+          val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Companyorpartnership.toString)
+          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
+
+          val result = controllerWithIVNoEnrolment.onPageLoad()(fakeRequest)
+          status(result) mustBe OK
+        }
+      }
+    }
 
   }
 
@@ -150,92 +232,6 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
           redirectLocation(result) mustBe Some(controllers.routes.AssistantNoAccessController.onPageLoad().url)
         }
       }
-
-
-    "called for Organisation user that is not an assistant" must {
-      "redirect to Manual IV " when {
-        "they want to register as Individual" in {
-          val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Yourselfasindividual.toString)
-          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = enrolments))
-          when(mockIVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
-          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          val result = harness.onPageLoad()(fakeRequest)
-          status(result) mustBe SEE_OTHER
-          redirectLocation(result) mustBe Some(frontendAppConfig.identityVerificationFrontend + startIVLink)
-        }
-
-        "journey Id is correct and in the cache but no nino returned from IV" in {
-          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = enrolments))
-          when(mockIVConnector.retrieveNinoFromIV(any())(any(), any())).thenReturn(Future(None))
-          when(mockIVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
-          val userAnswersData = Json.obj("areYouUKResident" -> true,
-            "whatTypeBusiness" -> Yourselfasindividual.toString, "journeyId" -> "test-journey")
-          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future(userAnswersData))
-          val result = harness.onPageLoad()(fakeRequest)
-          status(result) mustBe SEE_OTHER
-          redirectLocation(result) mustBe Some(frontendAppConfig.identityVerificationFrontend + startIVLink)
-        }
-
-        "journey Id is not present in url and not in the cache" in {
-          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = enrolments))
-          when(mockIVConnector.retrieveNinoFromIV(any())(any(), any())).thenReturn(Future(None))
-          when(mockIVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
-          val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Yourselfasindividual.toString)
-          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          val result = harness.onPageLoad()(fakeRequest)
-          status(result) mustBe SEE_OTHER
-          redirectLocation(result) mustBe Some(frontendAppConfig.identityVerificationFrontend + startIVLink)
-        }
-      }
-
-      "return OK, retrieve the nino from IV when selected as Individual" when {
-        "journey Id is saved in user answers" in {
-          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = enrolments))
-          when(mockIVConnector.retrieveNinoFromIV(any())(any(), any())).thenReturn(Future(Some(nino)))
-          val userAnswersData = Json.obj("areYouUKResident" -> true,
-            "whatTypeBusiness" -> Yourselfasindividual.toString, "journeyId" -> "test-journey")
-          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-
-          val result = harness.onPageLoad()(fakeRequest)
-          status(result) mustBe OK
-        }
-
-        "journey Id is not in user answers but present in url" in {
-          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = enrolments))
-          when(mockIVConnector.retrieveNinoFromIV(any())(any(), any())).thenReturn(Future(Some(nino)))
-          when(mockIVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
-          val journeyId = "test-journey-id"
-          val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Yourselfasindividual.toString)
-          when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future(Json.obj()))
-          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          val result = harness.onPageLoad()(FakeRequest("", s"/url?journeyId=$journeyId"))
-          status(result) mustBe OK
-          verify(mockUserAnswersCacheConnector, times(1)).save(any())(any(), any())
-        }
-      }
-
-      "return OK" when {
-        "the user is non uk user" in {
-          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = enrolments))
-          val userAnswersData = Json.obj("areYouUKResident" -> false)
-          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          val result = harness.onPageLoad()(fakeRequest)
-          status(result) mustBe OK
-        }
-
-        "user is in UK and wants to register as Organisation" in {
-          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = enrolments))
-          val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Companyorpartnership.toString)
-          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-
-          val result = harness.onPageLoad()(fakeRequest)
-          status(result) mustBe OK
-        }
-      }
-    }
-
-
 
       "the user hasn't logged in" must {
         "redirect the user to log in " in {
