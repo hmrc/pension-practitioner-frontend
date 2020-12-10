@@ -23,7 +23,8 @@ import audit.PSPDeregistration
 import audit.PSPDeregistrationEmail
 import connectors.EmailConnector
 import connectors.EmailSent
-import connectors.{EnrolmentConnector, DeregistrationConnector}
+import connectors.DeregistrationConnector
+import connectors.EnrolmentConnector
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import forms.deregister.DeregistrationDateFormProvider
@@ -32,24 +33,29 @@ import models.UserAnswers
 import org.mockito.Matchers.any
 import org.mockito.Mockito.doNothing
 import org.mockito.Mockito.reset
-import org.mockito.Mockito.{times, when, verify}
-import org.mockito.{Matchers, ArgumentCaptor}
-import org.scalatest.{OptionValues, TryValues}
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.when
+import org.mockito.ArgumentCaptor
+import org.mockito.Matchers
+import org.scalatest.OptionValues
+import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
 import pages.PspEmailPage
 import pages.PspNamePage
-import pages.deregister.DeregistrationDateCompanyPage
 import pages.deregister.DeregistrationDatePage
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.libs.json.{Json, JsObject}
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, DateInput}
+import uk.gov.hmrc.viewmodels.DateInput
+import uk.gov.hmrc.viewmodels.NunjucksSupport
 
 import scala.concurrent.Future
 

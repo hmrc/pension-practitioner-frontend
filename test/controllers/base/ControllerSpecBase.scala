@@ -40,7 +40,6 @@ import play.api.test.FakeHeaders
 import play.api.test.FakeRequest
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import utils.annotations.AuthWithIVEnrolmentRequired
-import utils.annotations.AuthWithIVNoEnrolment
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.ExecutionContext
@@ -68,8 +67,7 @@ trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with MockitoSu
 
   def modules: Seq[GuiceableModule] = Seq(
     bind[DataRequiredAction].to[DataRequiredActionImpl],
-    bind[AuthAction].to[FakeAuthAction],
-    bind[AuthAction].qualifiedWith(classOf[AuthWithIVNoEnrolment]).to[FakeAuthActionNoEnrolment],
+    bind[AuthAction].to[FakeAuthActionNoEnrolment],
     bind[AuthAction].qualifiedWith(classOf[AuthWithIVEnrolmentRequired]).to[FakeAuthAction],
     bind[NunjucksRenderer].toInstance(mockRenderer),
     bind[FrontendAppConfig].toInstance(mockAppConfig),

@@ -27,7 +27,6 @@ import models.NormalMode
 import models.UserAnswers
 import models.WhatTypeBusiness
 import navigators.CompoundNavigator
-import pages.PspIdPage
 import pages.WhatTypeBusinessPage
 import play.api.i18n.I18nSupport
 import play.api.i18n.MessagesApi
@@ -38,7 +37,6 @@ import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthWithIVNoEnrolment
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -46,7 +44,7 @@ import scala.concurrent.Future
 class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi,
                                            userAnswersCacheConnector: UserAnswersCacheConnector,
                                            navigator: CompoundNavigator,
-                                           @AuthWithIVNoEnrolment authenticate: AuthAction,
+                                           authenticate: AuthAction,
                                            getData: DataRetrievalAction,
                                            requireData: DataRequiredAction,
                                            formProvider: WhatTypeBusinessFormProvider,

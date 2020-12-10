@@ -50,6 +50,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.DateInput
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.annotations.AuthWithIVEnrolmentRequired
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -58,7 +59,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
                                              override val messagesApi: MessagesApi,
                                              userAnswersCacheConnector: UserAnswersCacheConnector,
                                              navigator: CompoundNavigator,
-                                             authenticate: AuthAction,
+                                             @AuthWithIVEnrolmentRequired authenticate: AuthAction,
                                              getData: DataRetrievalAction,
                                              requireData: DataRequiredAction,
                                              formProvider: DeregistrationDateFormProvider,
