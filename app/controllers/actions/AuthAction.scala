@@ -81,6 +81,25 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
     } recover handleFailure
   }
 
+  /*
+    protected def allowAccess[A](externalId: String, affinityGroup: AffinityGroup, cl: ConfidenceLevel,
+    enrolments: Enrolments, role: CredentialRole, authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
+    (implicit hc: HeaderCarrier): Future[Result] = {
+    checkAffinityGroupAndRole(affinityGroup, role) match {
+      case Some(redirect) => Future.successful(redirect)
+      case _ =>
+        getData(AreYouUKResidentPage).flatMap {
+          case _ if alreadyEnrolledInPODS(enrolments) =>
+            savePspIdAndReturnAuthRequest(externalId, enrolments, authRequest, block)
+          case Some(true) if affinityGroup == Organisation =>
+            doManualIVAndRetrieveNino(externalId, authRequest, block)
+          case _ =>
+            block(authRequest)
+        }
+    }
+  }
+   */
+
   protected def allowAccess[A](externalId: String, affinityGroup: AffinityGroup, cl: ConfidenceLevel,
     enrolments: Enrolments, role: CredentialRole, authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
     (implicit hc: HeaderCarrier): Future[Result] = {
@@ -90,15 +109,16 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
       case (AffinityGroup.Individual, _) => Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
       case (AffinityGroup.Organisation, Assistant) => Future.successful(Redirect(controllers.routes.AssistantNoAccessController.onPageLoad()))
       case (AffinityGroup.Organisation, _) =>
-        enrolmentsRedirect(authRequest) match {
-          case Some(redirect) => Future.successful(redirect)
-          case _ =>
+        (enrolmentsRedirect(authRequest), authRequest.user.alreadyEnrolledPspId) match {
+          case (Some(redirect), _) => Future.successful(redirect)
+          case (_, None) =>
             getData(AreYouUKResidentPage).flatMap {
               case Some(true) =>
                 doManualIVAndRetrieveNino(externalId, authRequest, block)
               case _ =>
                 block(authRequest)
             }
+          case _ => block(authRequest)
         }
     }
   }

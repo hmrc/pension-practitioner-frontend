@@ -46,7 +46,7 @@ import scala.concurrent.{Future, ExecutionContext}
 class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
                                          userAnswersCacheConnector: UserAnswersCacheConnector,
                                          navigator: CompoundNavigator,
-                                         @AuthWithIVNoEnrolment authenticate: AuthAction,
+                                         authenticate: AuthAction,
                                          getData: DataRetrievalAction,
                                          registrationConnector:RegistrationConnector,
                                          requireData: DataRequiredAction,

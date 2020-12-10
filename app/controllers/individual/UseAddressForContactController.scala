@@ -42,7 +42,7 @@ import scala.concurrent.{Future, ExecutionContext}
 class UseAddressForContactController @Inject()(override val messagesApi: MessagesApi,
                                                userAnswersCacheConnector: UserAnswersCacheConnector,
                                                navigator: CompoundNavigator,
-                                               @AuthWithIVNoEnrolment authenticate: AuthAction,
+                                               authenticate: AuthAction,
                                                getData: DataRetrievalAction,
                                                requireData: DataRequiredAction,
                                                formProvider: UseAddressForContactFormProvider,

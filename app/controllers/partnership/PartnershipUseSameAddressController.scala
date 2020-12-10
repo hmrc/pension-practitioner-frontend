@@ -58,7 +58,7 @@ import scala.util.Try
 class PartnershipUseSameAddressController @Inject()(override val messagesApi: MessagesApi,
   userAnswersCacheConnector: UserAnswersCacheConnector,
   navigator: CompoundNavigator,
-  @AuthWithIVNoEnrolment authenticate: AuthAction,
+  authenticate: AuthAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: UseAddressForContactFormProvider,

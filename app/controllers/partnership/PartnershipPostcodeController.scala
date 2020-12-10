@@ -41,7 +41,7 @@ import scala.concurrent.ExecutionContext
 class PartnershipPostcodeController @Inject()(override val messagesApi: MessagesApi,
                                               val userAnswersCacheConnector: UserAnswersCacheConnector,
                                               val navigator: CompoundNavigator,
-                                              @AuthWithIVNoEnrolment authenticate: AuthAction,
+                                              authenticate: AuthAction,
                                               getData: DataRetrievalAction,
                                               requireData: DataRequiredAction,
                                               formProvider: PostcodeFormProvider,

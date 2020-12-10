@@ -41,7 +41,7 @@ import scala.concurrent.{Future, ExecutionContext}
 class PartnershipNameController @Inject()(override val messagesApi: MessagesApi,
                                           userAnswersCacheConnector: UserAnswersCacheConnector,
                                           navigator: CompoundNavigator,
-                                          @AuthWithIVNoEnrolment authenticate: AuthAction,
+                                          authenticate: AuthAction,
                                           getData: DataRetrievalAction,
                                           requireData: DataRequiredAction,
                                           formProvider: BusinessNameFormProvider,
