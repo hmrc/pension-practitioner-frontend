@@ -35,6 +35,7 @@ import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import utils.annotations.AuthWithIVNoEnrolment
 import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModel
 
@@ -45,7 +46,7 @@ import scala.util.Try
 class CompanyUseSameAddressController @Inject()(override val messagesApi: MessagesApi,
                                                 userAnswersCacheConnector: UserAnswersCacheConnector,
                                                 navigator: CompoundNavigator,
-                                                authenticate: AuthAction,
+                                                @AuthWithIVNoEnrolment authenticate: AuthAction,
                                                 getData: DataRetrievalAction,
                                                 requireData: DataRequiredAction,
                                                 formProvider: UseAddressForContactFormProvider,

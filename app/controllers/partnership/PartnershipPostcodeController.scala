@@ -26,13 +26,14 @@ import javax.inject.Inject
 import models.Mode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
-import pages.partnership.{BusinessNamePage, PartnershipPostcodePage}
+import pages.partnership.{PartnershipPostcodePage, BusinessNamePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.libs.json.{Json, JsObject}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.annotations.AuthWithIVNoEnrolment
 import viewmodels.CommonViewModel
 
 import scala.concurrent.ExecutionContext
@@ -40,7 +41,7 @@ import scala.concurrent.ExecutionContext
 class PartnershipPostcodeController @Inject()(override val messagesApi: MessagesApi,
                                               val userAnswersCacheConnector: UserAnswersCacheConnector,
                                               val navigator: CompoundNavigator,
-                                              authenticate: AuthAction,
+                                              @AuthWithIVNoEnrolment authenticate: AuthAction,
                                               getData: DataRetrievalAction,
                                               requireData: DataRequiredAction,
                                               formProvider: PostcodeFormProvider,

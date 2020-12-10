@@ -26,23 +26,24 @@ import models.{Mode, UserAnswers}
 import models.register.TolerantIndividual
 import models.requests.DataRequest
 import navigators.CompoundNavigator
-import pages.{NameChange, QuestionPage, SubscriptionTypePage}
+import pages.{SubscriptionTypePage, QuestionPage, NameChange}
 import pages.individual._
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.libs.json.{Json, JsObject}
+import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.annotations.AuthWithIVNoEnrolment
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 import scala.util.Try
 
 class IndividualNameController @Inject()(override val messagesApi: MessagesApi,
                                          userAnswersCacheConnector: UserAnswersCacheConnector,
                                          navigator: CompoundNavigator,
-                                         authenticate: AuthAction,
+                                         @AuthWithIVNoEnrolment authenticate: AuthAction,
                                          getData: DataRetrievalAction,
                                          requireData: DataRequiredAction,
                                          formProvider: IndividualNameFormProvider,

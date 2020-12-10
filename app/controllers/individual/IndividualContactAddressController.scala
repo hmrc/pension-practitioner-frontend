@@ -44,13 +44,14 @@ import pages.individual.AreYouUKResidentPage
 import pages.individual.IndividualManualAddressPage
 import play.api.mvc.Call
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.annotations.AuthWithIVNoEnrolment
 
 
 class IndividualContactAddressController @Inject()(
   override val messagesApi: MessagesApi,
   val userAnswersCacheConnector: UserAnswersCacheConnector,
   val navigator: CompoundNavigator,
-  authenticate: AuthAction,
+  @AuthWithIVNoEnrolment authenticate: AuthAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: AddressFormProvider,

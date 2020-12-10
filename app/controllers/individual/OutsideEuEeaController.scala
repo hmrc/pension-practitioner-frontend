@@ -22,16 +22,17 @@ import javax.inject.Inject
 import pages.individual.IndividualAddressPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
+import utils.annotations.AuthWithIVNoEnrolment
 import utils.countryOptions.CountryOptions
 
 import scala.concurrent.ExecutionContext
 
 class OutsideEuEeaController @Inject()(
                                            override val messagesApi: MessagesApi,
-                                           authenticate: AuthAction,getData: DataRetrievalAction,
+                                           @AuthWithIVNoEnrolment authenticate: AuthAction,getData: DataRetrievalAction,
                                            requireData: DataRequiredAction,
                                            val controllerComponents: MessagesControllerComponents,
                                            countryOptions: CountryOptions,

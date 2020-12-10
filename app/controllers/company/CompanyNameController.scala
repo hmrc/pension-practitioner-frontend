@@ -36,6 +36,7 @@ import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.annotations.AuthWithIVNoEnrolment
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -43,7 +44,7 @@ import scala.concurrent.Future
 class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
                                       userAnswersCacheConnector: UserAnswersCacheConnector,
                                       navigator: CompoundNavigator,
-                                      authenticate: AuthAction,
+                                      @AuthWithIVNoEnrolment authenticate: AuthAction,
                                       getData: DataRetrievalAction,
                                       requireData: DataRequiredAction,
                                       formProvider: BusinessNameFormProvider,

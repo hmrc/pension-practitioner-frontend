@@ -26,23 +26,24 @@ import forms.address.NonUKAddressFormProvider
 import javax.inject.Inject
 import models.register.RegistrationInfo
 import models.requests.DataRequest
-import models.{Address, Mode}
+import models.{Mode, Address}
 import navigators.CompoundNavigator
-import pages.individual.{IndividualAddressPage, IndividualDetailsPage}
+import pages.individual.{IndividualDetailsPage, IndividualAddressPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.libs.json.{Json, JsObject}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.annotations.AuthWithIVNoEnrolment
 import utils.countryOptions.CountryOptions
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 class IndividualEnterRegisteredAddressController @Inject()(override val messagesApi: MessagesApi,
                                                  val userAnswersCacheConnector: UserAnswersCacheConnector,
                                                  val navigator: CompoundNavigator,
-                                                 authenticate: AuthAction,
+                                                 @AuthWithIVNoEnrolment authenticate: AuthAction,
                                                  getData: DataRetrievalAction,
                                                  requireData: DataRequiredAction,
                                                  formProvider: NonUKAddressFormProvider,

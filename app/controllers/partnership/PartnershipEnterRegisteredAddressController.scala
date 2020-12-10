@@ -43,6 +43,7 @@ import play.api.mvc.Call
 import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.annotations.AuthWithIVNoEnrolment
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -50,7 +51,7 @@ import scala.concurrent.Future
 class PartnershipEnterRegisteredAddressController @Inject()(override val messagesApi: MessagesApi,
   val userAnswersCacheConnector: UserAnswersCacheConnector,
   val navigator: CompoundNavigator,
-  authenticate: AuthAction,
+  @AuthWithIVNoEnrolment authenticate: AuthAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: RegisteredAddressFormProvider,

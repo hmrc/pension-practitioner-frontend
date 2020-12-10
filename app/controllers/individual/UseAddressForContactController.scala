@@ -23,25 +23,26 @@ import controllers.actions._
 import forms.address.UseAddressForContactFormProvider
 import javax.inject.Inject
 import models.requests.DataRequest
-import models.{Address, Mode, NormalMode, TolerantAddress}
+import models.{Mode, NormalMode, TolerantAddress, Address}
 import navigators.CompoundNavigator
 import pages.individual.{IndividualAddressPage, IndividualManualAddressPage, UseAddressForContactPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.libs.json.{Json, JsObject}
+import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import utils.annotations.AuthWithIVNoEnrolment
 import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModel
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 class UseAddressForContactController @Inject()(override val messagesApi: MessagesApi,
                                                userAnswersCacheConnector: UserAnswersCacheConnector,
                                                navigator: CompoundNavigator,
-                                               authenticate: AuthAction,
+                                               @AuthWithIVNoEnrolment authenticate: AuthAction,
                                                getData: DataRetrievalAction,
                                                requireData: DataRequiredAction,
                                                formProvider: UseAddressForContactFormProvider,

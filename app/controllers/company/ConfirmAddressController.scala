@@ -49,6 +49,7 @@ import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import uk.gov.hmrc.viewmodels.Radios
+import utils.annotations.AuthWithIVNoEnrolment
 import utils.countryOptions.CountryOptions
 
 import scala.concurrent.ExecutionContext
@@ -57,7 +58,7 @@ import scala.concurrent.Future
 class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
                                          userAnswersCacheConnector: UserAnswersCacheConnector,
                                          navigator: CompoundNavigator,
-                                         authenticate: AuthAction,
+                                         @AuthWithIVNoEnrolment authenticate: AuthAction,
                                          getData: DataRetrievalAction,
                                          registrationConnector: RegistrationConnector,
                                          requireData: DataRequiredAction,
