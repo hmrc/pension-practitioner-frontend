@@ -18,11 +18,11 @@ package config
 
 import com.google.inject.AbstractModule
 import com.google.inject.multibindings.Multibinder
-import connectors.cache.UserAnswersCacheConnector
-import connectors.cache.UserAnswersCacheConnectorImpl
+import connectors.cache.{UserAnswersCacheConnectorImpl, UserAnswersCacheConnector}
 import controllers.actions._
 import navigators._
 import utils.annotations.AuthWithIVEnrolmentRequired
+import utils.annotations.AuthWithIVNoEnrolment
 import utils.annotations.AuthWithNoIV
 
 class Module extends AbstractModule {
@@ -36,7 +36,8 @@ class Module extends AbstractModule {
     bind(classOf[DataRetrievalAction]).to(classOf[DataRetrievalActionImpl]).asEagerSingleton()
     bind(classOf[DataRequiredAction]).to(classOf[DataRequiredActionImpl]).asEagerSingleton()
 
-    bind(classOf[AuthAction]).to(classOf[AuthenticatedAuthActionWithIVNoEnrolment]).asEagerSingleton()
+    bind(classOf[AuthAction]).to(classOf[AuthenticatedAuthActionWithIV]).asEagerSingleton()
+    bind(classOf[AuthAction]).annotatedWith(classOf[AuthWithIVNoEnrolment]).to(classOf[AuthenticatedAuthActionWithIVNoEnrolment]).asEagerSingleton()
     bind(classOf[AuthAction]).annotatedWith(classOf[AuthWithIVEnrolmentRequired]).to(classOf[AuthenticatedAuthActionWithIVEnrolmentRequired]).asEagerSingleton()
     bind(classOf[AuthAction]).annotatedWith(classOf[AuthWithNoIV]).to(classOf[AuthenticatedAuthActionWithNoIV]).asEagerSingleton()
 

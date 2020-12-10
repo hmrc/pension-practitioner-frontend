@@ -46,7 +46,7 @@ import play.api.libs.json.Reads
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-abstract class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthConnector,
+class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthConnector,
   config: FrontendAppConfig,
   userAnswersCacheConnector: UserAnswersCacheConnector,
   ivConnector: IdentityVerificationConnector,
@@ -54,7 +54,7 @@ abstract class AuthenticatedAuthActionWithIV @Inject()(override val authConnecto
 )
   (implicit val executionContext: ExecutionContext) extends AuthAction with AuthorisedFunctions {
 
-  protected def enrolmentsRedirect[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result]
+  protected def enrolmentsRedirect[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] = None
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))

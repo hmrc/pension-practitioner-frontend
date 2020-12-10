@@ -18,40 +18,33 @@ package controllers.deregister.company
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import connectors.DeregistrationConnector
-import connectors.MinimalConnector
-import controllers.actions.AuthAction
-import controllers.actions.FakeAuthAction
-import controllers.actions.MutableFakeDataRetrievalAction
+import connectors.{MinimalConnector, DeregistrationConnector}
+import controllers.actions.FakeAuthActionNoEnrolment
+import controllers.actions.{MutableFakeDataRetrievalAction, AuthAction, FakeAuthAction}
 import controllers.base.ControllerSpecBase
 import forms.deregister.ConfirmDeregistrationFormProvider
 import matchers.JsonMatchers
-import models.MinimalPSP
-import models.UserAnswers
+import models.{UserAnswers, MinimalPSP}
 import navigators.CompoundNavigator
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.when
-import org.scalatest.OptionValues
-import org.scalatest.TryValues
+import org.mockito.Mockito.{times, when, verify}
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.PspNamePage
 import pages.deregister.ConfirmDeregistrationCompanyPage
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, JsObject}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import uk.gov.hmrc.viewmodels.Radios
+import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
 import utils.annotations.AuthWithIVEnrolmentRequired
+import utils.annotations.AuthWithIVNoEnrolment
 
 import scala.concurrent.Future
 
