@@ -19,14 +19,14 @@ package controllers.deregister.individual
 import java.time.LocalDate
 
 import audit.AuditService
-import audit.PSPAmendment
 import audit.PSPDeregistration
 import audit.PSPDeregistrationEmail
 import config.FrontendAppConfig
 import connectors.EmailConnector
 import connectors.EmailStatus
 import connectors.cache.UserAnswersCacheConnector
-import connectors.{EnrolmentConnector, DeregistrationConnector}
+import connectors.DeregistrationConnector
+import connectors.EnrolmentConnector
 import controllers.Retrievals
 import controllers.actions._
 import forms.deregister.DeregistrationDateFormProvider
@@ -38,15 +38,21 @@ import pages.PspEmailPage
 import pages.PspNamePage
 import pages.deregister.DeregistrationDatePage
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.I18nSupport
+import play.api.i18n.Messages
+import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, DateInput}
+import uk.gov.hmrc.viewmodels.DateInput
+import uk.gov.hmrc.viewmodels.NunjucksSupport
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 class DeregistrationDateController @Inject()(config: FrontendAppConfig,
                                              override val messagesApi: MessagesApi,

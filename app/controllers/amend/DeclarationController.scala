@@ -16,30 +16,39 @@
 
 package controllers.amend
 
-import audit.{AuditService, PSPAmendment}
+import audit.AuditService
+import audit.PSPAmendment
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import connectors.{EmailConnector, SubscriptionConnector}
+import connectors.EmailConnector
+import connectors.SubscriptionConnector
 import controllers.actions._
-import controllers.{DataRetrievals, Retrievals}
+import controllers.DataRetrievals
+import controllers.Retrievals
 import javax.inject.Inject
 import models.requests.DataRequest
 import pages.PspIdPage
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.I18nSupport
+import play.api.i18n.Messages
+import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.annotations.AuthMustHaveEnrolment
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 class DeclarationController @Inject()(
                                       override val messagesApi: MessagesApi,
                                       subscriptionConnector: SubscriptionConnector,
                                       userAnswersCacheConnector: UserAnswersCacheConnector,
-                                      authenticate: AuthAction,
+                                      @AuthMustHaveEnrolment authenticate: AuthAction,
                                       getData: DataRetrievalAction,
                                       requireData: DataRequiredAction,
                                       val controllerComponents: MessagesControllerComponents,
@@ -68,7 +77,8 @@ class DeclarationController @Inject()(
             updatedAnswers <- Future.fromTry(request.userAnswers.set(PspIdPage, pspId))
             _ <- userAnswersCacheConnector.save(updatedAnswers.data)
             _ <- sendEmail(email, pspId, pspName)
-          } yield Redirect(routes.ConfirmationController.onPageLoad())
+          } yield  Redirect(routes.ConfirmationController.onPageLoad())
+
         }
     }
 

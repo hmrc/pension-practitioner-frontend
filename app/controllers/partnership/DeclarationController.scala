@@ -17,7 +17,7 @@
 package controllers.partnership
 
 import config.FrontendAppConfig
-import connectors.{EmailConnector, EmailStatus, EnrolmentConnector, SubscriptionConnector}
+import connectors.{EnrolmentConnector, EmailStatus, SubscriptionConnector, EmailConnector}
 import connectors.cache.UserAnswersCacheConnector
 import controllers.DataRetrievals
 import controllers.Retrievals
@@ -39,10 +39,11 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{HttpResponse, HeaderCarrier}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.KnownFactsRetrieval
+import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -52,7 +53,7 @@ class DeclarationController @Inject()(
                                       subscriptionConnector: SubscriptionConnector,
                                       userAnswersCacheConnector: UserAnswersCacheConnector,
                                       navigator: CompoundNavigator,
-                                      authenticate: AuthAction,
+                                      @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
                                       getData: DataRetrievalAction,
                                       requireData: DataRequiredAction,
                                       val controllerComponents: MessagesControllerComponents,

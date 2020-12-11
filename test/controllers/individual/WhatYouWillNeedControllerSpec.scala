@@ -18,13 +18,13 @@ package controllers.individual
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import controllers.actions.{DataRequiredAction, DataRequiredActionImpl, FakeAuthAction, AuthAction}
+import controllers.actions.{DataRequiredActionImpl, DataRequiredAction, AuthAction, FakeAuthAction}
 import controllers.base.ControllerSpecBase
 import data.SampleData._
 import navigators.CompoundNavigator
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.{times, when, verify}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -33,7 +33,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
-import utils.annotations.AuthWithNoIV
+import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 
 import scala.concurrent.Future
 
@@ -41,7 +41,7 @@ class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar
   private def onwardRoute = Call("GET", "/foo")
   override def modules: Seq[GuiceableModule] = Seq(
     bind[DataRequiredAction].to[DataRequiredActionImpl],
-    bind[AuthAction].qualifiedWith(classOf[AuthWithNoIV]).to[FakeAuthAction],
+    bind[AuthAction].qualifiedWith(classOf[AuthMustHaveNoEnrolmentWithNoIV]).to[FakeAuthAction],
     bind[NunjucksRenderer].toInstance(mockRenderer),
     bind[FrontendAppConfig].toInstance(mockAppConfig),
     bind[UserAnswersCacheConnector].toInstance(mockUserAnswersCacheConnector),

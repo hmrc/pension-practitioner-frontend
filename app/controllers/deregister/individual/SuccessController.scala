@@ -21,17 +21,18 @@ import controllers.Retrievals
 import controllers.actions._
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.libs.json.{Json, JsObject}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.annotations.AuthMustHaveEnrolment
 
 import scala.concurrent.ExecutionContext
 
 class SuccessController @Inject()(override val messagesApi: MessagesApi,
                                   userAnswersCacheConnector: UserAnswersCacheConnector,
-                                  authenticate: AuthAction,
+                                  @AuthMustHaveEnrolment authenticate: AuthAction,
                                   getData: DataRetrievalAction,
                                   requireData: DataRequiredAction,
                                   val controllerComponents: MessagesControllerComponents,

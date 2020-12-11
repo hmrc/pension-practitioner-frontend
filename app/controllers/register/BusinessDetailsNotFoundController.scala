@@ -30,12 +30,13 @@ import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
+import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 
 import scala.concurrent.ExecutionContext
 
 class BusinessDetailsNotFoundController @Inject()(
     override val messagesApi: MessagesApi,
-    authenticate: AuthAction,
+    @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
     getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   navigator: CompoundNavigator,
