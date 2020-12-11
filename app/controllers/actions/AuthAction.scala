@@ -106,15 +106,15 @@ abstract class AuthenticatedAuthAction @Inject()(override val authConnector: Aut
     providerId: String,
     enrolments: Enrolments
   )(implicit hc: HeaderCarrier): AuthenticatedRequest[A] = {
-    val tpssPSPId = enrolments.getEnrolment("HMRC-PP-ORG")
+    val tpssPspId = enrolments.getEnrolment("HMRC-PP-ORG")
       .flatMap(_.getIdentifier("PSPID")).map(_.value)
     val podsPspId = enrolments.getEnrolment("HMRC-PODSPP-ORG")
       .flatMap(_.getIdentifier("PSPID").map(_.value))
     val pspUser = PSPUser(
       userType = userType(affinityGroup),
       nino = None,
-      isExistingPSP = tpssPSPId.nonEmpty,
-      existingPSPId = tpssPSPId,
+      isExistingPSP = tpssPspId.nonEmpty,
+      existingPSPId = tpssPspId,
       alreadyEnrolledPspId = podsPspId,
       userId = providerId
     )
