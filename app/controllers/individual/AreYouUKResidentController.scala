@@ -21,23 +21,23 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import forms.individual.AreYouUKResidentFormProvider
 import javax.inject.Inject
-import models.{CheckMode, Mode}
+import models.{Mode, CheckMode}
 import navigators.CompoundNavigator
 import pages.individual.AreYouUKResidentPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
-import utils.annotations.AuthWithNoIV
+import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 class AreYouUKResidentController @Inject()(override val messagesApi: MessagesApi,
                                            userAnswersCacheConnector: UserAnswersCacheConnector,
                                            navigator: CompoundNavigator,
-                                           @AuthWithNoIV authenticate: AuthAction,
+                                           @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
                                            getData: DataRetrievalAction,
                                            requireData: DataRequiredAction,
                                            formProvider: AreYouUKResidentFormProvider,

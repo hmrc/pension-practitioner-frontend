@@ -25,17 +25,18 @@ import models.Mode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.AddressChange
-import pages.partnership.{BusinessNamePage, PartnershipEmailPage}
+import pages.partnership.{PartnershipEmailPage, BusinessNamePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, Json, Writes}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.libs.json.{Writes, Json, JsObject}
+import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import viewmodels.CommonViewModel
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 class PartnershipEmailController @Inject()(override val messagesApi: MessagesApi,
                                            userAnswersCacheConnector: UserAnswersCacheConnector,

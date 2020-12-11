@@ -24,19 +24,20 @@ import javax.inject.Inject
 import pages.PspIdPage
 import pages.company.CompanyEmailPage
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.libs.json.{Json, JsObject}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import play.twirl.api.Html
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.annotations.AuthMustHaveEnrolment
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 class ConfirmationController @Inject()(appConfig: FrontendAppConfig,
                                        override val messagesApi: MessagesApi,
                                        userAnswersCacheConnector: UserAnswersCacheConnector,
-                                       authenticate: AuthAction,
+                                       @AuthMustHaveEnrolment authenticate: AuthAction,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,

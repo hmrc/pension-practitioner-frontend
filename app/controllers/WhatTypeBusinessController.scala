@@ -38,6 +38,7 @@ import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -45,7 +46,7 @@ import scala.concurrent.Future
 class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi,
                                            userAnswersCacheConnector: UserAnswersCacheConnector,
                                            navigator: CompoundNavigator,
-                                           authenticate: AuthAction,
+                                           @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
                                            getData: DataRetrievalAction,
                                            requireData: DataRequiredAction,
                                            formProvider: WhatTypeBusinessFormProvider,

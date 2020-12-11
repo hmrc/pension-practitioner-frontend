@@ -46,10 +46,8 @@ import play.api.libs.json.Reads
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthConnector,
+abstract class AuthenticatedAuthAction @Inject()(override val authConnector: AuthConnector,
   config: FrontendAppConfig,
-  userAnswersCacheConnector: UserAnswersCacheConnector,
-  ivConnector: IdentityVerificationConnector,
   val parser: BodyParsers.Default
 )
   (implicit val executionContext: ExecutionContext) extends AuthAction with AuthorisedFunctions {
@@ -58,133 +56,69 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
     authorised(User or Assistant).retrieve(
-        Retrievals.externalId and
-        Retrievals.confidenceLevel and
+      Retrievals.externalId and
         Retrievals.affinityGroup and
         Retrievals.allEnrolments and
         Retrievals.credentials and
         Retrievals.credentialRole
     ) {
-      case Some(id) ~ cl ~ Some(affinityGroup) ~ enrolments ~ Some(credentials) ~ Some(credentialRole) =>
+      case Some(id) ~ Some(affinityGroup) ~ enrolments ~ Some(credentials) ~ Some(credentialRole) =>
         allowAccess(id,
           affinityGroup,
-          cl,
-          enrolments,
           credentialRole,
-          AuthenticatedRequest(request, id, pspUser(cl, affinityGroup, None, enrolments, credentials.providerId)),
+          createAuthenticatedRequest(id, request, affinityGroup, credentials.providerId, enrolments),
           block
         )
       case _ =>
         Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
-
     } recover handleFailure
   }
 
-  protected def allowAccess[A](externalId: String, affinityGroup: AffinityGroup, cl: ConfidenceLevel,
-    enrolments: Enrolments, role: CredentialRole, authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
+  protected def allowAccess[A](externalId: String, affinityGroup: AffinityGroup, role: CredentialRole,
+    authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
     (implicit hc: HeaderCarrier): Future[Result] = {
-    checkAffinityGroupAndRole(affinityGroup, role) match {
-      case Some(redirect) => Future.successful(redirect)
-      case _ =>
-        getData(AreYouUKResidentPage).flatMap {
-          case _ if alreadyEnrolledInPODS(enrolments) =>
-            savePspIdAndReturnAuthRequest(externalId, enrolments, authRequest, block)
-//          case _ if alreadyEnrolledThroughPODSForPSP(enrolments) =>
-//            Future.successful(Redirect(controllers.routes.AlreadyRegisteredController.onPageLoad()))
-          case Some(true) if affinityGroup == Organisation =>
-            doManualIVAndRetrieveNino(externalId, authRequest, block)
-          case _ =>
-            block(authRequest)
-        }
-    }
-  }
 
-  private def checkAffinityGroupAndRole(affinityGroup: AffinityGroup, role: CredentialRole):Option[Result]  = {
     (affinityGroup, role) match {
-      case (AffinityGroup.Agent, _) => Some(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
-      case (AffinityGroup.Individual, _) => Some(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
-      case (AffinityGroup.Organisation, Assistant) => Some(Redirect(controllers.routes.AssistantNoAccessController.onPageLoad()))
-      case _ => None
-    }
-
-  }
-
-  protected def savePspIdAndReturnAuthRequest[A](externalId: String, enrolments: Enrolments, authRequest: AuthenticatedRequest[A],
-    block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
-    if (alreadyEnrolledInPODS(enrolments)) {
-      val pspId = getPSPId(enrolments)
-      block(AuthenticatedRequest(authRequest.request, externalId, authRequest.user.copy(alreadyEnrolledPspId = Some(pspId))))
-    }
-    else {
-      block(authRequest)
-    }
-  }
-
-
-  private def doManualIVAndRetrieveNino[A](externalId: String, authRequest: AuthenticatedRequest[A],
-    block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
-    val journeyId = authRequest.request.getQueryString(key = "journeyId")
-    getData(JourneyPage).flatMap {
-      case Some(journey) =>
-        getNinoAndUpdateAuthRequest(externalId, journey, block, authRequest)
-      case _ if journeyId.nonEmpty =>
-        for {
-          ua <- getUa
-          uaWithJourneyId <- Future.fromTry(ua.set(JourneyPage, journeyId.getOrElse("")))
-          _ <- userAnswersCacheConnector.save(uaWithJourneyId.data)
-          finalAuthRequest <- getNinoAndUpdateAuthRequest(externalId, journeyId.getOrElse(""), block, authRequest)
-        } yield {
-          finalAuthRequest
-        }
-      case _ =>
-        orgManualIV(authRequest, block)
-    }
-  }
-
-  private def getNinoAndUpdateAuthRequest[A](externalId: String, journeyId: String, block: AuthenticatedRequest[A] => Future[Result],
-    authRequest: AuthenticatedRequest[A])(implicit hc: HeaderCarrier): Future[Result] = {
-    ivConnector.retrieveNinoFromIV(journeyId).flatMap {
-      case Some(nino) =>
-        val updatedAuth = AuthenticatedRequest(authRequest.request, externalId, authRequest.user.copy(nino = Some(nino)))
-        block(updatedAuth)
-      case _ =>
-        getUa.flatMap { answers =>
-          Future.fromTry(answers.remove(JourneyPage)).flatMap { ua =>
-            userAnswersCacheConnector.save(ua.data).flatMap { _ =>
-              orgManualIV(authRequest, block)
-            }
-          }
+      case (AffinityGroup.Agent, _) => Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
+      case (AffinityGroup.Individual, _) => Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
+      case (AffinityGroup.Organisation, Assistant) => Future.successful(Redirect(controllers.routes.AssistantNoAccessController.onPageLoad()))
+      case (AffinityGroup.Organisation, _) =>
+        (checkAuthenticatedRequest(authRequest), authRequest.user.alreadyEnrolledPspId) match {
+          case (Some(redirect), _) => Future.successful(redirect)
+          case (_, None) => completeAuthentication(externalId, authRequest, block)
+          case _ => block(authRequest)
         }
     }
   }
 
-  private def orgManualIV[A](authRequest: AuthenticatedRequest[A],
-    block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier) = {
+  protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result]
 
-    getData(WhatTypeBusinessPage).flatMap {
-      case Some(Yourselfasindividual) =>
-        ivConnector.startRegisterOrganisationAsIndividual(
-          config.ukJourneyContinueUrl,
-          failureURL = s"${config.loginContinueUrl}/unauthorised"
-        ).map { link =>
-          Redirect(url = s"${config.manualIvUrl}$link")
-        }
-      case _ =>
-        block(authRequest)
-    }
-  }
+  protected def completeAuthentication[A](
+    externalId: String,
+    authRequest: AuthenticatedRequest[A],
+    block: AuthenticatedRequest[A] => Future[Result]
+  )(implicit hc: HeaderCarrier):Future[Result] = block(authRequest)
 
-  private def getData[A](typedId: QuestionPage[A])(implicit hc: HeaderCarrier, rds: Reads[A]): Future[Option[A]] = {
-    getUa.map(_.get(typedId))
-  }
-
-  private def getUa(implicit hc: HeaderCarrier): Future[UserAnswers] = {
-    userAnswersCacheConnector.fetch.map {
-      case Some(json) =>
-        UserAnswers(json.as[JsObject])
-      case None =>
-        UserAnswers(Json.obj())
-    }
+  private def createAuthenticatedRequest[A](
+    externalId: String,
+    request: Request[A],
+    affinityGroup: AffinityGroup,
+    providerId: String,
+    enrolments: Enrolments
+  )(implicit hc: HeaderCarrier): AuthenticatedRequest[A] = {
+    val tpssPspId = enrolments.getEnrolment("HMRC-PP-ORG")
+      .flatMap(_.getIdentifier("PSPID")).map(_.value)
+    val podsPspId = enrolments.getEnrolment("HMRC-PODSPP-ORG")
+      .flatMap(_.getIdentifier("PSPID").map(_.value))
+    val pspUser = PSPUser(
+      userType = userType(affinityGroup),
+      nino = None,
+      isExistingPSP = tpssPspId.nonEmpty,
+      existingPSPId = tpssPspId,
+      alreadyEnrolledPspId = podsPspId,
+      userId = providerId
+    )
+    AuthenticatedRequest(request, externalId, pspUser)
   }
 
   private def handleFailure: PartialFunction[Throwable, Result] = {
@@ -202,50 +136,139 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
       Redirect(controllers.routes.UnauthorisedController.onPageLoad())
   }
 
-  private def existingPSP(enrolments: Enrolments): Option[String] =
-    enrolments.getEnrolment("HMRC-PP-ORG").flatMap(_.getIdentifier("PSPID")).map(_.value)
-
-  protected def alreadyEnrolledInPODS(enrolments: Enrolments): Boolean =
-    enrolments.getEnrolment("HMRC-PODSPP-ORG").nonEmpty
-
   protected def userType(affinityGroup: AffinityGroup): UserType = {
     affinityGroup match {
-      case Individual =>
-        UserType.Individual
-      case Organisation =>
-        UserType.Organisation
+      case Individual => UserType.Individual
+      case Organisation => UserType.Organisation
       case _ =>
         throw new UnauthorizedException("Unable to authorise the user")
     }
   }
-
-  protected def pspUser(cl: ConfidenceLevel, affinityGroup: AffinityGroup,
-    nino: Option[uk.gov.hmrc.domain.Nino], enrolments: Enrolments, userId: String): PSPUser = {
-    val psp = existingPSP(enrolments)
-    PSPUser(userType(affinityGroup), nino, psp.nonEmpty, psp, None, userId)
-  }
-
-  protected def getPSPId(enrolments: Enrolments): String =
-    enrolments.getEnrolment("HMRC-PODSPP-ORG").flatMap(_.getIdentifier("PSPID")).map(_.value)
-      .getOrElse(throw new RuntimeException("PSP ID missing"))
 }
 
 trait AuthAction extends ActionBuilder[AuthenticatedRequest, AnyContent] with ActionFunction[Request, AuthenticatedRequest]
 
-class AuthenticatedAuthActionWithNoIV @Inject()(override val authConnector: AuthConnector,
+class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthConnector,
+  config: FrontendAppConfig,
+  userAnswersCacheConnector: UserAnswersCacheConnector,
+  identityVerificationConnector: IdentityVerificationConnector,
+  parser: BodyParsers.Default
+)(implicit executionContext: ExecutionContext) extends
+  AuthenticatedAuthAction(authConnector, config, parser)
+  with AuthorisedFunctions {
+
+  override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] = None
+
+  override protected def completeAuthentication[A](
+    externalId: String,
+    authRequest: AuthenticatedRequest[A],
+    block: AuthenticatedRequest[A] => Future[Result]
+  )(implicit hc: HeaderCarrier):Future[Result] = {
+    getData(AreYouUKResidentPage) flatMap {
+      case Some(true) => doManualIVAndRetrieveNino(externalId, authRequest, block)
+      case _ => block(authRequest)
+    }
+  }
+
+  private def doManualIVAndRetrieveNino[A](externalId: String, authRequest: AuthenticatedRequest[A],
+    block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
+    val journeyId = authRequest.request.getQueryString(key = "journeyId")
+    getData(JourneyPage).flatMap {
+      case Some(journey) => getNinoAndUpdateAuthRequest(externalId, journey, block, authRequest)
+      case _ if journeyId.nonEmpty =>
+        for {
+          ua <- getUa
+            uaWithJourneyId <- Future.fromTry(ua.set(JourneyPage, journeyId.getOrElse("")))
+            _ <- userAnswersCacheConnector.save(uaWithJourneyId.data)
+            finalAuthRequest <- getNinoAndUpdateAuthRequest(externalId, journeyId.getOrElse(""), block, authRequest)
+        } yield {
+          finalAuthRequest
+        }
+      case _ =>
+        orgManualIV(authRequest, block)
+    }
+  }
+
+  private def getNinoAndUpdateAuthRequest[A](externalId: String, journeyId: String, block: AuthenticatedRequest[A] => Future[Result],
+    authRequest: AuthenticatedRequest[A])(implicit hc: HeaderCarrier): Future[Result] = {
+    identityVerificationConnector.retrieveNinoFromIV(journeyId).flatMap {
+      case Some(nino) =>
+        val updatedAuth = AuthenticatedRequest(authRequest.request, externalId, authRequest.user.copy(nino = Some(nino)))
+        block(updatedAuth)
+      case _ =>
+        getUa.flatMap { answers =>
+          Future.fromTry(answers.remove(JourneyPage)).flatMap { ua =>
+            userAnswersCacheConnector.save(ua.data).flatMap { _ =>
+              orgManualIV(authRequest, block)
+            }
+          }
+        }
+    }
+  }
+
+  private def orgManualIV[A](authRequest: AuthenticatedRequest[A],
+    block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
+    getData(WhatTypeBusinessPage).flatMap {
+      case Some(Yourselfasindividual) =>
+        identityVerificationConnector.startRegisterOrganisationAsIndividual(
+          config.ukJourneyContinueUrl,
+          failureURL = s"${config.loginContinueUrl}/unauthorised"
+        ).map { link =>
+          Redirect(url = s"${config.manualIvUrl}$link")
+        }
+      case _ =>
+        block(authRequest)
+    }
+  }
+
+  private def getData[A](typedId: QuestionPage[A])(implicit hc: HeaderCarrier, rds: Reads[A]): Future[Option[A]] =
+    getUa.map(_.get(typedId))
+
+  private def getUa(implicit hc: HeaderCarrier): Future[UserAnswers] =
+    userAnswersCacheConnector.fetch.map {
+      case Some(json) =>
+        UserAnswers(json.as[JsObject])
+      case None =>
+        UserAnswers(Json.obj())
+    }
+}
+
+class AuthenticatedAuthActionMustHaveNoEnrolmentWithIV @Inject()(override val authConnector: AuthConnector,
   config: FrontendAppConfig,
   userAnswersCacheConnector: UserAnswersCacheConnector,
   identityVerificationConnector: IdentityVerificationConnector,
   parser: BodyParsers.Default
 )(implicit executionContext: ExecutionContext) extends
   AuthenticatedAuthActionWithIV(authConnector, config, userAnswersCacheConnector, identityVerificationConnector, parser)
-
   with AuthorisedFunctions {
 
-  override def allowAccess[A](externalId: String, affinityGroup: AffinityGroup, cl: ConfidenceLevel,
-    enrolments: Enrolments, role: CredentialRole, authRequest: => AuthenticatedRequest[A],
-    block: AuthenticatedRequest[A] => Future[Result])
-    (implicit hc: HeaderCarrier): Future[Result] = {
-    savePspIdAndReturnAuthRequest(externalId, enrolments, authRequest, block)
+  override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] = {
+    authenticatedRequest.user.alreadyEnrolledPspId.map(_ => Redirect(controllers.routes.AlreadyRegisteredController.onPageLoad()))
   }
+}
+
+class AuthenticatedAuthActionMustHaveEnrolment @Inject()(override val authConnector: AuthConnector,
+  config: FrontendAppConfig,
+  parser: BodyParsers.Default
+)(implicit executionContext: ExecutionContext) extends
+  AuthenticatedAuthAction(authConnector, config, parser)
+  with AuthorisedFunctions {
+
+  override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] = {
+    authenticatedRequest.user.alreadyEnrolledPspId match {
+      case Some(_) => None
+      case _ => Some(Redirect(config.youNeedToRegisterUrl))
+    }
+  }
+}
+
+class AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV @Inject()(override val authConnector: AuthConnector,
+  config: FrontendAppConfig,
+  parser: BodyParsers.Default
+)(implicit executionContext: ExecutionContext) extends
+  AuthenticatedAuthAction(authConnector, config, parser)
+  with AuthorisedFunctions {
+
+  override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] =
+    authenticatedRequest.user.alreadyEnrolledPspId.map(_ => Redirect(controllers.routes.AlreadyRegisteredController.onPageLoad()))
 }

@@ -36,6 +36,7 @@ import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import uk.gov.hmrc.viewmodels.Radios
+import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -43,7 +44,7 @@ import scala.concurrent.Future
 class IsPartnershipRegisteredInUkController @Inject()(override val messagesApi: MessagesApi,
                                       userAnswersCacheConnector: UserAnswersCacheConnector,
                                       navigator: CompoundNavigator,
-                                      authenticate: AuthAction,
+                                      @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
                                       getData: DataRetrievalAction,
                                       requireData: DataRequiredAction,
                                       formProvider: IsPartnershipRegisteredInUkFormProvider,

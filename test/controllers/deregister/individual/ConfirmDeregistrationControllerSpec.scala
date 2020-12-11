@@ -18,29 +18,30 @@ package controllers.deregister.individual
 
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import connectors.{DeregistrationConnector, MinimalConnector}
-import controllers.actions.{AuthAction, FakeAuthAction, MutableFakeDataRetrievalAction}
+import connectors.{MinimalConnector, DeregistrationConnector}
+import controllers.actions.{MutableFakeDataRetrievalAction, AuthAction, FakeAuthAction}
 import controllers.base.ControllerSpecBase
 import forms.deregister.ConfirmDeregistrationFormProvider
 import matchers.JsonMatchers
-import models.{MinimalPSP, UserAnswers}
+import models.{UserAnswers, MinimalPSP}
 import navigators.CompoundNavigator
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.{times, when, verify}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.PspNamePage
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{Json, JsObject}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import utils.annotations.AuthMustHaveEnrolment
 
 import scala.concurrent.Future
 
@@ -64,7 +65,7 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
   override def modules: Seq[GuiceableModule] = Seq(
     bind[MinimalConnector].toInstance(mockMinimalConnector),
     bind[DeregistrationConnector].toInstance(mockDeregistrationConnector),
-    bind[AuthAction].to[FakeAuthAction],
+    bind[AuthAction].qualifiedWith(classOf[AuthMustHaveEnrolment]).to[FakeAuthAction],
     bind[NunjucksRenderer].toInstance(mockRenderer),
     bind[FrontendAppConfig].toInstance(mockAppConfig),
     bind[UserAnswersCacheConnector].toInstance(mockUserAnswersCacheConnector),

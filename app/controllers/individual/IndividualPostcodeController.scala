@@ -29,10 +29,11 @@ import navigators.CompoundNavigator
 import pages.individual.IndividualPostcodePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.libs.json.{Json, JsObject}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 
 import scala.concurrent.ExecutionContext
 
