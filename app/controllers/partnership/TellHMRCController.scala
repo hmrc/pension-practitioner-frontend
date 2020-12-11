@@ -24,13 +24,13 @@ import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
-import utils.annotations.AuthWithIVNoEnrolment
+import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 
 import scala.concurrent.ExecutionContext
 
 class TellHMRCController @Inject()(
     override val messagesApi: MessagesApi,
-    @AuthWithIVNoEnrolment authenticate: AuthAction,
+    @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
   config: FrontendAppConfig,

@@ -49,7 +49,7 @@ import play.twirl.api.Html
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import uk.gov.hmrc.viewmodels.Radios
-import utils.annotations.AuthWithNoIV
+import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 
 import scala.concurrent.Future
 
@@ -65,7 +65,7 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
 
   override def modules: Seq[GuiceableModule] = Seq(
     bind[DataRequiredAction].to[DataRequiredActionImpl],
-    bind[AuthAction].qualifiedWith(classOf[AuthWithNoIV]).to[FakeAuthAction],
+    bind[AuthAction].qualifiedWith(classOf[AuthMustHaveNoEnrolmentWithNoIV]).to[FakeAuthAction],
     bind[NunjucksRenderer].toInstance(mockRenderer),
     bind[FrontendAppConfig].toInstance(mockAppConfig),
     bind[UserAnswersCacheConnector].toInstance(mockUserAnswersCacheConnector),

@@ -43,8 +43,8 @@ import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
-import utils.annotations.AuthWithIVEnrolmentRequired
-import utils.annotations.AuthWithIVNoEnrolment
+import utils.annotations.AuthMustHaveEnrolment
+import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 
 import scala.concurrent.Future
 
@@ -68,7 +68,7 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
   override def modules: Seq[GuiceableModule] = Seq(
     bind[MinimalConnector].toInstance(mockMinimalConnector),
     bind[DeregistrationConnector].toInstance(mockDeregistrationConnector),
-    bind[AuthAction].qualifiedWith(classOf[AuthWithIVEnrolmentRequired]).to[FakeAuthAction],
+    bind[AuthAction].qualifiedWith(classOf[AuthMustHaveEnrolment]).to[FakeAuthAction],
     bind[NunjucksRenderer].toInstance(mockRenderer),
     bind[FrontendAppConfig].toInstance(mockAppConfig),
     bind[UserAnswersCacheConnector].toInstance(mockUserAnswersCacheConnector),

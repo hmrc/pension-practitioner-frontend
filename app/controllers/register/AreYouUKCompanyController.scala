@@ -34,7 +34,7 @@ import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import uk.gov.hmrc.viewmodels.Radios
-import utils.annotations.AuthWithIVNoEnrolment
+import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -42,7 +42,7 @@ import scala.concurrent.Future
 class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
                                       userAnswersCacheConnector: UserAnswersCacheConnector,
                                       navigator: CompoundNavigator,
-                                      @AuthWithIVNoEnrolment authenticate: AuthAction,
+                                      @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
                                       getData: DataRetrievalAction,
                                       requireData: DataRequiredAction,
                                       formProvider: AreYouUKCompanyFormProvider,

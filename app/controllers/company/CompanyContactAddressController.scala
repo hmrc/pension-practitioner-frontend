@@ -41,7 +41,7 @@ import play.api.mvc.Call
 import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthWithIVNoEnrolment
+import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import utils.countryOptions.CountryOptions
 
 import scala.concurrent.ExecutionContext
@@ -50,7 +50,7 @@ class CompanyContactAddressController @Inject()(
   override val messagesApi: MessagesApi,
   val userAnswersCacheConnector: UserAnswersCacheConnector,
   val navigator: CompoundNavigator,
-  @AuthWithIVNoEnrolment authenticate: AuthAction,
+  @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: AddressFormProvider,

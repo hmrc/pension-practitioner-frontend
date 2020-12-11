@@ -35,7 +35,7 @@ import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
-import utils.annotations.AuthWithIVNoEnrolment
+import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import utils.countryOptions.CountryOptions
 
 import scala.concurrent.{Future, ExecutionContext}
@@ -43,7 +43,7 @@ import scala.concurrent.{Future, ExecutionContext}
 class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
                                     userAnswersCacheConnector: UserAnswersCacheConnector,
                                     navigator: CompoundNavigator,
-                                    @AuthWithIVNoEnrolment authenticate: AuthAction,
+                                    @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
                                     getData: DataRetrievalAction,
                                     requireData: DataRequiredAction,
                                     formProvider: IsThisYouFormProvider,

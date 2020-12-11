@@ -21,9 +21,9 @@ import com.google.inject.multibindings.Multibinder
 import connectors.cache.{UserAnswersCacheConnectorImpl, UserAnswersCacheConnector}
 import controllers.actions._
 import navigators._
-import utils.annotations.AuthWithIVEnrolmentRequired
-import utils.annotations.AuthWithIVNoEnrolment
-import utils.annotations.AuthWithNoIV
+import utils.annotations.AuthMustHaveEnrolment
+import utils.annotations.AuthMustHaveNoEnrolmentWithIV
+import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 
 class Module extends AbstractModule {
 
@@ -37,9 +37,12 @@ class Module extends AbstractModule {
     bind(classOf[DataRequiredAction]).to(classOf[DataRequiredActionImpl]).asEagerSingleton()
 
     bind(classOf[AuthAction]).to(classOf[AuthenticatedAuthActionWithIV]).asEagerSingleton()
-    bind(classOf[AuthAction]).annotatedWith(classOf[AuthWithIVNoEnrolment]).to(classOf[AuthenticatedAuthActionWithIVNoEnrolment]).asEagerSingleton()
-    bind(classOf[AuthAction]).annotatedWith(classOf[AuthWithIVEnrolmentRequired]).to(classOf[AuthenticatedAuthActionWithIVEnrolmentRequired]).asEagerSingleton()
-    bind(classOf[AuthAction]).annotatedWith(classOf[AuthWithNoIV]).to(classOf[AuthenticatedAuthActionWithNoIV]).asEagerSingleton()
+    bind(classOf[AuthAction]).annotatedWith(classOf[AuthMustHaveNoEnrolmentWithIV])
+      .to(classOf[AuthenticatedAuthActionMustHaveNoEnrolmentWithIV]).asEagerSingleton()
+    bind(classOf[AuthAction]).annotatedWith(classOf[AuthMustHaveEnrolment])
+      .to(classOf[AuthenticatedAuthActionMustHaveEnrolment]).asEagerSingleton()
+    bind(classOf[AuthAction]).annotatedWith(classOf[AuthMustHaveNoEnrolmentWithNoIV])
+      .to(classOf[AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV]).asEagerSingleton()
 
     bind(classOf[CompoundNavigator]).to(classOf[CompoundNavigatorImpl])
 

@@ -97,7 +97,7 @@ abstract class AuthenticatedAuthAction @Inject()(override val authConnector: Aut
     externalId: String,
     authRequest: AuthenticatedRequest[A],
     block: AuthenticatedRequest[A] => Future[Result]
-  )(implicit hc: HeaderCarrier):Future[Result]
+  )(implicit hc: HeaderCarrier):Future[Result] = block(authRequest)
 
   private def createAuthenticatedRequest[A](
     externalId: String,
@@ -233,7 +233,7 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
     }
 }
 
-class AuthenticatedAuthActionWithIVNoEnrolment @Inject()(override val authConnector: AuthConnector,
+class AuthenticatedAuthActionMustHaveNoEnrolmentWithIV @Inject()(override val authConnector: AuthConnector,
   config: FrontendAppConfig,
   userAnswersCacheConnector: UserAnswersCacheConnector,
   identityVerificationConnector: IdentityVerificationConnector,
@@ -247,13 +247,11 @@ class AuthenticatedAuthActionWithIVNoEnrolment @Inject()(override val authConnec
   }
 }
 
-class AuthenticatedAuthActionWithIVEnrolmentRequired @Inject()(override val authConnector: AuthConnector,
+class AuthenticatedAuthActionMustHaveEnrolment @Inject()(override val authConnector: AuthConnector,
   config: FrontendAppConfig,
-  userAnswersCacheConnector: UserAnswersCacheConnector,
-  identityVerificationConnector: IdentityVerificationConnector,
   parser: BodyParsers.Default
 )(implicit executionContext: ExecutionContext) extends
-  AuthenticatedAuthActionWithIV(authConnector, config, userAnswersCacheConnector, identityVerificationConnector, parser)
+  AuthenticatedAuthAction(authConnector, config, parser)
   with AuthorisedFunctions {
 
   override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] = {
@@ -264,7 +262,7 @@ class AuthenticatedAuthActionWithIVEnrolmentRequired @Inject()(override val auth
   }
 }
 
-class AuthenticatedAuthActionWithNoIV @Inject()(override val authConnector: AuthConnector,
+class AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV @Inject()(override val authConnector: AuthConnector,
   config: FrontendAppConfig,
   parser: BodyParsers.Default
 )(implicit executionContext: ExecutionContext) extends
@@ -273,10 +271,4 @@ class AuthenticatedAuthActionWithNoIV @Inject()(override val authConnector: Auth
 
   override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] =
     authenticatedRequest.user.alreadyEnrolledPspId.map(_ => Redirect(controllers.routes.AlreadyRegisteredController.onPageLoad()))
-
-  override protected def completeAuthentication[A](
-    externalId: String,
-    authRequest: AuthenticatedRequest[A],
-    block: AuthenticatedRequest[A] => Future[Result]
-  )(implicit hc: HeaderCarrier):Future[Result] = block(authRequest)
 }

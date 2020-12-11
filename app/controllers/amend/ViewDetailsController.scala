@@ -23,11 +23,11 @@ import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import services.PspDetailsService
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
-import utils.annotations.AuthWithIVEnrolmentRequired
+import utils.annotations.AuthMustHaveEnrolment
 
 import scala.concurrent.{Future, ExecutionContext}
 
-class ViewDetailsController @Inject()(@AuthWithIVEnrolmentRequired authenticate: AuthAction,
+class ViewDetailsController @Inject()(@AuthMustHaveEnrolment authenticate: AuthAction,
                                      getData: DataRetrievalAction,
                                      pspDetailsService: PspDetailsService,
                                      renderer: Renderer,

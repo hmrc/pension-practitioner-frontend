@@ -37,7 +37,7 @@ import uk.gov.hmrc.http.{HttpResponse, HeaderCarrier}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.KnownFactsRetrieval
-import utils.annotations.AuthWithIVNoEnrolment
+import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 
 import scala.concurrent.{Future, ExecutionContext}
 
@@ -46,7 +46,7 @@ class DeclarationController @Inject()(
                                         subscriptionConnector: SubscriptionConnector,
                                         userAnswersCacheConnector: UserAnswersCacheConnector,
                                         navigator: CompoundNavigator,
-                                        @AuthWithIVNoEnrolment authenticate: AuthAction,
+                                        @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
                                         getData: DataRetrievalAction,
                                         requireData: DataRequiredAction,
                                         val controllerComponents: MessagesControllerComponents,

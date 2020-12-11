@@ -27,13 +27,13 @@ import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthWithIVEnrolmentRequired
+import utils.annotations.AuthMustHaveEnrolment
 
 import scala.concurrent.ExecutionContext
 
 class SuccessController @Inject()(override val messagesApi: MessagesApi,
                                        userAnswersCacheConnector: UserAnswersCacheConnector,
-                                       @AuthWithIVEnrolmentRequired authenticate: AuthAction,
+                                       @AuthMustHaveEnrolment authenticate: AuthAction,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,

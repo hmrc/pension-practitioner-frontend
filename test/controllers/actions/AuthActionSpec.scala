@@ -49,7 +49,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
     Mockito.reset(mockUserAnswersCacheConnector, authConnector, mockIVConnector)
   }
 
-  "Auth Action AuthenticatedAuthActionWithIVEnrolmentRequired" when {
+  "Auth Action AuthenticatedAuthActionMustHaveEnrolment" when {
     "called for already enrolled User" must {
       "return OK" when {
         "coming from any page" in {
@@ -77,7 +77,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 
   }
 
-  "Auth Action AuthenticatedAuthActionWithIVNoEnrolment" when {
+  "Auth Action AuthenticatedAuthActionMustHaveNoEnrolmentWithIV" when {
 
     "called for already enrolled User" must {
       "return redirect to already registered page" when {
@@ -178,14 +178,14 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 
   }
 
-  "Auth Action AuthenticatedAuthActionWithNoIV" when {
+  "Auth Action AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV" when {
     "called for Company user" must {
       "return OK and able to view the page and not redirect to IV" when {
         "they want to register as Individual" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
           val userAnswersData = Json.obj("areYouInUK" -> true, "registerAsBusiness" -> false)
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          val authAction = new AuthenticatedAuthActionWithNoIV(authConnector, frontendAppConfig, bodyParsers)
+          val authAction = new AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV(authConnector, frontendAppConfig, bodyParsers)
 
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(fakeRequest)
@@ -336,12 +336,11 @@ object AuthActionSpec extends SpecBase with MockitoSugar {
   private val authConnector: AuthConnector = mock[AuthConnector]
   private val bodyParsers: BodyParsers.Default = app.injector.instanceOf[BodyParsers.Default]
 
-  val authActionWithIVEnrolment = new AuthenticatedAuthActionWithIVEnrolmentRequired(
-    authConnector, frontendAppConfig,
-    mockUserAnswersCacheConnector, mockIVConnector, bodyParsers
+  val authActionWithIVEnrolment = new AuthenticatedAuthActionMustHaveEnrolment(
+    authConnector, frontendAppConfig, bodyParsers
   )
 
-  val authActionWithIVNoEnrolment = new AuthenticatedAuthActionWithIVNoEnrolment(
+  val authActionWithIVNoEnrolment = new AuthenticatedAuthActionMustHaveNoEnrolmentWithIV(
     authConnector, frontendAppConfig,
     mockUserAnswersCacheConnector, mockIVConnector, bodyParsers
   )
