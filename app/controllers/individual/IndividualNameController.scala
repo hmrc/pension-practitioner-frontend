@@ -17,28 +17,33 @@
 package controllers.individual
 
 import connectors.cache.UserAnswersCacheConnector
-import controllers.{Retrievals, Variation}
 import controllers.actions._
+import controllers.Retrievals
+import controllers.Variation
 import forms.individual.IndividualNameFormProvider
 import javax.inject.Inject
-import models.SubscriptionType.Variation
-import models.{Mode, UserAnswers}
+import models.Mode
 import models.register.TolerantIndividual
 import models.requests.DataRequest
 import navigators.CompoundNavigator
-import pages.{SubscriptionTypePage, QuestionPage, NameChange}
+import pages.NameChange
 import pages.individual._
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{Json, JsObject}
-import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
+import play.api.i18n.I18nSupport
+import play.api.i18n.Messages
+import play.api.i18n.MessagesApi
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.Result
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthWithIVNoEnrolment
 
-import scala.concurrent.{Future, ExecutionContext}
-import scala.util.Try
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 class IndividualNameController @Inject()(override val messagesApi: MessagesApi,
                                          userAnswersCacheConnector: UserAnswersCacheConnector,

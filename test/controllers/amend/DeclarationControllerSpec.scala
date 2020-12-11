@@ -16,34 +16,23 @@
 
 package controllers.amend
 
-import connectors.EmailConnector
-import connectors.EmailSent
-import connectors.SubscriptionConnector
+import connectors.{EmailConnector, EmailSent, SubscriptionConnector}
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
+import data.SampleData
 import matchers.JsonMatchers
-import models.WhatTypeBusiness.Companyorpartnership
-import models.register.BusinessType
 import models.UserAnswers
-import org.mockito.ArgumentCaptor
-import org.mockito.Matchers
+import models.register.RegistrationLegalStatus
+import org.mockito.{ArgumentCaptor, Matchers}
 import org.mockito.Matchers.any
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.when
-import org.scalatest.OptionValues
-import org.scalatest.TryValues
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.PspIdPage
-import pages.WhatTypeBusinessPage
-import pages.company.BusinessNamePage
-import pages.company.CompanyEmailPage
-import pages.register.AreYouUKCompanyPage
-import pages.register.BusinessTypePage
+import pages.company.{BusinessNamePage, CompanyEmailPage}
+import pages.{PspIdPage, RegistrationInfoPage}
 import play.api.Application
 import play.api.inject.bind
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
@@ -103,9 +92,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
       when(mockAppConfig.emailPspAmendmentTemplateId).thenReturn(templateId)
 
       val ua = UserAnswers()
-        .setOrException(WhatTypeBusinessPage, Companyorpartnership)
-        .setOrException(AreYouUKCompanyPage, true)
-        .setOrException(BusinessTypePage, BusinessType.BusinessPartnership)
+        .setOrException(RegistrationInfoPage, SampleData.registrationInfo(RegistrationLegalStatus.Partnership))
         .setOrException(BusinessNamePage, partnershipName)
         .setOrException(CompanyEmailPage, email)
       mutableFakeDataRetrievalAction.setDataToReturn(Some(ua))
