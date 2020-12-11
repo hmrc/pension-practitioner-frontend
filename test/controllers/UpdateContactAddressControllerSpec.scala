@@ -16,29 +16,29 @@
 
 package controllers
 
-import config.FrontendAppConfig
 import connectors.SubscriptionConnector
-import connectors.SubscriptionConnector
-import connectors.cache.UserAnswersCacheConnector
-import controllers.actions.{DataRequiredActionImpl, DataRequiredAction, AuthAction, FakeAuthAction}
+import controllers.actions.AuthAction
+import controllers.actions.FakeAuthAction
 import controllers.base.ControllerSpecBase
 import data.SampleData._
-import models.{NormalMode, UserAnswers}
-import navigators.CompoundNavigator
+import models.NormalMode
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito.reset
-import org.mockito.Mockito.{times, when, verify}
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.libs.json.{JsNull, JsObject}
+import play.api.libs.json.JsObject
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import services.PspDetailsHelper._
+import utils.annotations.AuthMustHaveEnrolment
 
 import scala.concurrent.Future
 
@@ -48,7 +48,7 @@ class UpdateContactAddressControllerSpec extends ControllerSpecBase with Mockito
 
   override def modules: Seq[GuiceableModule] = Seq(
     bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
-    bind[AuthAction].to[FakeAuthAction],
+    bind[AuthAction].qualifiedWith(classOf[AuthMustHaveEnrolment]).to[FakeAuthAction],
     bind[NunjucksRenderer].toInstance(mockRenderer)
   )
 
@@ -59,80 +59,39 @@ class UpdateContactAddressControllerSpec extends ControllerSpecBase with Mockito
 
   "UpdateContactAddress Controller" must {
 
-    "return OK and the correct view for a GET on company" in {
-      when(mockRenderer.render(any(), any())(any()))
-        .thenReturn(Future.successful(Html("")))
-      when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
-      when(mockSubscriptionConnector.getSubscriptionDetails(any())(any(), any())).thenReturn(Future.successful(uaCompanyUk))
+    behave like updateContactAddressController("company", uaCompanyUk,
+      controllers.company.routes.CompanyPostcodeController.onPageLoad(NormalMode).url)
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-      val request = FakeRequest(GET, routes.UpdateContactAddressController.onPageLoad().url)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+    behave like updateContactAddressController("individual", uaIndividualUK,
+      controllers.individual.routes.IndividualPostcodeController.onPageLoad(NormalMode).url)
 
-      val result = route(application, request).value
+    behave like updateContactAddressController("partnership", uaPartnershipNonUK,
+      controllers.partnership.routes.PartnershipPostcodeController.onPageLoad(NormalMode).url)
 
-      status(result) mustEqual OK
+    def updateContactAddressController(description:String, jsObject:JsObject, expectedUrl: => String):Unit = {
+      s"return OK and the correct view for a GET for $description" in {
+        when(mockRenderer.render(any(), any())(any()))
+          .thenReturn(Future.successful(Html("")))
+        when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
+        when(mockSubscriptionConnector.getSubscriptionDetails(any())(any(), any())).thenReturn(Future.successful(jsObject))
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+        val request = FakeRequest(GET, routes.UpdateContactAddressController.onPageLoad().url)
+        val templateCaptor = ArgumentCaptor.forClass(classOf[String])
+        val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
-      templateCaptor.getValue mustEqual "updateContactAddress.njk"
+        val result = route(application, request).value
 
-      (jsonCaptor.getValue \ "addressUrl").asOpt[String]mustEqual
-        Some(controllers.company.routes.CompanyPostcodeController.onPageLoad(NormalMode).url)
+        status(result) mustEqual OK
 
-      application.stop()
-    }
+        verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
 
-    "return OK and the correct view for a GET on individual" in {
-      when(mockRenderer.render(any(), any())(any()))
-        .thenReturn(Future.successful(Html("")))
-      when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
-      when(mockSubscriptionConnector.getSubscriptionDetails(any())(any(), any())).thenReturn(Future.successful(uaIndividualUK))
+        templateCaptor.getValue mustEqual "updateContactAddress.njk"
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-      val request = FakeRequest(GET, routes.UpdateContactAddressController.onPageLoad().url)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+        (jsonCaptor.getValue \ "addressUrl").as[String] mustEqual expectedUrl
 
-      val result = route(application, request).value
-
-      status(result) mustEqual OK
-
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-      templateCaptor.getValue mustEqual "updateContactAddress.njk"
-
-      (jsonCaptor.getValue \ "addressUrl").asOpt[String]mustEqual
-        Some(controllers.individual.routes.IndividualPostcodeController.onPageLoad(NormalMode).url)
-
-      application.stop()
-    }
-
-    "return OK and the correct view for a GET on partnership" in {
-      when(mockRenderer.render(any(), any())(any()))
-        .thenReturn(Future.successful(Html("")))
-      when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
-      when(mockSubscriptionConnector.getSubscriptionDetails(any())(any(), any())).thenReturn(Future.successful(uaPartnershipNonUK))
-
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-      val request = FakeRequest(GET, routes.UpdateContactAddressController.onPageLoad().url)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-
-      val result = route(application, request).value
-
-      status(result) mustEqual OK
-
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-      templateCaptor.getValue mustEqual "updateContactAddress.njk"
-
-      (jsonCaptor.getValue \ "addressUrl").asOpt[String]mustEqual
-        Some(controllers.partnership.routes.PartnershipPostcodeController.onPageLoad(NormalMode).url)
-
-
-      application.stop()
+        application.stop()
+      }
     }
   }
 }
