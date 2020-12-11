@@ -72,6 +72,14 @@ alreadyRegistered.title = You have already registered as a pension scheme practi
 alreadyRegistered.heading = You have already registered as a pension scheme practitioner
 alreadyRegistered.p1 = This Government Gateway account has already been used to register as a pension scheme practitioner.
 
+updateContactAddress.title = You must update your contact address
+updateContactAddress.heading = You must update your contact address
+updateContactAddress.p1 = A letter we sent to your current contact address:
+updateContactAddress.p2 = was returned to HMRC as “undelivered” by Royal Mail.
+updateContactAddress.p3 = We need your correct address in order to send you important notifications.
+updateContactAddress.p4 = You must update your contact address before you can view or manage your pension schemes online.
+
+
 needAnOrganisationAccount.title = You need to use an organisation’s Government Gateway account to register as a pension scheme practitioner
 needAnOrganisationAccount.heading = You need to use an organisation’s Government Gateway account to register as a pension scheme practitioner
 needAnOrganisationAccount.p1 = You are trying to register as a pension scheme practitioner using a Government Gateway account that was created for an individual.
