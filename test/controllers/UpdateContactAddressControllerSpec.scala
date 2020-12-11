@@ -18,15 +18,17 @@ package controllers
 
 import config.FrontendAppConfig
 import connectors.SubscriptionConnector
+import connectors.SubscriptionConnector
 import connectors.cache.UserAnswersCacheConnector
-import controllers.actions.{AuthAction, DataRequiredAction, DataRequiredActionImpl, FakeAuthAction}
+import controllers.actions.{DataRequiredActionImpl, DataRequiredAction, AuthAction, FakeAuthAction}
 import controllers.base.ControllerSpecBase
 import data.SampleData._
 import models.{NormalMode, UserAnswers}
 import navigators.CompoundNavigator
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.reset
+import org.mockito.Mockito.{times, when, verify}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -46,19 +48,18 @@ class UpdateContactAddressControllerSpec extends ControllerSpecBase with Mockito
 
   override def modules: Seq[GuiceableModule] = Seq(
     bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
-    bind[DataRequiredAction].to[DataRequiredActionImpl],
     bind[AuthAction].to[FakeAuthAction],
-    bind[NunjucksRenderer].toInstance(mockRenderer),
-    bind[FrontendAppConfig].toInstance(mockAppConfig),
-    bind[UserAnswersCacheConnector].toInstance(mockUserAnswersCacheConnector),
-    bind[CompoundNavigator].toInstance(mockCompoundNavigator)
+    bind[NunjucksRenderer].toInstance(mockRenderer)
   )
+
+  override def beforeEach: Unit = {
+    super.beforeEach
+    reset(mockSubscriptionConnector)
+  }
 
   "UpdateContactAddress Controller" must {
 
     "return OK and the correct view for a GET on company" in {
-      val ua = UserAnswers()
-
       when(mockRenderer.render(any(), any())(any()))
         .thenReturn(Future.successful(Html("")))
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
@@ -80,12 +81,10 @@ class UpdateContactAddressControllerSpec extends ControllerSpecBase with Mockito
       (jsonCaptor.getValue \ "addressUrl").asOpt[String]mustEqual
         Some(controllers.company.routes.CompanyPostcodeController.onPageLoad(NormalMode).url)
 
-
       application.stop()
     }
 
     "return OK and the correct view for a GET on individual" in {
-
       when(mockRenderer.render(any(), any())(any()))
         .thenReturn(Future.successful(Html("")))
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
@@ -107,12 +106,10 @@ class UpdateContactAddressControllerSpec extends ControllerSpecBase with Mockito
       (jsonCaptor.getValue \ "addressUrl").asOpt[String]mustEqual
         Some(controllers.individual.routes.IndividualPostcodeController.onPageLoad(NormalMode).url)
 
-
       application.stop()
     }
 
     "return OK and the correct view for a GET on partnership" in {
-
       when(mockRenderer.render(any(), any())(any()))
         .thenReturn(Future.successful(Html("")))
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
