@@ -17,24 +17,34 @@
 package controllers
 
 import connectors.SubscriptionConnector
-import controllers.actions.{DataRequiredAction, AuthAction, DataRetrievalAction}
+import controllers.actions.AuthAction
+import controllers.actions.DataRequiredAction
+import controllers.actions.DataRetrievalAction
 import javax.inject.Inject
-import models.register.BusinessRegistrationType.Company
-import models.register.RegistrationLegalStatus.{Individual, LimitedCompany, Partnership}
-import models.{NormalMode, UserAnswers}
+import models.Address
+import models.register.RegistrationLegalStatus.Individual
+import models.register.RegistrationLegalStatus.LimitedCompany
+import models.register.RegistrationLegalStatus.Partnership
+import models.NormalMode
+import models.UserAnswers
 import pages.RegistrationDetailsPage
-import pages.individual.IndividualDetailsPage
-import pages.partnership.BusinessNamePage
+import pages.company.CompanyAddressPage
+import pages.individual.IndividualAddressPage
+import pages.individual.IndividualManualAddressPage
+import pages.partnership.PartnershipAddressPage
 import play.api.i18n.I18nSupport
-import play.api.libs.json.{Json, JsObject}
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
+import play.api.mvc.Action
+import play.api.mvc.AnyContent
+import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import utils.annotations.AuthMustHaveEnrolment
 import utils.countryOptions.CountryOptions
 
-import scala.concurrent.{Future, ExecutionContext}
-import scala.reflect.runtime.universe.Throw
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 class UpdateContactAddressController @Inject()(
                                                 val controllerComponents: MessagesControllerComponents,
@@ -42,7 +52,7 @@ class UpdateContactAddressController @Inject()(
                                                 @AuthMustHaveEnrolment authenticate: AuthAction,
                                                 getData: DataRetrievalAction,
                                                 requireData: DataRequiredAction,
-                                                //                                                countryOptions: CountryOptions,
+                                                countryOptions: CountryOptions,
                                                 subscriptionConnector: SubscriptionConnector
                                               )(implicit ec: ExecutionContext)
   extends FrontendBaseController
@@ -53,13 +63,14 @@ class UpdateContactAddressController @Inject()(
       request.user.alreadyEnrolledPspId.map { pspId =>
         subscriptionConnector.getSubscriptionDetails(pspId).flatMap { uaJson =>
           val ua = UserAnswers(uaJson.as[JsObject])
-          val continueJson = continueUrl(ua) match {
-            case Some(url) => Json.obj("addressUrl" -> url)
+          val json = retrieveRequiredValues(ua) match {
+            case Some(Tuple2(url, address)) =>
+              Json.obj(
+                "addressUrl" -> url,
+                "address" -> address.lines(countryOptions)
+              )
             case None => Json.obj()
           }
-          val json = Json.obj(
-            //            "address" -> address.lines(countryOptions),
-          ) ++ continueJson
           renderer.render("updateContactAddress.njk", json).map(Ok(_))
         }
       }.getOrElse(
@@ -67,16 +78,26 @@ class UpdateContactAddressController @Inject()(
       )
   }
 
-  private def continueUrl(ua: UserAnswers): Option[String] = {
+  private def retrieveRequiredValues(ua: UserAnswers): Option[(String, Address)] = {
     ua.get(RegistrationDetailsPage).flatMap {
       regInfo =>
         regInfo.legalStatus match {
-          case LimitedCompany => Some(controllers.company.routes.CompanyPostcodeController.onPageLoad(NormalMode).url)
-          case Individual => Some(controllers.individual.routes.IndividualPostcodeController.onPageLoad(NormalMode).url)
-          case Partnership => Some(controllers.partnership.routes.PartnershipPostcodeController.onPageLoad(NormalMode).url)
+          case LimitedCompany => Some(
+            controllers.company.routes.CompanyPostcodeController.onPageLoad(NormalMode).url,
+            ua.getOrException(CompanyAddressPage)
+          )
+          case Individual => Some(
+            controllers.individual.routes.IndividualPostcodeController.onPageLoad(NormalMode).url,
+            ua.getOrException(IndividualManualAddressPage)
+          )
+          case Partnership => Some(
+            controllers.partnership.routes.PartnershipPostcodeController.onPageLoad(NormalMode).url,
+            ua.getOrException(PartnershipAddressPage)
+          )
           case _ => None
         }
     }
+  }
     //    ua.get(RegistrationDetailsPage).map { regInfo =>
     //
     //      regInfo.legalStatus match {
@@ -115,7 +136,7 @@ class UpdateContactAddressController @Inject()(
     //          )
     //      }
     //    }.getOrElse(Json.obj())
-  }
+
 
 
 }

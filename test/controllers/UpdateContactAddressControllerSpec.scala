@@ -57,18 +57,33 @@ class UpdateContactAddressControllerSpec extends ControllerSpecBase with Mockito
     reset(mockSubscriptionConnector)
   }
 
+  val expectedAddressUK = Seq("4 Other Place", "Some District", "Anytown", "Somerset", "ZZ1 1ZZ", "United Kingdom")
+  val expectedAddressNonUK = Seq("4 Other Place", "Some District", "Anytown", "Somerset", "France")
+
   "UpdateContactAddress Controller" must {
 
-    behave like updateContactAddressController("company", uaCompanyUk,
-      controllers.company.routes.CompanyPostcodeController.onPageLoad(NormalMode).url)
+    behave like updateContactAddressController(
+      description = "company",
+      jsObject = uaCompanyUk,
+      expectedUrl = controllers.company.routes.CompanyPostcodeController.onPageLoad(NormalMode).url,
+      expectedAddress = expectedAddressUK
+    )
 
-    behave like updateContactAddressController("individual", uaIndividualUK,
-      controllers.individual.routes.IndividualPostcodeController.onPageLoad(NormalMode).url)
+    behave like updateContactAddressController(
+      description = "individual",
+      jsObject = uaIndividualUK,
+      expectedUrl = controllers.individual.routes.IndividualPostcodeController.onPageLoad(NormalMode).url,
+      expectedAddress = expectedAddressUK
+    )
 
-    behave like updateContactAddressController("partnership", uaPartnershipNonUK,
-      controllers.partnership.routes.PartnershipPostcodeController.onPageLoad(NormalMode).url)
+    behave like updateContactAddressController(
+      description = "partnership",
+      jsObject = uaPartnershipNonUK,
+      expectedUrl = controllers.partnership.routes.PartnershipPostcodeController.onPageLoad(NormalMode).url,
+      expectedAddress = expectedAddressNonUK
+    )
 
-    def updateContactAddressController(description:String, jsObject:JsObject, expectedUrl: => String):Unit = {
+    def updateContactAddressController(description:String, jsObject:JsObject, expectedUrl: => String, expectedAddress: => Seq[String]):Unit = {
       s"return OK and the correct view for a GET for $description" in {
         when(mockRenderer.render(any(), any())(any()))
           .thenReturn(Future.successful(Html("")))
@@ -89,6 +104,7 @@ class UpdateContactAddressControllerSpec extends ControllerSpecBase with Mockito
         templateCaptor.getValue mustEqual "updateContactAddress.njk"
 
         (jsonCaptor.getValue \ "addressUrl").as[String] mustEqual expectedUrl
+        (jsonCaptor.getValue \ "address").as[Seq[String]] mustEqual expectedAddress
 
         application.stop()
       }
