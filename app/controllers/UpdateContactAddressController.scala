@@ -17,11 +17,13 @@
 package controllers
 
 import connectors.SubscriptionConnector
+import connectors.cache.UserAnswersCacheConnector
 import controllers.actions.AuthAction
 import controllers.actions.DataRequiredAction
 import controllers.actions.DataRetrievalAction
 import javax.inject.Inject
 import models.Address
+import models.CheckMode
 import models.register.RegistrationLegalStatus.Individual
 import models.register.RegistrationLegalStatus.LimitedCompany
 import models.register.RegistrationLegalStatus.Partnership
@@ -39,6 +41,7 @@ import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
+import services.PspDetailsService
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import utils.annotations.AuthMustHaveEnrolment
 import utils.countryOptions.CountryOptions
@@ -51,22 +54,20 @@ class UpdateContactAddressController @Inject()(
                                                 renderer: Renderer,
                                                 @AuthMustHaveEnrolment authenticate: AuthAction,
                                                 getData: DataRetrievalAction,
-                                                requireData: DataRequiredAction,
                                                 countryOptions: CountryOptions,
-                                                subscriptionConnector: SubscriptionConnector
+                                                pspDetailsService: PspDetailsService
                                               )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
+  def onPageLoad: Action[AnyContent] = (authenticate andThen getData).async {
     implicit request =>
       request.user.alreadyEnrolledPspId.map { pspId =>
-        subscriptionConnector.getSubscriptionDetails(pspId).flatMap { uaJson =>
-          val ua = UserAnswers(uaJson.as[JsObject])
+          pspDetailsService.extractUserAnswers(request.userAnswers, pspId).flatMap { ua =>
           val json = retrieveRequiredValues(ua) match {
             case Some(Tuple2(url, address)) =>
               Json.obj(
-                "addressUrl" -> url,
+                "continueUrl" -> url,
                 "address" -> address.lines(countryOptions)
               )
             case None => Json.obj()
@@ -83,15 +84,15 @@ class UpdateContactAddressController @Inject()(
       regInfo =>
         regInfo.legalStatus match {
           case LimitedCompany => Some(
-            controllers.company.routes.CompanyPostcodeController.onPageLoad(NormalMode).url,
+            controllers.company.routes.CompanyPostcodeController.onPageLoad(CheckMode).url,
             ua.getOrException(CompanyAddressPage)
           )
           case Individual => Some(
-            controllers.individual.routes.IndividualPostcodeController.onPageLoad(NormalMode).url,
+            controllers.individual.routes.IndividualPostcodeController.onPageLoad(CheckMode).url,
             ua.getOrException(IndividualManualAddressPage)
           )
           case Partnership => Some(
-            controllers.partnership.routes.PartnershipPostcodeController.onPageLoad(NormalMode).url,
+            controllers.partnership.routes.PartnershipPostcodeController.onPageLoad(CheckMode).url,
             ua.getOrException(PartnershipAddressPage)
           )
           case _ => None

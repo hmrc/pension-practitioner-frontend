@@ -58,7 +58,7 @@ class PspDetailsService @Inject()(appConfig: FrontendAppConfig,
       extractUserAnswers(userAnswers, pspId).map { ua =>
 
         ua.get(RegistrationDetailsPage).map { regInfo =>
-          
+
           regInfo.legalStatus match {
             case Individual =>
               val title: String = individualMessage("viewDetails.title").resolve
@@ -97,7 +97,7 @@ class PspDetailsService @Inject()(appConfig: FrontendAppConfig,
         }.getOrElse(Json.obj())
       }
 
-  private def extractUserAnswers(userAnswers: Option[UserAnswers], pspId: String)(implicit ec: ExecutionContext,
+  def extractUserAnswers(userAnswers: Option[UserAnswers], pspId: String)(implicit ec: ExecutionContext,
                                            hc: HeaderCarrier): Future[UserAnswers] =
     userAnswers match {
       case Some(ua) => Future.successful(ua)
@@ -110,6 +110,7 @@ class PspDetailsService @Inject()(appConfig: FrontendAppConfig,
         } yield ua2
       }
     }
+
 
   private def uaWithUkAnswer(userAnswers: UserAnswers, pspId: String): Try[UserAnswers] =
   userAnswers.get(RegistrationDetailsPage).map { regInfo =>
