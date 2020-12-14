@@ -16,13 +16,11 @@
 
 package controllers
 
-import connectors.SubscriptionConnector
 import controllers.actions.AuthAction
 import controllers.actions.FakeAuthAction
 import controllers.base.ControllerSpecBase
 import data.SampleData._
 import models.CheckMode
-import models.NormalMode
 import models.UserAnswers
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any

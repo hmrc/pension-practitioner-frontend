@@ -16,10 +16,7 @@
 
 package controllers
 
-import connectors.SubscriptionConnector
-import connectors.cache.UserAnswersCacheConnector
 import controllers.actions.AuthAction
-import controllers.actions.DataRequiredAction
 import controllers.actions.DataRetrievalAction
 import javax.inject.Inject
 import models.Address
@@ -27,15 +24,12 @@ import models.CheckMode
 import models.register.RegistrationLegalStatus.Individual
 import models.register.RegistrationLegalStatus.LimitedCompany
 import models.register.RegistrationLegalStatus.Partnership
-import models.NormalMode
 import models.UserAnswers
 import pages.RegistrationDetailsPage
 import pages.company.CompanyAddressPage
-import pages.individual.IndividualAddressPage
 import pages.individual.IndividualManualAddressPage
 import pages.partnership.PartnershipAddressPage
 import play.api.i18n.I18nSupport
-import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
