@@ -34,6 +34,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.Result
 import renderer.Renderer
 import services.PspDetailsService
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
@@ -56,21 +57,17 @@ class UpdateContactAddressController @Inject()(
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData).async {
     implicit request =>
-      request.user.alreadyEnrolledPspId.map { pspId =>
-          pspDetailsService.extractUserAnswers(request.userAnswers, pspId).flatMap { ua =>
-          retrieveRequiredValues(ua) match {
-            case Some(Tuple2(url, address)) =>
-              val json = Json.obj(
-                "continueUrl" -> url,
-                "address" -> address.lines(countryOptions)
-              )
-              renderer.render("updateContactAddress.njk", json).map(Ok(_))
-            case None => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
-          }
+      pspDetailsService.extractUserAnswers(request.userAnswers, request.user.pspIdOrException).flatMap {
+        retrieveRequiredValues(_) match {
+          case Some(Tuple2(url, address)) =>
+            val json = Json.obj(
+              "continueUrl" -> url,
+              "address" -> address.lines(countryOptions)
+            )
+            renderer.render("updateContactAddress.njk", json).map(Ok(_))
+          case None => Future.successful(sessionExpired)
         }
-      }.getOrElse(
-        Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
-      )
+      }
   }
 
   private def retrieveRequiredValues(ua: UserAnswers): Option[(String, Address)] = {
@@ -93,4 +90,6 @@ class UpdateContactAddressController @Inject()(
         }
     }
   }
+
+  private def sessionExpired:Result = Redirect(controllers.routes.SessionExpiredController.onPageLoad())
 }

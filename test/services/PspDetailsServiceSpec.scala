@@ -22,12 +22,17 @@ import connectors.MinimalConnector
 import connectors.SubscriptionConnector
 import connectors.cache.UserAnswersCacheConnector
 import models.MinimalPSP
+import models.SubscriptionType.Variation
 import models.{CheckMode, UserAnswers}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.{reset, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
+import pages.PspIdPage
+import pages.SubscriptionTypePage
+import pages.individual.AreYouUKResidentPage
+import pages.register.AreYouUKCompanyPage
 import play.api.libs.json.{JsArray, Json, JsObject}
 import services.PspDetailsHelper._
 
@@ -91,6 +96,35 @@ class PspDetailsServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
       }
     }
 
+  }
+
+  "extractUserAnswers" must {
+    "return appropriate json for Individual" in {
+      when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
+        .thenReturn(Future.successful(uaIndividualUK))
+      when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
+
+      whenReady(service.extractUserAnswers(None, pspId)) { result =>
+        result mustBe
+          UserAnswers(uaIndividualUK)
+            .setOrException(PspIdPage, pspId)
+            .setOrException(AreYouUKResidentPage, true)
+            .setOrException(SubscriptionTypePage, Variation)
+      }
+    }
+
+    "return appropriate json for Company" in {
+      when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
+        .thenReturn(Future.successful(uaCompanyUk))
+      when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
+      whenReady(service.extractUserAnswers(None, pspId)) { result =>
+        result mustBe
+          UserAnswers(uaCompanyUk)
+            .setOrException(PspIdPage, pspId)
+            .setOrException(AreYouUKCompanyPage, true)
+            .setOrException(SubscriptionTypePage, Variation)
+      }
+    }
   }
 
 
@@ -281,6 +315,7 @@ object PspDetailsServiceSpec {
       )
     }
   }
+
 
 
 }
