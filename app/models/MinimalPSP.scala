@@ -34,7 +34,8 @@ object IndividualDetails {
 case class MinimalPSP(
                        email: String,
                        organisationName: Option[String],
-                       individualDetails: Option[IndividualDetails]
+                       individualDetails: Option[IndividualDetails],
+                       rlsFlag:Boolean
                      ){
   def name: Option[String] = {
     (individualDetails, organisationName) match {

@@ -28,10 +28,11 @@
             attributes: {id: "submit"}
           }) }}
 
-        <p class="govuk-body">
-            <a  href= {{ returnUrl }} class="govuk-link">{{ returnLink }}</a>
-        </p>
-
+        {% if returnUrl %}
+            <p class="govuk-body">
+                <a  href= {{ returnUrl }} class="govuk-link">{{ returnLink }}</a>
+            </p>
+        {% endif %}
 
       </div>
     </div>
