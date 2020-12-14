@@ -98,45 +98,4 @@ class UpdateContactAddressController @Inject()(
         }
     }
   }
-    //    ua.get(RegistrationDetailsPage).map { regInfo =>
-    //
-    //      regInfo.legalStatus match {
-    //        case Individual =>
-    //          val title: String = individualMessage("viewDetails.title").resolve
-    //          Json.obj(
-    //            "pageTitle" -> title,
-    //            "heading" -> ua.get(IndividualDetailsPage).fold(title)(name => heading(name.fullName)),
-    //            "list" -> individualDetails(ua, pspId),
-    //            "nextPage" -> nextPage,
-    //            "returnUrl" -> appConfig.returnToPspDashboardUrl,
-    //            "returnLink" -> ua.get(IndividualDetailsPage)
-    //              .fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name.fullName))
-    //          )
-    //        case LimitedCompany =>
-    //          val title: String = companyMessage("viewDetails.title").resolve
-    //          Json.obj(
-    //            "pageTitle" -> title,
-    //            "heading" -> ua.get(comp.BusinessNamePage).fold(title)(name => heading(name)),
-    //            "list" -> companyDetails(ua, pspId),
-    //            "nextPage" -> nextPage,
-    //            "returnUrl" -> appConfig.returnToPspDashboardUrl,
-    //            "returnLink" -> ua.get(comp.BusinessNamePage)
-    //              .fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name))
-    //          )
-    //        case Partnership =>
-    //          val title: String = partnershipMessage("viewDetails.title").resolve
-    //          Json.obj(
-    //            "pageTitle" -> title,
-    //            "heading" -> ua.get(BusinessNamePage).fold(title)(name => heading(name)),
-    //            "list" -> partnershipDetails(ua, pspId),
-    //            "nextPage" -> nextPage,
-    //            "returnUrl" -> appConfig.returnToPspDashboardUrl,
-    //            "returnLink" -> ua.get(BusinessNamePage)
-    //              .fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name))
-    //          )
-    //      }
-    //    }.getOrElse(Json.obj())
-
-
-
 }

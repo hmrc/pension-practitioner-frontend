@@ -18,6 +18,12 @@
         </h1>
         <p class="govuk-body">{{messages('updateContactAddress.p1')}}</p>
 
+        <p class="govuk-body">
+           {% for addressItem in address %}
+             <span class="govuk-!-display-block">{{ addressItem }}</span>
+           {% endfor %}
+        </p>
+
         <p class="govuk-body">{{messages('updateContactAddress.p2')}}</p>
         <p class="govuk-body">{{messages('updateContactAddress.p3')}}</p>
         <p class="govuk-body">{{messages('updateContactAddress.p4')}}</p>
