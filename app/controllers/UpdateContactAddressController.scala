@@ -64,15 +64,15 @@ class UpdateContactAddressController @Inject()(
     implicit request =>
       request.user.alreadyEnrolledPspId.map { pspId =>
           pspDetailsService.extractUserAnswers(request.userAnswers, pspId).flatMap { ua =>
-          val json = retrieveRequiredValues(ua) match {
+          retrieveRequiredValues(ua) match {
             case Some(Tuple2(url, address)) =>
-              Json.obj(
+              val json = Json.obj(
                 "continueUrl" -> url,
                 "address" -> address.lines(countryOptions)
               )
-            case None => Json.obj()
+              renderer.render("updateContactAddress.njk", json).map(Ok(_))
+            case None => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
           }
-          renderer.render("updateContactAddress.njk", json).map(Ok(_))
         }
       }.getOrElse(
         Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))

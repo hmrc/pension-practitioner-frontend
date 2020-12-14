@@ -21,7 +21,9 @@ import controllers.actions.AuthAction
 import controllers.actions.FakeAuthAction
 import controllers.base.ControllerSpecBase
 import data.SampleData._
+import models.CheckMode
 import models.NormalMode
+import models.UserAnswers
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito.reset
@@ -38,23 +40,24 @@ import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import services.PspDetailsHelper._
+import services.PspDetailsService
 import utils.annotations.AuthMustHaveEnrolment
 
 import scala.concurrent.Future
 
 class UpdateContactAddressControllerSpec extends ControllerSpecBase with MockitoSugar {
   private def onwardRoute = Call("GET", "/foo")
-  private val mockSubscriptionConnector = mock[SubscriptionConnector]
+  private val mockPspDetailsService = mock[PspDetailsService]
 
   override def modules: Seq[GuiceableModule] = Seq(
-    bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
+    bind[PspDetailsService].toInstance(mockPspDetailsService),
     bind[AuthAction].qualifiedWith(classOf[AuthMustHaveEnrolment]).to[FakeAuthAction],
     bind[NunjucksRenderer].toInstance(mockRenderer)
   )
 
   override def beforeEach: Unit = {
     super.beforeEach
-    reset(mockSubscriptionConnector)
+    reset(mockPspDetailsService)
   }
 
   val expectedAddressUK = Seq("4 Other Place", "Some District", "Anytown", "Somerset", "ZZ1 1ZZ", "United Kingdom")
@@ -65,21 +68,21 @@ class UpdateContactAddressControllerSpec extends ControllerSpecBase with Mockito
     behave like updateContactAddressController(
       description = "company",
       jsObject = uaCompanyUk,
-      expectedUrl = controllers.company.routes.CompanyPostcodeController.onPageLoad(NormalMode).url,
+      expectedUrl = controllers.company.routes.CompanyPostcodeController.onPageLoad(CheckMode).url,
       expectedAddress = expectedAddressUK
     )
 
     behave like updateContactAddressController(
       description = "individual",
       jsObject = uaIndividualUK,
-      expectedUrl = controllers.individual.routes.IndividualPostcodeController.onPageLoad(NormalMode).url,
+      expectedUrl = controllers.individual.routes.IndividualPostcodeController.onPageLoad(CheckMode).url,
       expectedAddress = expectedAddressUK
     )
 
     behave like updateContactAddressController(
       description = "partnership",
       jsObject = uaPartnershipNonUK,
-      expectedUrl = controllers.partnership.routes.PartnershipPostcodeController.onPageLoad(NormalMode).url,
+      expectedUrl = controllers.partnership.routes.PartnershipPostcodeController.onPageLoad(CheckMode).url,
       expectedAddress = expectedAddressNonUK
     )
 
@@ -88,7 +91,9 @@ class UpdateContactAddressControllerSpec extends ControllerSpecBase with Mockito
         when(mockRenderer.render(any(), any())(any()))
           .thenReturn(Future.successful(Html("")))
         when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
-        when(mockSubscriptionConnector.getSubscriptionDetails(any())(any(), any())).thenReturn(Future.successful(jsObject))
+        //when(mockSubscriptionConnector.getSubscriptionDetails(any())(any(), any())).thenReturn(Future.successful(jsObject))
+        when(mockPspDetailsService.extractUserAnswers(any(), any())(any(), any()))
+          .thenReturn(Future.successful(UserAnswers(jsObject)))
 
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
         val request = FakeRequest(GET, routes.UpdateContactAddressController.onPageLoad().url)
@@ -103,7 +108,7 @@ class UpdateContactAddressControllerSpec extends ControllerSpecBase with Mockito
 
         templateCaptor.getValue mustEqual "updateContactAddress.njk"
 
-        (jsonCaptor.getValue \ "addressUrl").as[String] mustEqual expectedUrl
+        (jsonCaptor.getValue \ "continueUrl").as[String] mustEqual expectedUrl
         (jsonCaptor.getValue \ "address").as[Seq[String]] mustEqual expectedAddress
 
         application.stop()
