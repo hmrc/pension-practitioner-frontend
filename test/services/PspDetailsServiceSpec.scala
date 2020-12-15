@@ -98,13 +98,13 @@ class PspDetailsServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
 
   }
 
-  "extractUserAnswers" must {
+  "getUserAnswers" must {
     "return appropriate user answers for Individual" in {
       when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
         .thenReturn(Future.successful(uaIndividualUK))
       when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
 
-      whenReady(service.extractUserAnswers(None, pspId)) { result =>
+      whenReady(service.getUserAnswers(None, pspId)) { result =>
         result mustBe
           UserAnswers(uaIndividualUK)
             .setOrException(PspIdPage, pspId)
@@ -117,7 +117,7 @@ class PspDetailsServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
       when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
         .thenReturn(Future.successful(uaCompanyUk))
       when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
-      whenReady(service.extractUserAnswers(None, pspId)) { result =>
+      whenReady(service.getUserAnswers(None, pspId)) { result =>
         result mustBe
           UserAnswers(uaCompanyUk)
             .setOrException(PspIdPage, pspId)
@@ -130,7 +130,7 @@ class PspDetailsServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
       when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
         .thenReturn(Future.successful(uaPartnershipNonUK))
       when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
-      whenReady(service.extractUserAnswers(None, pspId)) { result =>
+      whenReady(service.getUserAnswers(None, pspId)) { result =>
         result mustBe
           UserAnswers(uaPartnershipNonUK)
             .setOrException(PspIdPage, pspId)

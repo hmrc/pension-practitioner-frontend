@@ -57,7 +57,7 @@ class UpdateContactAddressController @Inject()(
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData).async {
     implicit request =>
-      pspDetailsService.extractUserAnswers(request.userAnswers, request.user.pspIdOrException).flatMap {
+      pspDetailsService.getUserAnswers(request.userAnswers, request.user.pspIdOrException).flatMap {
         retrieveRequiredValues(_) match {
           case Some(Tuple2(url, address)) =>
             val json = Json.obj(

@@ -82,7 +82,7 @@ class PspDetailsService @Inject()(appConfig: FrontendAppConfig,
 
   def getJson(userAnswers: Option[UserAnswers], pspId: String)(implicit messages: Messages,
                              hc: HeaderCarrier, ec: ExecutionContext): Future[JsObject] =
-      extractUserAnswers(userAnswers, pspId).flatMap { ua =>
+      getUserAnswers(userAnswers, pspId).flatMap { ua =>
         ua.get(RegistrationDetailsPage).map { regInfo =>
           minimalConnector.getMinimalPspDetails(pspId).map{ minDetails =>
             val json = regInfo.legalStatus match {
@@ -117,7 +117,7 @@ class PspDetailsService @Inject()(appConfig: FrontendAppConfig,
         }.getOrElse(Future.successful(Json.obj()))
       }
 
-  def extractUserAnswers(userAnswers: Option[UserAnswers], pspId: String)(implicit ec: ExecutionContext,
+  def getUserAnswers(userAnswers: Option[UserAnswers], pspId: String)(implicit ec: ExecutionContext,
                                            hc: HeaderCarrier): Future[UserAnswers] =
     userAnswers match {
       case Some(ua) => Future.successful(ua)

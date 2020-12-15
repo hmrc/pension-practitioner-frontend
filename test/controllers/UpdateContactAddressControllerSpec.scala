@@ -89,7 +89,7 @@ class UpdateContactAddressControllerSpec extends ControllerSpecBase with Mockito
         when(mockRenderer.render(any(), any())(any()))
           .thenReturn(Future.successful(Html("")))
         when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
-        when(mockPspDetailsService.extractUserAnswers(any(), any())(any(), any()))
+        when(mockPspDetailsService.getUserAnswers(any(), any())(any(), any()))
           .thenReturn(Future.successful(UserAnswers(jsObject)))
 
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
