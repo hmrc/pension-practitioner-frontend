@@ -55,28 +55,15 @@ class PspDetailsService @Inject()(appConfig: FrontendAppConfig,
   val thirdWidth: Seq[String] = Seq("govuk-!-width-one-third")
   def nextPage: String = routes.DeclarationController.onPageLoad().url
 
-  private def returnUrlAndLink(regInfo:RegistrationDetails, ua:UserAnswers, rlsFlag:Boolean)(implicit messages: Messages,
+  private def returnUrlAndLink(name:Option[String], rlsFlag:Boolean)(implicit messages: Messages,
     hc: HeaderCarrier, ec: ExecutionContext):JsObject = {
     if (rlsFlag) {
       Json.obj()
     } else {
-      val returnUrl = Json.obj(
-        "returnUrl" -> appConfig.returnToPspDashboardUrl
+      Json.obj(
+        "returnUrl" -> appConfig.returnToPspDashboardUrl,
+        "returnLink" -> name.fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name))
       )
-      val returnLink = Json.obj(
-        regInfo.legalStatus match {
-        case Individual =>
-          "returnLink" -> ua.get(IndividualDetailsPage)
-            .fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name.fullName))
-        case LimitedCompany =>
-          "returnLink" -> ua.get(comp.BusinessNamePage)
-            .fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name))
-        case Partnership =>
-          "returnLink" -> ua.get(BusinessNamePage)
-            .fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name))
-        }
-      )
-      returnUrl ++ returnLink
     }
   }
 
@@ -85,34 +72,37 @@ class PspDetailsService @Inject()(appConfig: FrontendAppConfig,
       getUserAnswers(userAnswers, pspId).flatMap { ua =>
         ua.get(RegistrationDetailsPage).map { regInfo =>
           minimalConnector.getMinimalPspDetails(pspId).map{ minDetails =>
-            val json = regInfo.legalStatus match {
+            val (json, name) = regInfo.legalStatus match {
               case Individual =>
                 val title: String = individualMessage("viewDetails.title").resolve
-                Json.obj(
+                val json = Json.obj(
                   "pageTitle" -> title,
                   "heading" -> ua.get(IndividualDetailsPage).fold(title)(name => heading(name.fullName)),
                   "list" -> individualDetails(ua, pspId),
                   "nextPage" -> nextPage
                 )
+                (json, ua.get(IndividualDetailsPage).map(_.fullName))
               case LimitedCompany =>
                 val title: String = companyMessage("viewDetails.title").resolve
-                Json.obj(
+                val json = Json.obj(
                   "pageTitle" -> title,
                   "heading" -> ua.get(comp.BusinessNamePage).fold(title)(name => heading(name)),
                   "list" -> companyDetails(ua, pspId),
                   "nextPage" -> nextPage
                 )
+                (json, ua.get(BusinessNamePage))
               case Partnership =>
                 val title: String = partnershipMessage("viewDetails.title").resolve
-                Json.obj(
+                val json = Json.obj(
                   "pageTitle" -> title,
                   "heading" -> ua.get(BusinessNamePage).fold(title)(name => heading(name)),
                   "list" -> partnershipDetails(ua, pspId),
                   "nextPage" -> nextPage
                 )
+                (json, ua.get(BusinessNamePage))
             }
 
-            json ++ returnUrlAndLink(regInfo, ua, minDetails.rlsFlag)
+            json ++ returnUrlAndLink(name, minDetails.rlsFlag)
           }
         }.getOrElse(Future.successful(Json.obj()))
       }
