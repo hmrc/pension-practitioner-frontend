@@ -57,7 +57,7 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
   private val pspName = "test-psp"
   private val mockMinimalConnector = mock[MinimalConnector]
   private val mockDeregistrationConnector = mock[DeregistrationConnector]
-  private val minPsp = MinimalPSP("a@a.a", Some(pspName), None)
+  private val minPsp = MinimalPSP("a@a.a", Some(pspName), None, rlsFlag = false)
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   val userAnswers: UserAnswers = UserAnswers().set(PspNamePage, pspName).toOption.value
   private val application: Application =

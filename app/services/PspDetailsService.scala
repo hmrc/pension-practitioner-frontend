@@ -18,6 +18,7 @@ package services
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
+import connectors.MinimalConnector
 import connectors.SubscriptionConnector
 import connectors.cache.UserAnswersCacheConnector
 import controllers.amend.routes
@@ -25,79 +26,88 @@ import controllers.company.{routes => compRoutes}
 import controllers.individual.{routes => indRoutes}
 import controllers.partnership.{routes => partRoutes}
 import models.SubscriptionType.Variation
-import models.register.RegistrationCustomerType.{NonUK, UK}
+import models.register.RegistrationCustomerType.{UK, NonUK}
 import models.register.RegistrationLegalStatus._
-import models.register.{RegistrationDetails, RegistrationIdType}
+import models.register.{RegistrationIdType, RegistrationDetails}
 import models.{CheckMode, UserAnswers}
-import pages.company.{CompanyAddressPage, CompanyEmailPage, CompanyPhonePage}
+import pages.company.{CompanyPhonePage, CompanyAddressPage, CompanyEmailPage}
 import pages.individual._
 import pages.partnership._
 import pages.register._
-import pages.{PspIdPage, RegistrationDetailsPage, SubscriptionTypePage, company => comp}
+import pages.{SubscriptionTypePage, PspIdPage, RegistrationDetailsPage, company => comp}
 import play.api.i18n.Messages
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.{Json, JsObject, JsValue}
 import play.api.mvc.Call
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.viewmodels.SummaryList.{Action, Key, Row, Value}
+import uk.gov.hmrc.viewmodels.SummaryList.{Key, Value, Row, Action}
 import uk.gov.hmrc.viewmodels.Text.Literal
 import uk.gov.hmrc.viewmodels._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 import scala.util.Try
 
 class PspDetailsService @Inject()(appConfig: FrontendAppConfig,
                                   subscriptionConnector: SubscriptionConnector,
-                                  userAnswersCacheConnector: UserAnswersCacheConnector) extends CYAService {
+                                  userAnswersCacheConnector: UserAnswersCacheConnector,
+                                  minimalConnector: MinimalConnector) extends CYAService {
 
   val halfWidth: Seq[String] = Seq("govuk-!-width-one-half")
   val thirdWidth: Seq[String] = Seq("govuk-!-width-one-third")
   def nextPage: String = routes.DeclarationController.onPageLoad().url
 
+  private def returnUrlAndLink(name:Option[String], rlsFlag:Boolean)(implicit messages: Messages,
+    hc: HeaderCarrier, ec: ExecutionContext):JsObject = {
+    if (rlsFlag) {
+      Json.obj()
+    } else {
+      Json.obj(
+        "returnUrl" -> appConfig.returnToPspDashboardUrl,
+        "returnLink" -> name.fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name))
+      )
+    }
+  }
+
   def getJson(userAnswers: Option[UserAnswers], pspId: String)(implicit messages: Messages,
                              hc: HeaderCarrier, ec: ExecutionContext): Future[JsObject] =
-      extractUserAnswers(userAnswers, pspId).map { ua =>
-
+      getUserAnswers(userAnswers, pspId).flatMap { ua =>
         ua.get(RegistrationDetailsPage).map { regInfo =>
-          
-          regInfo.legalStatus match {
-            case Individual =>
-              val title: String = individualMessage("viewDetails.title").resolve
-              Json.obj(
-                "pageTitle" -> title,
-                "heading" -> ua.get(IndividualDetailsPage).fold(title)(name => heading(name.fullName)),
-                "list" -> individualDetails(ua, pspId),
-                "nextPage" -> nextPage,
-                "returnUrl" -> appConfig.returnToPspDashboardUrl,
-                "returnLink" -> ua.get(IndividualDetailsPage)
-                  .fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name.fullName))
-              )
-            case LimitedCompany =>
-              val title: String = companyMessage("viewDetails.title").resolve
-              Json.obj(
-                "pageTitle" -> title,
-                "heading" -> ua.get(comp.BusinessNamePage).fold(title)(name => heading(name)),
-                "list" -> companyDetails(ua, pspId),
-                "nextPage" -> nextPage,
-                "returnUrl" -> appConfig.returnToPspDashboardUrl,
-                "returnLink" -> ua.get(comp.BusinessNamePage)
-                  .fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name))
-              )
-            case Partnership =>
-              val title: String = partnershipMessage("viewDetails.title").resolve
-              Json.obj(
-                "pageTitle" -> title,
-                "heading" -> ua.get(BusinessNamePage).fold(title)(name => heading(name)),
-                "list" -> partnershipDetails(ua, pspId),
-                "nextPage" -> nextPage,
-                "returnUrl" -> appConfig.returnToPspDashboardUrl,
-                "returnLink" -> ua.get(BusinessNamePage)
-                  .fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name))
-              )
+          minimalConnector.getMinimalPspDetails(pspId).map{ minDetails =>
+            val (json, name) = regInfo.legalStatus match {
+              case Individual =>
+                val title: String = individualMessage("viewDetails.title").resolve
+                val json = Json.obj(
+                  "pageTitle" -> title,
+                  "heading" -> ua.get(IndividualDetailsPage).fold(title)(name => heading(name.fullName)),
+                  "list" -> individualDetails(ua, pspId),
+                  "nextPage" -> nextPage
+                )
+                (json, ua.get(IndividualDetailsPage).map(_.fullName))
+              case LimitedCompany =>
+                val title: String = companyMessage("viewDetails.title").resolve
+                val json = Json.obj(
+                  "pageTitle" -> title,
+                  "heading" -> ua.get(comp.BusinessNamePage).fold(title)(name => heading(name)),
+                  "list" -> companyDetails(ua, pspId),
+                  "nextPage" -> nextPage
+                )
+                (json, ua.get(BusinessNamePage))
+              case Partnership =>
+                val title: String = partnershipMessage("viewDetails.title").resolve
+                val json = Json.obj(
+                  "pageTitle" -> title,
+                  "heading" -> ua.get(BusinessNamePage).fold(title)(name => heading(name)),
+                  "list" -> partnershipDetails(ua, pspId),
+                  "nextPage" -> nextPage
+                )
+                (json, ua.get(BusinessNamePage))
+            }
+
+            json ++ returnUrlAndLink(name, minDetails.rlsFlag)
           }
-        }.getOrElse(Json.obj())
+        }.getOrElse(Future.successful(Json.obj()))
       }
 
-  private def extractUserAnswers(userAnswers: Option[UserAnswers], pspId: String)(implicit ec: ExecutionContext,
+  def getUserAnswers(userAnswers: Option[UserAnswers], pspId: String)(implicit ec: ExecutionContext,
                                            hc: HeaderCarrier): Future[UserAnswers] =
     userAnswers match {
       case Some(ua) => Future.successful(ua)
@@ -110,6 +120,7 @@ class PspDetailsService @Inject()(appConfig: FrontendAppConfig,
         } yield ua2
       }
     }
+
 
   private def uaWithUkAnswer(userAnswers: UserAnswers, pspId: String): Try[UserAnswers] =
   userAnswers.get(RegistrationDetailsPage).map { regInfo =>

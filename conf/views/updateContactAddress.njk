@@ -1,0 +1,40 @@
+{% extends "includes/layout.njk" %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "macros/title.njk"                         import title %}
+
+{% block pageTitle %}
+  {{ title(messages("updateContactAddress.title")) }}
+{% endblock %}
+
+{% block mainContent %}
+
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+
+        <h1 class="govuk-heading-xl">
+          {{ messages("updateContactAddress.heading") }}
+        </h1>
+        <p class="govuk-body">{{messages('updateContactAddress.p1')}}</p>
+
+
+        <p class="govuk-inset-text">
+           {% for addressItem in address %}
+             <span class="govuk-!-display-block">{{ addressItem }}</span>
+           {% endfor %}
+        </p>
+
+        <p class="govuk-body">{{messages('updateContactAddress.p2')}}</p>
+        <p class="govuk-body">{{messages('updateContactAddress.p3')}}</p>
+        <p class="govuk-body">{{messages('updateContactAddress.p4')}}</p>
+        <p>
+          {{ govukButton({
+            text: messages('site.continue'),
+            href: continueUrl,
+            attributes: {id: "submit"}
+          }) }}
+        </p>
+      </div>
+  </div>
+
+{% endblock %}
