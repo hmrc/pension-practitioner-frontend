@@ -34,14 +34,14 @@ import play.twirl.api.Html
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
+import utils.annotations.AuthMustHaveEnrolment
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
                                        userAnswersCacheConnector: UserAnswersCacheConnector,
-                                       @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
+                                       @AuthMustHaveEnrolment authenticate: AuthAction,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
