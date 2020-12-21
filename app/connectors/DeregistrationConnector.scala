@@ -66,6 +66,9 @@ class DeregistrationConnectorImpl @Inject()(http: HttpClient, config: FrontendAp
           case JsSuccess(value, _) => value
           case JsError(errors) => throw JsResultException(errors)
         }
+        case NOT_FOUND =>
+          Logger.debug(s"CanDeregister call returned a NOT_FOUND response with body ${response.body}")
+          true
         case _ => handleErrorResponse("GET", url)(response)
       }
 
