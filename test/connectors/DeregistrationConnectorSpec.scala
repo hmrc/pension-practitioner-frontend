@@ -173,7 +173,7 @@ class DeregistrationConnectorSpec extends AsyncWordSpec with MustMatchers with W
       }
     }
 
-    "throw Not Found" in {
+    "return true if Not Found is returned" in {
       server.stubFor(
         get(urlEqualTo(canDeregisterUrl))
           .willReturn(
@@ -181,10 +181,9 @@ class DeregistrationConnectorSpec extends AsyncWordSpec with MustMatchers with W
           )
       )
 
-      recoverToExceptionIf[NotFoundException] {
-        connector.canDeRegister(pspId)
-      } map {
-        _ =>
+        connector.canDeRegister(pspId).map {
+        result =>
+          result mustBe true
           server.findAll(getRequestedFor(urlEqualTo(canDeregisterUrl))).size() mustBe 1
       }
     }
