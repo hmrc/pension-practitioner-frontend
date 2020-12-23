@@ -68,9 +68,19 @@ class SubscriptionConnector @Inject()(http: HttpClient,
     }
   }
 
+  def getPspApplicationDate(pspId:String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String] =
+    getSubscriptionDetails(pspId).map { jsValue =>
+      (jsValue \ "applicationDate").validate[String] match {
+        case JsSuccess(value, _) => value.split("T").headOption
+          .getOrElse(throw ApplicationDateCannotBeRetrieved)
+        case JsError(e) => throw JsResultException(e)
+      }
+    }
+
 }
 
 abstract class SubscriptionException extends Exception
 class PspIdInvalidSubscriptionException extends SubscriptionException
 class CorrelationIdInvalidSubscriptionException extends SubscriptionException
 class PspIdNotFoundSubscriptionException extends SubscriptionException
+case object ApplicationDateCannotBeRetrieved extends Exception

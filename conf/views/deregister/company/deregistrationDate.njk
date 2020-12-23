@@ -22,6 +22,12 @@
           }) }}
         {% endif %}
 
+        <h1 class="govuk-heading-xl">
+              {{ messages("deregistrationDate.company.heading", pspName) }}
+        </h1>
+
+        <p class="govuk-body">{{messages('deregistrationDate.company.p1', pspName, applicationDate)}}</p>
+
         <form action="{{ submitUrl }}" method="post" autocomplete="off">
 
           {{ csrf() | safe }}
@@ -30,8 +36,8 @@
                       fieldset: {
                         legend: {
                           text: messages("deregistrationDate.company.heading", pspName),
-                          isPageHeading: true,
-                          classes: "govuk-label--xl"
+                          isPageHeading: false,
+                          classes: "govuk-fieldset__legend--s govuk-visually-hidden"
                         }
                       },
                         hint: {

@@ -19,13 +19,13 @@ package forms.deregister
 import java.time.LocalDate
 
 import forms.mappings.{Constraints, Mappings}
+import helpers.FormatHelper.dateContentFormatter
 import javax.inject.Inject
 import play.api.data.Form
 import play.api.i18n.Messages
-
 class DeregistrationDateFormProvider @Inject() extends Mappings with Constraints {
 
-  def apply(pspType: String)(implicit messages: Messages): Form[LocalDate] =
+  def apply(pspType: String, registrationDate: LocalDate)(implicit messages: Messages): Form[LocalDate] =
     Form(
       "deregistrationDate" -> localDate(
         invalidKey = s"deregistrationDate.$pspType.error.invalid",
@@ -33,7 +33,8 @@ class DeregistrationDateFormProvider @Inject() extends Mappings with Constraints
         twoRequiredKey = s"deregistrationDate.$pspType.error.required.two",
         requiredKey = s"deregistrationDate.$pspType.error.required.all"
       ).verifying(
-        maxDate(LocalDate.now(), messages(s"deregistrationDate.$pspType.error.futureDate"))
+        maxDate(LocalDate.now(), messages(s"deregistrationDate.$pspType.error.futureDate")),
+        minDate(registrationDate, messages(s"deregistrationDate.$pspType.error.minDate", registrationDate.format(dateContentFormatter)))
       )
     )
 }

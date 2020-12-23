@@ -21,10 +21,7 @@ import java.time.LocalDate
 import audit.AuditService
 import audit.PSPDeregistration
 import audit.PSPDeregistrationEmail
-import connectors.EmailConnector
-import connectors.EmailSent
-import connectors.DeregistrationConnector
-import connectors.EnrolmentConnector
+import connectors.{DeregistrationConnector, EmailConnector, EmailSent, EnrolmentConnector, SubscriptionConnector}
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import forms.deregister.DeregistrationDateFormProvider
@@ -63,14 +60,15 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
-
+  private val minDate: LocalDate = LocalDate.of(2020,2, 1)
   private val templateToBeRendered = "deregister/company/deregistrationDate.njk"
-  private val form = new DeregistrationDateFormProvider()("company")
+  private val form = new DeregistrationDateFormProvider()("company", minDate)
   private val dummyCall: Call = Call("GET", "/foo")
   private val mockDeregistrationConnector = mock[DeregistrationConnector]
   private val mockEnrolmentConnector = mock[EnrolmentConnector]
   private val mockEmailConnector: EmailConnector = mock[EmailConnector]
   private val mockAuditService = mock[AuditService]
+  private val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
 
   private val email = "a@a.c"
   private val companyName = "acme"
@@ -107,6 +105,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
   def extraModules: Seq[GuiceableModule] = Seq(
     bind[DeregistrationConnector].toInstance(mockDeregistrationConnector),
     bind[EnrolmentConnector].toInstance(mockEnrolmentConnector),
+    bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
     bind[EmailConnector].toInstance(mockEmailConnector),
     bind[AuditService].toInstance(mockAuditService)
   )
@@ -119,6 +118,8 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockEnrolmentConnector.deEnrol(any(), any(), any())(any(), any(), any()))
       .thenReturn(Future.successful(HttpResponse(OK, "")))
+    when(mockSubscriptionConnector.getPspApplicationDate(any())(any(), any()))
+      .thenReturn(Future.successful("2020-02-01"))
     when(mockDeregistrationConnector.deregister(any(), any())(any(), any()))
       .thenReturn(Future.successful(HttpResponse(OK, "")))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
