@@ -52,8 +52,6 @@ class EnrolmentConnectorImpl @Inject()(val http: HttpClient,
     with RetryHelper
     with HttpResponseHelper {
 
-  def url: String = config.taxEnrolmentsUrl.format("HMRC-PODSPP-ORG")
-
   override def enrol(enrolmentKey: String, knownFacts: KnownFacts)
                     (implicit w: Writes[KnownFacts],
                      hc: HeaderCarrier,
@@ -67,7 +65,7 @@ class EnrolmentConnectorImpl @Inject()(val http: HttpClient,
   private def enrolmentRequest(enrolmentKey: String, knownFacts: KnownFacts)
                               (implicit w: Writes[KnownFacts], hc: HeaderCarrier, executionContext: ExecutionContext,
                                request: DataRequest[AnyContent]): Future[HttpResponse] = {
-
+    val url: String = config.taxEnrolmentsUrl.format("HMRC-PODSPP-ORG")
     http.PUT[KnownFacts, HttpResponse](url, knownFacts) flatMap {
       response =>
         response.status match {
