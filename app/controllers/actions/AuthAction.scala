@@ -39,6 +39,7 @@ import pages.JourneyPage
 import pages.QuestionPage
 import pages.WhatTypeBusinessPage
 import pages.individual.AreYouUKResidentPage
+import play.api.Logger
 import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import play.api.libs.json.Reads
@@ -63,6 +64,9 @@ abstract class AuthenticatedAuthAction @Inject()(override val authConnector: Aut
         Retrievals.credentialRole
     ) {
       case Some(id) ~ Some(affinityGroup) ~ enrolments ~ Some(credentials) ~ Some(credentialRole) =>
+        Logger.debug(s"Logging auth details- externalId: $id, affinityGroup: ${affinityGroup.toJson}, " +
+          s"enrolments: ${enrolments.enrolments}, credentials: ${credentials.providerType}=>${credentials.providerId}, " +
+        s"credentialsRole: ${credentialRole.toJson} & request: $request")
         allowAccess(id,
           affinityGroup,
           credentialRole,
