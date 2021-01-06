@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,25 +23,24 @@ import controllers.Retrievals
 import controllers.actions._
 import forms.ConfirmAddressFormProvider
 import javax.inject.Inject
-import models.register.RegistrationLegalStatus.LimitedCompany
+import models.register.RegistrationLegalStatus.Partnership
 import models.register.{BusinessType, Organisation}
 import models.requests.DataRequest
 import models.{NormalMode, TolerantAddress, UserAnswers}
 import navigators.CompoundNavigator
 import pages.RegistrationInfoPage
-import pages.partnership.{ConfirmAddressPage, BusinessUTRPage, BusinessNamePage}
+import pages.partnership.{BusinessNamePage, BusinessUTRPage, ConfirmAddressPage}
 import pages.register.BusinessTypePage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.{Json, JsObject}
-import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
 import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import utils.countryOptions.CountryOptions
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
 class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
                                          userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -77,7 +76,7 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
     implicit request =>
       retrieveDataForRegistration { (pspName, utr, businessType) =>
         val organisation = Organisation(pspName, businessType)
-       registrationConnector.registerWithIdOrganisation(utr, organisation, LimitedCompany).flatMap { reg =>
+       registrationConnector.registerWithIdOrganisation(utr, organisation, Partnership).flatMap { reg =>
 
           val ua = request.userAnswers
             .setOrException(ConfirmAddressPage, reg.response.address)
