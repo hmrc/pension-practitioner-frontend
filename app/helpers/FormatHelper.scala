@@ -29,6 +29,7 @@ object FormatHelper {
   }
 
   val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d/M/yyyy")
+  val dateContentFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
 
   def formatCurrencyAmountAsString(bd: BigDecimal): String = currencyFormatter.format(bd)
 

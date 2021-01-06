@@ -22,14 +22,12 @@ import audit.AuditService
 import audit.PSPDeregistration
 import audit.PSPDeregistrationEmail
 import config.FrontendAppConfig
-import connectors.EmailConnector
-import connectors.EmailStatus
+import connectors.{DeregistrationConnector, EmailConnector, EmailStatus, EnrolmentConnector, SubscriptionConnector}
 import connectors.cache.UserAnswersCacheConnector
-import connectors.DeregistrationConnector
-import connectors.EnrolmentConnector
 import controllers.Retrievals
 import controllers.actions._
 import forms.deregister.DeregistrationDateFormProvider
+import helpers.FormatHelper.dateContentFormatter
 import javax.inject.Inject
 import models.NormalMode
 import models.requests.DataRequest
@@ -64,6 +62,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
                                              formProvider: DeregistrationDateFormProvider,
                                              deregistrationConnector: DeregistrationConnector,
                                              enrolmentConnector: EnrolmentConnector,
+                                             subscriptionConnector: SubscriptionConnector,
                                              val controllerComponents: MessagesControllerComponents,
                                              renderer: Renderer,
                                              emailConnector: EmailConnector,
@@ -71,32 +70,36 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
                                                )(implicit ec: ExecutionContext)
   extends FrontendBaseController with Retrievals with I18nSupport with NunjucksSupport {
 
-  private def form(implicit messages: Messages): Form[LocalDate] = formProvider("individual")
+  private def form(date: LocalDate)(implicit messages: Messages): Form[LocalDate] = formProvider("individual", date)
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-          val preparedForm = request.userAnswers.get(DeregistrationDatePage).fold(form)(form.fill)
-          val json = Json.obj(
-                    "form" -> preparedForm,
-                    "submitUrl" -> routes.DeregistrationDateController.onSubmit().url,
-                    "date" -> DateInput.localDate(preparedForm("deregistrationDate")),
-            "returnUrl" -> config.returnToPspDashboardUrl
-                  )
-          renderer.render("deregister/individual/deregistrationDate.njk", json).map(Ok(_))
-
+      getDate.flatMap { date =>
+        val preparedForm = request.userAnswers.get(DeregistrationDatePage).fold(form(date))(form(date).fill)
+        val json = Json.obj(
+          "form" -> preparedForm,
+          "submitUrl" -> routes.DeregistrationDateController.onSubmit().url,
+          "date" -> DateInput.localDate(preparedForm("deregistrationDate")),
+          "applicationDate" -> getDateString(date),
+          "returnUrl" -> config.returnToPspDashboardUrl
+        )
+        renderer.render("deregister/individual/deregistrationDate.njk", json).map(Ok(_))
+      }
   }
 
   def onSubmit: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       val pspId = request.user.pspIdOrException
-      (PspNamePage and PspEmailPage).retrieve.right.map { case pspName ~ email =>
-          form.bindFromRequest().fold(
+      getDate.flatMap { date =>
+        (PspNamePage and PspEmailPage).retrieve.right.map { case pspName ~ email =>
+          form(date).bindFromRequest().fold(
             formWithErrors => {
 
               val json = Json.obj(
                 "form" -> formWithErrors,
                 "submitUrl" -> routes.DeregistrationDateController.onSubmit().url,
-                "date" -> DateInput.localDate(formWithErrors("deregistrationDate"))
+                "date" -> DateInput.localDate(formWithErrors("deregistrationDate")),
+                "applicationDate" -> getDateString(date)
               )
 
               renderer.render("deregister/individual/deregistrationDate.njk", json).map(BadRequest(_))
@@ -106,12 +109,13 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
                 updatedAnswers <- Future.fromTry(request.userAnswers.set(DeregistrationDatePage, value))
                 _ <- userAnswersCacheConnector.save(updatedAnswers.data)
                 _ <- deregistrationConnector.deregister(request.user.pspIdOrException, value)
-                 _ <- Future(auditService.sendEvent(PSPDeregistration(pspId)))
+                _ <- Future(auditService.sendEvent(PSPDeregistration(pspId)))
                 _ <- enrolmentConnector.deEnrol(request.user.userId, request.user.pspIdOrException, request.externalId)
                 _ <- sendEmail(email, pspId, pspName)
               } yield Redirect(navigator.nextPage(DeregistrationDatePage, NormalMode, updatedAnswers))
           )
-     }
+        }
+      }
   }
 
   private def sendEmail(email: String, pspId: String, pspName: String)
@@ -127,5 +131,10 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
         auditService.sendEvent(PSPDeregistrationEmail(pspId, email))
         status
     }
+
+  private def getDate(implicit request: DataRequest[AnyContent]): Future[LocalDate] =
+    subscriptionConnector.getPspApplicationDate(request.user.pspIdOrException)
+
+  private def getDateString(date: LocalDate) = date.format(dateContentFormatter)
 
 }

@@ -23,9 +23,11 @@ import play.api.data.FormError
 
 class DeregistrationDateFormProviderSpec extends DateBehaviours {
 
+  private val minDate: LocalDate = LocalDate.of(2020,2, 1)
   private val dynamicErrorMsg: String = messages("deregistrationDate.company.error.futureDate")
+  private val minDateErrorMsg: String = messages("deregistrationDate.company.error.minDate", "1 February 2020")
 
-  val form = new DeregistrationDateFormProvider()("company")
+  val form = new DeregistrationDateFormProvider()("company", minDate)
   val deRegDateMsgKey = "deregistrationDate.company"
   val deRegDateKey = "deregistrationDate"
 
@@ -36,6 +38,13 @@ class DeregistrationDateFormProviderSpec extends DateBehaviours {
       key = deRegDateKey,
       max = LocalDate.now.plusDays(1),
       formError = FormError(deRegDateKey, dynamicErrorMsg)
+    )
+
+    behave like dateFieldWithMin(
+      form = form,
+      key = deRegDateKey,
+      min = minDate,
+      formError = FormError(deRegDateKey, minDateErrorMsg)
     )
 
     behave like mandatoryDateField(
