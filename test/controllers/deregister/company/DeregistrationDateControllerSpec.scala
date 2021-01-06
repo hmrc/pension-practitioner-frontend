@@ -119,7 +119,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
     when(mockEnrolmentConnector.deEnrol(any(), any(), any())(any(), any(), any()))
       .thenReturn(Future.successful(HttpResponse(OK, "")))
     when(mockSubscriptionConnector.getPspApplicationDate(any())(any(), any()))
-      .thenReturn(Future.successful("2020-02-01"))
+      .thenReturn(Future.successful(LocalDate.parse("2020-02-01")))
     when(mockDeregistrationConnector.deregister(any(), any())(any(), any()))
       .thenReturn(Future.successful(HttpResponse(OK, "")))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))

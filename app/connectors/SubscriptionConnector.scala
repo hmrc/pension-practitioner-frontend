@@ -16,6 +16,8 @@
 
 package connectors
 
+import java.time.LocalDate
+
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import models._
@@ -68,11 +70,11 @@ class SubscriptionConnector @Inject()(http: HttpClient,
     }
   }
 
-  def getPspApplicationDate(pspId:String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String] =
+  def getPspApplicationDate(pspId:String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[LocalDate] =
     getSubscriptionDetails(pspId).map { jsValue =>
       (jsValue \ "applicationDate").validate[String] match {
         case JsSuccess(value, _) => value.split("T").headOption
-          .getOrElse(throw ApplicationDateCannotBeRetrieved)
+          .fold(throw ApplicationDateCannotBeRetrieved)(date => LocalDate.parse(date))
         case JsError(e) => throw JsResultException(e)
       }
     }
