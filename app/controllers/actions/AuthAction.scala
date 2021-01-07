@@ -67,6 +67,9 @@ abstract class AuthenticatedAuthAction @Inject()(override val authConnector: Aut
         Logger.debug(s"Logging auth details- externalId: $id, affinityGroup: ${affinityGroup.toJson}, " +
           s"enrolments: ${enrolments.enrolments}, credentials: ${credentials.providerType}=>${credentials.providerId}, " +
         s"credentialsRole: ${credentialRole.toJson} & request: $request")
+        Logger.error(s"Logging auth details- externalId: $id, affinityGroup: ${affinityGroup.toJson}, " +
+          s"enrolments: ${enrolments.enrolments}, credentials: ${credentials.providerType}=>${credentials.providerId}, " +
+          s"credentialsRole: ${credentialRole.toJson} & request: $request")
         allowAccess(id,
           affinityGroup,
           credentialRole,
@@ -81,7 +84,6 @@ abstract class AuthenticatedAuthAction @Inject()(override val authConnector: Aut
   protected def allowAccess[A](externalId: String, affinityGroup: AffinityGroup, role: CredentialRole,
     authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
     (implicit hc: HeaderCarrier): Future[Result] = {
-
     (affinityGroup, role) match {
       case (AffinityGroup.Agent, _) => Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
       case (AffinityGroup.Individual, _) => Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
