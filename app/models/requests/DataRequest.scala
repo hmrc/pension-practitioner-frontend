@@ -17,8 +17,7 @@
 package models.requests
 
 import models.UserAnswers
-import play.api.mvc.Request
-import play.api.mvc.WrappedRequest
+import play.api.mvc.{Request, WrappedRequest}
 
 case class OptionalDataRequest[A](
                                    request: Request[A],

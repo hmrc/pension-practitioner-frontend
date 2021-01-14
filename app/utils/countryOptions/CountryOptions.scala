@@ -20,8 +20,8 @@ import com.typesafe.config.ConfigException
 import config.FrontendAppConfig
 import javax.inject.{Inject, Singleton}
 import models.register.InternationalRegion
-import models.register.InternationalRegion.{EuEea, RestOfTheWorld, UK}
-import models.{Address, TolerantAddress}
+import models.register.InternationalRegion.{RestOfTheWorld, EuEea, UK}
+import models.{TolerantAddress, Address}
 import play.api.Environment
 import play.api.libs.json.Json
 import utils.InputOption

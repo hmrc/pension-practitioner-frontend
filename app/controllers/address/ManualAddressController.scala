@@ -22,18 +22,18 @@ import controllers.{Retrievals, Variation}
 import models.requests.DataRequest
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import models.AddressConfiguration.AddressConfiguration
-import models.{Address, AddressConfiguration, Mode}
+import models.{Mode, Address, AddressConfiguration}
 import navigators.CompoundNavigator
 import pages.{AddressChange, QuestionPage}
 import pages.company.CompanyAddressPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages}
-import play.api.libs.json.{JsArray, JsObject, Json}
-import play.api.mvc.{AnyContent, Call, Result}
+import play.api.libs.json.{JsArray, Json, JsObject}
+import play.api.mvc.{Call, Result, AnyContent}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 trait ManualAddressController
     extends FrontendBaseController

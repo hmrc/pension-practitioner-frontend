@@ -16,7 +16,7 @@
 
 package connectors
 
-import audit.{AuditService, DeenrolmentEvent, PSPEnrolment}
+import audit.{AuditService, PSPEnrolment, DeenrolmentEvent}
 import com.google.inject.{ImplementedBy, Singleton}
 import config.FrontendAppConfig
 import javax.inject.Inject
@@ -24,14 +24,14 @@ import models.KnownFacts
 import models.requests.DataRequest
 import play.api.Logger
 import play.api.http.Status._
-import play.api.libs.json.{Json, Writes}
-import play.api.mvc.{AnyContent, RequestHeader}
+import play.api.libs.json.{Writes, Json}
+import play.api.mvc.{RequestHeader, AnyContent}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import utils.{HttpResponseHelper, RetryHelper}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 import scala.util.{Failure, Try}
 
 @ImplementedBy(classOf[EnrolmentConnectorImpl])

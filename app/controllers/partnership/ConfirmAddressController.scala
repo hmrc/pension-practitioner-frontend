@@ -29,18 +29,18 @@ import models.requests.DataRequest
 import models.{NormalMode, TolerantAddress, UserAnswers}
 import navigators.CompoundNavigator
 import pages.RegistrationInfoPage
-import pages.partnership.{BusinessNamePage, BusinessUTRPage, ConfirmAddressPage}
+import pages.partnership.{ConfirmAddressPage, BusinessUTRPage, BusinessNamePage}
 import pages.register.BusinessTypePage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.libs.json.{Json, JsObject}
+import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
 import utils.countryOptions.CountryOptions
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
                                          userAnswersCacheConnector: UserAnswersCacheConnector,

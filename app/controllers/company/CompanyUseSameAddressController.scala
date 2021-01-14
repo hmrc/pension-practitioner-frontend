@@ -24,8 +24,7 @@ import javax.inject.Inject
 import models.requests.DataRequest
 import models.{NormalMode, TolerantAddress, Address, UserAnswers}
 import navigators.CompoundNavigator
-import pages.company.CompanyRegisteredAddressPage
-import pages.company.{CompanyUseSameAddressPage, CompanyAddressPage}
+import pages.company.{CompanyRegisteredAddressPage, CompanyUseSameAddressPage, CompanyAddressPage}
 import pages.partnership.{ConfirmAddressPage, BusinessNamePage}
 import pages.register.AreYouUKCompanyPage
 import play.api.data.Form
@@ -35,12 +34,10 @@ import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModel
 
 import scala.concurrent.{Future, ExecutionContext}
-import scala.util.Success
 import scala.util.Try
 
 class CompanyUseSameAddressController @Inject()(override val messagesApi: MessagesApi,

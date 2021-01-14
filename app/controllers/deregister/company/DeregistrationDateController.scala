@@ -30,19 +30,19 @@ import javax.inject.Inject
 import models.NormalMode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
-import pages.{PspEmailPage, PspNamePage}
+import pages.{PspNamePage, PspEmailPage}
 import pages.deregister.DeregistrationDateCompanyPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.{DateInput, NunjucksSupport}
+import uk.gov.hmrc.viewmodels.{NunjucksSupport, DateInput}
 import utils.annotations.AuthMustHaveEnrolment
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 class DeregistrationDateController @Inject()(config: FrontendAppConfig,
                                              override val messagesApi: MessagesApi,

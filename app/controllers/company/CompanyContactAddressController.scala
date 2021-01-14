@@ -23,14 +23,14 @@ import controllers.actions._
 import controllers.address.ManualAddressController
 import forms.address.AddressFormProvider
 import javax.inject.Inject
-import models.{Address, Mode}
+import models.{Mode, Address}
 import navigators.CompoundNavigator
 import pages.QuestionPage
 import pages.company.{CompanyAddressPage, BusinessNamePage}
 import pages.register.AreYouUKCompanyPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import play.api.mvc.{Call, AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.countryOptions.CountryOptions

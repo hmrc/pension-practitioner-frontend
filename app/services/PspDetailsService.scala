@@ -18,13 +18,12 @@ package services
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import connectors.MinimalConnector
-import connectors.SubscriptionConnector
-import connectors.cache.UserAnswersCacheConnector
 import controllers.amend.routes
 import controllers.company.{routes => compRoutes}
 import controllers.individual.{routes => indRoutes}
 import controllers.partnership.{routes => partRoutes}
+import connectors.{MinimalConnector, SubscriptionConnector}
+import connectors.cache.UserAnswersCacheConnector
 import models.SubscriptionType.Variation
 import models.register.RegistrationCustomerType.{UK, NonUK}
 import models.register.RegistrationLegalStatus._

@@ -16,7 +16,7 @@
 
 package forms.address
 
-import forms.mappings.{AddressMappings, Mappings}
+import forms.mappings.AddressMappings
 import javax.inject.Inject
 import models.Address
 import play.api.data.Form

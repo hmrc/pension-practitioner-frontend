@@ -21,9 +21,7 @@ import com.google.inject.multibindings.Multibinder
 import connectors.cache.{UserAnswersCacheConnectorImpl, UserAnswersCacheConnector}
 import controllers.actions._
 import navigators._
-import utils.annotations.AuthMustHaveEnrolment
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
-import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import utils.annotations.{AuthMustHaveEnrolment, AuthMustHaveNoEnrolmentWithIV, AuthMustHaveNoEnrolmentWithNoIV}
 
 class Module extends AbstractModule {
 

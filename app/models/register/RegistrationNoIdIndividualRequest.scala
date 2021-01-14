@@ -16,8 +16,6 @@
 
 package models.register
 
-import java.time.LocalDate
-
 import models.Address
 import play.api.libs.json._
 

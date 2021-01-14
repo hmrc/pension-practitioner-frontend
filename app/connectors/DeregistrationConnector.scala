@@ -22,13 +22,13 @@ import com.google.inject.{ImplementedBy, Inject}
 import config.FrontendAppConfig
 import play.api.Logger
 import play.api.http.Status._
-import play.api.libs.json.{JsError, JsObject, JsResultException, JsSuccess, Json}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import play.api.libs.json._
+import uk.gov.hmrc.http.{HttpResponse, HeaderCarrier}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import utils.HttpResponseHelper
 import uk.gov.hmrc.http.HttpReads.Implicits._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 import scala.util.Failure
 
 @ImplementedBy(classOf[DeregistrationConnectorImpl])

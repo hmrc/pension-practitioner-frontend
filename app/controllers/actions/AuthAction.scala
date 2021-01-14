@@ -22,8 +22,6 @@ import connectors.IdentityVerificationConnector
 import connectors.cache.UserAnswersCacheConnector
 import models.UserAnswers
 import models.WhatTypeBusiness.Yourselfasindividual
-import models.requests.PSPUser
-import models.requests.UserType
 import models.requests.UserType.UserType
 import play.api.mvc.Results._
 import play.api.mvc._
@@ -31,21 +29,15 @@ import uk.gov.hmrc.auth.core.AffinityGroup._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.UnauthorizedException
+import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import uk.gov.hmrc.play.HeaderCarrierConverter
-import models.requests.AuthenticatedRequest
-import pages.JourneyPage
-import pages.QuestionPage
-import pages.WhatTypeBusinessPage
+import models.requests.{PSPUser, UserType, AuthenticatedRequest}
+import pages.{JourneyPage, QuestionPage, WhatTypeBusinessPage}
 import pages.individual.AreYouUKResidentPage
 import play.api.Logger
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
-import play.api.libs.json.Reads
+import play.api.libs.json.{JsObject, Json, Reads}
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 abstract class AuthenticatedAuthAction @Inject()(override val authConnector: AuthConnector,
   config: FrontendAppConfig,

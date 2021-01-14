@@ -16,19 +16,15 @@
 
 package navigators
 
+import controllers.company.routes._
 import com.google.inject.Inject
 import connectors.cache.UserAnswersCacheConnector
-import controllers.company.routes._
-import models.CheckMode
-import models.NormalMode
 import models.SubscriptionType.Variation
-import models.UserAnswers
-import pages.{Page, SubscriptionTypePage}
+import models.{CheckMode, NormalMode, UserAnswers}
+import pages.{SubscriptionTypePage, Page}
 import pages.company._
 import pages.register.AreYouUKCompanyPage
 import play.api.mvc.Call
-
-import scala.util.Try
 
 class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector)
   extends Navigator {

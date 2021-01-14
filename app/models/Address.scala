@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json._ 
+import play.api.libs.json._
 import utils.countryOptions.CountryOptions
 
 case class AddressRecord(address: Address)

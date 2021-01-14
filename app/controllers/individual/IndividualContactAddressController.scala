@@ -24,15 +24,15 @@ import javax.inject.Inject
 import controllers.address.ManualAddressController
 import navigators.CompoundNavigator
 import forms.address.AddressFormProvider
-import models.{Address, Mode}
+import models.{Mode, Address}
 import utils.countryOptions.CountryOptions
 import controllers.Retrievals
 import renderer.Renderer
-import play.api.i18n.{I18nSupport, MessagesApi, Messages}
-import controllers.actions.{DataRetrievalAction, AuthAction, DataRequiredAction}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import controllers.actions.{DataRequiredAction, AuthAction, DataRetrievalAction}
 import pages.QuestionPage
 import pages.individual.{AreYouUKResidentPage, IndividualManualAddressPage}
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Action, Call}
+import play.api.mvc.{Call, AnyContent, MessagesControllerComponents, Action}
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 
 

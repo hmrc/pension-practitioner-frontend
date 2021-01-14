@@ -25,8 +25,7 @@ import models.Mode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.AddressChange
-import pages.company.CompanyPhonePage
-import pages.company.BusinessNamePage
+import pages.company.{CompanyPhonePage, BusinessNamePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{Writes, Json, JsObject}
@@ -34,7 +33,6 @@ import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import viewmodels.CommonViewModel
 
 import scala.concurrent.{Future, ExecutionContext}

@@ -25,7 +25,7 @@ import models.Mode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.AddressChange
-import pages.company.{CompanyEmailPage, BusinessNamePage}
+import pages.company.{BusinessNamePage, CompanyEmailPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{Writes, Json, JsObject}

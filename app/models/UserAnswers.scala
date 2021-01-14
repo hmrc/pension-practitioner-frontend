@@ -20,9 +20,7 @@ import pages._
 import play.api.libs.json._
 import queries.Gettable
 
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 final case class UserAnswers(data: JsObject = Json.obj()) {
 

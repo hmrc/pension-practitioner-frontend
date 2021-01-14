@@ -17,8 +17,7 @@
 package pages
 
 import models.WhatTypeBusiness.Yourselfasindividual
-import models.UserAnswers
-import models.WhatTypeBusiness
+import models.{UserAnswers, WhatTypeBusiness}
 import play.api.libs.json.JsPath
 
 import scala.util.Try

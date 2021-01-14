@@ -32,7 +32,6 @@ import play.api.libs.json.{Json, JsObject}
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import utils.countryOptions.CountryOptions
 
 import scala.concurrent.ExecutionContext
