@@ -24,7 +24,6 @@ import controllers.address.PostcodeController
 import forms.address.PostcodeFormProvider
 import javax.inject.Inject
 import models.Mode
-import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.partnership.{PartnershipPostcodePage, BusinessNamePage}
 import play.api.data.Form
@@ -70,7 +69,7 @@ class PartnershipPostcodeController @Inject()(override val messagesApi: Messages
         )
     }
 
-  def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[String] => JsObject] =
+  def getFormToJson(mode: Mode): Retrieval[Form[String] => JsObject] =
     Retrieval(
       implicit request =>
         BusinessNamePage.retrieve.right.map { partnershipName =>

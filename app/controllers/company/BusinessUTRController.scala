@@ -50,8 +50,7 @@ class BusinessUTRController @Inject()(override val messagesApi: MessagesApi,
                                       renderer: Renderer
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
 
-  protected def form
-  (implicit request: DataRequest[AnyContent]): Form[String] = formProvider.apply()
+  protected def form: Form[String] = formProvider.apply()
 
   def onPageLoad(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>

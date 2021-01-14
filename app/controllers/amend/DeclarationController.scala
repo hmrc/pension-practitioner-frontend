@@ -75,8 +75,7 @@ class DeclarationController @Inject()(
     }
 
   private def sendEmail(email: String, pspId: String, pspName: String)(implicit request: DataRequest[_],
-                                                                       hc: HeaderCarrier,
-                                                                       messages: Messages): Future[Unit] = {
+                                                                       hc: HeaderCarrier): Future[Unit] = {
     val requestId: String = hc.requestId.map(_.value).getOrElse(request.headers.get("X-Session-ID").getOrElse(""))
     emailConnector.sendEmail(requestId, pspId, "PSPAmendment",
       email, config.emailPspAmendmentTemplateId, Map("pspName" -> pspName)).map { _ =>

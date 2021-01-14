@@ -16,13 +16,11 @@
 
 package forms
 
-import models.requests.DataRequest
 import play.api.data.Form
-import play.api.mvc.AnyContent
 
 object FormsHelper {
 
-  def formWithError[A](form: Form[A], message: String)(implicit request: DataRequest[AnyContent]): Form[A] = {
+  def formWithError[A](form: Form[A], message: String): Form[A] = {
     form.withError("value", message)
   }
 

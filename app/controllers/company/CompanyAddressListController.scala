@@ -67,7 +67,7 @@ class CompanyAddressListController @Inject()(override val messagesApi: MessagesA
         getFormToJson(mode).retrieve.right.map(post(mode, _, addressPages))
     }
 
-  def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Int] => JsObject] =
+  def getFormToJson(mode: Mode): Retrieval[Form[Int] => JsObject] =
     Retrieval(
       implicit request =>
       (BusinessNamePage and CompanyPostcodePage).retrieve.right.map {

@@ -74,8 +74,7 @@ abstract class AuthenticatedAuthAction @Inject()(override val authConnector: Aut
   }
 
   protected def allowAccess[A](externalId: String, affinityGroup: AffinityGroup, role: CredentialRole,
-    authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
-    (implicit hc: HeaderCarrier): Future[Result] = {
+    authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
     (affinityGroup, role) match {
       case (AffinityGroup.Agent, _) => Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
       case (AffinityGroup.Individual, _) => Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
@@ -95,7 +94,7 @@ abstract class AuthenticatedAuthAction @Inject()(override val authConnector: Aut
     externalId: String,
     authRequest: AuthenticatedRequest[A],
     block: AuthenticatedRequest[A] => Future[Result]
-  )(implicit hc: HeaderCarrier):Future[Result] = block(authRequest)
+  ):Future[Result] = block(authRequest)
 
   private def createAuthenticatedRequest[A](
     externalId: String,
@@ -103,7 +102,7 @@ abstract class AuthenticatedAuthAction @Inject()(override val authConnector: Aut
     affinityGroup: AffinityGroup,
     providerId: String,
     enrolments: Enrolments
-  )(implicit hc: HeaderCarrier): AuthenticatedRequest[A] = {
+  ): AuthenticatedRequest[A] = {
     val tpssPspId = enrolments.getEnrolment("HMRC-PP-ORG")
       .flatMap(_.getIdentifier("PSPID")).map(_.value)
     val podsPspId = enrolments.getEnrolment("HMRC-PODSPP-ORG")

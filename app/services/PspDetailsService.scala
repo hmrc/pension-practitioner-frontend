@@ -54,8 +54,7 @@ class PspDetailsService @Inject()(appConfig: FrontendAppConfig,
   val thirdWidth: Seq[String] = Seq("govuk-!-width-one-third")
   def nextPage: String = routes.DeclarationController.onPageLoad().url
 
-  private def returnUrlAndLink(name:Option[String], rlsFlag:Boolean)(implicit messages: Messages,
-    hc: HeaderCarrier, ec: ExecutionContext):JsObject = {
+  private def returnUrlAndLink(name:Option[String], rlsFlag:Boolean)(implicit messages: Messages):JsObject = {
     if (rlsFlag) {
       Json.obj()
     } else {
@@ -135,7 +134,7 @@ class PspDetailsService @Inject()(appConfig: FrontendAppConfig,
   private def uaFromJsValue(jsValue: JsValue): UserAnswers = UserAnswers(jsValue.as[JsObject])
   private def heading(name: String)(implicit messages: Messages): String = messages("viewDetails.heading", name)
 
-  private def nameLink(href: Call, regInfo: RegistrationDetails, name: String)(implicit messages: Messages): Seq[Action] =
+  private def nameLink(href: Call, regInfo: RegistrationDetails, name: String): Seq[Action] =
     if(regInfo.customerType == UK) {
       Seq.empty
     } else {
@@ -146,19 +145,19 @@ class PspDetailsService @Inject()(appConfig: FrontendAppConfig,
   ))
   }
 
-  private def addressLink(href: Call)(implicit messages: Messages) = Seq(Action(
+  private def addressLink(href: Call) = Seq(Action(
     content = msg"site.edit",
     href = href.url,
     visuallyHiddenText = Some(msg"cya.change.address")
   ))
 
-  private def emailLink(href: Call, name: String)(implicit messages: Messages) = Seq(Action(
+  private def emailLink(href: Call, name: String) = Seq(Action(
     content = msg"site.edit",
     href = href.url,
     visuallyHiddenText = Some(msg"cya.change.email".withArgs(name))
   ))
 
-  private def phoneLink(href: Call, name: String)(implicit messages: Messages) = Seq(Action(
+  private def phoneLink(href: Call, name: String) = Seq(Action(
     content = msg"site.edit",
     href = href.url,
     visuallyHiddenText = Some(msg"cya.change.phone".withArgs(name))
