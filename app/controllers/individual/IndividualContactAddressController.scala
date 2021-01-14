@@ -16,35 +16,24 @@
 
 package controllers.individual
 
-import models.Address
-import play.api.mvc.AnyContent
-
 import scala.concurrent.ExecutionContext
-import play.api.mvc.MessagesControllerComponents
 import play.api.data.Form
-import play.api.mvc.Action
 import connectors.cache.UserAnswersCacheConnector
 import config.FrontendAppConfig
 import javax.inject.Inject
 import controllers.address.ManualAddressController
 import navigators.CompoundNavigator
-import controllers.actions.DataRetrievalAction
 import forms.address.AddressFormProvider
-import models.Mode
-import play.api.i18n.I18nSupport
+import models.{Address, Mode}
 import utils.countryOptions.CountryOptions
 import controllers.Retrievals
-import controllers.actions.AuthAction
-import play.api.i18n.MessagesApi
 import renderer.Renderer
-import play.api.i18n.Messages
-import controllers.actions.DataRequiredAction
+import play.api.i18n.{I18nSupport, MessagesApi, Messages}
+import controllers.actions.{DataRetrievalAction, AuthAction, DataRequiredAction}
 import pages.QuestionPage
-import pages.individual.AreYouUKResidentPage
-import pages.individual.IndividualManualAddressPage
-import play.api.mvc.Call
+import pages.individual.{AreYouUKResidentPage, IndividualManualAddressPage}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Action, Call}
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 
 
 class IndividualContactAddressController @Inject()(

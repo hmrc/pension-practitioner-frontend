@@ -23,7 +23,6 @@ import play.api.libs.json.Json
 import play.api.mvc.Call
 
 class NavigatorSpec extends SpecBase {
-  private val srn = "test-srn"
 
   private case object DummyIdentifier extends Page
 

@@ -16,10 +16,7 @@
 
 package controllers
 
-import audit.AuditEvent
-import audit.AuditService
-import audit.PSPStartEvent
-import connectors.AddressLookupConnector
+import audit.{AuditEvent, AuditService, PSPStartEvent}
 import controllers.base.ControllerSpecBase
 import data.SampleData._
 import forms.WhatTypeBusinessFormProvider
@@ -28,13 +25,10 @@ import models.requests.UserType
 import models.{WhatTypeBusiness, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
-import org.mockito.Mockito.doNothing
-import org.mockito.Mockito.reset
-import org.mockito.Mockito.{times, when, verify}
+import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.PspIdPage
-import pages.WhatTypeBusinessPage
+import pages.{PspIdPage, WhatTypeBusinessPage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -44,7 +38,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.countryOptions.CountryOptions
 
 import scala.concurrent.Future
 

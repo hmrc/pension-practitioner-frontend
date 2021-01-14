@@ -25,7 +25,6 @@ import play.api.mvc.Call
 import scala.collection.JavaConverters._
 
 class CompoundNavigatorSpec extends SpecBase {
-  private val srn = "test-srn"
 
   case object PageOne extends Page
   case object PageTwo extends Page

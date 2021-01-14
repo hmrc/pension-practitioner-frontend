@@ -20,24 +20,15 @@ package controllers
 import controllers.base.ControllerSpecBase
 import data.SampleData
 import models.UserAnswers
-import models.WhatTypeBusiness
-import models.register.{BusinessRegistrationType, BusinessType, RegistrationLegalStatus, TolerantIndividual}
-import models.requests.DataRequest
-import models.requests.PSPUser
-import models.requests.UserType
+import models.register.{TolerantIndividual, RegistrationLegalStatus}
+import models.requests.{DataRequest, PSPUser, UserType}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{RegistrationInfoPage, WhatTypeBusinessPage}
+import pages.RegistrationInfoPage
 import pages.company.CompanyEmailPage
-import pages.individual.IndividualDetailsPage
-import pages.individual.IndividualEmailPage
+import pages.individual.{IndividualDetailsPage, IndividualEmailPage}
 import pages.partnership.PartnershipEmailPage
-import pages.register.AreYouUKCompanyPage
-import pages.register.BusinessRegistrationTypePage
-import pages.register.BusinessTypePage
-import play.api.mvc.AnyContent
-import play.api.mvc.Result
-import play.api.mvc.Results
+import play.api.mvc.{AnyContent, Result, Results}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.domain.Nino
 

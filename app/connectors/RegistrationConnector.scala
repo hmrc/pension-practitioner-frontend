@@ -16,8 +16,6 @@
 
 package connectors
 
-import java.time.LocalDate
-
 import com.google.inject.{ImplementedBy, Inject}
 import config.FrontendAppConfig
 import javax.inject.Singleton
@@ -27,11 +25,11 @@ import play.Logger
 import play.api.http.Status
 import play.api.libs.json._
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
+import uk.gov.hmrc.http.{NotFoundException, HttpResponse, HeaderCarrier}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.http.HttpReads.Implicits._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 import scala.util.Failure
 
 @ImplementedBy(classOf[RegistrationConnectorImpl])

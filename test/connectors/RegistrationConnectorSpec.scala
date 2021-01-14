@@ -16,21 +16,16 @@
 
 package connectors
 
-import java.time.LocalDate
-
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models._
-import models.register.{RegistrationInfo, RegistrationNoIdIndividualRequest, TolerantIndividual, _}
+import models.register.{RegistrationNoIdIndividualRequest, TolerantIndividual, RegistrationInfo, _}
 import org.scalatest._
 import play.api.Application
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.{JsResultException, Json}
+import play.api.libs.json.{Json, JsResultException}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-
-import scala.concurrent.ExecutionContext
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class RegistrationConnectorSpec extends AsyncWordSpec with MustMatchers with OptionValues with WireMockHelper {
 
@@ -192,9 +187,9 @@ class RegistrationConnectorSpec extends AsyncWordSpec with MustMatchers with Opt
       val connector = injector.instanceOf[RegistrationConnector]
 
       val hc: HeaderCarrier = HeaderCarrier(extraHeaders = Seq((headerName, headerValue)))
-      val executionContext: ExecutionContext = implicitly[ExecutionContext]
 
-      connector.registerWithIdOrganisation(utr, organisation, legalStatus)(hc, executionContext).map { _ =>
+      connector.registerWithIdOrganisation(utr, organisation, legalStatus)(hc,
+        scala.concurrent.ExecutionContext.global).map { _ =>
         succeed
       }
 
@@ -378,9 +373,8 @@ class RegistrationConnectorSpec extends AsyncWordSpec with MustMatchers with Opt
       val connector = injector.instanceOf[RegistrationConnector]
 
       val hc: HeaderCarrier = HeaderCarrier(extraHeaders = Seq((headerName, headerValue)))
-      val executionContext: ExecutionContext = implicitly[ExecutionContext]
 
-      connector.registerWithIdIndividual(nino)(hc, executionContext).map { _ =>
+      connector.registerWithIdIndividual(nino)(hc, scala.concurrent.ExecutionContext.global).map { _ =>
         succeed
       }
     }
