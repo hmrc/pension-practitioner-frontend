@@ -16,39 +16,38 @@
 
 package controllers.individual
 
-import scala.concurrent.ExecutionContext
-import play.api.data.Form
-import connectors.cache.UserAnswersCacheConnector
 import config.FrontendAppConfig
-import javax.inject.Inject
-import controllers.address.ManualAddressController
-import navigators.CompoundNavigator
-import forms.address.AddressFormProvider
-import models.{Mode, Address}
-import utils.countryOptions.CountryOptions
+import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
-import renderer.Renderer
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import controllers.actions.{DataRequiredAction, AuthAction, DataRetrievalAction}
+import controllers.actions.{AuthAction, DataRequiredAction, DataRetrievalAction}
+import controllers.address.ManualAddressController
+import forms.address.AddressFormProvider
+import models.{Address, Mode}
+import navigators.CompoundNavigator
 import pages.QuestionPage
 import pages.individual.{AreYouUKResidentPage, IndividualManualAddressPage}
-import play.api.mvc.{Call, AnyContent, MessagesControllerComponents, Action}
+import play.api.data.Form
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+
+import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
 
 class IndividualContactAddressController @Inject()(
-  override val messagesApi: MessagesApi,
-  val userAnswersCacheConnector: UserAnswersCacheConnector,
-  val navigator: CompoundNavigator,
-  authenticate: AuthAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: AddressFormProvider,
-  countryOptions: CountryOptions,
-  val controllerComponents: MessagesControllerComponents,
-  val config: FrontendAppConfig,
-  val renderer: Renderer
-)(implicit ec: ExecutionContext)
+                                                    override val messagesApi: MessagesApi,
+                                                    val userAnswersCacheConnector: UserAnswersCacheConnector,
+                                                    val navigator: CompoundNavigator,
+                                                    authenticate: AuthAction,
+                                                    getData: DataRetrievalAction,
+                                                    requireData: DataRequiredAction,
+                                                    formProvider: AddressFormProvider,
+                                                    val controllerComponents: MessagesControllerComponents,
+                                                    val config: FrontendAppConfig,
+                                                    val renderer: Renderer
+                                                  )(implicit ec: ExecutionContext)
   extends ManualAddressController
     with Retrievals
     with I18nSupport
@@ -66,14 +65,14 @@ class IndividualContactAddressController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
       AreYouUKResidentPage.retrieve.right.map { areYouUKResident =>
-          get(mode, None, addressConfigurationForPostcodeAndCountry(areYouUKResident))
+        get(mode, None, addressConfigurationForPostcodeAndCountry(areYouUKResident))
       }
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
       AreYouUKResidentPage.retrieve.right.map { areYouUKResident =>
-          post(mode, None, addressConfigurationForPostcodeAndCountry(areYouUKResident))
+        post(mode, None, addressConfigurationForPostcodeAndCountry(areYouUKResident))
       }
     }
 }

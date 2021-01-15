@@ -1,64 +1,64 @@
 
-GET         /what-you-will-need                        controllers.individual.WhatYouWillNeedController.onPageLoad
+GET         /what-you-will-need                                 controllers.individual.WhatYouWillNeedController.onPageLoad
 
-GET        /are-you-uk-resident                        controllers.individual.AreYouUKResidentController.onPageLoad(mode: Mode = NormalMode)
-POST       /are-you-uk-resident                        controllers.individual.AreYouUKResidentController.onSubmit(mode: Mode = NormalMode)
-GET        /change-are-you-uk-resident                 controllers.individual.AreYouUKResidentController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-are-you-uk-resident                 controllers.individual.AreYouUKResidentController.onSubmit(mode: Mode = CheckMode)
+GET         /are-you-uk-resident                                controllers.individual.AreYouUKResidentController.onPageLoad(mode: Mode = NormalMode)
+POST        /are-you-uk-resident                                controllers.individual.AreYouUKResidentController.onSubmit(mode: Mode = NormalMode)
+GET         /change-are-you-uk-resident                         controllers.individual.AreYouUKResidentController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-are-you-uk-resident                         controllers.individual.AreYouUKResidentController.onSubmit(mode: Mode = CheckMode)
 
-GET         /is-this-you                            controllers.individual.IsThisYouController.onPageLoad(mode: Mode = NormalMode)
-POST        /is-this-you                            controllers.individual.IsThisYouController.onSubmit(mode: Mode = NormalMode)
-GET         /change/is-this-you                      controllers.individual.IsThisYouController.onPageLoad(mode: Mode = CheckMode)
-POST        /change/is-this-you                      controllers.individual.IsThisYouController.onSubmit(mode: Mode = CheckMode)
+GET         /is-this-you                                        controllers.individual.IsThisYouController.onPageLoad(mode: Mode = NormalMode)
+POST        /is-this-you                                        controllers.individual.IsThisYouController.onSubmit(mode: Mode = NormalMode)
+GET         /change/is-this-you                                 controllers.individual.IsThisYouController.onPageLoad(mode: Mode = CheckMode)
+POST        /change/is-this-you                                 controllers.individual.IsThisYouController.onSubmit(mode: Mode = CheckMode)
 
-GET         /you-need-to-tell-hmrc                  controllers.individual.YouNeedToTellHMRCController.onPageLoad()
+GET         /you-need-to-tell-hmrc                              controllers.individual.YouNeedToTellHMRCController.onPageLoad()
 
-GET         /use-address-for-contact                  controllers.individual.UseAddressForContactController.onPageLoad(mode: Mode = NormalMode)
-POST        /use-address-for-contact                  controllers.individual.UseAddressForContactController.onPageLoad(mode: Mode = NormalMode)
-GET         /change/use-address-for-contact           controllers.individual.UseAddressForContactController.onPageLoad(mode: Mode = CheckMode)
-POST        /change/use-address-for-contact           controllers.individual.UseAddressForContactController.onSubmit(mode: Mode = CheckMode)
+GET         /use-address-for-contact                            controllers.individual.UseAddressForContactController.onPageLoad(mode: Mode = NormalMode)
+POST        /use-address-for-contact                            controllers.individual.UseAddressForContactController.onPageLoad(mode: Mode = NormalMode)
+GET         /change/use-address-for-contact                     controllers.individual.UseAddressForContactController.onPageLoad(mode: Mode = CheckMode)
+POST        /change/use-address-for-contact                     controllers.individual.UseAddressForContactController.onSubmit(mode: Mode = CheckMode)
 
-GET        /contact-details/contact-email             controllers.individual.IndividualEmailController.onPageLoad(mode: Mode = NormalMode)
-POST       /contact-details/contact-email             controllers.individual.IndividualEmailController.onSubmit(mode: Mode = NormalMode)
-GET        /contact-details/change-contact-email      controllers.individual.IndividualEmailController.onPageLoad(mode: Mode = CheckMode)
-POST       /contact-details/change-contact-email      controllers.individual.IndividualEmailController.onSubmit(mode: Mode = CheckMode)
+GET         /contact-details/contact-email                      controllers.individual.IndividualEmailController.onPageLoad(mode: Mode = NormalMode)
+POST        /contact-details/contact-email                      controllers.individual.IndividualEmailController.onSubmit(mode: Mode = NormalMode)
+GET         /contact-details/change-contact-email               controllers.individual.IndividualEmailController.onPageLoad(mode: Mode = CheckMode)
+POST        /contact-details/change-contact-email               controllers.individual.IndividualEmailController.onSubmit(mode: Mode = CheckMode)
 
-GET        /contact-details/contact-phone             controllers.individual.IndividualPhoneController.onPageLoad(mode: Mode = NormalMode)
-POST       /contact-details/contact-phone             controllers.individual.IndividualPhoneController.onSubmit(mode: Mode = NormalMode)
-GET        /contact-details/change-contact-phone      controllers.individual.IndividualPhoneController.onPageLoad(mode: Mode = CheckMode)
-POST       /contact-details/change-contact-phone      controllers.individual.IndividualPhoneController.onSubmit(mode: Mode = CheckMode)
+GET         /contact-details/contact-phone                      controllers.individual.IndividualPhoneController.onPageLoad(mode: Mode = NormalMode)
+POST        /contact-details/contact-phone                      controllers.individual.IndividualPhoneController.onSubmit(mode: Mode = NormalMode)
+GET         /contact-details/change-contact-phone               controllers.individual.IndividualPhoneController.onPageLoad(mode: Mode = CheckMode)
+POST        /contact-details/change-contact-phone               controllers.individual.IndividualPhoneController.onSubmit(mode: Mode = CheckMode)
 
-GET        /addresses/postcode-individual             controllers.individual.IndividualPostcodeController.onPageLoad(mode: Mode = NormalMode)
-POST       /addresses/postcode-individual             controllers.individual.IndividualPostcodeController.onSubmit(mode: Mode = NormalMode)
-GET        /addresses/change-postcode-individual      controllers.individual.IndividualPostcodeController.onPageLoad(mode: Mode = CheckMode)
-POST       /addresses/change-postcode-individual      controllers.individual.IndividualPostcodeController.onSubmit(mode: Mode = CheckMode)
+GET         /addresses/postcode-individual                      controllers.individual.IndividualPostcodeController.onPageLoad(mode: Mode = NormalMode)
+POST        /addresses/postcode-individual                      controllers.individual.IndividualPostcodeController.onSubmit(mode: Mode = NormalMode)
+GET         /addresses/change-postcode-individual               controllers.individual.IndividualPostcodeController.onPageLoad(mode: Mode = CheckMode)
+POST        /addresses/change-postcode-individual               controllers.individual.IndividualPostcodeController.onSubmit(mode: Mode = CheckMode)
 
-GET        /addresses/address-results-individual             controllers.individual.IndividualAddressListController.onPageLoad(mode: Mode = NormalMode)
-POST       /addresses/address-results-individual             controllers.individual.IndividualAddressListController.onSubmit(mode: Mode = NormalMode)
-GET        /addresses/change-address-results-individual      controllers.individual.IndividualAddressListController.onPageLoad(mode: Mode = CheckMode)
-POST       /addresses/change-address-results-individual      controllers.individual.IndividualAddressListController.onSubmit(mode: Mode = CheckMode)
+GET         /addresses/address-results-individual               controllers.individual.IndividualAddressListController.onPageLoad(mode: Mode = NormalMode)
+POST        /addresses/address-results-individual               controllers.individual.IndividualAddressListController.onSubmit(mode: Mode = NormalMode)
+GET         /addresses/change-address-results-individual        controllers.individual.IndividualAddressListController.onPageLoad(mode: Mode = CheckMode)
+POST        /addresses/change-address-results-individual        controllers.individual.IndividualAddressListController.onSubmit(mode: Mode = CheckMode)
 
-GET        /addresses/address-manual-individual             controllers.individual.IndividualContactAddressController.onPageLoad(mode: Mode = NormalMode)
-POST       /addresses/address-manual-individual             controllers.individual.IndividualContactAddressController.onSubmit(mode: Mode = NormalMode)
-GET        /addresses/change-address-manual-individual      controllers.individual.IndividualContactAddressController.onPageLoad(mode: Mode = CheckMode)
-POST       /addresses/change-address-manual-individual      controllers.individual.IndividualContactAddressController.onSubmit(mode: Mode = CheckMode)
+GET         /addresses/address-manual-individual                controllers.individual.IndividualContactAddressController.onPageLoad(mode: Mode = NormalMode)
+POST        /addresses/address-manual-individual                controllers.individual.IndividualContactAddressController.onSubmit(mode: Mode = NormalMode)
+GET         /addresses/change-address-manual-individual         controllers.individual.IndividualContactAddressController.onPageLoad(mode: Mode = CheckMode)
+POST        /addresses/change-address-manual-individual         controllers.individual.IndividualContactAddressController.onSubmit(mode: Mode = CheckMode)
 
-GET        /check-your-answers-individual                        controllers.individual.CheckYourAnswersController.onPageLoad
+GET         /check-your-answers-individual                      controllers.individual.CheckYourAnswersController.onPageLoad
 
-GET        /declaration                                     controllers.individual.DeclarationController.onPageLoad()
-POST        /declaration                            controllers.individual.DeclarationController.onSubmit()
+GET         /declaration                                        controllers.individual.DeclarationController.onPageLoad()
+POST        /declaration                                        controllers.individual.DeclarationController.onSubmit()
 
-GET        /registration-successful                         controllers.individual.ConfirmationController.onPageLoad()
+GET         /registration-successful                            controllers.individual.ConfirmationController.onPageLoad()
 
-GET        /what-is-your-name                      controllers.individual.IndividualNameController.onPageLoad(mode: Mode = NormalMode)
-POST       /what-is-your-name                      controllers.individual.IndividualNameController.onSubmit(mode: Mode = NormalMode)
-GET        /change-what-is-your-name               controllers.individual.IndividualNameController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-what-is-your-name               controllers.individual.IndividualNameController.onSubmit(mode: Mode = CheckMode)
+GET         /what-is-your-name                                  controllers.individual.IndividualNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /what-is-your-name                                  controllers.individual.IndividualNameController.onSubmit(mode: Mode = NormalMode)
+GET         /change-what-is-your-name                           controllers.individual.IndividualNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-what-is-your-name                           controllers.individual.IndividualNameController.onSubmit(mode: Mode = CheckMode)
 
-GET         /address-manual                         controllers.individual.IndividualEnterRegisteredAddressController.onPageLoad(mode: Mode = NormalMode)
-POST        /address-manual                         controllers.individual.IndividualEnterRegisteredAddressController.onSubmit(mode: Mode = NormalMode)
-GET         /change-address-manual                  controllers.individual.IndividualEnterRegisteredAddressController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-address-manual                  controllers.individual.IndividualEnterRegisteredAddressController.onSubmit(mode: Mode = CheckMode)
+GET         /address-manual                                     controllers.individual.IndividualEnterRegisteredAddressController.onPageLoad(mode: Mode = NormalMode)
+POST        /address-manual                                     controllers.individual.IndividualEnterRegisteredAddressController.onSubmit(mode: Mode = NormalMode)
+GET         /change-address-manual                              controllers.individual.IndividualEnterRegisteredAddressController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-address-manual                              controllers.individual.IndividualEnterRegisteredAddressController.onSubmit(mode: Mode = CheckMode)
 
-GET         /outside-eu-eea                         controllers.individual.OutsideEuEeaController.onPageLoad()
+GET         /outside-eu-eea                                     controllers.individual.OutsideEuEeaController.onPageLoad()
 
