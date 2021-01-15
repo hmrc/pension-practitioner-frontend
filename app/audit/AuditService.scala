@@ -25,10 +25,9 @@ import uk.gov.hmrc.play.audit.AuditExtensions._
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 import scala.language.implicitConversions
-import scala.util.Failure
-import scala.util.Success
+import scala.util.{Failure, Success}
 
 @ImplementedBy(classOf[AuditServiceImpl])
 trait AuditService {

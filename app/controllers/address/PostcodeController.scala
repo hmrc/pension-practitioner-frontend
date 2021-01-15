@@ -21,19 +21,19 @@ import connectors.AddressLookupConnector
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import models.requests.DataRequest
-import models.{Address, Mode, TolerantAddress}
+import models.{Mode, TolerantAddress}
 import navigators.CompoundNavigator
 import pages.QuestionPage
 import play.api.data.Form
 import play.api.i18n.Messages
-import play.api.libs.json.{JsArray, JsObject, Json}
-import play.api.mvc.{AnyContent, Result}
+import play.api.libs.json.{JsArray, Json, JsObject}
+import play.api.mvc.{Result, AnyContent}
 import renderer.Renderer
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import forms.FormsHelper.formWithError
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 trait PostcodeController extends FrontendBaseController with Retrievals {
 

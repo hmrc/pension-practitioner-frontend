@@ -22,7 +22,7 @@ import controllers.Variation
 import controllers.actions._
 import forms.BusinessNameFormProvider
 import javax.inject.Inject
-import models.{Mode, NormalMode}
+import models.Mode
 import navigators.CompoundNavigator
 import pages.NameChange
 import pages.partnership.BusinessNamePage
@@ -34,7 +34,6 @@ import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 
 import scala.concurrent.{Future, ExecutionContext}
 

@@ -19,25 +19,19 @@ package controllers.partnership
 import config.FrontendAppConfig
 import connectors.{EnrolmentConnector, EmailStatus, SubscriptionConnector, EmailConnector}
 import connectors.cache.UserAnswersCacheConnector
-import controllers.DataRetrievals
-import controllers.Retrievals
+import controllers.{DataRetrievals, Retrievals}
 import controllers.actions._
 import javax.inject.Inject
-import models.ExistingPSP
-import models.NormalMode
+import models.{ExistingPSP, NormalMode}
 import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.PspIdPage
 import pages.partnership.DeclarationPage
 import pages.register.ExistingPSPPage
 import play.api.Logger
-import play.api.i18n.Messages
-import play.api.i18n.I18nSupport
-import play.api.i18n.MessagesApi
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.http.{HttpResponse, HeaderCarrier}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
@@ -45,8 +39,7 @@ import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.KnownFactsRetrieval
 import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class DeclarationController @Inject()(
                                       override val messagesApi: MessagesApi,
@@ -109,7 +102,7 @@ class DeclarationController @Inject()(
   }
 
   private def sendEmail(email: String, pspId: String, pspName: String)
-                       (implicit request: DataRequest[_], hc: HeaderCarrier, messages: Messages): Future[EmailStatus] =
+                       (implicit request: DataRequest[_], hc: HeaderCarrier): Future[EmailStatus] =
     emailConnector.sendEmail(
       requestId = hc.requestId.map(_.value).getOrElse(request.headers.get("X-Session-ID").getOrElse("")),
       pspId,

@@ -33,7 +33,6 @@ import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import viewmodels.CommonViewModel
 
 import scala.concurrent.{Future, ExecutionContext}
@@ -81,10 +80,10 @@ class PartnershipPhoneController @Inject()(override val messagesApi: MessagesApi
     }
 
   private def getJson(mode: Mode, form: Form[String])(block: JsObject => Future[Result])
-                     (implicit w: Writes[Form[String]], messages: Messages, request: DataRequest[AnyContent]): Future[Result] =
+                     (implicit w: Writes[Form[String]], request: DataRequest[AnyContent]): Future[Result] =
     BusinessNamePage.retrieve.right.map { partnershipName =>
       val json = Json.obj(
-        "form" -> form,
+        "form" ->  Json.toJsFieldJsValueWrapper(form)(w),
         "viewmodel" -> CommonViewModel(
           "partnership",
           partnershipName,

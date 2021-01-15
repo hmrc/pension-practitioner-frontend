@@ -25,8 +25,7 @@ import models.Mode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.AddressChange
-import pages.company.CompanyPhonePage
-import pages.company.BusinessNamePage
+import pages.company.{CompanyPhonePage, BusinessNamePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{Writes, Json, JsObject}
@@ -34,7 +33,6 @@ import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import viewmodels.CommonViewModel
 
 import scala.concurrent.{Future, ExecutionContext}
@@ -82,10 +80,10 @@ class CompanyPhoneController @Inject()(override val messagesApi: MessagesApi,
     }
 
   private def getJson(mode: Mode, form: Form[String])(block: JsObject => Future[Result])
-                     (implicit w: Writes[Form[String]], messages: Messages, request: DataRequest[AnyContent]): Future[Result] =
+                     (implicit w: Writes[Form[String]], request: DataRequest[AnyContent]): Future[Result] =
     BusinessNamePage.retrieve.right.map { companyName =>
       val json = Json.obj(
-        "form" -> form,
+        "form" -> Json.toJsFieldJsValueWrapper(form)(w),
         "viewmodel" -> CommonViewModel(
           "company",
           companyName,

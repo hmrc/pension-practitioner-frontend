@@ -18,13 +18,10 @@ package navigators
 
 import com.google.inject.Inject
 import connectors.cache.UserAnswersCacheConnector
-import models.register.BusinessRegistrationType
-import models.{NormalMode, UserAnswers, WhatTypeBusiness}
-import models.register.BusinessType
-import pages.register.BusinessDetailsNotFoundPage
-import pages.register.BusinessRegistrationTypePage
-import pages.register.{AreYouUKCompanyPage, BusinessTypePage, WhatYouWillNeedPage}
-import pages.{Page, WhatTypeBusinessPage}
+import models.{NormalMode, WhatTypeBusiness, UserAnswers}
+import models.register.{BusinessRegistrationType, BusinessType}
+import pages.register._
+import pages.{WhatTypeBusinessPage, Page}
 import play.api.mvc.Call
 
 class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector)

@@ -75,16 +75,22 @@ class UpdateContactAddressController @Inject()(
       regInfo =>
         regInfo.legalStatus match {
           case LimitedCompany => Some(
-            controllers.company.routes.CompanyPostcodeController.onPageLoad(CheckMode).url,
-            ua.getOrException(CompanyAddressPage)
+            Tuple2(
+              controllers.company.routes.CompanyPostcodeController.onPageLoad(CheckMode).url,
+              ua.getOrException(CompanyAddressPage)
+            )
           )
           case Individual => Some(
-            controllers.individual.routes.IndividualPostcodeController.onPageLoad(CheckMode).url,
-            ua.getOrException(IndividualManualAddressPage)
+            Tuple2(
+              controllers.individual.routes.IndividualPostcodeController.onPageLoad(CheckMode).url,
+              ua.getOrException(IndividualManualAddressPage)
+            )
           )
           case Partnership => Some(
-            controllers.partnership.routes.PartnershipPostcodeController.onPageLoad(CheckMode).url,
-            ua.getOrException(PartnershipAddressPage)
+            Tuple2(
+              controllers.partnership.routes.PartnershipPostcodeController.onPageLoad(CheckMode).url,
+              ua.getOrException(PartnershipAddressPage)
+            )
           )
           case _ => None
         }

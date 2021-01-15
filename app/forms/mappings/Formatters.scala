@@ -23,9 +23,7 @@ import play.api.data.format.Formatter
 import utils.Enumerable
 
 import scala.util.control.Exception.nonFatalCatch
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 trait Formatters extends Transforms with Constraints {
   private[mappings] val decimalFormat = new DecimalFormat("0.00")

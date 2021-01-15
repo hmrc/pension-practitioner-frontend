@@ -18,11 +18,9 @@ package controllers.deregister.individual
 
 import java.time.LocalDate
 
-import audit.AuditService
-import audit.PSPDeregistration
-import audit.PSPDeregistrationEmail
+import audit.{AuditService, PSPDeregistration, PSPDeregistrationEmail}
 import config.FrontendAppConfig
-import connectors.{DeregistrationConnector, EmailConnector, EmailStatus, EnrolmentConnector, SubscriptionConnector}
+import connectors._
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
@@ -32,25 +30,18 @@ import javax.inject.Inject
 import models.NormalMode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
-import pages.PspEmailPage
-import pages.PspNamePage
+import pages.{PspEmailPage, PspNamePage}
 import pages.deregister.DeregistrationDatePage
 import play.api.data.Form
-import play.api.i18n.I18nSupport
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.DateInput
-import uk.gov.hmrc.viewmodels.NunjucksSupport
+import uk.gov.hmrc.viewmodels.{DateInput, NunjucksSupport}
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class DeregistrationDateController @Inject()(config: FrontendAppConfig,
                                              override val messagesApi: MessagesApi,
@@ -119,7 +110,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
   }
 
   private def sendEmail(email: String, pspId: String, pspName: String)
-    (implicit request: DataRequest[_], hc: HeaderCarrier, messages: Messages ): Future[EmailStatus] =
+    (implicit request: DataRequest[_], hc: HeaderCarrier ): Future[EmailStatus] =
     emailConnector.sendEmail(
       requestId = hc.requestId .map(_.value) .getOrElse(request.headers.get("X-Session-ID").getOrElse("")),
       pspId,

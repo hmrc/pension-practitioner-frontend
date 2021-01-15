@@ -21,13 +21,13 @@ import config.FrontendAppConfig
 import models.MinimalPSP
 import play.api.Logger
 import play.api.http.Status._
-import play.api.libs.json.{JsError, JsResultException, JsSuccess, Json}
+import play.api.libs.json.{Json, JsError, JsSuccess, JsResultException}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import utils.HttpResponseHelper
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 import scala.util.Failure
 
 @ImplementedBy(classOf[MinimalConnectorImpl])

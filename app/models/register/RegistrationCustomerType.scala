@@ -17,7 +17,7 @@
 package models.register
 
 import models.TolerantAddress
-import utils.{Enumerable, WithName}
+import utils.{WithName, Enumerable}
 
 sealed trait RegistrationCustomerType
 

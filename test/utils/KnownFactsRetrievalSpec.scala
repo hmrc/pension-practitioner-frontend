@@ -17,9 +17,9 @@
 package utils
 
 import base.SpecBase
-import models.register.{RegistrationCustomerType, RegistrationIdType, RegistrationInfo, RegistrationLegalStatus}
-import models.requests.{DataRequest, PSPUser, UserType}
-import models.{Address, KnownFact, KnownFacts, TolerantAddress, UserAnswers}
+import models.register.{RegistrationIdType, RegistrationCustomerType, RegistrationInfo, RegistrationLegalStatus}
+import models.requests.{DataRequest, UserType, PSPUser}
+import models.{KnownFacts, KnownFact, Address, UserAnswers}
 import pages.RegistrationInfoPage
 import pages.company.CompanyRegisteredAddressPage
 import play.api.libs.json.Json

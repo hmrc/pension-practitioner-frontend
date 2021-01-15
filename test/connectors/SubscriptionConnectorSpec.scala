@@ -27,8 +27,6 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import uk.gov.hmrc.http._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 class SubscriptionConnectorSpec extends AsyncWordSpec with MustMatchers with WireMockHelper {
 
   private implicit lazy val hc: HeaderCarrier = HeaderCarrier()

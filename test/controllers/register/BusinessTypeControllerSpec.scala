@@ -21,7 +21,7 @@ import data.SampleData._
 import forms.register.BusinessTypeFormProvider
 import matchers.JsonMatchers
 import models.register.BusinessType
-import models.{NormalMode, UserAnswers}
+import models.UserAnswers
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}

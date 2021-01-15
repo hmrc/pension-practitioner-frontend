@@ -23,32 +23,19 @@ import controllers.actions._
 import controllers.address.ManualAddressController
 import forms.address.AddressFormProvider
 import javax.inject.Inject
-import models.requests.DataRequest
-import models.Address
-import models.AddressConfiguration
-import models.Mode
+import models.{Address, Mode}
 import navigators.CompoundNavigator
 import pages.QuestionPage
-import pages.partnership.BusinessNamePage
-import pages.partnership.PartnershipAddressPage
+import pages.partnership.{BusinessNamePage, PartnershipAddressPage}
 import pages.register.AreYouUKCompanyPage
 import play.api.data.Form
-import play.api.i18n.I18nSupport
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.MessagesControllerComponents
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import utils.countryOptions.CountryOptions
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 class PartnershipContactAddressController @Inject()(
   override val messagesApi: MessagesApi,

@@ -24,8 +24,6 @@ import play.api.inject.Injector
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.language.implicitConversions
-
 trait SpecBase extends PlaySpec with GuiceOneAppPerSuite {
 
   protected implicit val hc: HeaderCarrier = HeaderCarrier()

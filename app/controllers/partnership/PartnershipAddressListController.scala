@@ -23,7 +23,6 @@ import controllers.address.{AddressListController, AddressPages}
 import forms.address.AddressListFormProvider
 import javax.inject.Inject
 import models.Mode
-import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.partnership.{PartnershipAddressListPage, PartnershipPostcodePage, BusinessNamePage, PartnershipAddressPage}
 import play.api.data.Form
@@ -32,7 +31,6 @@ import play.api.libs.json.{Json, JsObject}
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModel
 
@@ -68,7 +66,7 @@ class PartnershipAddressListController @Inject()(override val messagesApi: Messa
         getFormToJson(mode).retrieve.right.map(post(mode, _, addressPages))
     }
 
-  def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Int] => JsObject] =
+  def getFormToJson(mode: Mode): Retrieval[Form[Int] => JsObject] =
     Retrieval(
       implicit request =>
       (BusinessNamePage and PartnershipPostcodePage).retrieve.right.map {

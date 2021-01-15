@@ -17,24 +17,17 @@
 package controllers.actions
 
 import com.google.inject.Inject
-import models.requests.AuthenticatedRequest
-import models.requests.PSPUser
-import models.requests.UserType
+import models.requests.{AuthenticatedRequest, PSPUser, UserType}
 import models.requests.UserType.UserType
-import play.api.mvc.AnyContent
-import play.api.mvc.BodyParser
-import play.api.mvc.PlayBodyParsers
-import play.api.mvc.Request
-import play.api.mvc.Result
+import play.api.mvc._
 import uk.gov.hmrc.domain.Nino
 
-import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.Future
 
 case class FakeAuthAction @Inject()(bodyParsers: PlayBodyParsers) extends AuthAction {
   private val defaultUserType: UserType = UserType.Organisation
   private val defaultPspId: String = "test psp id"
-  implicit val executionContext: ExecutionContextExecutor =
+  implicit val executionContext =
     scala.concurrent.ExecutionContext.Implicits.global
   override def invokeBlock[A](
     request: Request[A],
@@ -52,7 +45,7 @@ case class FakeAuthAction @Inject()(bodyParsers: PlayBodyParsers) extends AuthAc
 
 case class FakeAuthActionNoEnrolment @Inject()(bodyParsers: PlayBodyParsers) extends AuthAction {
   private val defaultUserType: UserType = UserType.Organisation
-  implicit val executionContext: ExecutionContextExecutor =
+  implicit val executionContext =
     scala.concurrent.ExecutionContext.Implicits.global
   override def invokeBlock[A](
     request: Request[A],

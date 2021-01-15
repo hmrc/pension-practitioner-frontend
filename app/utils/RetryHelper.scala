@@ -25,7 +25,7 @@ import play.api.Logger
 import uk.gov.hmrc.http.Upstream5xxResponse
 
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 trait RetryHelper  {
 

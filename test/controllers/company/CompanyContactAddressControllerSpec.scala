@@ -48,7 +48,6 @@ import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.InputOption
 import utils.countryOptions.CountryOptions
-import viewmodels.CommonViewModel
 
 import scala.concurrent.Future
 

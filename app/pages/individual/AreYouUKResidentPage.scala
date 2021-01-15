@@ -17,8 +17,7 @@
 package pages.individual
 
 import models.UserAnswers
-import pages.PageConstants
-import pages.QuestionPage
+import pages.{PageConstants, QuestionPage}
 import play.api.libs.json.JsPath
 import queries.Gettable
 

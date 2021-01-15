@@ -65,7 +65,7 @@ trait Retrievals {
       }
   }
 
-  implicit def fromId[A](id: QuestionPage[A])(implicit request: DataRequest[AnyContent], reads: Reads[A]): Retrieval[A] =
+  implicit def fromId[A](id: QuestionPage[A])(implicit reads: Reads[A]): Retrieval[A] =
     Retrieval {
       implicit request =>
         request.userAnswers.get(id) match {

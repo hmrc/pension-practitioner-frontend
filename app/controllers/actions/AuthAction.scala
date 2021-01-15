@@ -94,6 +94,7 @@ abstract class AuthenticatedAuthAction @Inject()(override val authConnector: Aut
           case (_, None) => completeAuthentication(externalId, authRequest, block)
           case _ => block(authRequest)
         }
+      case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
     }
   }
 
@@ -103,7 +104,7 @@ abstract class AuthenticatedAuthAction @Inject()(override val authConnector: Aut
     externalId: String,
     authRequest: AuthenticatedRequest[A],
     block: AuthenticatedRequest[A] => Future[Result]
-  )(implicit hc: HeaderCarrier):Future[Result] = block(authRequest)
+  )(implicit hc: HeaderCarrier):Future[Result]
 
   private def createAuthenticatedRequest[A](
     externalId: String,
@@ -111,7 +112,7 @@ abstract class AuthenticatedAuthAction @Inject()(override val authConnector: Aut
     affinityGroup: AffinityGroup,
     providerId: String,
     enrolments: Enrolments
-  )(implicit hc: HeaderCarrier): AuthenticatedRequest[A] = {
+  ): AuthenticatedRequest[A] = {
     val tpssPspId = enrolments.getEnrolment("HMRC-PP-ORG")
       .flatMap(_.getIdentifier("PSPID")).map(_.value)
     val podsPspId = enrolments.getEnrolment("HMRC-PODSPP-ORG")
@@ -260,6 +261,12 @@ class AuthenticatedAuthActionMustHaveEnrolment @Inject()(override val authConnec
   AuthenticatedAuthAction(authConnector, config, parser)
   with AuthorisedFunctions {
 
+  override protected def completeAuthentication[A](
+    externalId: String,
+    authRequest: AuthenticatedRequest[A],
+    block: AuthenticatedRequest[A] => Future[Result]
+  )(implicit hc: HeaderCarrier):Future[Result] = block(authRequest)
+
   override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] = {
     authenticatedRequest.user.alreadyEnrolledPspId match {
       case Some(_) => None
@@ -274,6 +281,12 @@ class AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV @Inject()(override val 
 )(implicit executionContext: ExecutionContext) extends
   AuthenticatedAuthAction(authConnector, config, parser)
   with AuthorisedFunctions {
+
+  override protected def completeAuthentication[A](
+    externalId: String,
+    authRequest: AuthenticatedRequest[A],
+    block: AuthenticatedRequest[A] => Future[Result]
+  )(implicit hc: HeaderCarrier):Future[Result] = block(authRequest)
 
   override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] =
     authenticatedRequest.user.alreadyEnrolledPspId.map(_ => Redirect(controllers.routes.AlreadyRegisteredController.onPageLoad()))

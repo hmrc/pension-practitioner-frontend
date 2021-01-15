@@ -25,8 +25,7 @@ import forms.deregister.ConfirmDeregistrationFormProvider
 import javax.inject.Inject
 import models.{NormalMode, UserAnswers}
 import navigators.CompoundNavigator
-import pages.PspEmailPage
-import pages.PspNamePage
+import pages.{PspEmailPage, PspNamePage}
 import pages.deregister.ConfirmDeregistrationCompanyPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json

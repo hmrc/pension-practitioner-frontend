@@ -19,21 +19,21 @@ package controllers.address
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
-import models.register.InternationalRegion.{EuEea, RestOfTheWorld}
+import models.register.InternationalRegion.{RestOfTheWorld, EuEea}
 import models.register.RegistrationInfo
 import models.requests.DataRequest
-import models.{Address, Mode}
+import models.{Mode, Address}
 import navigators.CompoundNavigator
-import pages.{QuestionPage, RegistrationInfoPage}
+import pages.{RegistrationInfoPage, QuestionPage}
 import play.api.data.Form
 import play.api.i18n.Messages
-import play.api.libs.json.{JsArray, JsObject, Json}
-import play.api.mvc.{AnyContent, Result}
+import play.api.libs.json.{JsArray, Json, JsObject}
+import play.api.mvc.{Result, AnyContent}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 import utils.countryOptions.CountryOptions
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 trait NonUKManualAddressController extends FrontendBaseController with Retrievals {
 

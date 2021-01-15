@@ -25,29 +25,18 @@ import controllers.address.ManualAddressController
 import controllers.company.routes.IsCompanyRegisteredInUkController
 import forms.address.RegisteredAddressFormProvider
 import javax.inject.Inject
-import models.Address
-import models.AddressConfiguration
-import models.Mode
+import models.{Address, AddressConfiguration, Mode}
 import models.register.RegistrationLegalStatus
 import navigators.CompoundNavigator
-import pages.QuestionPage
-import pages.RegistrationInfoPage
-import pages.company.CompanyRegisteredAddressPage
-import pages.company.BusinessNamePage
+import pages.{QuestionPage, RegistrationInfoPage}
+import pages.company.{CompanyRegisteredAddressPage, BusinessNamePage}
 import play.api.data.Form
-import play.api.i18n.I18nSupport
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.MessagesControllerComponents
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi: MessagesApi,
   val userAnswersCacheConnector: UserAnswersCacheConnector,

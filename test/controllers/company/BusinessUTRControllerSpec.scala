@@ -16,7 +16,6 @@
 
 package controllers.company
 
-import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import data.SampleData._
 import forms.BusinessUTRFormProvider

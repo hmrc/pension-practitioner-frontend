@@ -18,12 +18,9 @@ package navigators
 
 import com.google.inject.Inject
 import pages.Page
-import models.Mode
 import play.api.mvc.Call
-import models.UserAnswers
-import models.requests.DataRequest
+import models.{Mode, UserAnswers}
 import play.api.Logger
-import play.api.mvc.AnyContent
 
 import scala.collection.JavaConverters._
 

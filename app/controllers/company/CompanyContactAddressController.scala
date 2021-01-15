@@ -23,25 +23,16 @@ import controllers.actions._
 import controllers.address.ManualAddressController
 import forms.address.AddressFormProvider
 import javax.inject.Inject
-import models.Address
-import models.AddressConfiguration
-import models.Mode
+import models.{Mode, Address}
 import navigators.CompoundNavigator
 import pages.QuestionPage
-import pages.company.CompanyAddressPage
-import pages.company.BusinessNamePage
+import pages.company.{CompanyAddressPage, BusinessNamePage}
 import pages.register.AreYouUKCompanyPage
 import play.api.data.Form
-import play.api.i18n.I18nSupport
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.MessagesControllerComponents
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.mvc.{Call, AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import utils.countryOptions.CountryOptions
 
 import scala.concurrent.ExecutionContext

@@ -16,11 +16,9 @@
 
 package models.register
 
-import uk.gov.hmrc.viewmodels._
 import play.api.data.Form
-import play.api.i18n.Messages
-import uk.gov.hmrc.viewmodels.Radios
-import utils.{Enumerable, InputOption, WithName}
+import uk.gov.hmrc.viewmodels.{Radios, _}
+import utils.{InputOption, WithName, Enumerable}
 
 sealed trait BusinessType
 
@@ -58,7 +56,7 @@ object BusinessType extends Enumerable.Implicits {
       InputOption(value.toString, s"businessType.${value.toString}")
     }
 
-  def radios(form: Form[_])(implicit messages: Messages): Seq[Radios.Item] = {
+  def radios(form: Form[_]): Seq[Radios.Item] = {
 
     val field = form("value")
     val items = Seq(

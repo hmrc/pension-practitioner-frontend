@@ -17,12 +17,9 @@
 package pages
 
 import data.SampleData
-import models.UserAnswers
 import models.WhatTypeBusiness
-import models.WhatTypeBusiness.Companyorpartnership
-import models.WhatTypeBusiness.Yourselfasindividual
+import models.WhatTypeBusiness.{Companyorpartnership, Yourselfasindividual}
 import pages.behaviours.PageBehaviours
-import queries.Gettable
 
 class WhatTypeBusinessPageSpec extends PageBehaviours {
 

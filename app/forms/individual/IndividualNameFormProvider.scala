@@ -16,7 +16,7 @@
 
 package forms.individual
 
-import forms.mappings.{Mappings, Transforms}
+import forms.mappings.{Transforms, Mappings}
 import javax.inject.Inject
 import models.register.TolerantIndividual
 import play.api.data.Form

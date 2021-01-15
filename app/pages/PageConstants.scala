@@ -16,17 +16,8 @@
 
 package pages
 
-import pages.individual.AreYouUKResidentPage
-import pages.individual.IndividualManualAddressPage
-import pages.individual.UseAddressForContactPage
-import pages.individual.IsThisYouPage
-import pages.individual.IndividualAddressListPage
-import pages.individual.IndividualAddressPage
-import pages.individual.IndividualDetailsPage
-import pages.individual.IndividualPostcodePage
-import pages.register.AreYouUKCompanyPage
-import pages.register.BusinessRegistrationTypePage
-import pages.register.BusinessTypePage
+import pages.individual._
+import pages.register.{AreYouUKCompanyPage, BusinessRegistrationTypePage, BusinessTypePage}
 import queries.Gettable
 
 object PageConstants {
