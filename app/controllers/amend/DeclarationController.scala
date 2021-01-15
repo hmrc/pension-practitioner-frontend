@@ -25,7 +25,7 @@ import controllers.{DataRetrievals, Retrievals}
 import javax.inject.Inject
 import models.requests.DataRequest
 import pages.PspIdPage
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer

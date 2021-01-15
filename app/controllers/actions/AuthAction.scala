@@ -22,6 +22,8 @@ import connectors.IdentityVerificationConnector
 import connectors.cache.UserAnswersCacheConnector
 import models.UserAnswers
 import models.WhatTypeBusiness.Yourselfasindividual
+import models.requests.PSPUser
+import models.requests.UserType
 import models.requests.UserType.UserType
 import play.api.mvc.Results._
 import play.api.mvc._
@@ -29,15 +31,21 @@ import uk.gov.hmrc.auth.core.AffinityGroup._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.UnauthorizedException
 import uk.gov.hmrc.play.HeaderCarrierConverter
-import models.requests.{PSPUser, UserType, AuthenticatedRequest}
-import pages.{JourneyPage, QuestionPage, WhatTypeBusinessPage}
+import models.requests.AuthenticatedRequest
+import pages.JourneyPage
+import pages.QuestionPage
+import pages.WhatTypeBusinessPage
 import pages.individual.AreYouUKResidentPage
 import play.api.Logger
-import play.api.libs.json.{JsObject, Json, Reads}
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
+import play.api.libs.json.Reads
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 abstract class AuthenticatedAuthAction @Inject()(override val authConnector: AuthConnector,
   config: FrontendAppConfig,
@@ -74,7 +82,8 @@ abstract class AuthenticatedAuthAction @Inject()(override val authConnector: Aut
   }
 
   protected def allowAccess[A](externalId: String, affinityGroup: AffinityGroup, role: CredentialRole,
-    authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
+    authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
+    (implicit hc: HeaderCarrier): Future[Result] = {
     (affinityGroup, role) match {
       case (AffinityGroup.Agent, _) => Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
       case (AffinityGroup.Individual, _) => Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
@@ -85,6 +94,7 @@ abstract class AuthenticatedAuthAction @Inject()(override val authConnector: Aut
           case (_, None) => completeAuthentication(externalId, authRequest, block)
           case _ => block(authRequest)
         }
+      case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
     }
   }
 
@@ -94,7 +104,7 @@ abstract class AuthenticatedAuthAction @Inject()(override val authConnector: Aut
     externalId: String,
     authRequest: AuthenticatedRequest[A],
     block: AuthenticatedRequest[A] => Future[Result]
-  ):Future[Result] = block(authRequest)
+  )(implicit hc: HeaderCarrier):Future[Result]
 
   private def createAuthenticatedRequest[A](
     externalId: String,
@@ -251,6 +261,12 @@ class AuthenticatedAuthActionMustHaveEnrolment @Inject()(override val authConnec
   AuthenticatedAuthAction(authConnector, config, parser)
   with AuthorisedFunctions {
 
+  override protected def completeAuthentication[A](
+    externalId: String,
+    authRequest: AuthenticatedRequest[A],
+    block: AuthenticatedRequest[A] => Future[Result]
+  )(implicit hc: HeaderCarrier):Future[Result] = block(authRequest)
+
   override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] = {
     authenticatedRequest.user.alreadyEnrolledPspId match {
       case Some(_) => None
@@ -265,6 +281,12 @@ class AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV @Inject()(override val 
 )(implicit executionContext: ExecutionContext) extends
   AuthenticatedAuthAction(authConnector, config, parser)
   with AuthorisedFunctions {
+
+  override protected def completeAuthentication[A](
+    externalId: String,
+    authRequest: AuthenticatedRequest[A],
+    block: AuthenticatedRequest[A] => Future[Result]
+  )(implicit hc: HeaderCarrier):Future[Result] = block(authRequest)
 
   override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] =
     authenticatedRequest.user.alreadyEnrolledPspId.map(_ => Redirect(controllers.routes.AlreadyRegisteredController.onPageLoad()))

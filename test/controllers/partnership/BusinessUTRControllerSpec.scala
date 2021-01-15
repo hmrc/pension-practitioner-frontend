@@ -17,7 +17,6 @@
 package controllers.partnership
 
 import controllers.base.ControllerSpecBase
-import data.SampleData._
 import forms.BusinessUTRFormProvider
 import matchers.JsonMatchers
 import models.UserAnswers

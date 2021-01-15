@@ -26,7 +26,6 @@ import org.mockito.Mockito.{times, when, verify}
 import org.mockito.{Matchers, ArgumentCaptor}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.company.CompanyAddressPage
 import pages.company.{ConfirmAddressPage, CompanyUseSameAddressPage, BusinessNamePage}
 import pages.register.AreYouUKCompanyPage
 import play.api.Application

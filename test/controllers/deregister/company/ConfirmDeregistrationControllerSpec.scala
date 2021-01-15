@@ -19,7 +19,6 @@ package controllers.deregister.company
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import connectors.{MinimalConnector, DeregistrationConnector}
-import controllers.actions.FakeAuthActionNoEnrolment
 import controllers.actions.{MutableFakeDataRetrievalAction, AuthAction, FakeAuthAction}
 import controllers.base.ControllerSpecBase
 import forms.deregister.ConfirmDeregistrationFormProvider
@@ -32,7 +31,6 @@ import org.mockito.Mockito.{times, when, verify}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.PspNamePage
-import pages.deregister.ConfirmDeregistrationCompanyPage
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -44,7 +42,6 @@ import play.twirl.api.Html
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
 import utils.annotations.AuthMustHaveEnrolment
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 
 import scala.concurrent.Future
 
@@ -83,7 +80,6 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
     when(mockDeregistrationConnector.canDeRegister(any())(any(), any())).thenReturn(Future.successful(true))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
   }
-  private val answers: UserAnswers = UserAnswers().set(ConfirmDeregistrationCompanyPage, value = true).success.value
 
   "ConfirmDeregistrationController" must {
 

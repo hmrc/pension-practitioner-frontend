@@ -23,7 +23,6 @@ import controllers.address.{AddressListController, AddressPages}
 import forms.address.AddressListFormProvider
 import javax.inject.Inject
 import models.Mode
-import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.individual.{IndividualPostcodePage, IndividualManualAddressPage, IndividualAddressListPage}
 import play.api.data.Form
@@ -68,7 +67,7 @@ class IndividualAddressListController @Inject()(override val messagesApi: Messag
         getFormToJson(mode).retrieve.right.map(post(mode, _, addressPages))
     }
 
-  private def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Retrieval[Form[Int] => JsObject] =
+  private def getFormToJson(mode: Mode): Retrieval[Form[Int] => JsObject] =
     Retrieval(
       implicit request =>
         IndividualPostcodePage.retrieve.right.map { addresses =>

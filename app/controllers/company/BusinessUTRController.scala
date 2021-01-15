@@ -23,7 +23,6 @@ import controllers.actions._
 import forms.BusinessUTRFormProvider
 import javax.inject.Inject
 import models.NormalMode
-import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.company.BusinessUTRPage
 import pages.register.BusinessTypePage

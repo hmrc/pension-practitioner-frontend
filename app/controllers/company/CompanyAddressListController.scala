@@ -23,7 +23,6 @@ import controllers.address.{AddressListController, AddressPages}
 import forms.address.AddressListFormProvider
 import javax.inject.Inject
 import models.Mode
-import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.company.{CompanyPostcodePage, CompanyAddressPage, BusinessNamePage, CompanyAddressListPage}
 import play.api.data.Form

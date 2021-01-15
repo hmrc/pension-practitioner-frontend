@@ -29,7 +29,7 @@ import pages.PspIdPage
 import pages.individual.DeclarationPage
 import pages.register.ExistingPSPPage
 import play.api.Logger
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
@@ -101,7 +101,7 @@ class DeclarationController @Inject()(
   }
 
   private def sendEmail(email: String, pspId: String, pspName: String)
-                       (implicit request: DataRequest[_], hc: HeaderCarrier, messages: Messages): Future[EmailStatus] =
+                       (implicit request: DataRequest[_], hc: HeaderCarrier): Future[EmailStatus] =
     emailConnector.sendEmail(
       requestId = hc.requestId .map(_.value) .getOrElse(request.headers.get("X-Session-ID").getOrElse("")),
       pspId,

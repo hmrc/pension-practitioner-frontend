@@ -19,7 +19,6 @@ package controllers.register
 import controllers.base.ControllerSpecBase
 import forms.register.BusinessRegistrationTypeFormProvider
 import matchers.JsonMatchers
-import models.NormalMode
 import models.UserAnswers
 import models.register.BusinessRegistrationType
 import org.mockito.ArgumentCaptor

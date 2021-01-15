@@ -110,7 +110,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
   }
 
   private def sendEmail(email: String, pspId: String, pspName: String)
-    (implicit request: DataRequest[_], hc: HeaderCarrier, messages: Messages ): Future[EmailStatus] =
+    (implicit request: DataRequest[_], hc: HeaderCarrier ): Future[EmailStatus] =
     emailConnector.sendEmail(
       requestId = hc.requestId .map(_.value) .getOrElse(request.headers.get("X-Session-ID").getOrElse("")),
       pspId,

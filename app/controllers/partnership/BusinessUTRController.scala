@@ -14,6 +14,22 @@
  * limitations under the License.
  */
 
+/*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package controllers.partnership
 
 import config.FrontendAppConfig
@@ -23,7 +39,6 @@ import controllers.actions._
 import forms.BusinessUTRFormProvider
 import javax.inject.Inject
 import models.NormalMode
-import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.partnership.BusinessUTRPage
 import pages.register.BusinessTypePage
@@ -50,8 +65,7 @@ class BusinessUTRController @Inject()(override val messagesApi: MessagesApi,
                                       renderer: Renderer
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
 
-  protected def form
-  (implicit request: DataRequest[AnyContent]): Form[String] = formProvider.apply(
+  protected def form: Form[String] = formProvider.apply(
     "businessUTR.partnership.error.required", "businessUTR.partnership.error.invalid")
 
   def onPageLoad(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {

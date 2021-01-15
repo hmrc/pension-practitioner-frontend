@@ -22,7 +22,6 @@ import controllers.Retrievals
 import controllers.actions._
 import forms.partnership.IsPartnershipRegisteredInUkFormProvider
 import javax.inject.Inject
-import models.Mode
 import models.NormalMode
 import navigators.CompoundNavigator
 import pages.partnership.IsPartnershipRegisteredInUkPage

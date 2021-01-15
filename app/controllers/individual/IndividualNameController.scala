@@ -28,7 +28,7 @@ import navigators.CompoundNavigator
 import pages.NameChange
 import pages.individual._
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
@@ -50,7 +50,7 @@ class IndividualNameController @Inject()(override val messagesApi: MessagesApi,
   with Retrievals with I18nSupport with NunjucksSupport with Variation {
 
 
-  private def form(implicit messages: Messages): Form[TolerantIndividual] = formProvider()
+  private def form: Form[TolerantIndividual] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
