@@ -30,7 +30,7 @@ import play.api.i18n.Messages
 import play.api.libs.json.{JsArray, Json, JsObject}
 import play.api.mvc.{Result, AnyContent}
 import renderer.Renderer
-import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.countryOptions.CountryOptions
 
 import scala.concurrent.{Future, ExecutionContext}

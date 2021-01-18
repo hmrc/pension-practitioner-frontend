@@ -28,7 +28,7 @@ import play.api.libs.json.{Json, JsObject}
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import play.twirl.api.Html
 import renderer.Renderer
-import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.annotations.AuthMustHaveEnrolment
 

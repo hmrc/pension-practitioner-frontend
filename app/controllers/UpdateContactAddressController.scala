@@ -37,7 +37,7 @@ import play.api.mvc.MessagesControllerComponents
 import play.api.mvc.Result
 import renderer.Renderer
 import services.PspDetailsService
-import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.annotations.AuthMustHaveEnrolment
 import utils.countryOptions.CountryOptions
 
