@@ -30,7 +30,7 @@ import play.api.libs.json.{JsArray, Json, JsObject}
 import play.api.mvc.{Result, AnyContent}
 import renderer.Renderer
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import forms.FormsHelper.formWithError
 
 import scala.concurrent.{Future, ExecutionContext}
