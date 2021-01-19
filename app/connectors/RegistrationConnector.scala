@@ -18,18 +18,17 @@ package connectors
 
 import com.google.inject.{ImplementedBy, Inject}
 import config.FrontendAppConfig
-import javax.inject.Singleton
 import models.register._
 import models.{register, _}
-import play.Logger
+import play.api.Logger
 import play.api.http.Status
 import play.api.libs.json._
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{NotFoundException, HttpResponse, HeaderCarrier}
-import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, NotFoundException}
 
-import scala.concurrent.{Future, ExecutionContext}
+import javax.inject.Singleton
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Failure
 
 @ImplementedBy(classOf[RegistrationConnectorImpl])
@@ -51,6 +50,8 @@ trait RegistrationConnector {
 class RegistrationConnectorImpl @Inject()(http: HttpClient,
                                           config: FrontendAppConfig
                                          ) extends RegistrationConnector {
+
+  private val logger = Logger(classOf[RegistrationConnectorImpl])
 
   private val readsSapNumber: Reads[String] = (JsPath \ "sapNumber").read[String]
 
@@ -84,10 +85,10 @@ class RegistrationConnectorImpl @Inject()(http: HttpClient,
       }
     } andThen {
       case Failure(ex: NotFoundException) =>
-        Logger.warn("Organisation not found with registerWithIdOrganisation", ex)
+        logger.warn("Organisation not found with registerWithIdOrganisation", ex)
         ex
       case Failure(ex) =>
-        Logger.error("Unable to connect to registerWithIdOrganisation", ex)
+        logger.error("Unable to connect to registerWithIdOrganisation", ex)
         ex
     }
   }
@@ -120,10 +121,10 @@ class RegistrationConnectorImpl @Inject()(http: HttpClient,
       }
     } andThen {
       case Failure(ex: NotFoundException) =>
-        Logger.warn("Individual not found with registerWithIdIndividual", ex)
+        logger.warn("Individual not found with registerWithIdIndividual", ex)
         ex
       case Failure(ex) =>
-        Logger.error("Unable to connect to registerWithIdIndividual", ex)
+        logger.error("Unable to connect to registerWithIdIndividual", ex)
         ex
     }
 
@@ -148,7 +149,7 @@ class RegistrationConnectorImpl @Inject()(http: HttpClient,
       )
     } andThen {
       case Failure(ex) =>
-        Logger.error("Unable to connect to registerWithNoIdOrganisation", ex)
+        logger.error("Unable to connect to registerWithNoIdOrganisation", ex)
         ex
     }
   }
@@ -172,7 +173,7 @@ class RegistrationConnectorImpl @Inject()(http: HttpClient,
       )
     } andThen {
       case Failure(ex) =>
-        Logger.error("Unable to connect to registerWithNoIdIndividual", ex)
+        logger.error("Unable to connect to registerWithNoIdIndividual", ex)
         ex
     }
   }

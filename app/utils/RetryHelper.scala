@@ -16,38 +16,45 @@
 
 package utils
 
-import java.util.concurrent.Callable
-
 import akka.actor.ActorSystem
 import akka.pattern.Patterns.after
 import config.FrontendAppConfig
 import play.api.Logger
-import uk.gov.hmrc.http.Upstream5xxResponse
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
+import java.util.concurrent.Callable
 import scala.concurrent.duration._
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
-trait RetryHelper  {
+trait RetryHelper {
 
+  private val logger = Logger(classOf[RetryHelper])
 
   val as: ActorSystem = ActorSystem()
 
-  def retryOnFailure[T](f: () => Future[T], config: FrontendAppConfig)(implicit executionContext: ExecutionContext): Future[T] = {
-    retryWithBackOff(1, config.retryWaitMs, f, config)
+  def retryOnFailure[T](f: () => Future[T], config: FrontendAppConfig)
+                       (implicit executionContext: ExecutionContext): Future[T] = {
+
+    retryWithBackOff(
+      currentAttempt = 1,
+      currentWait = config.retryWaitMs,
+      f = f,
+      config = config
+    )
   }
 
-  private def retryWithBackOff[T] (currentAttempt: Int,
-                                   currentWait: Int,
-                                   f: () => Future[T], config: FrontendAppConfig)
-                                  (implicit executionContext: ExecutionContext): Future[T] = {
+  private def retryWithBackOff[T](currentAttempt: Int,
+                                  currentWait: Int,
+                                  f: () => Future[T], config: FrontendAppConfig)
+                                 (implicit executionContext: ExecutionContext): Future[T] = {
     f.apply().recoverWith {
-      case e: Upstream5xxResponse =>
-        if ( currentAttempt < config.retryAttempts) {
+      case e: UpstreamErrorResponse =>
+        if (currentAttempt < config.retryAttempts) {
           val wait = Math.ceil(currentWait * config.retryWaitFactor).toInt
-          val call: Callable[Future[Int]] = new Callable[Future[Int]](){
+          val call: Callable[Future[Int]] = new Callable[Future[Int]]() {
             def call(): Future[Int] = Future.successful(1)
           }
-          Logger.warn(s"Failure, retrying after $wait ms, attempt $currentAttempt")
+          logger.warn(s"Failure, retrying after $wait ms, attempt $currentAttempt")
           after(wait.milliseconds, as.scheduler, executionContext, call).flatMap { _ =>
             retryWithBackOff(currentAttempt + 1, wait.toInt, f, config)
           }

@@ -27,4 +27,3 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-uglify" % "2.0.0")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-digest" % "1.1.4")
 
-addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.9.24")

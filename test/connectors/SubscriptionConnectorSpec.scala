@@ -39,10 +39,10 @@ class SubscriptionConnectorSpec extends AsyncWordSpec with MustMatchers with Wir
   private val pspId: String = "12345678"
   private val validResponse = Json.obj(
     "processingDate" -> LocalDate.now,
-          "formBundleNumber" -> "12345678912",
-          "pspid" -> pspId,
-          "nino" -> "AA123000A",
-          "countryCode" -> "AD"
+    "formBundleNumber" -> "12345678912",
+    "pspid" -> pspId,
+    "nino" -> "AA123000A",
+    "countryCode" -> "AD"
   )
   private val getPspDetailsResponse: JsValue = Json.obj("test-key" -> "test-value")
 

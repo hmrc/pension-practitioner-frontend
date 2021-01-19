@@ -23,12 +23,14 @@ import utils.countryOptions.CountryOptions
 
 import scala.language.implicitConversions
 
-case class TolerantAddress(addressLine1: Option[String],
-                           addressLine2: Option[String],
-                           addressLine3: Option[String],
-                           addressLine4: Option[String],
-                           postcode: Option[String],
-                           country: Option[String]) {
+case class TolerantAddress(
+                            addressLine1: Option[String],
+                            addressLine2: Option[String],
+                            addressLine3: Option[String],
+                            addressLine4: Option[String],
+                            postcode: Option[String],
+                            country: Option[String]
+                          ) {
 
   def lines(countryOptions: CountryOptions): Seq[String] = {
     Seq(
@@ -64,10 +66,10 @@ case class TolerantAddress(addressLine1: Option[String],
       address.country == country.getOrElse("") &&
       address.postcode == postcode
   }
-
 }
 
 object TolerantAddress {
+  private val logger = Logger(classOf[TolerantAddress])
 
   val postCodeLookupAddressReads: Reads[TolerantAddress] = (
     (JsPath \ "address" \ "lines").read[List[String]] and
@@ -79,7 +81,7 @@ object TolerantAddress {
     val addressLines: (Option[String], Option[String], Option[String], Option[String]) = {
       lines.size match {
         case 0 =>
-          Logger.warn(s"[NoAddressLinesFoundException]-$postCode,$countryCode")
+          logger.warn(s"[NoAddressLinesFoundException]-$postCode,$countryCode")
           (None, None, None, None)
         case 1 =>
           val townOrCounty = getTownOrCounty(town, county, lines)
