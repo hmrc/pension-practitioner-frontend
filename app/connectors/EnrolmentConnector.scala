@@ -16,22 +16,21 @@
 
 package connectors
 
-import audit.{AuditService, PSPEnrolment, DeenrolmentEvent}
+import audit.{AuditService, DeenrolmentEvent, PSPEnrolment}
 import com.google.inject.{ImplementedBy, Singleton}
 import config.FrontendAppConfig
-import javax.inject.Inject
 import models.KnownFacts
 import models.requests.DataRequest
 import play.api.Logger
 import play.api.http.Status._
-import play.api.libs.json.{Writes, Json}
-import play.api.mvc.{RequestHeader, AnyContent}
+import play.api.libs.json.{Json, Writes}
+import play.api.mvc.{AnyContent, RequestHeader}
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.http.{HttpClient, _}
 import utils.{HttpResponseHelper, RetryHelper}
 
-import scala.concurrent.{Future, ExecutionContext}
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Try}
 
 @ImplementedBy(classOf[EnrolmentConnectorImpl])
@@ -51,6 +50,8 @@ class EnrolmentConnectorImpl @Inject()(val http: HttpClient,
   extends EnrolmentConnector
     with RetryHelper
     with HttpResponseHelper {
+
+  private val logger = Logger(classOf[EnrolmentConnectorImpl])
 
   override def enrol(enrolmentKey: String, knownFacts: KnownFacts)
                     (implicit w: Writes[KnownFacts],
@@ -73,7 +74,7 @@ class EnrolmentConnectorImpl @Inject()(val http: HttpClient,
             auditService.sendEvent(PSPEnrolment(request.externalId, enrolmentKey))
             Future.successful(response)
           case _ =>
-            if (response.body.contains("INVALID_JSON")) Logger.warn(s"INVALID_JSON returned from call to $url")
+            if (response.body.contains("INVALID_JSON")) logger.warn(s"INVALID_JSON returned from call to $url")
             handleErrorResponse("PUT", url)(response)
         }
     }
@@ -81,8 +82,8 @@ class EnrolmentConnectorImpl @Inject()(val http: HttpClient,
 
   private def logExceptions(knownFacts: KnownFacts): PartialFunction[Try[HttpResponse], Unit] = {
     case Failure(t: Throwable) =>
-      Logger.error("Unable to connect to Tax Enrolments", t)
-      Logger.debug(s"Known Facts: ${Json.toJson(knownFacts)}")
+      logger.error("Unable to connect to Tax Enrolments", t)
+      logger.debug(s"Known Facts: ${Json.toJson(knownFacts)}")
   }
 
   override def deEnrol(groupId: String, pspId: String, userId: String)
@@ -108,6 +109,6 @@ class EnrolmentConnectorImpl @Inject()(val http: HttpClient,
 
   private def logDeEnrolmentExceptions: PartialFunction[Try[HttpResponse], Unit] = {
     case Failure(t: Throwable) =>
-      Logger.error("Unable to connect to Tax Enrolments to de enrol the PSA", t)
+      logger.error("Unable to connect to Tax Enrolments to de enrol the PSA", t)
   }
 }

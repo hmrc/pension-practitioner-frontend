@@ -21,22 +21,29 @@ import config.FrontendAppConfig
 import models.MinimalPSP
 import play.api.Logger
 import play.api.http.Status._
-import play.api.libs.json.{Json, JsError, JsSuccess, JsResultException}
+import play.api.libs.json.{JsError, JsResultException, JsSuccess, Json}
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.http.{HttpClient, _}
 import utils.HttpResponseHelper
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Failure
 
 @ImplementedBy(classOf[MinimalConnectorImpl])
 trait MinimalConnector {
-  def getMinimalPspDetails(pspId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[MinimalPSP]
+  def getMinimalPspDetails(pspId: String)
+                          (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[MinimalPSP]
 }
 
-class MinimalConnectorImpl @Inject()(http: HttpClient, config: FrontendAppConfig) extends MinimalConnector with HttpResponseHelper {
-  override def getMinimalPspDetails(pspId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[MinimalPSP] = {
+class MinimalConnectorImpl @Inject()(http: HttpClient, config: FrontendAppConfig)
+  extends MinimalConnector
+    with HttpResponseHelper {
+
+  private val logger = Logger(classOf[MinimalConnectorImpl])
+
+  override def getMinimalPspDetails(pspId: String)
+                                   (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[MinimalPSP] = {
+
     val psaHc = hc.withExtraHeaders("pspId" -> pspId)
 
     http.GET[HttpResponse](config.minimalDetailsUrl)(implicitly, psaHc, implicitly) map { response =>
@@ -51,7 +58,7 @@ class MinimalConnectorImpl @Inject()(http: HttpClient, config: FrontendAppConfig
         case _ => handleErrorResponse("GET", config.minimalDetailsUrl)(response)
       }
     } andThen {
-      case Failure(t: Throwable) => Logger.warn("Unable get minimal details", t)
+      case Failure(t: Throwable) => logger.warn("Unable get minimal details", t)
     }
   }
 

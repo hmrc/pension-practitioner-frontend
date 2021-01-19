@@ -17,10 +17,10 @@
 package navigators
 
 import com.google.inject.Inject
-import pages.Page
-import play.api.mvc.Call
 import models.{Mode, UserAnswers}
+import pages.Page
 import play.api.Logger
+import play.api.mvc.Call
 
 import scala.collection.JavaConverters._
 
@@ -28,9 +28,13 @@ trait CompoundNavigator {
   def nextPage(id: Page, mode: Mode, userAnswers: UserAnswers): Call
 }
 
-class CompoundNavigatorImpl @Inject()(navigators: java.util.Set[Navigator]) extends CompoundNavigator {
+class CompoundNavigatorImpl @Inject()(navigators: java.util.Set[Navigator])
+  extends CompoundNavigator {
+
+  private val logger = Logger(classOf[CompoundNavigatorImpl])
+
   private def defaultPage(id: Page, mode: Mode): Call = {
-    Logger.warn(message = s"No navigation defined for id $id in mode $mode")
+    logger.warn(message = s"No navigation defined for id $id in mode $mode")
     controllers.routes.IndexController.onPageLoad()
   }
 

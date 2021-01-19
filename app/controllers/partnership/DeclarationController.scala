@@ -42,24 +42,24 @@ import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeclarationController @Inject()(
-                                      override val messagesApi: MessagesApi,
-                                      subscriptionConnector: SubscriptionConnector,
-                                      userAnswersCacheConnector: UserAnswersCacheConnector,
-                                      navigator: CompoundNavigator,
-                                      @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
-                                      getData: DataRetrievalAction,
-                                      requireData: DataRequiredAction,
-                                      val controllerComponents: MessagesControllerComponents,
-                                      renderer: Renderer,
-                                      emailConnector: EmailConnector,
-                                      knownFactsRetrieval: KnownFactsRetrieval,
-                                      enrolment: EnrolmentConnector,
-                                      config: FrontendAppConfig
-                                    )(implicit ec: ExecutionContext)
-                                        extends FrontendBaseController
-                                        with Retrievals
-                                        with I18nSupport
-                                        with NunjucksSupport {
+                                       override val messagesApi: MessagesApi,
+                                       subscriptionConnector: SubscriptionConnector,
+                                       userAnswersCacheConnector: UserAnswersCacheConnector,
+                                       navigator: CompoundNavigator,
+                                       @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
+                                       getData: DataRetrievalAction,
+                                       requireData: DataRequiredAction,
+                                       val controllerComponents: MessagesControllerComponents,
+                                       renderer: Renderer,
+                                       emailConnector: EmailConnector,
+                                       knownFactsRetrieval: KnownFactsRetrieval,
+                                       enrolment: EnrolmentConnector,
+                                       config: FrontendAppConfig
+                                     )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
+    with Retrievals
+    with I18nSupport
+    with NunjucksSupport {
 
   def onPageLoad: Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
@@ -92,13 +92,16 @@ class DeclarationController @Inject()(
       }
     }
 
-  private def enrol(pspId: String)(implicit hc: HeaderCarrier, request: DataRequest[AnyContent]): Future[HttpResponse] =
+  private def enrol(pspId: String)
+                   (implicit hc: HeaderCarrier, request: DataRequest[AnyContent]): Future[HttpResponse] =
     knownFactsRetrieval.retrieve(pspId) map { knownFacts =>
       enrolment.enrol(pspId, knownFacts)
     } getOrElse Future.failed(KnownFactsRetrievalException())
 
+  private val logger = Logger(classOf[DeclarationController])
+
   case class KnownFactsRetrievalException() extends Exception {
-    def apply(): Unit = Logger.error("Could not retrieve Known Facts")
+    def apply(): Unit = logger.error("Could not retrieve Known Facts")
   }
 
   private def sendEmail(email: String, pspId: String, pspName: String)

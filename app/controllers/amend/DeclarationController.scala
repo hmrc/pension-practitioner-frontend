@@ -22,7 +22,6 @@ import connectors.cache.UserAnswersCacheConnector
 import connectors.{EmailConnector, SubscriptionConnector}
 import controllers.actions._
 import controllers.{DataRetrievals, Retrievals}
-import javax.inject.Inject
 import models.requests.DataRequest
 import pages.PspIdPage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -34,30 +33,31 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.annotations.AuthMustHaveEnrolment
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeclarationController @Inject()(
-                                      override val messagesApi: MessagesApi,
-                                      subscriptionConnector: SubscriptionConnector,
-                                      userAnswersCacheConnector: UserAnswersCacheConnector,
-                                      @AuthMustHaveEnrolment authenticate: AuthAction,
-                                      getData: DataRetrievalAction,
-                                      requireData: DataRequiredAction,
-                                      val controllerComponents: MessagesControllerComponents,
-                                      renderer: Renderer,
-                                      emailConnector: EmailConnector,
-                                      auditService: AuditService,
-                                      config: FrontendAppConfig
+                                       override val messagesApi: MessagesApi,
+                                       subscriptionConnector: SubscriptionConnector,
+                                       userAnswersCacheConnector: UserAnswersCacheConnector,
+                                       @AuthMustHaveEnrolment authenticate: AuthAction,
+                                       getData: DataRetrievalAction,
+                                       requireData: DataRequiredAction,
+                                       val controllerComponents: MessagesControllerComponents,
+                                       renderer: Renderer,
+                                       emailConnector: EmailConnector,
+                                       auditService: AuditService,
+                                       config: FrontendAppConfig
                                      )(implicit ec: ExecutionContext)
-    extends FrontendBaseController with Retrievals with I18nSupport with NunjucksSupport {
+  extends FrontendBaseController with Retrievals with I18nSupport with NunjucksSupport {
 
   def onPageLoad: Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
         renderer.render(
-            "amend/declaration.njk",
-            Json.obj("submitUrl" -> routes.DeclarationController.onSubmit().url)
-          ).map(Ok(_))
+          "amend/declaration.njk",
+          Json.obj("submitUrl" -> routes.DeclarationController.onSubmit().url)
+        ).map(Ok(_))
     }
 
   def onSubmit: Action[AnyContent] =
@@ -69,7 +69,7 @@ class DeclarationController @Inject()(
             updatedAnswers <- Future.fromTry(request.userAnswers.set(PspIdPage, pspId))
             _ <- userAnswersCacheConnector.save(updatedAnswers.data)
             _ <- sendEmail(email, pspId, pspName)
-          } yield  Redirect(routes.ConfirmationController.onPageLoad())
+          } yield Redirect(routes.ConfirmationController.onPageLoad())
 
         }
     }

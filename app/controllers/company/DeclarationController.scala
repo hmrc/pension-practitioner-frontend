@@ -17,49 +17,49 @@
 package controllers.company
 
 import config.FrontendAppConfig
-import connectors.{EnrolmentConnector, EmailStatus, SubscriptionConnector, EmailConnector}
 import connectors.cache.UserAnswersCacheConnector
-import controllers.{DataRetrievals, Retrievals}
+import connectors.{EmailConnector, EmailStatus, EnrolmentConnector, SubscriptionConnector}
 import controllers.actions._
-import javax.inject.Inject
-import models.{ExistingPSP, NormalMode}
+import controllers.{DataRetrievals, Retrievals}
 import models.requests.DataRequest
+import models.{ExistingPSP, NormalMode}
 import navigators.CompoundNavigator
 import pages.PspIdPage
 import pages.company.DeclarationPage
 import pages.register.ExistingPSPPage
 import play.api.Logger
-import play.api.i18n.{I18nSupport,  MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
-import uk.gov.hmrc.http.{HttpResponse, HeaderCarrier}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.KnownFactsRetrieval
 import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeclarationController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        subscriptionConnector: SubscriptionConnector,
-                                        userAnswersCacheConnector: UserAnswersCacheConnector,
-                                        navigator: CompoundNavigator,
-                                        @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
-                                        getData: DataRetrievalAction,
-                                        requireData: DataRequiredAction,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        renderer: Renderer,
-                                        emailConnector: EmailConnector,
-                                        knownFactsRetrieval: KnownFactsRetrieval,
-                                        enrolment: EnrolmentConnector,
-                                        config: FrontendAppConfig
-                                      )(implicit ec: ExecutionContext)
-                                          extends FrontendBaseController
-                                          with Retrievals
-                                          with I18nSupport
-                                          with NunjucksSupport {
+                                       override val messagesApi: MessagesApi,
+                                       subscriptionConnector: SubscriptionConnector,
+                                       userAnswersCacheConnector: UserAnswersCacheConnector,
+                                       navigator: CompoundNavigator,
+                                       @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
+                                       getData: DataRetrievalAction,
+                                       requireData: DataRequiredAction,
+                                       val controllerComponents: MessagesControllerComponents,
+                                       renderer: Renderer,
+                                       emailConnector: EmailConnector,
+                                       knownFactsRetrieval: KnownFactsRetrieval,
+                                       enrolment: EnrolmentConnector,
+                                       config: FrontendAppConfig
+                                     )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
+    with Retrievals
+    with I18nSupport
+    with NunjucksSupport {
 
   def onPageLoad: Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
@@ -90,19 +90,23 @@ class DeclarationController @Inject()(
       }
     }
 
-  private def enrol(pspId: String)(implicit hc: HeaderCarrier, request: DataRequest[AnyContent]): Future[HttpResponse] =
+  private def enrol(pspId: String)
+                   (implicit hc: HeaderCarrier, request: DataRequest[AnyContent]): Future[HttpResponse] =
+
     knownFactsRetrieval.retrieve(pspId) map { knownFacts =>
       enrolment.enrol(pspId, knownFacts)
     } getOrElse Future.failed(KnownFactsRetrievalException())
 
+  private val logger = Logger(classOf[DeclarationController])
+
   case class KnownFactsRetrievalException() extends Exception {
-    def apply(): Unit = Logger.error("Could not retrieve Known Facts")
+    def apply(): Unit = logger.error("Could not retrieve Known Facts")
   }
 
   private def sendEmail(email: String, pspId: String, pspName: String)
                        (implicit request: DataRequest[_], hc: HeaderCarrier): Future[EmailStatus] =
     emailConnector.sendEmail(
-      requestId = hc.requestId .map(_.value) .getOrElse(request.headers.get("X-Session-ID").getOrElse("")),
+      requestId = hc.requestId.map(_.value).getOrElse(request.headers.get("X-Session-ID").getOrElse("")),
       pspId,
       journeyType = "PSPSubscription",
       email,

@@ -31,10 +31,10 @@ import scala.util.{Failure, Try}
 
 class IdentityVerificationConnector @Inject()(http: HttpClient, appConfig: FrontendAppConfig) {
 
-  def startRegisterOrganisationAsIndividual(completionURL: String,
-                                            failureURL: String)(implicit
-                                                                hc: HeaderCarrier,
-                                                                ec: ExecutionContext): Future[String] = {
+  private val logger = Logger(classOf[IdentityVerificationConnector])
+
+  def startRegisterOrganisationAsIndividual(completionURL: String, failureURL: String)
+                                           (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String] = {
 
     val jsonData = Json.obj(
       "origin" -> "PODS",
@@ -61,7 +61,7 @@ class IdentityVerificationConnector @Inject()(http: HttpClient, appConfig: Front
       case response if response.status equals Status.OK =>
         Future.successful((response.json \ "nino").asOpt[Nino])
       case response =>
-        Logger.debug(s"Call to retrieve Nino from IV failed with status ${response.status} and response body ${response.body}")
+        logger.debug(s"Call to retrieve Nino from IV failed with status ${response.status} and response body ${response.body}")
         Future.successful(None)
     }
   } andThen {
@@ -69,6 +69,6 @@ class IdentityVerificationConnector @Inject()(http: HttpClient, appConfig: Front
   }
 
   private def logExceptions[T](msg: String): PartialFunction[Try[T], Unit] = {
-    case Failure(t: Throwable) => Logger.error(msg, t)
+    case Failure(t: Throwable) => logger.error(msg, t)
   }
 }
