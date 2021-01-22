@@ -52,7 +52,6 @@ abstract class AuthenticatedAuthAction @Inject()(
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-
     authorised(User or Assistant).retrieve(
       Retrievals.externalId and
         Retrievals.affinityGroup and
@@ -78,29 +77,36 @@ abstract class AuthenticatedAuthAction @Inject()(
     } recover handleFailure
   }
 
-  protected def allowAccess[A](externalId: String, affinityGroup: AffinityGroup, role: CredentialRole,
-                               authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
-                              (implicit hc: HeaderCarrier): Future[Result] = {
-    println(s"\n\n\n\n\n\n${authRequest.user.alreadyEnrolledPspId} HERE")
-
+  private def checkForDeceasedFlag[A](authRequest: => AuthenticatedRequest[A])(implicit hc: HeaderCarrier) = {
     val futureMinimalDetails = authRequest.user.alreadyEnrolledPspId match {
       case None => Future.successful(None)
       case Some(pspId) => minimalConnector.getMinimalPspDetails(pspId).map(Some(_))
     }
-    futureMinimalDetails.flatMap{optionMinimalDetails =>
-        (affinityGroup, role, optionMinimalDetails.map(_.deceasedFlag)) match {
-          case (_, _, Some(true)) => Future.successful(Redirect(config.youMustContactHMRCUrl))
-          case (AffinityGroup.Agent, _, _) => Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
-          case (AffinityGroup.Individual, _, _) => Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
-          case (AffinityGroup.Organisation, Assistant, _) => Future.successful(Redirect(controllers.routes.AssistantNoAccessController.onPageLoad()))
-          case (AffinityGroup.Organisation, _, _) =>
-            (checkAuthenticatedRequest(authRequest), authRequest.user.alreadyEnrolledPspId) match {
-              case (Some(redirect), _) => Future.successful(redirect)
-              case (_, None) => completeAuthentication(externalId, authRequest, block)
-              case _ => block(authRequest)
-            }
-          case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
-        }
+    futureMinimalDetails.map{ _.map(_.deceasedFlag) match {
+        case Some(true) => Some(Redirect(config.youMustContactHMRCUrl))
+        case _ => None
+      }
+    }
+  }
+
+  protected def allowAccess[A](externalId: String, affinityGroup: AffinityGroup, role: CredentialRole,
+                               authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
+                              (implicit hc: HeaderCarrier): Future[Result] = {
+      (affinityGroup, role) match {
+        case (AffinityGroup.Agent, _) => Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
+        case (AffinityGroup.Individual, _) => Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
+        case (AffinityGroup.Organisation, Assistant) => Future.successful(Redirect(controllers.routes.AssistantNoAccessController.onPageLoad()))
+        case (AffinityGroup.Organisation, _) =>
+          (checkAuthenticatedRequest(authRequest), authRequest.user.alreadyEnrolledPspId) match {
+            case (Some(redirect), _) => Future.successful(redirect)
+            case (_, None) => completeAuthentication(externalId, authRequest, block)
+            case _ =>
+              checkForDeceasedFlag(authRequest).flatMap {
+                case Some(result) => Future.successful(result)
+                case _ => block(authRequest)
+              }
+          }
+        case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
       }
     }
 
