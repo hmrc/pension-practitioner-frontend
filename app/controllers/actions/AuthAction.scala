@@ -82,26 +82,27 @@ abstract class AuthenticatedAuthAction @Inject()(
                                authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
                               (implicit hc: HeaderCarrier): Future[Result] = {
     println(s"\n\n\n\n\n\n${authRequest.user.alreadyEnrolledPspId} HERE")
-    authRequest.user.alreadyEnrolledPspId.map {
-      pspId =>
-        minimalConnector.getMinimalPspDetails(pspId).flatMap {
-          minimalDetails =>
-            (affinityGroup, role, minimalDetails.deceasedFlag) match {
-              case (_, _, true) => Future.successful(Redirect(config.youMustContactHMRCUrl))
-              case (AffinityGroup.Agent, _, _) => Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
-              case (AffinityGroup.Individual, _, _) => Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
-              case (AffinityGroup.Organisation, Assistant, _) => Future.successful(Redirect(controllers.routes.AssistantNoAccessController.onPageLoad()))
-              case (AffinityGroup.Organisation, _, _) =>
-                (checkAuthenticatedRequest(authRequest), authRequest.user.alreadyEnrolledPspId) match {
-                  case (Some(redirect), _) => Future.successful(redirect)
-                  case (_, None) => completeAuthentication(externalId, authRequest, block)
-                  case _ => block(authRequest)
-                }
-              case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+
+    val futureMinimalDetails = authRequest.user.alreadyEnrolledPspId match {
+      case None => Future.successful(None)
+      case Some(pspId) => minimalConnector.getMinimalPspDetails(pspId).map(Some(_))
+    }
+    futureMinimalDetails.flatMap{optionMinimalDetails =>
+        (affinityGroup, role, optionMinimalDetails.map(_.deceasedFlag)) match {
+          case (_, _, Some(true)) => Future.successful(Redirect(config.youMustContactHMRCUrl))
+          case (AffinityGroup.Agent, _, _) => Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
+          case (AffinityGroup.Individual, _, _) => Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
+          case (AffinityGroup.Organisation, Assistant, _) => Future.successful(Redirect(controllers.routes.AssistantNoAccessController.onPageLoad()))
+          case (AffinityGroup.Organisation, _, _) =>
+            (checkAuthenticatedRequest(authRequest), authRequest.user.alreadyEnrolledPspId) match {
+              case (Some(redirect), _) => Future.successful(redirect)
+              case (_, None) => completeAuthentication(externalId, authRequest, block)
+              case _ => block(authRequest)
             }
+          case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
         }
-    }.getOrElse(Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad())))
-  }
+      }
+    }
 
   private def createAuthenticatedRequest[A](
                                              externalId: String,
