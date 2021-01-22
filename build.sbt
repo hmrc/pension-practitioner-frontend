@@ -22,7 +22,7 @@ lazy val root = (project in file("."))
     ScoverageKeys.coverageMinimum := 80,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true,
-    scalacOptions ++= Seq(/*-Xfatal-warnings",*/ "-feature"),
+    scalacOptions ++= Seq("-Xfatal-warnings", "-feature"),
     evictionWarningOptions in update :=
       EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     Concat.groups := Seq(
