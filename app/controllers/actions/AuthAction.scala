@@ -19,25 +19,25 @@ package controllers.actions
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import connectors.{IdentityVerificationConnector, MinimalConnector}
+import connectors.{MinimalConnector, IdentityVerificationConnector}
 import controllers.Assets.Redirect
 import models.UserAnswers
 import models.WhatTypeBusiness.Yourselfasindividual
 import models.requests.UserType.UserType
-import models.requests.{AuthenticatedRequest, PSPUser, UserType}
+import models.requests.{UserType, PSPUser, AuthenticatedRequest}
 import pages.individual.AreYouUKResidentPage
-import pages.{JourneyPage, QuestionPage, WhatTypeBusinessPage}
+import pages.{WhatTypeBusinessPage, JourneyPage, QuestionPage}
 import play.api.Logger
-import play.api.libs.json.{JsObject, Json, Reads}
+import play.api.libs.json.{Reads, Json, JsObject}
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AffinityGroup._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
+import uk.gov.hmrc.http.{UnauthorizedException, HeaderCarrier}
 import uk.gov.hmrc.play.HeaderCarrierConverter
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 abstract class AuthenticatedAuthAction @Inject()(
                                                   override val authConnector: AuthConnector,
@@ -78,14 +78,16 @@ abstract class AuthenticatedAuthAction @Inject()(
   }
 
   private def checkForDeceasedFlag[A](authRequest: => AuthenticatedRequest[A],
-                                      block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier) = {
-    val futureMinimalDetails = authRequest.user.alreadyEnrolledPspId match {
-      case None => Future.successful(None)
-      case Some(pspId) => minimalConnector.getMinimalPspDetails(pspId).map(Some(_))
-    }
-    futureMinimalDetails.flatMap{ _.map(_.deceasedFlag) match {
-        case Some(true) => Future.successful(Redirect(config.youMustContactHMRCUrl))
-        case _ => block(authRequest)
+    block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier):Future[Result] = {
+    authRequest.user.alreadyEnrolledPspId match {
+      case None => block(authRequest)
+      case Some(pspId) =>
+        minimalConnector.getMinimalPspDetails(pspId).flatMap{ minimalDetails =>
+        if (minimalDetails.deceasedFlag) {
+          Future.successful(Redirect(config.youMustContactHMRCUrl))
+        } else {
+          block(authRequest)
+        }
       }
     }
   }
