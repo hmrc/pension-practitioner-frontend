@@ -77,21 +77,6 @@ abstract class AuthenticatedAuthAction @Inject()(
     } recover handleFailure
   }
 
-  private def checkForDeceasedFlag[A](authRequest: => AuthenticatedRequest[A],
-    block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier):Future[Result] = {
-    authRequest.user.alreadyEnrolledPspId match {
-      case None => block(authRequest)
-      case Some(pspId) =>
-        minimalConnector.getMinimalPspDetails(pspId).flatMap{ minimalDetails =>
-        if (minimalDetails.deceasedFlag) {
-          Future.successful(Redirect(config.youMustContactHMRCUrl))
-        } else {
-          block(authRequest)
-        }
-      }
-    }
-  }
-
   protected def allowAccess[A](externalId: String, affinityGroup: AffinityGroup, role: CredentialRole,
                                authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
                               (implicit hc: HeaderCarrier): Future[Result] = {
@@ -103,11 +88,26 @@ abstract class AuthenticatedAuthAction @Inject()(
           (checkAuthenticatedRequest(authRequest), authRequest.user.alreadyEnrolledPspId) match {
             case (Some(redirect), _) => Future.successful(redirect)
             case (_, None) => completeAuthentication(externalId, authRequest, block)
-            case _ => checkForDeceasedFlag(authRequest, block)
+            case _ => completeAfterDeceasedFlagCheck(authRequest, block)
           }
         case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
       }
     }
+
+  private def completeAfterDeceasedFlagCheck[A](authRequest: => AuthenticatedRequest[A],
+    block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier):Future[Result] = {
+    authRequest.user.alreadyEnrolledPspId match {
+      case None => block(authRequest)
+      case Some(pspId) =>
+        minimalConnector.getMinimalPspDetails(pspId).flatMap{ minimalDetails =>
+          if (minimalDetails.deceasedFlag) {
+            Future.successful(Redirect(config.youMustContactHMRCUrl))
+          } else {
+            block(authRequest)
+          }
+        }
+    }
+  }
 
   private def createAuthenticatedRequest[A](
                                              externalId: String,
