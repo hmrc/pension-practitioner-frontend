@@ -77,14 +77,15 @@ abstract class AuthenticatedAuthAction @Inject()(
     } recover handleFailure
   }
 
-  private def checkForDeceasedFlag[A](authRequest: => AuthenticatedRequest[A])(implicit hc: HeaderCarrier) = {
+  private def checkForDeceasedFlag[A](authRequest: => AuthenticatedRequest[A],
+                                      block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier) = {
     val futureMinimalDetails = authRequest.user.alreadyEnrolledPspId match {
       case None => Future.successful(None)
       case Some(pspId) => minimalConnector.getMinimalPspDetails(pspId).map(Some(_))
     }
-    futureMinimalDetails.map{ _.map(_.deceasedFlag) match {
-        case Some(true) => Some(Redirect(config.youMustContactHMRCUrl))
-        case _ => None
+    futureMinimalDetails.flatMap{ _.map(_.deceasedFlag) match {
+        case Some(true) => Future.successful(Redirect(config.youMustContactHMRCUrl))
+        case _ => block(authRequest)
       }
     }
   }
@@ -100,11 +101,7 @@ abstract class AuthenticatedAuthAction @Inject()(
           (checkAuthenticatedRequest(authRequest), authRequest.user.alreadyEnrolledPspId) match {
             case (Some(redirect), _) => Future.successful(redirect)
             case (_, None) => completeAuthentication(externalId, authRequest, block)
-            case _ =>
-              checkForDeceasedFlag(authRequest).flatMap {
-                case Some(result) => Future.successful(result)
-                case _ => block(authRequest)
-              }
+            case _ => checkForDeceasedFlag(authRequest, block)
           }
         case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
       }
