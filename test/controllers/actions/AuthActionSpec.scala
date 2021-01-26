@@ -61,7 +61,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
           status(result) mustBe OK
         }
       }
-      "return SEE_OTHER" when {
+      "return redirect to you must contact HMRC page" when {
         "deceasedFlag is true" in {
             when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = enrolmentPODS))
             when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
@@ -317,6 +317,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 
 object AuthActionSpec extends SpecBase with MockitoSugar {
   private val pspId = "00000000"
+  private val email = "a@a.c"
   private val nino = uk.gov.hmrc.domain.Nino("AB100100A")
   type authRetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~Option[CredentialRole]
 
@@ -324,9 +325,9 @@ object AuthActionSpec extends SpecBase with MockitoSugar {
   private val startIVLink = "/start-iv-link"
 
   private def minimalPspDeceased(deceasedFlag: Boolean = false) = MinimalPSP(
-    "",
-    None,
-    None,
+    email = email,
+    organisationName = None,
+    individualDetails = None,
     rlsFlag = false,
     deceasedFlag = deceasedFlag
   )
