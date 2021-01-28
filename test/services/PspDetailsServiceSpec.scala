@@ -43,7 +43,7 @@ class PspDetailsServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
 
   import PspDetailsServiceSpec._
 
-  private def minPsp(rlsFlag:Boolean) = MinimalPSP("a@a.a", Some("name"), None, rlsFlag = rlsFlag)
+  private def minPsp(rlsFlag:Boolean) = MinimalPSP("a@a.a", Some("name"), None, rlsFlag = rlsFlag, deceasedFlag = false)
   private val pspId: String = "psp-id"
   private val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
   private val mockUserAnswersCacheConnector: UserAnswersCacheConnector = mock[UserAnswersCacheConnector]
