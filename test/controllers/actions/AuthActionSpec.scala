@@ -17,12 +17,13 @@
 package controllers.actions
 
 import base.SpecBase
-import connectors.IdentityVerificationConnector
+import connectors.{IdentityVerificationConnector, MinimalConnector}
 import connectors.cache.UserAnswersCacheConnector
+import models.MinimalPSP
 import models.WhatTypeBusiness.Companyorpartnership
 import models.WhatTypeBusiness.Yourselfasindividual
 import org.mockito.Matchers.any
-import org.mockito.Mockito
+import org.mockito.{Matchers, Mockito}
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.when
@@ -46,7 +47,8 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
   import AuthActionSpec._
 
   override def beforeEach: Unit = {
-    Mockito.reset(mockUserAnswersCacheConnector, authConnector, mockIVConnector)
+    Mockito.reset(mockUserAnswersCacheConnector, authConnector, mockIVConnector, mockMinimalConnector)
+    when(mockMinimalConnector.getMinimalPspDetails(any())(any(),any())).thenReturn(Future(minimalPspDeceased()))
   }
 
   "Auth Action AuthenticatedAuthActionMustHaveEnrolment" when {
@@ -57,6 +59,16 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
           val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
           status(result) mustBe OK
+        }
+      }
+      "return redirect to you must contact HMRC page" when {
+        "deceasedFlag is true" in {
+            when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = enrolmentPODS))
+            when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
+            when(mockMinimalConnector.getMinimalPspDetails(Matchers.eq(pspId))(any(),any())).thenReturn(Future(minimalPspDeceased(true)))
+            val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
+            status(result) mustBe SEE_OTHER
+            redirectLocation(result) mustBe Some(frontendAppConfig.youMustContactHMRCUrl)
         }
       }
     }
@@ -185,7 +197,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
           val userAnswersData = Json.obj("areYouInUK" -> true, "registerAsBusiness" -> false)
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          val authAction = new AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV(authConnector, frontendAppConfig, bodyParsers)
+          val authAction = new AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV(authConnector, frontendAppConfig, mockMinimalConnector, bodyParsers)
 
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(fakeRequest)
@@ -305,11 +317,20 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 
 object AuthActionSpec extends SpecBase with MockitoSugar {
   private val pspId = "00000000"
+  private val email = "a@a.c"
   private val nino = uk.gov.hmrc.domain.Nino("AB100100A")
   type authRetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~Option[CredentialRole]
 
   private val enrolmentPODS = Enrolments(Set(Enrolment("HMRC-PODSPP-ORG", Seq(EnrolmentIdentifier("PSPID", pspId)), "")))
   private val startIVLink = "/start-iv-link"
+
+  private def minimalPspDeceased(deceasedFlag: Boolean = false) = MinimalPSP(
+    email = email,
+    organisationName = None,
+    individualDetails = None,
+    rlsFlag = false,
+    deceasedFlag = deceasedFlag
+  )
 
   private def authRetrievals(affinityGroup: Option[AffinityGroup] = Some(AffinityGroup.Organisation),
                              enrolments: Enrolments = Enrolments(Set()),
@@ -331,18 +352,19 @@ object AuthActionSpec extends SpecBase with MockitoSugar {
         Ok(Json.obj("userId" -> request.user.userId))
     }
   }
+  private val mockMinimalConnector: MinimalConnector = mock[MinimalConnector]
   private val mockUserAnswersCacheConnector: UserAnswersCacheConnector = mock[UserAnswersCacheConnector]
   private val mockIVConnector: IdentityVerificationConnector = mock[IdentityVerificationConnector]
   private val authConnector: AuthConnector = mock[AuthConnector]
   private val bodyParsers: BodyParsers.Default = app.injector.instanceOf[BodyParsers.Default]
 
   val authActionWithIVEnrolment = new AuthenticatedAuthActionMustHaveEnrolment(
-    authConnector, frontendAppConfig, bodyParsers
+    authConnector, frontendAppConfig, mockMinimalConnector, bodyParsers
   )
 
   val authActionWithIVNoEnrolment = new AuthenticatedAuthActionMustHaveNoEnrolmentWithIV(
     authConnector, frontendAppConfig,
-    mockUserAnswersCacheConnector, mockIVConnector, bodyParsers
+    mockUserAnswersCacheConnector, mockIVConnector, mockMinimalConnector, bodyParsers
   )
 
   val controllerWithIVEnrolment = new Harness(authActionWithIVEnrolment)

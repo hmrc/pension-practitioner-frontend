@@ -56,6 +56,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val locationCanonicalList: String = loadConfig("location.canonical.list.all")
   lazy val locationCanonicalListEUAndEEA: String = loadConfig("location.canonical.list.EUAndEEA")
 
+
   lazy val pspSubscriptionUrl: String = s"$pspUrl${configuration.get[String]("urls.subscribePsp")}"
   lazy val subscriptionDetailsUrl: String = s"$pspUrl${configuration.get[String]("urls.pspDetails")}"
   lazy val pspDeregistrationUrl: String = s"$pspUrl${configuration.get[String]("urls.deregisterPsp")}"
@@ -106,6 +107,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   lazy val createGovGatewayUrl: String = configuration.get[String]("urls.createGovGateway")
 
+  lazy val youMustContactHMRCUrl: String = configuration.get[String]("urls.youMustContactHMRC")
   lazy val returnToPensionSchemesUrl: String = configuration.get[String]("urls.pensionSchemesList")
   lazy val returnToOverviewUrl: String = configuration.get[String]("urls.overview")
   lazy val returnToPspDashboardUrl: String = configuration.get[String]("urls.pspDashboard")

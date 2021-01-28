@@ -18,30 +18,31 @@ package controllers.actions
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import connectors.IdentityVerificationConnector
 import connectors.cache.UserAnswersCacheConnector
+import connectors.{MinimalConnector, IdentityVerificationConnector}
+import controllers.Assets.Redirect
 import models.UserAnswers
 import models.WhatTypeBusiness.Yourselfasindividual
-import models.requests.{AuthenticatedRequest, PSPUser, UserType}
 import models.requests.UserType.UserType
-import pages.{JourneyPage, QuestionPage, WhatTypeBusinessPage}
+import models.requests.{UserType, PSPUser, AuthenticatedRequest}
 import pages.individual.AreYouUKResidentPage
+import pages.{WhatTypeBusinessPage, JourneyPage, QuestionPage}
 import play.api.Logger
-import play.api.libs.json.{JsObject, Json, Reads}
-import play.api.mvc.Results._
+import play.api.libs.json.{Reads, Json, JsObject}
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AffinityGroup._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
+import uk.gov.hmrc.http.{UnauthorizedException, HeaderCarrier}
 import uk.gov.hmrc.play.HeaderCarrierConverter
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext}
 
 abstract class AuthenticatedAuthAction @Inject()(
                                                   override val authConnector: AuthConnector,
                                                   config: FrontendAppConfig,
+                                                  minimalConnector: MinimalConnector,
                                                   val parser: BodyParsers.Default
                                                 )(
                                                   implicit val executionContext: ExecutionContext
@@ -51,7 +52,6 @@ abstract class AuthenticatedAuthAction @Inject()(
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-
     authorised(User or Assistant).retrieve(
       Retrievals.externalId and
         Retrievals.affinityGroup and
@@ -80,27 +80,34 @@ abstract class AuthenticatedAuthAction @Inject()(
   protected def allowAccess[A](externalId: String, affinityGroup: AffinityGroup, role: CredentialRole,
                                authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
                               (implicit hc: HeaderCarrier): Future[Result] = {
-    (affinityGroup, role) match {
-      case (AffinityGroup.Agent, _) => Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
-      case (AffinityGroup.Individual, _) => Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
-      case (AffinityGroup.Organisation, Assistant) => Future.successful(Redirect(controllers.routes.AssistantNoAccessController.onPageLoad()))
-      case (AffinityGroup.Organisation, _) =>
-        (checkAuthenticatedRequest(authRequest), authRequest.user.alreadyEnrolledPspId) match {
-          case (Some(redirect), _) => Future.successful(redirect)
-          case (_, None) => completeAuthentication(externalId, authRequest, block)
-          case _ => block(authRequest)
+      (affinityGroup, role) match {
+        case (AffinityGroup.Agent, _) => Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
+        case (AffinityGroup.Individual, _) => Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
+        case (AffinityGroup.Organisation, Assistant) => Future.successful(Redirect(controllers.routes.AssistantNoAccessController.onPageLoad()))
+        case (AffinityGroup.Organisation, _) =>
+          (checkAuthenticatedRequest(authRequest), authRequest.user.alreadyEnrolledPspId) match {
+            case (Some(redirect), _) => Future.successful(redirect)
+            case (_, None) => completeAuthentication(externalId, authRequest, block)
+            case _ => completeAfterDeceasedFlagCheck(authRequest, block)
+          }
+        case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+      }
+    }
+
+  private def completeAfterDeceasedFlagCheck[A](authRequest: => AuthenticatedRequest[A],
+    block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier):Future[Result] = {
+    authRequest.user.alreadyEnrolledPspId match {
+      case None => block(authRequest)
+      case Some(pspId) =>
+        minimalConnector.getMinimalPspDetails(pspId).flatMap{ minimalDetails =>
+          if (minimalDetails.deceasedFlag) {
+            Future.successful(Redirect(config.youMustContactHMRCUrl))
+          } else {
+            block(authRequest)
+          }
         }
-      case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
     }
   }
-
-  protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result]
-
-  protected def completeAuthentication[A](
-                                           externalId: String,
-                                           authRequest: AuthenticatedRequest[A],
-                                           block: AuthenticatedRequest[A] => Future[Result]
-                                         )(implicit hc: HeaderCarrier): Future[Result]
 
   private def createAuthenticatedRequest[A](
                                              externalId: String,
@@ -124,6 +131,15 @@ abstract class AuthenticatedAuthAction @Inject()(
     AuthenticatedRequest(request, externalId, pspUser)
   }
 
+  protected def userType(affinityGroup: AffinityGroup): UserType = {
+    affinityGroup match {
+      case Individual => UserType.Individual
+      case Organisation => UserType.Organisation
+      case _ =>
+        throw new UnauthorizedException("Unable to authorise the user")
+    }
+  }
+
   private def handleFailure: PartialFunction[Throwable, Result] = {
     case _: NoActiveSession =>
       Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
@@ -139,14 +155,13 @@ abstract class AuthenticatedAuthAction @Inject()(
       Redirect(controllers.routes.UnauthorisedController.onPageLoad())
   }
 
-  protected def userType(affinityGroup: AffinityGroup): UserType = {
-    affinityGroup match {
-      case Individual => UserType.Individual
-      case Organisation => UserType.Organisation
-      case _ =>
-        throw new UnauthorizedException("Unable to authorise the user")
-    }
-  }
+  protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result]
+
+  protected def completeAuthentication[A](
+                                           externalId: String,
+                                           authRequest: AuthenticatedRequest[A],
+                                           block: AuthenticatedRequest[A] => Future[Result]
+                                         )(implicit hc: HeaderCarrier): Future[Result]
 }
 
 trait AuthAction extends ActionBuilder[AuthenticatedRequest, AnyContent] with ActionFunction[Request, AuthenticatedRequest]
@@ -155,9 +170,10 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
                                               config: FrontendAppConfig,
                                               userAnswersCacheConnector: UserAnswersCacheConnector,
                                               identityVerificationConnector: IdentityVerificationConnector,
+                                              minimalConnector: MinimalConnector,
                                               parser: BodyParsers.Default
                                              )(implicit executionContext: ExecutionContext) extends
-  AuthenticatedAuthAction(authConnector, config, parser)
+  AuthenticatedAuthAction(authConnector, config, minimalConnector, parser)
   with AuthorisedFunctions {
 
   override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] = None
@@ -240,9 +256,10 @@ class AuthenticatedAuthActionMustHaveNoEnrolmentWithIV @Inject()(override val au
                                                                  config: FrontendAppConfig,
                                                                  userAnswersCacheConnector: UserAnswersCacheConnector,
                                                                  identityVerificationConnector: IdentityVerificationConnector,
+                                                                 minimalConnector: MinimalConnector,
                                                                  parser: BodyParsers.Default
                                                                 )(implicit executionContext: ExecutionContext) extends
-  AuthenticatedAuthActionWithIV(authConnector, config, userAnswersCacheConnector, identityVerificationConnector, parser)
+  AuthenticatedAuthActionWithIV(authConnector, config, userAnswersCacheConnector, identityVerificationConnector, minimalConnector, parser)
   with AuthorisedFunctions {
 
   override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] = {
@@ -252,9 +269,10 @@ class AuthenticatedAuthActionMustHaveNoEnrolmentWithIV @Inject()(override val au
 
 class AuthenticatedAuthActionMustHaveEnrolment @Inject()(override val authConnector: AuthConnector,
                                                          config: FrontendAppConfig,
+                                                         minimalConnector: MinimalConnector,
                                                          parser: BodyParsers.Default
                                                         )(implicit executionContext: ExecutionContext) extends
-  AuthenticatedAuthAction(authConnector, config, parser)
+  AuthenticatedAuthAction(authConnector, config, minimalConnector, parser)
   with AuthorisedFunctions {
 
   override protected def completeAuthentication[A](
@@ -273,9 +291,10 @@ class AuthenticatedAuthActionMustHaveEnrolment @Inject()(override val authConnec
 
 class AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV @Inject()(override val authConnector: AuthConnector,
                                                                    config: FrontendAppConfig,
+                                                                   minimalConnector: MinimalConnector,
                                                                    parser: BodyParsers.Default
                                                                   )(implicit executionContext: ExecutionContext) extends
-  AuthenticatedAuthAction(authConnector, config, parser)
+  AuthenticatedAuthAction(authConnector, config, minimalConnector, parser)
   with AuthorisedFunctions {
 
   override protected def completeAuthentication[A](
