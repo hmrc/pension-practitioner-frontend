@@ -636,8 +636,8 @@ confirmDeregister.company.heading = Are you sure you want to stop {0} being a pe
 confirmDeregister.company.p1 = {0} will no longer be able to access this service using this practitioner ID when it stops being a pension scheme practitioner.
 confirmDeregister.company.p2 = {0} will have to register as a pension scheme practitioner again if it needs a practitioner ID in the future.
 
-cannotDeregister.title = You must deauthorise yourself from all open schemes first
-cannotDeregister.p1 = You cannot stop being a pension scheme practitioner until you deauthorise yourself from all open schemes you are currently a practitioner for.
+cannotDeregister.title = You must de-authorise yourself from all open schemes first
+cannotDeregister.p1 = You cannot stop being a pension scheme practitioner until you de-authorise yourself from all open schemes you are currently a practitioner for.
 
 deregistrationDate.company.title = When did they stop being a pension scheme practitioner?
 deregistrationDate.company.heading = When did {0} stop being a pension scheme practitioner?
