@@ -17,9 +17,8 @@
 package connectors
 
 import java.time.LocalDate
-
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.{UserAnswers, WireMockHelper}
+import models.{JourneyType, UserAnswers, WireMockHelper}
 import org.scalatest._
 import play.api.http.Status
 import play.api.http.Status.OK
@@ -34,7 +33,7 @@ class SubscriptionConnectorSpec extends AsyncWordSpec with MustMatchers with Wir
   override protected def portConfigKey: String = "microservice.services.pension-practitioner.port"
 
   private lazy val connector: SubscriptionConnector = injector.instanceOf[SubscriptionConnector]
-  private val pspSubscriptionUrl = "/pension-practitioner/subscribePsp"
+  private val pspSubscriptionUrl = "/pension-practitioner/subscribePsp/PSPSubscription"
   private val subscriptionDetailsUrl = "/pension-practitioner/getPsp"
   private val pspId: String = "12345678"
   private val validResponse = Json.obj(
@@ -59,7 +58,7 @@ class SubscriptionConnectorSpec extends AsyncWordSpec with MustMatchers with Wir
           )
       )
 
-      connector.subscribePsp(UserAnswers(data)) map {
+      connector.subscribePsp(UserAnswers(data), JourneyType.PSP_SUBSCRIPTION) map {
         response => response mustBe pspId
       }
     }
@@ -75,7 +74,7 @@ class SubscriptionConnectorSpec extends AsyncWordSpec with MustMatchers with Wir
       )
 
       recoverToExceptionIf[BadRequestException] {
-        connector.subscribePsp(UserAnswers(data))
+        connector.subscribePsp(UserAnswers(data), JourneyType.PSP_SUBSCRIPTION)
       } map {
         _.responseCode mustEqual Status.BAD_REQUEST
       }
@@ -92,7 +91,7 @@ class SubscriptionConnectorSpec extends AsyncWordSpec with MustMatchers with Wir
       )
 
       recoverToExceptionIf[NotFoundException] {
-        connector.subscribePsp(UserAnswers(data))
+        connector.subscribePsp(UserAnswers(data), JourneyType.PSP_SUBSCRIPTION)
       } map {
         _.responseCode mustEqual Status.NOT_FOUND
       }
@@ -108,7 +107,7 @@ class SubscriptionConnectorSpec extends AsyncWordSpec with MustMatchers with Wir
           )
       )
 
-      recoverToExceptionIf[UpstreamErrorResponse](connector.subscribePsp(UserAnswers(data))) map {
+      recoverToExceptionIf[UpstreamErrorResponse](connector.subscribePsp(UserAnswers(data), JourneyType.PSP_SUBSCRIPTION)) map {
         _.statusCode mustBe Status.INTERNAL_SERVER_ERROR
       }
     }

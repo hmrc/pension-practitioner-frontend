@@ -17,12 +17,13 @@
 package controllers.partnership
 
 import config.FrontendAppConfig
-import connectors.{EnrolmentConnector, EmailStatus, SubscriptionConnector, EmailConnector}
+import connectors.{EmailConnector, EmailStatus, EnrolmentConnector, SubscriptionConnector}
 import connectors.cache.UserAnswersCacheConnector
 import controllers.{DataRetrievals, Retrievals}
 import controllers.actions._
+
 import javax.inject.Inject
-import models.{ExistingPSP, NormalMode}
+import models.{ExistingPSP, JourneyType, NormalMode}
 import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.PspIdPage
@@ -33,7 +34,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
-import uk.gov.hmrc.http.{HttpResponse, HeaderCarrier}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.KnownFactsRetrieval
@@ -78,7 +79,7 @@ class DeclarationController @Inject()(
 
       DataRetrievals.retrievePspNameAndEmail { (pspName, email) =>
         for {
-          pspId <- subscriptionConnector.subscribePsp(ua)
+          pspId <- subscriptionConnector.subscribePsp(ua, JourneyType.PSP_SUBSCRIPTION)
           updatedAnswers <- Future.fromTry(
             request.userAnswers.set(PspIdPage, pspId)
           )
@@ -109,7 +110,7 @@ class DeclarationController @Inject()(
     emailConnector.sendEmail(
       requestId = hc.requestId.map(_.value).getOrElse(request.headers.get("X-Session-ID").getOrElse("")),
       pspId,
-      journeyType = "PSPSubscription",
+      journeyType = JourneyType.PSP_SUBSCRIPTION,
       email,
       templateName = config.emailPspSubscriptionTemplateId,
       templateParams = Map("pspName" -> pspName)

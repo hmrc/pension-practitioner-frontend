@@ -21,7 +21,7 @@ import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import data.SampleData
 import matchers.JsonMatchers
-import models.UserAnswers
+import models.{JourneyType, UserAnswers}
 import models.register.RegistrationLegalStatus
 import org.mockito.{ArgumentCaptor, Matchers}
 import org.mockito.Matchers.any
@@ -85,7 +85,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
       when(mockEmailConnector
         .sendEmail(any(),
           Matchers.eq(pspId),
-          Matchers.eq("PSPAmendment"),
+          Matchers.eq(JourneyType.PSP_AMENDMENT),
           Matchers.eq(email),
           Matchers.eq(templateId),any())(any(),any()))
         .thenReturn(Future.successful(EmailSent))
@@ -100,7 +100,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
       val expectedJson = Json.obj(PspIdPage.toString -> pspId)
       val uaCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
-      when(mockSubscriptionConnector.subscribePsp(uaCaptor.capture())(any(), any())).thenReturn(Future.successful(pspId))
+      when(mockSubscriptionConnector.subscribePsp(uaCaptor.capture(), any())(any(), any())).thenReturn(Future.successful(pspId))
       when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])

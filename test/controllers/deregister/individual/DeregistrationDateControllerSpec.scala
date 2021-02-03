@@ -16,22 +16,20 @@
 
 package controllers.deregister.individual
 
-import java.time.LocalDate
-
 import audit.{AuditService, PSPDeregistration, PSPDeregistrationEmail}
-import connectors.{DeregistrationConnector, EmailConnector, EmailSent, EnrolmentConnector, SubscriptionConnector}
+import connectors._
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import forms.deregister.DeregistrationDateFormProvider
 import matchers.JsonMatchers
-import models.UserAnswers
+import models.{JourneyType, UserAnswers}
 import org.mockito.Matchers.any
 import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{PspEmailPage, PspNamePage}
 import pages.deregister.DeregistrationDatePage
+import pages.{PspEmailPage, PspNamePage}
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
@@ -43,6 +41,7 @@ import play.twirl.api.Html
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.viewmodels.{DateInput, NunjucksSupport}
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
@@ -181,7 +180,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
       verify(mockEmailConnector, times(1))
-        .sendEmail(any(), Matchers.eq(pspId), Matchers.eq("PSPDeregistration"), Matchers.eq(email), Matchers.eq(templateId), any())(any(), any())
+        .sendEmail(any(), Matchers.eq(pspId), Matchers.eq(JourneyType.PSP_DEREGISTRATION), Matchers.eq(email), Matchers.eq(templateId), any())(any(), any())
       jsonCaptor.getValue must containJson(expectedJson)
       redirectLocation(result) mustBe Some(dummyCall.url)
       verify(mockAuditService, times(1))

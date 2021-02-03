@@ -22,7 +22,7 @@ import controllers.base.ControllerSpecBase
 import data.SampleData
 import matchers.JsonMatchers
 import models.register.RegistrationLegalStatus
-import models.{ExistingPSP, KnownFact, KnownFacts, UserAnswers}
+import models.{ExistingPSP, JourneyType, KnownFact, KnownFacts, UserAnswers}
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.{ArgumentCaptor, Matchers}
@@ -110,7 +110,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
       when(mockEmailConnector
         .sendEmail(any(),
           Matchers.eq(pspId),
-          Matchers.eq("PSPSubscription"),
+          Matchers.eq(JourneyType.PSP_SUBSCRIPTION),
           Matchers.eq(email),
           Matchers.eq(templateId),any())(any(),any()))
         .thenReturn(Future.successful(EmailSent))
@@ -126,7 +126,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
       val uaCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       when(mockCompoundNavigator.nextPage(Matchers.eq(DeclarationPage), any(), any())).thenReturn(dummyCall)
-      when(mockSubscriptionConnector.subscribePsp(uaCaptor.capture())(any(), any())).thenReturn(Future.successful(pspId))
+      when(mockSubscriptionConnector.subscribePsp(uaCaptor.capture(), any())(any(), any())).thenReturn(Future.successful(pspId))
       when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])

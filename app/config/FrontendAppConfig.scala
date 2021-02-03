@@ -18,6 +18,7 @@ package config
 
 import com.google.inject.{Inject, Singleton}
 import controllers.routes
+import models.JourneyType
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.Call
@@ -69,8 +70,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val emailPspDeregistrationTemplateId: String = configuration.get[String]("email.pspDeregistrationTemplateId")
   lazy val emailPspAmendmentTemplateId: String = configuration.get[String]("email.pspAmendmentTemplateId")
 
-  def emailCallback(journeyType: String, requestId: String, encryptedEmail: String, encryptedPspId: String) =
-    s"$pspUrl${configuration.get[String](path = "urls.emailCallback").format(journeyType, requestId, encryptedEmail, encryptedPspId)}"
+  def emailCallback(journeyType: JourneyType.Name, requestId: String, encryptedEmail: String, encryptedPspId: String) =
+    s"$pspUrl${configuration.get[String](path = "urls.emailCallback").format(journeyType.toString, requestId, encryptedEmail, encryptedPspId)}"
 
   lazy val registerWithIdOrganisationUrl: String = s"$pspUrl${configuration.get[String]("urls.registration.registerWithIdOrganisation")}"
 
