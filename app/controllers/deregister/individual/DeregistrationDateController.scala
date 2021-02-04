@@ -17,7 +17,6 @@
 package controllers.deregister.individual
 
 import java.time.LocalDate
-
 import audit.{AuditService, PSPDeregistration, PSPDeregistrationEmail}
 import config.FrontendAppConfig
 import connectors._
@@ -26,8 +25,9 @@ import controllers.Retrievals
 import controllers.actions._
 import forms.deregister.DeregistrationDateFormProvider
 import helpers.FormatHelper.dateContentFormatter
+
 import javax.inject.Inject
-import models.NormalMode
+import models.{JourneyType, NormalMode}
 import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.{PspEmailPage, PspNamePage}
@@ -114,7 +114,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
     emailConnector.sendEmail(
       requestId = hc.requestId .map(_.value) .getOrElse(request.headers.get("X-Session-ID").getOrElse("")),
       pspId,
-      journeyType = "PSPDeregistration",
+      journeyType = JourneyType.PSP_DEREGISTRATION,
       email,
       templateName = config.emailPspDeregistrationTemplateId,
       templateParams = Map("pspName" -> pspName)

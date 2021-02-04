@@ -22,7 +22,7 @@ import connectors.{EmailConnector, EmailStatus, EnrolmentConnector, Subscription
 import controllers.actions._
 import controllers.{DataRetrievals, Retrievals}
 import models.requests.DataRequest
-import models.{ExistingPSP, NormalMode}
+import models.{ExistingPSP, JourneyType, NormalMode}
 import navigators.CompoundNavigator
 import pages.PspIdPage
 import pages.company.DeclarationPage
@@ -78,7 +78,7 @@ class DeclarationController @Inject()(
 
       DataRetrievals.retrievePspNameAndEmail { (pspName, email) =>
         for {
-          pspId <- subscriptionConnector.subscribePsp(ua)
+          pspId <- subscriptionConnector.subscribePsp(ua, JourneyType.PSP_SUBSCRIPTION)
           updatedAnswers <- Future.fromTry(request.userAnswers.set(PspIdPage, pspId))
           _ <- userAnswersCacheConnector.save(updatedAnswers.data)
           _ <- enrol(pspId)
@@ -108,7 +108,7 @@ class DeclarationController @Inject()(
     emailConnector.sendEmail(
       requestId = hc.requestId.map(_.value).getOrElse(request.headers.get("X-Session-ID").getOrElse("")),
       pspId,
-      journeyType = "PSPSubscription",
+      journeyType = JourneyType.PSP_SUBSCRIPTION,
       email,
       templateName = config.emailPspSubscriptionTemplateId,
       templateParams = Map("pspName" -> pspName)

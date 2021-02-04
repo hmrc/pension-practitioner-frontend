@@ -19,7 +19,7 @@ package connectors
 import java.time.LocalDate
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import models._
+import models.{JourneyType, _}
 import play.api.Logger
 import play.api.http.Status.{BAD_REQUEST, NOT_FOUND, OK}
 import play.api.libs.json._
@@ -36,10 +36,10 @@ class SubscriptionConnector @Inject()(http: HttpClient, config: FrontendAppConfi
 
   private val logger = Logger(classOf[SubscriptionConnector])
 
-  def subscribePsp(answers: UserAnswers)
+  def subscribePsp(answers: UserAnswers, journeyType: JourneyType.Name)
                   (implicit ec: ExecutionContext, hc: HeaderCarrier): Future[String] = {
 
-    val url = config.pspSubscriptionUrl
+    val url = config.pspSubscriptionUrl.format(journeyType.toString)
     http.POST[JsObject, HttpResponse](url, answers.data).map {
       response =>
         response.status match {

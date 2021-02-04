@@ -22,6 +22,7 @@ import connectors.cache.UserAnswersCacheConnector
 import connectors.{EmailConnector, SubscriptionConnector}
 import controllers.actions._
 import controllers.{DataRetrievals, Retrievals}
+import models.JourneyType
 import models.requests.DataRequest
 import pages.PspIdPage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -65,7 +66,7 @@ class DeclarationController @Inject()(
       implicit request =>
         DataRetrievals.retrievePspNameAndEmail { (pspName, email) =>
           for {
-            pspId <- subscriptionConnector.subscribePsp(request.userAnswers)
+            pspId <- subscriptionConnector.subscribePsp(request.userAnswers, JourneyType.PSP_AMENDMENT)
             updatedAnswers <- Future.fromTry(request.userAnswers.set(PspIdPage, pspId))
             _ <- userAnswersCacheConnector.save(updatedAnswers.data)
             _ <- sendEmail(email, pspId, pspName)
@@ -77,7 +78,7 @@ class DeclarationController @Inject()(
   private def sendEmail(email: String, pspId: String, pspName: String)(implicit request: DataRequest[_],
                                                                        hc: HeaderCarrier): Future[Unit] = {
     val requestId: String = hc.requestId.map(_.value).getOrElse(request.headers.get("X-Session-ID").getOrElse(""))
-    emailConnector.sendEmail(requestId, pspId, "PSPAmendment",
+    emailConnector.sendEmail(requestId, pspId, JourneyType.PSP_AMENDMENT,
       email, config.emailPspAmendmentTemplateId, Map("pspName" -> pspName)).map { _ =>
       auditService.sendEvent(PSPAmendment(pspId, email))
     }

@@ -18,7 +18,7 @@ package connectors
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import models.SendEmailRequest
+import models.{JourneyType, SendEmailRequest}
 import play.api.Logger
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
@@ -43,7 +43,7 @@ class EmailConnector @Inject()(
                               ) {
   private val logger = Logger(classOf[EmailConnector])
 
-  private def callBackUrl(requestId: String, journeyType: String, pspId: String, email: String): String = {
+  private def callBackUrl(requestId: String, journeyType: JourneyType.Name, pspId: String, email: String): String = {
     val encryptedPspId =
       URLEncoder.encode(crypto.QueryParameterCrypto.encrypt(PlainText(pspId)).value, StandardCharsets.UTF_8.toString)
     val encryptedEmail =
@@ -55,7 +55,7 @@ class EmailConnector @Inject()(
   def sendEmail(
                  requestId: String,
                  pspId: String,
-                 journeyType: String,
+                 journeyType: JourneyType.Name,
                  emailAddress: String,
                  templateName: String,
                  templateParams: Map[String, String]
