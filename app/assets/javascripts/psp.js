@@ -1,7 +1,6 @@
 // initialise GovUK lib
 GOVUKFrontend.initAll();
 if (document.querySelector('#country') != null) {
-    console.log(document.getElementById('country'))
     accessibleAutocomplete({
         element: document.getElementById('country'),
         id: 'country',
