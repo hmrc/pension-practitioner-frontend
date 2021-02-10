@@ -11,7 +11,7 @@ object AppDependencies {
     "uk.gov.hmrc"                   %%  "simple-reactivemongo"           % "7.31.0-play-27",
     "uk.gov.hmrc"                   %%  "logback-json-logger"            % "4.9.0",
     "uk.gov.hmrc"                   %%  "play-health"                    % "3.16.0-play-27",
-    "uk.gov.hmrc"                   %%  "play-conditional-form-mapping"  % "1.5.0-play-27",
+    "uk.gov.hmrc"                   %%  "play-conditional-form-mapping"  % "1.6.0-play-27",
     "uk.gov.hmrc"                   %%  "bootstrap-frontend-play-27"     % "3.4.0",
     "uk.gov.hmrc"                   %%  "play-whitelist-filter"          % "3.4.0-play-27",
     "uk.gov.hmrc"                   %%  "play-nunjucks"                  % "0.24.0-play-26",

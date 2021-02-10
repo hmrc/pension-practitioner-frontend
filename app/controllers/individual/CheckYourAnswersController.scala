@@ -17,10 +17,7 @@
 package controllers.individual
 
 import com.google.inject.Inject
-import config.FrontendAppConfig
-import connectors.cache.UserAnswersCacheConnector
 import controllers.actions.{AuthAction, DataRequiredAction, DataRetrievalAction}
-import navigators.CompoundNavigator
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -32,16 +29,15 @@ import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 
 import scala.concurrent.ExecutionContext
 
-class CheckYourAnswersController @Inject()(config: FrontendAppConfig,
-                                           override val messagesApi: MessagesApi,
-                                           @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
-                                           getData: DataRetrievalAction,
-                                           requireData: DataRequiredAction,
-                                           userAnswersCacheConnector: UserAnswersCacheConnector,
-                                           navigator: CompoundNavigator,
-                                           val controllerComponents: MessagesControllerComponents,
-                                           individualCYAService: IndividualCYAService,
-                                           renderer: Renderer)(implicit ec: ExecutionContext)
+class CheckYourAnswersController @Inject()(
+                                            override val messagesApi: MessagesApi,
+                                            @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
+                                            getData: DataRetrievalAction,
+                                            requireData: DataRequiredAction,
+                                            val controllerComponents: MessagesControllerComponents,
+                                            individualCYAService: IndividualCYAService,
+                                            renderer: Renderer
+                                          )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport
     with NunjucksSupport {

@@ -64,7 +64,7 @@ class CompanyCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
       value = Value(addressAnswer(address), classes = Seq("govuk-!-width-one-third")),
       actions = List(
         Action(
-          content = msg"site.edit",
+          content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
           href = controllers.company.routes.CompanyPostcodeController.onPageLoad(CheckMode).url,
           visuallyHiddenText = Some(msg"cya.change.address")
         )
@@ -75,7 +75,7 @@ class CompanyCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
       value = Value(Literal(email), classes = Seq("govuk-!-width-one-third")),
       actions = List(
         Action(
-          content = msg"site.edit",
+          content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
           href = controllers.company.routes.CompanyEmailController.onPageLoad(CheckMode).url,
           visuallyHiddenText = Some(msg"cya.change.email".withArgs(companyName))
         )
@@ -86,7 +86,7 @@ class CompanyCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
       value = Value(Literal(phone), classes = Seq("govuk-!-width-one-third")),
       actions = List(
         Action(
-          content = msg"site.edit",
+          content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
           href = controllers.company.routes.CompanyPhoneController.onPageLoad(CheckMode).url,
           visuallyHiddenText = Some(msg"cya.change.phone".withArgs(companyName))
         )
@@ -104,7 +104,7 @@ class CompanyCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
       value = Value(addressAnswer(address), classes = Seq("govuk-!-width-one-third")),
       actions = List(
         Action(
-          content = msg"site.edit",
+          content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
           href = controllers.company.routes.CompanyContactAddressController.onPageLoad(CheckMode).url,
           visuallyHiddenText = Some(msg"cya.change.address")
         )
@@ -115,7 +115,7 @@ class CompanyCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
       value = Value(Literal(email), classes = Seq("govuk-!-width-one-third")),
       actions = List(
         Action(
-          content = msg"site.edit",
+          content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
           href = controllers.company.routes.CompanyEmailController.onPageLoad(CheckMode).url,
           visuallyHiddenText = Some(msg"cya.change.email".withArgs(companyName))
         )
@@ -126,7 +126,7 @@ class CompanyCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAndAft
       value = Value(Literal(phone), classes = Seq("govuk-!-width-one-third")),
       actions = List(
         Action(
-          content = msg"site.edit",
+          content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
           href = controllers.company.routes.CompanyPhoneController.onPageLoad(CheckMode).url,
           visuallyHiddenText = Some(msg"cya.change.phone".withArgs(companyName))
         )

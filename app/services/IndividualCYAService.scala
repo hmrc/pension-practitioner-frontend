@@ -51,13 +51,14 @@ class IndividualCYAService extends CYAService {
       value = Value(Literal(name), classes = Seq("govuk-!-width-one-third"))
     )
 
-  private def individualAddress(address: Address, areYouUKResident: Boolean)(implicit messages: Messages): Row =
+  private def individualAddress(address: Address, areYouUKResident: Boolean)
+                               (implicit messages: Messages): Row =
     Row(
       key = Key(msg"cya.address", classes = Seq("govuk-!-width-one-half")),
       value = Value(addressAnswer(address), classes = Seq("govuk-!-width-one-third")),
       actions = List(
         Action(
-          content = msg"site.edit",
+          content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
           href =
             if (areYouUKResident) {
               controllers.individual.routes.IndividualPostcodeController.onPageLoad(CheckMode).url
@@ -69,26 +70,28 @@ class IndividualCYAService extends CYAService {
       )
     )
 
-  private def individualEmail(email: String): Row =
+  private def individualEmail(email: String)
+                             (implicit messages: Messages): Row =
     Row(
       key = Key(msg"cya.individual.email", classes = Seq("govuk-!-width-one-half")),
       value = Value(Literal(email), classes = Seq("govuk-!-width-one-third")),
       actions = List(
         Action(
-          content = msg"site.edit",
+          content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
           href = controllers.individual.routes.IndividualEmailController.onPageLoad(CheckMode).url,
           visuallyHiddenText = Some(msg"cya.individual.change.email")
         )
       )
     )
 
-  private def individualPhone(phone: String): Row =
+  private def individualPhone(phone: String)
+                             (implicit messages: Messages): Row =
     Row(
       key = Key(msg"cya.individual.phone", classes = Seq("govuk-!-width-one-half")),
       value = Value(Literal(phone), classes = Seq("govuk-!-width-one-third")),
       actions = List(
         Action(
-          content = msg"site.edit",
+          content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
           href = controllers.individual.routes.IndividualPhoneController.onPageLoad(CheckMode).url,
           visuallyHiddenText = Some(msg"cya.individual.change.phone")
         )
