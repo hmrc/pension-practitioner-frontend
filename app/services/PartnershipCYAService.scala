@@ -81,39 +81,42 @@ class PartnershipCYAService extends CYAService {
         value = Value(Literal(utr), classes = Seq("govuk-!-width-one-third"))
       )
 
-  private def partnershipAddress(address: Address, href:Call)(implicit messages: Messages): Row =
+  private def partnershipAddress(address: Address, href:Call)
+                                (implicit messages: Messages): Row =
       Row(
         key = Key(msg"cya.address", classes = Seq("govuk-!-width-one-half")),
         value = Value(addressAnswer(address), classes = Seq("govuk-!-width-one-third")),
         actions = List(
           Action(
-            content = msg"site.edit",
+            content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
             href = href.url,
             visuallyHiddenText = Some(msg"cya.change.address")
           )
         )
       )
 
-  private def partnershipEmail(partnershipName: String, email: String): Row =
+  private def partnershipEmail(partnershipName: String, email: String)
+                              (implicit messages: Messages): Row =
     Row(
       key = Key(msg"cya.email".withArgs(partnershipName), classes = Seq("govuk-!-width-one-half")),
       value = Value(Literal(email), classes = Seq("govuk-!-width-one-third")),
       actions = List(
         Action(
-          content = msg"site.edit",
+          content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
           href = controllers.partnership.routes.PartnershipEmailController.onPageLoad(CheckMode).url,
           visuallyHiddenText = Some(msg"cya.change.email".withArgs(partnershipName))
         )
       )
     )
 
-  private def partnershipPhone(partnershipName: String, phone: String): Row =
+  private def partnershipPhone(partnershipName: String, phone: String)
+                              (implicit messages: Messages): Row =
     Row(
       key = Key(msg"cya.phone".withArgs(partnershipName), classes = Seq("govuk-!-width-one-half")),
       value = Value(Literal(phone), classes = Seq("govuk-!-width-one-third")),
       actions = List(
         Action(
-          content = msg"site.edit",
+          content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
           href = controllers.partnership.routes.PartnershipPhoneController.onPageLoad(CheckMode).url,
           visuallyHiddenText = Some(msg"cya.change.phone".withArgs(partnershipName))
         )

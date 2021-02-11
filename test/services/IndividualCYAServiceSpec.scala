@@ -26,7 +26,11 @@ import uk.gov.hmrc.viewmodels.SummaryList.{Action, Key, Row, Value}
 import uk.gov.hmrc.viewmodels.Text.Literal
 import uk.gov.hmrc.viewmodels._
 
-class IndividualCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach with CYAService {
+class IndividualCYAServiceSpec
+  extends SpecBase
+    with MockitoSugar
+    with BeforeAndAfterEach
+    with CYAService {
 
   private val service: IndividualCYAService = new IndividualCYAService
   private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("zz1 1zz"), "GB")
@@ -47,7 +51,7 @@ class IndividualCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
     value = Value(addressAnswer(address), classes = Seq("govuk-!-width-one-third")),
     actions = List(
       Action(
-        content = msg"site.edit",
+        content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
         href = href,
         visuallyHiddenText = Some(msg"cya.change.address")
       )
@@ -65,7 +69,7 @@ class IndividualCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
       value = Value(Literal(email), classes = Seq("govuk-!-width-one-third")),
       actions = List(
         Action(
-          content = msg"site.edit",
+          content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
           href = controllers.individual.routes.IndividualEmailController.onPageLoad(CheckMode).url,
           visuallyHiddenText = Some(msg"cya.individual.change.email")
         )
@@ -76,7 +80,7 @@ class IndividualCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAnd
       value = Value(Literal(phone), classes = Seq("govuk-!-width-one-third")),
       actions = List(
         Action(
-          content = msg"site.edit",
+          content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
           href = controllers.individual.routes.IndividualPhoneController.onPageLoad(CheckMode).url,
           visuallyHiddenText = Some(msg"cya.individual.change.phone")
         )

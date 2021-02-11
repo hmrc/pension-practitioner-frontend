@@ -39,11 +39,16 @@ import services.PspDetailsHelper._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class PspDetailsServiceSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach with ScalaFutures {
+class PspDetailsServiceSpec
+  extends SpecBase
+    with MockitoSugar
+    with BeforeAndAfterEach
+    with ScalaFutures {
 
   import PspDetailsServiceSpec._
 
-  private def minPsp(rlsFlag:Boolean) = MinimalPSP("a@a.a", Some("name"), None, rlsFlag = rlsFlag, deceasedFlag = false)
+  private def minPsp(rlsFlag: Boolean) = MinimalPSP("a@a.a", Some("name"), None, rlsFlag = rlsFlag, deceasedFlag = false)
+
   private val pspId: String = "psp-id"
   private val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
   private val mockUserAnswersCacheConnector: UserAnswersCacheConnector = mock[UserAnswersCacheConnector]
@@ -191,8 +196,8 @@ object PspDetailsServiceSpec {
       "items" -> Json.arr(
         Json.obj(
           "href" -> href,
-          "text" -> "Change",
-          "visuallyHiddenText" -> "Contact address"
+          "html" -> s"""<span aria-hidden="true">Change</span>""",
+          "visuallyHiddenText" -> "Change contact address"
         )
       )
     )
@@ -211,8 +216,8 @@ object PspDetailsServiceSpec {
       "items" -> Json.arr(
         Json.obj(
           "href" -> href,
-          "text" -> "Change",
-          "visuallyHiddenText" -> s"$name’s email address?"
+          "html" -> s"""<span aria-hidden="true">Change</span>""",
+          "visuallyHiddenText" -> s"Change $name’s email address?"
         )
       )
     )
@@ -231,8 +236,8 @@ object PspDetailsServiceSpec {
       "items" -> Json.arr(
         Json.obj(
           "href" -> href,
-          "text" -> "Change",
-          "visuallyHiddenText" -> s"$name’s phone number?"
+          "html" -> s"""<span aria-hidden="true">Change</span>""",
+          "visuallyHiddenText" -> s"Change $name’s phone number?"
         )
       )
     )
@@ -246,14 +251,14 @@ object PspDetailsServiceSpec {
     "classes" -> thirdWidth)
 
   def nameRow(typeText: String, name: String): JsObject = Json.obj(
-      "key" -> Json.obj(
-        "text" -> s"$typeText’s name",
-        "classes" -> halfWidth
-      ),
-      "value" -> Json.obj(
-        "text" -> name,
-        "classes" -> thirdWidth
-      )
+    "key" -> Json.obj(
+      "text" -> s"$typeText’s name",
+      "classes" -> halfWidth
+    ),
+    "value" -> Json.obj(
+      "text" -> name,
+      "classes" -> thirdWidth
+    )
   )
 
   def nonUkNameRow(typeText: String, name: String, href: String): JsObject = Json.obj(
@@ -269,8 +274,8 @@ object PspDetailsServiceSpec {
       "items" -> Json.arr(
         Json.obj(
           "href" -> href,
-          "text" -> "Change",
-          "visuallyHiddenText" -> s"$name’s name"
+          "html" -> s"""<span aria-hidden="true">Change</span>""",
+          "visuallyHiddenText" -> s"Change $name’s name"
         )
       )
     )
@@ -309,15 +314,15 @@ object PspDetailsServiceSpec {
       case _ => partnershipList(typeText, name, address)
     }
 
-  def expected(typeText: String, name: String, ninoUtr: JsObject, address: JsObject = ukAddress, includeReturnLinkAndUrl:Boolean): JsObject = {
+  def expected(typeText: String, name: String, ninoUtr: JsObject, address: JsObject = ukAddress, includeReturnLinkAndUrl: Boolean): JsObject = {
     if (includeReturnLinkAndUrl) {
       Json.obj(
-      "pageTitle" -> s"$typeText details",
-      "heading" -> s"$name’s details",
-      "list" -> list(typeText, name, address),
-      "nextPage" -> "/pension-scheme-practitioner/declare",
-      "returnLink" -> s"Return to $name",
-      "returnUrl" -> "http://localhost:8204/manage-pension-schemes/dashboard"
+        "pageTitle" -> s"$typeText details",
+        "heading" -> s"$name’s details",
+        "list" -> list(typeText, name, address),
+        "nextPage" -> "/pension-scheme-practitioner/declare",
+        "returnLink" -> s"Return to $name",
+        "returnUrl" -> "http://localhost:8204/manage-pension-schemes/dashboard"
       )
     } else {
       Json.obj(
@@ -328,7 +333,6 @@ object PspDetailsServiceSpec {
       )
     }
   }
-
 
 
 }
