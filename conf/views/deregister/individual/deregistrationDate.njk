@@ -28,7 +28,7 @@
 
         <p class="govuk-body">{{messages('deregistrationDate.individual.p1', applicationDate)}}</p>
 
-        <form action="{{ submitUrl }}" method="post" autocomplete="off">
+        <form action="{{ submitUrl }}" method="post" autocomplete="off" novalidate>
 
           {{ csrf() | safe }}
 

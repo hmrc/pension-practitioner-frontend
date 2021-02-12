@@ -26,7 +26,7 @@
                 {{ messages("useAddressForContact.title", messages(viewmodel.entityName)) }}
         </h1>
 
-        <form action="{{ viewmodel.submitUrl }}" method="post" autocomplete="off">
+        <form action="{{ viewmodel.submitUrl }}" method="post" autocomplete="off" novalidate>
 
           {{ csrf() | safe }}
 

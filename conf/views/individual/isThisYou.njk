@@ -26,7 +26,7 @@
              {{ messages("isThisYou.heading") }}
         </h1>
 
-        <form action="{{ submitUrl }}" method="post" autocomplete="off">
+        <form action="{{ submitUrl }}" method="post" autocomplete="off" novalidate>
 
           {{ csrf() | safe }}
 
