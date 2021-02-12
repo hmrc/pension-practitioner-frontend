@@ -28,7 +28,7 @@
             {{ messages("postcode.youCan") }} <a href="{{ enterManuallyUrl }}" class="govuk-link">{{ messages("address.linkText.enterManually") }}</a>.
          </p>
 
-        <form action="{{ submitUrl }}" method="post" autocomplete="off">
+        <form action="{{ submitUrl }}" method="post" autocomplete="off" novalidate>
 
           {{ csrf() | safe }}
 

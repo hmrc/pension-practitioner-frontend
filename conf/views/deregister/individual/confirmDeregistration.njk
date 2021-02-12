@@ -30,7 +30,7 @@
          <p class="govuk-body">{{ messages("confirmDeregister.individual.p2") }}</p>
 
 
-        <form action="{{ submitUrl }}" method="post" autocomplete="off">
+        <form action="{{ submitUrl }}" method="post" autocomplete="off" novalidate>
 
           {{ csrf() | safe }}
 

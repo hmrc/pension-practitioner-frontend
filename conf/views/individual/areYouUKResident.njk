@@ -31,7 +31,7 @@
                  <p class="govuk-body">{{ messages("areYouUKResident.check.p2") }}</p>
         {% endif %}
 
-        <form action="{{ submitUrl }}" method="post" autocomplete="off">
+        <form action="{{ submitUrl }}" method="post" autocomplete="off" novalidate>
 
           {{ csrf() | safe }}
 
