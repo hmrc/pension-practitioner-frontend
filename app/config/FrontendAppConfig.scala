@@ -127,7 +127,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
     "cymraeg" -> Lang("cy")
   )
 
-
   def routeToSwitchLanguage: String => Call =
     (lang: String) => routes.LanguageSwitchController.switchToLanguage(lang)
+
+  lazy val gtmContainerId: String = configuration.get[String]("microservice.services.tracking-consent-frontend.gtm.container")
+  lazy val trackingSnippetUrl: String = s"${servicesConfig.baseUrl("tracking-consent-frontend")}/tracking-consent/tracking.js"
 }
