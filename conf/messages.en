@@ -669,3 +669,4 @@ deregistrationDate.individual.error.minDate = Enter a date after {0}
 
 deregistrationSuccess.individual.title = You are no longer a pension scheme practitioner
 deregistrationSuccess.individual.p1 = You can no longer access the Managing Pension Schemes service using its practitioner ID.
+
