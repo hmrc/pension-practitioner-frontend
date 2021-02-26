@@ -16,9 +16,21 @@
 
 package audit
 
-case class PSPAmendment(pspId:String, email: String) extends AuditEvent {
+case class PSPAmendment(
+                         pspId: String,
+                         from: String,
+                         to: String
+                       ) extends AuditEvent {
 
-  override def auditType: String = "PSPAmendment"
-  override def details: Map[String, String] = Map("pspId" -> pspId, "emailId" -> email)
+  override def auditType: String = "PensionSchemePractitionerAmendment"
+
+  override def details: Map[String, String] =
+    Map(
+      "pensionSchemePractitionerId" -> pspId,
+      "from" -> from,
+      "to" -> to
+    )
+
+  println(s"\n\n\n\n$details\n\n\n\n\n")
 }
 

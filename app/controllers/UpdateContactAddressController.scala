@@ -16,33 +16,24 @@
 
 package controllers
 
-import controllers.actions.AuthAction
-import controllers.actions.DataRetrievalAction
-import javax.inject.Inject
-import models.Address
-import models.CheckMode
-import models.register.RegistrationLegalStatus.Individual
-import models.register.RegistrationLegalStatus.LimitedCompany
-import models.register.RegistrationLegalStatus.Partnership
-import models.UserAnswers
+import controllers.actions.{AuthAction, DataRetrievalAction}
+import models.{Address, CheckMode, UserAnswers}
+import models.register.RegistrationLegalStatus.{Individual, LimitedCompany, Partnership}
 import pages.RegistrationDetailsPage
 import pages.company.CompanyAddressPage
 import pages.individual.IndividualManualAddressPage
 import pages.partnership.PartnershipAddressPage
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesControllerComponents
-import play.api.mvc.Result
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import services.PspDetailsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.annotations.AuthMustHaveEnrolment
 import utils.countryOptions.CountryOptions
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class UpdateContactAddressController @Inject()(
                                                 val controllerComponents: MessagesControllerComponents,
@@ -57,7 +48,7 @@ class UpdateContactAddressController @Inject()(
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData).async {
     implicit request =>
-      pspDetailsService.getUserAnswers(request.userAnswers, request.user.pspIdOrException).flatMap {
+      pspDetailsService.getUserAnswers(request.userAnswers, request.user.pspIdOrException) flatMap {
         retrieveRequiredValues(_) match {
           case Some(Tuple2(url, address)) =>
             val json = Json.obj(
@@ -65,7 +56,8 @@ class UpdateContactAddressController @Inject()(
               "address" -> address.lines(countryOptions)
             )
             renderer.render("updateContactAddress.njk", json).map(Ok(_))
-          case None => Future.successful(sessionExpired)
+          case None =>
+            Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
         }
       }
   }
@@ -96,6 +88,4 @@ class UpdateContactAddressController @Inject()(
         }
     }
   }
-
-  private def sessionExpired:Result = Redirect(controllers.routes.SessionExpiredController.onPageLoad())
 }

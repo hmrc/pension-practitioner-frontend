@@ -1,17 +1,17 @@
-GET         /remove-company                     controllers.deregister.company.ConfirmDeregistrationController.onPageLoad
-POST        /remove-company                     controllers.deregister.company.ConfirmDeregistrationController.onSubmit
+GET         /remove-company                  controllers.deregister.company.ConfirmDeregistrationController.onPageLoad
+POST        /remove-company                  controllers.deregister.company.ConfirmDeregistrationController.onSubmit
 
-GET         /deauthorise-from-schemes           controllers.deregister.CannotDeregisterController.onPageLoad
+GET         /deauthorise-from-schemes        controllers.deregister.CannotDeregisterController.onPageLoad
 
-GET         /date-removed-company               controllers.deregister.company.DeregistrationDateController.onPageLoad
-POST        /date-removed-company               controllers.deregister.company.DeregistrationDateController.onSubmit
+GET         /date-removed-company            controllers.deregister.company.DeregistrationDateController.onPageLoad
+POST        /date-removed-company            controllers.deregister.company.DeregistrationDateController.onSubmit
 
-GET         /success-company                    controllers.deregister.company.SuccessController.onPageLoad
+GET         /success-company                 controllers.deregister.company.SuccessController.onPageLoad
 
-GET         /remove                             controllers.deregister.individual.ConfirmDeregistrationController.onPageLoad
-POST        /remove                             controllers.deregister.individual.ConfirmDeregistrationController.onSubmit
+GET         /remove                          controllers.deregister.individual.ConfirmDeregistrationController.onPageLoad
+POST        /remove                          controllers.deregister.individual.ConfirmDeregistrationController.onSubmit
 
-GET         /date-removed                       controllers.deregister.individual.DeregistrationDateController.onPageLoad
-POST        /date-removed                       controllers.deregister.individual.DeregistrationDateController.onSubmit
+GET         /date-removed                    controllers.deregister.individual.DeregistrationDateController.onPageLoad
+POST        /date-removed                    controllers.deregister.individual.DeregistrationDateController.onSubmit
 
-GET         /success-individual                 controllers.deregister.individual.SuccessController.onPageLoad
+GET         /success-individual              controllers.deregister.individual.SuccessController.onPageLoad

@@ -50,14 +50,17 @@ class DeclarationController @Inject()(
                                        auditService: AuditService,
                                        config: FrontendAppConfig
                                      )(implicit ec: ExecutionContext)
-  extends FrontendBaseController with Retrievals with I18nSupport with NunjucksSupport {
+  extends FrontendBaseController
+    with Retrievals
+    with I18nSupport
+    with NunjucksSupport {
 
   def onPageLoad: Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
         renderer.render(
-          "amend/declaration.njk",
-          Json.obj("submitUrl" -> routes.DeclarationController.onSubmit().url)
+          template = "amend/declaration.njk",
+          ctx = Json.obj("submitUrl" -> routes.DeclarationController.onSubmit().url)
         ).map(Ok(_))
     }
 
@@ -65,6 +68,8 @@ class DeclarationController @Inject()(
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
         DataRetrievals.retrievePspNameAndEmail { (pspName, email) =>
+          println(s"\n\n\nDeclarationController ua\n${Json.prettyPrint(request.userAnswers.data)}\n\n")
+
           for {
             pspId <- subscriptionConnector.subscribePsp(request.userAnswers, JourneyType.PSP_AMENDMENT)
             updatedAnswers <- Future.fromTry(request.userAnswers.set(PspIdPage, pspId))
@@ -75,12 +80,33 @@ class DeclarationController @Inject()(
         }
     }
 
-  private def sendEmail(email: String, pspId: String, pspName: String)(implicit request: DataRequest[_],
-                                                                       hc: HeaderCarrier): Future[Unit] = {
-    val requestId: String = hc.requestId.map(_.value).getOrElse(request.headers.get("X-Session-ID").getOrElse(""))
-    emailConnector.sendEmail(requestId, pspId, JourneyType.PSP_AMENDMENT,
-      email, config.emailPspAmendmentTemplateId, Map("pspName" -> pspName)).map { _ =>
-      auditService.sendEvent(PSPAmendment(pspId, email))
+  private def sendEmail(email: String, pspId: String, pspName: String)
+                       (implicit request: DataRequest[_], hc: HeaderCarrier): Future[Unit] = {
+    println(s"\n\n\nSubscriptionConnector pspId$pspId\n\n")
+
+    subscriptionConnector.getSubscriptionDetails(pspId) flatMap {
+      originalSubscriptionDetails =>
+        val requestId: String =
+          hc.requestId.map(_.value).getOrElse(request.headers.get("X-Session-ID").getOrElse(""))
+        val noChanges =
+          originalSubscriptionDetails == request.userAnswers.data
+
+        emailConnector.sendEmail(
+          requestId = requestId,
+          pspId = pspId,
+          journeyType = JourneyType.PSP_AMENDMENT,
+          emailAddress = email,
+          templateName = config.emailPspAmendmentTemplateId,
+          templateParams = Map("pspName" -> pspName)
+        ).map { _ =>
+          auditService.sendEvent(
+            PSPAmendment(
+              pspId = pspId,
+              from = if (noChanges) "-" else Json.toJson(originalSubscriptionDetails).toString(),
+              to = if (noChanges) "-" else Json.toJson(request.userAnswers.data).toString()
+            )
+          )
+        }
     }
   }
 

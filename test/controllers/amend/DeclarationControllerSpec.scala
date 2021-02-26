@@ -39,8 +39,13 @@ import uk.gov.hmrc.viewmodels.NunjucksSupport
 
 import scala.concurrent.Future
 
-class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
-  with JsonMatchers with OptionValues with TryValues {
+class DeclarationControllerSpec
+  extends ControllerSpecBase
+    with MockitoSugar
+    with NunjucksSupport
+    with JsonMatchers
+    with OptionValues
+    with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
@@ -57,6 +62,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
   private val email = "a@a.c"
 
   private def onPageLoadUrl: String = routes.DeclarationController.onPageLoad().url
+
   private def submitUrl: String = routes.DeclarationController.onSubmit().url
 
   override def beforeEach: Unit = {
@@ -87,7 +93,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
           Matchers.eq(pspId),
           Matchers.eq(JourneyType.PSP_AMENDMENT),
           Matchers.eq(email),
-          Matchers.eq(templateId),any())(any(),any()))
+          Matchers.eq(templateId), any())(any(), any()))
         .thenReturn(Future.successful(EmailSent))
       when(mockAppConfig.emailPspAmendmentTemplateId).thenReturn(templateId)
 
