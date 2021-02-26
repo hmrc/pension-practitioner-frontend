@@ -16,21 +16,65 @@
 
 package audit
 
+import play.api.libs.json.{JsObject, JsValue, Json, Reads, __}
+import play.api.libs.functional.syntax._
+import play.api.libs.json.Reads._
+import scala.language.postfixOps
+
 case class PSPAmendment(
                          pspId: String,
-                         from: String,
-                         to: String
+                         originalSubscriptionDetails: JsValue,
+                         updatedSubscriptionDetails: JsValue
                        ) extends AuditEvent {
 
   override def auditType: String = "PensionSchemePractitionerAmendment"
 
+  val from: JsObject =
+    originalSubscriptionDetails.as[JsObject]
+      .-("subscriptionType")
+
+  val to: JsObject =
+    updatedSubscriptionDetails.as[JsObject]
+      .-("pspId")
+      .-("subscriptionType")
+      .-("areYouUKResident")
+
+  val doNothing: Reads[JsObject] = {
+    __.json.put(Json.obj())
+  }
+
+  private val expandAcronymTransformer: JsValue => JsObject =
+    json => json.as[JsObject].transform(
+      __.json.update(
+        (
+          (__ \ "existingPensionSchemePractitioner").json.copyFrom(
+            (__ \ "existingPSP").json.pick
+          ) and
+            (__ \ "existingPensionSchemePractitioner" \ "isExistingPensionSchemePractitioner").json.copyFrom(
+                (__ \ "existingPSP" \ "isExistingPSP").json.pick
+            ) and
+            ((__ \ "existingPensionSchemePractitioner" \ "existingPensionSchemePractitionerId").json.copyFrom(
+              (__ \ "existingPSP" \ "existingPSPId").json.pick) orElse doNothing)
+          ) reduce
+      ) andThen
+        (__ \ "existingPSP").json.prune andThen
+        (__ \ "existingPensionSchemePractitioner" \ "isExistingPSP").json.prune andThen
+        (__ \ "existingPensionSchemePractitioner" \ "existingPSPId").json.prune
+    ).getOrElse(throw ExpandAcronymTransformerFailed)
+
+  case object ExpandAcronymTransformerFailed extends Exception
+
+  def returnMismatches(left: JsObject, right: JsObject): collection.Set[String] =
+    left.keys.filter(key => (left \ key) != (right \ key))
+
   override def details: Map[String, String] =
     Map(
       "pensionSchemePractitionerId" -> pspId,
-      "from" -> from,
-      "to" -> to
+      "from" -> s"${if (from == to) "-" else s"${Json.prettyPrint(expandAcronymTransformer(from))}"}",
+      "to" -> s"${if (from == to) "-" else s"${Json.prettyPrint(expandAcronymTransformer(to))}"}"
     )
 
   println(s"\n\n\n\n$details\n\n\n\n\n")
+  println(s"\n\n\nmismatches\n${returnMismatches(from, to)}\n\n\n\n\n")
 }
 

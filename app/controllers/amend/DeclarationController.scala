@@ -19,14 +19,14 @@ package controllers.amend
 import audit.{AuditService, PSPAmendment}
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import connectors.{EmailConnector, SubscriptionConnector}
+import connectors.{EmailConnector, EmailStatus, SubscriptionConnector}
 import controllers.actions._
 import controllers.{DataRetrievals, Retrievals}
 import models.JourneyType
 import models.requests.DataRequest
 import pages.PspIdPage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.http.HeaderCarrier
@@ -68,46 +68,52 @@ class DeclarationController @Inject()(
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
         DataRetrievals.retrievePspNameAndEmail { (pspName, email) =>
-          println(s"\n\n\nDeclarationController ua\n${Json.prettyPrint(request.userAnswers.data)}\n\n")
-
           for {
+            originalSubscriptionDetails <- subscriptionConnector.getSubscriptionDetails(request.user.pspIdOrException)
             pspId <- subscriptionConnector.subscribePsp(request.userAnswers, JourneyType.PSP_AMENDMENT)
             updatedAnswers <- Future.fromTry(request.userAnswers.set(PspIdPage, pspId))
             _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+            _ <- Future.successful(audit(pspId, originalSubscriptionDetails, request.userAnswers.data))
             _ <- sendEmail(email, pspId, pspName)
           } yield Redirect(routes.ConfirmationController.onPageLoad())
 
         }
     }
 
-  private def sendEmail(email: String, pspId: String, pspName: String)
-                       (implicit request: DataRequest[_], hc: HeaderCarrier): Future[Unit] = {
-    println(s"\n\n\nSubscriptionConnector pspId$pspId\n\n")
+  private def audit(
+                     pspId: String,
+                     originalSubscriptionDetails: JsValue,
+                     updatedSubscriptionDetails: JsValue
+                   )(
+                     implicit request: DataRequest[_]
+                   ): Unit =
 
-    subscriptionConnector.getSubscriptionDetails(pspId) flatMap {
-      originalSubscriptionDetails =>
-        val requestId: String =
-          hc.requestId.map(_.value).getOrElse(request.headers.get("X-Session-ID").getOrElse(""))
-        val noChanges =
-          originalSubscriptionDetails == request.userAnswers.data
+    auditService.sendEvent(
+      PSPAmendment(
+        pspId = pspId,
+        originalSubscriptionDetails = originalSubscriptionDetails,
+        updatedSubscriptionDetails = updatedSubscriptionDetails
+      )
+    )
 
-        emailConnector.sendEmail(
-          requestId = requestId,
-          pspId = pspId,
-          journeyType = JourneyType.PSP_AMENDMENT,
-          emailAddress = email,
-          templateName = config.emailPspAmendmentTemplateId,
-          templateParams = Map("pspName" -> pspName)
-        ).map { _ =>
-          auditService.sendEvent(
-            PSPAmendment(
-              pspId = pspId,
-              from = if (noChanges) "-" else Json.toJson(originalSubscriptionDetails).toString(),
-              to = if (noChanges) "-" else Json.toJson(request.userAnswers.data).toString()
-            )
-          )
-        }
-    }
+  private def sendEmail(
+                         email: String,
+                         pspId: String,
+                         pspName: String
+                       )(
+                         implicit request: DataRequest[_],
+                         hc: HeaderCarrier
+                       ): Future[EmailStatus] = {
+    val requestId: String =
+      hc.requestId.map(_.value).getOrElse(request.headers.get("X-Session-ID").getOrElse(""))
+
+    emailConnector.sendEmail(
+      requestId = requestId,
+      pspId = pspId,
+      journeyType = JourneyType.PSP_AMENDMENT,
+      emailAddress = email,
+      templateName = config.emailPspAmendmentTemplateId,
+      templateParams = Map("pspName" -> pspName)
+    )
   }
-
 }
