@@ -18,7 +18,7 @@ package audit
 
 case class PSPDeregistration(pspId:String) extends AuditEvent {
 
-  override def auditType: String = "PSPDeregistration"
-  override def details: Map[String, String] = Map("pspId" -> pspId)
+  override def auditType: String = "PensionSchemePractitionerDeregistration"
+  override def details: Map[String, String] = Map("pensionSchemePractitionerId" -> pspId)
 }
 
