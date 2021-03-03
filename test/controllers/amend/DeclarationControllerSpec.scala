@@ -88,24 +88,30 @@ class DeclarationControllerSpec
     "redirect to next page when valid data is submitted and send email" in {
       val pspId = "psp-id"
       val templateId = "dummyTemplateId"
-      when(mockEmailConnector
-        .sendEmail(any(),
-          Matchers.eq(pspId),
-          Matchers.eq(JourneyType.PSP_AMENDMENT),
-          Matchers.eq(email),
-          Matchers.eq(templateId), any())(any(), any()))
-        .thenReturn(Future.successful(EmailSent))
+      when(mockEmailConnector.sendEmail(
+        requestId = any(),
+        pspId = Matchers.eq(pspId),
+        journeyType = Matchers.eq(JourneyType.PSP_AMENDMENT),
+        emailAddress = Matchers.eq(email),
+        templateName = Matchers.eq(templateId), templateParams = any()
+      )(
+        hc = any(),
+        executionContext = any()
+      )).thenReturn(Future.successful(EmailSent))
+
       when(mockAppConfig.emailPspAmendmentTemplateId).thenReturn(templateId)
 
       val ua = UserAnswers()
         .setOrException(RegistrationInfoPage, SampleData.registrationInfo(RegistrationLegalStatus.Partnership))
         .setOrException(BusinessNamePage, partnershipName)
         .setOrException(CompanyEmailPage, email)
+
       mutableFakeDataRetrievalAction.setDataToReturn(Some(ua))
 
       val expectedJson = Json.obj(PspIdPage.toString -> pspId)
       val uaCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
+      when(mockSubscriptionConnector.getSubscriptionDetails(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
       when(mockSubscriptionConnector.subscribePsp(uaCaptor.capture(), any())(any(), any())).thenReturn(Future.successful(pspId))
       when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
 

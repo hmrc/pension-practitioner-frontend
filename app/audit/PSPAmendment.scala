@@ -16,10 +16,8 @@
 
 package audit
 
-import play.api.libs.json.{JsObject, JsValue, Json, Reads, __}
-import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
-import scala.language.postfixOps
+import play.api.libs.json._
 
 case class PSPAmendment(
                          pspId: String,
@@ -29,52 +27,44 @@ case class PSPAmendment(
 
   override def auditType: String = "PensionSchemePractitionerAmendment"
 
-  val from: JsObject =
+  private val original: JsObject =
     originalSubscriptionDetails.as[JsObject]
       .-("subscriptionType")
 
-  val to: JsObject =
+  private val updates: JsObject =
     updatedSubscriptionDetails.as[JsObject]
       .-("pspId")
       .-("subscriptionType")
       .-("areYouUKResident")
 
-  val doNothing: Reads[JsObject] = {
-    __.json.put(Json.obj())
-  }
-
-  private val expandAcronymTransformer: JsValue => JsObject =
-    json => json.as[JsObject].transform(
-      __.json.update(
-        (
-          (__ \ "existingPensionSchemePractitioner").json.copyFrom(
-            (__ \ "existingPSP").json.pick
-          ) and
-            (__ \ "existingPensionSchemePractitioner" \ "isExistingPensionSchemePractitioner").json.copyFrom(
-                (__ \ "existingPSP" \ "isExistingPSP").json.pick
-            ) and
-            ((__ \ "existingPensionSchemePractitioner" \ "existingPensionSchemePractitionerId").json.copyFrom(
-              (__ \ "existingPSP" \ "existingPSPId").json.pick) orElse doNothing)
-          ) reduce
-      ) andThen
-        (__ \ "existingPSP").json.prune andThen
-        (__ \ "existingPensionSchemePractitioner" \ "isExistingPSP").json.prune andThen
-        (__ \ "existingPensionSchemePractitioner" \ "existingPSPId").json.prune
-    ).getOrElse(throw ExpandAcronymTransformerFailed)
-
   case object ExpandAcronymTransformerFailed extends Exception
 
-  def returnMismatches(left: JsObject, right: JsObject): collection.Set[String] =
-    left.keys.filter(key => (left \ key) != (right \ key))
+  private def amendedKeys(
+                           left: JsObject,
+                           right: JsObject
+                         ): collection.Set[String] =
+    left.keys filter {
+      key => (left \ key) != (right \ key)
+    }
+
+  private def fromToJson(
+                          json: JsObject,
+                          amendedKeys: collection.Set[String]
+                        ): JsValue =
+    Json.toJson(amendedKeys map {
+      key =>
+        Json.obj(key -> json.value(key))
+    })
+
+  private def fromToString(json: JsObject): String =
+    if (original == updates) "no changes made"
+    else s"${fromToJson(json, amendedKeys(original, updates))}"
 
   override def details: Map[String, String] =
     Map(
       "pensionSchemePractitionerId" -> pspId,
-      "from" -> s"${if (from == to) "-" else s"${Json.prettyPrint(expandAcronymTransformer(from))}"}",
-      "to" -> s"${if (from == to) "-" else s"${Json.prettyPrint(expandAcronymTransformer(to))}"}"
+      "from" -> fromToString(original),
+      "to" -> fromToString(updates)
     )
-
-  println(s"\n\n\n\n$details\n\n\n\n\n")
-  println(s"\n\n\nmismatches\n${returnMismatches(from, to)}\n\n\n\n\n")
 }
 

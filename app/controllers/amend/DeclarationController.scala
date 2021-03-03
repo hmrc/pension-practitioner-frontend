@@ -73,7 +73,7 @@ class DeclarationController @Inject()(
             pspId <- subscriptionConnector.subscribePsp(request.userAnswers, JourneyType.PSP_AMENDMENT)
             updatedAnswers <- Future.fromTry(request.userAnswers.set(PspIdPage, pspId))
             _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-            _ <- Future.successful(audit(pspId, originalSubscriptionDetails, request.userAnswers.data))
+            _ <- audit(pspId, originalSubscriptionDetails, request.userAnswers.data)
             _ <- sendEmail(email, pspId, pspName)
           } yield Redirect(routes.ConfirmationController.onPageLoad())
 
@@ -86,15 +86,15 @@ class DeclarationController @Inject()(
                      updatedSubscriptionDetails: JsValue
                    )(
                      implicit request: DataRequest[_]
-                   ): Unit =
+                   ): Future[Unit] =
 
-    auditService.sendEvent(
+    Future.successful(auditService.sendEvent(
       PSPAmendment(
         pspId = pspId,
         originalSubscriptionDetails = originalSubscriptionDetails,
         updatedSubscriptionDetails = updatedSubscriptionDetails
       )
-    )
+    ))
 
   private def sendEmail(
                          email: String,
