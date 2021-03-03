@@ -28,15 +28,11 @@ case class PSPAmendment(
   override def auditType: String = "PensionSchemePractitionerAmendment"
 
   private val original: JsObject =
-    originalSubscriptionDetails.as[JsObject]
-      .-("subscriptionType")
+    originalSubscriptionDetails.as[JsObject] - "subscriptionType"
 
   private val updates: JsObject =
-    updatedSubscriptionDetails.as[JsObject]
-      .-("pspId")
-      .-("subscriptionType")
-      .-("areYouUKResident")
-  
+    updatedSubscriptionDetails.as[JsObject] - "pspId" - "subscriptionType" - "areYouUKResident"
+
   private def amendedKeys(
                            left: JsObject,
                            right: JsObject
