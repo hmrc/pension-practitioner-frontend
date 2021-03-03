@@ -17,16 +17,13 @@
 package controllers.actions
 
 import base.SpecBase
-import connectors.{IdentityVerificationConnector, MinimalConnector}
+import connectors.{MinimalConnector, IdentityVerificationConnector}
 import connectors.cache.UserAnswersCacheConnector
 import models.MinimalPSP
-import models.WhatTypeBusiness.Companyorpartnership
-import models.WhatTypeBusiness.Yourselfasindividual
+import models.WhatTypeBusiness.{Companyorpartnership, Yourselfasindividual}
 import org.mockito.Matchers.any
-import org.mockito.{Matchers, Mockito}
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.when
+import org.mockito.{Mockito, Matchers}
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
@@ -35,8 +32,7 @@ import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.http.UnauthorizedException
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -319,7 +315,7 @@ object AuthActionSpec extends SpecBase with MockitoSugar {
   private val pspId = "00000000"
   private val email = "a@a.c"
   private val nino = uk.gov.hmrc.domain.Nino("AB100100A")
-  type authRetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~Option[CredentialRole]
+  type authRetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~Option[CredentialRole] ~Option[String]
 
   private val enrolmentPODS = Enrolments(Set(Enrolment("HMRC-PODSPP-ORG", Seq(EnrolmentIdentifier("PSPID", pspId)), "")))
   private val startIVLink = "/start-iv-link"
@@ -335,15 +331,16 @@ object AuthActionSpec extends SpecBase with MockitoSugar {
   private def authRetrievals(affinityGroup: Option[AffinityGroup] = Some(AffinityGroup.Organisation),
                              enrolments: Enrolments = Enrolments(Set()),
                              creds: Option[Credentials] = Option(Credentials(providerId = "test provider", providerType = "")),
-                            role: Option[CredentialRole] = Option(User)
+                            role: Option[CredentialRole] = Option(User),
+                            groupId: Option[String] = Some("test-group-id")
                             ): Future[authRetrievalsType] = Future.successful(
-    new ~(new ~(new ~(new ~(
+    new ~( new ~(new ~(new ~(new ~(
       Some("id"),
       affinityGroup),
       enrolments),
       creds),
-      role
-    )
+      role),
+      groupId)
   )
 
   class Harness(identifierAction: AuthAction) {

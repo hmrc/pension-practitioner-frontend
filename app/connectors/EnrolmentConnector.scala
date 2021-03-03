@@ -98,6 +98,7 @@ class EnrolmentConnectorImpl @Inject()(val http: HttpClient,
 
     val enrolmentKey = s"HMRC-PODSPP-ORG~PSPID~$pspId"
     val deEnrolmentUrl = config.taxDeEnrolmentUrl.format(groupId, enrolmentKey)
+    println("\n>>>" + deEnrolmentUrl)
     http.DELETE[HttpResponse](deEnrolmentUrl) flatMap {
       case response if response.status equals NO_CONTENT =>
         auditService.sendEvent(DeenrolmentEvent(userId, pspId))

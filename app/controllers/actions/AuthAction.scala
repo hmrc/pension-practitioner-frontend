@@ -57,9 +57,10 @@ abstract class AuthenticatedAuthAction @Inject()(
         Retrievals.affinityGroup and
         Retrievals.allEnrolments and
         Retrievals.credentials and
-        Retrievals.credentialRole
+        Retrievals.credentialRole and
+        Retrievals.groupIdentifier
     ) {
-      case Some(id) ~ Some(affinityGroup) ~ enrolments ~ Some(credentials) ~ Some(credentialRole) =>
+      case Some(id) ~ Some(affinityGroup) ~ enrolments ~ Some(credentials) ~ Some(credentialRole) ~ Some(groupIdentifier) =>
         logger.debug(s"Logging auth details- externalId: $id, affinityGroup: ${affinityGroup.toJson}, " +
           s"enrolments: ${enrolments.enrolments}, credentials: ${credentials.providerType}=>${credentials.providerId}, " +
           s"credentialsRole: ${credentialRole.toJson} & request: $request")
@@ -69,7 +70,7 @@ abstract class AuthenticatedAuthAction @Inject()(
         allowAccess(id,
           affinityGroup,
           credentialRole,
-          createAuthenticatedRequest(id, request, affinityGroup, credentials.providerId, enrolments),
+          createAuthenticatedRequest(id, request, affinityGroup, credentials.providerId, enrolments, groupIdentifier),
           block
         )
       case _ =>
@@ -114,7 +115,8 @@ abstract class AuthenticatedAuthAction @Inject()(
                                              request: Request[A],
                                              affinityGroup: AffinityGroup,
                                              providerId: String,
-                                             enrolments: Enrolments
+                                             enrolments: Enrolments,
+                                             groupIdentifier: String
                                            ): AuthenticatedRequest[A] = {
     val tpssPspId = enrolments.getEnrolment("HMRC-PP-ORG")
       .flatMap(_.getIdentifier("PSPID")).map(_.value)
@@ -126,7 +128,8 @@ abstract class AuthenticatedAuthAction @Inject()(
       isExistingPSP = tpssPspId.nonEmpty,
       existingPSPId = tpssPspId,
       alreadyEnrolledPspId = podsPspId,
-      userId = providerId
+      userId = providerId,
+      groupIdentifier = groupIdentifier
     )
     AuthenticatedRequest(request, externalId, pspUser)
   }
