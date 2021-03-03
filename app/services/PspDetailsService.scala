@@ -18,31 +18,31 @@ package services
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
+import connectors.cache.UserAnswersCacheConnector
+import connectors.{MinimalConnector, SubscriptionConnector}
 import controllers.amend.routes
 import controllers.company.{routes => compRoutes}
 import controllers.individual.{routes => indRoutes}
 import controllers.partnership.{routes => partRoutes}
-import connectors.{MinimalConnector, SubscriptionConnector}
-import connectors.cache.UserAnswersCacheConnector
 import models.SubscriptionType.Variation
-import models.register.RegistrationCustomerType.{UK, NonUK}
+import models.register.RegistrationCustomerType.{NonUK, UK}
 import models.register.RegistrationLegalStatus._
-import models.register.{RegistrationIdType, RegistrationDetails}
+import models.register.{RegistrationDetails, RegistrationIdType}
 import models.{CheckMode, UserAnswers}
-import pages.company.{CompanyPhonePage, CompanyAddressPage, CompanyEmailPage}
+import pages.company.{CompanyAddressPage, CompanyEmailPage, CompanyPhonePage}
 import pages.individual._
 import pages.partnership._
 import pages.register._
-import pages.{SubscriptionTypePage, PspIdPage, RegistrationDetailsPage, company => comp}
+import pages.{PspIdPage, RegistrationDetailsPage, SubscriptionTypePage, company => comp}
 import play.api.i18n.Messages
-import play.api.libs.json.{Json, JsObject, JsValue}
+import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc.Call
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.viewmodels.SummaryList.{Key, Value, Row, Action}
-import uk.gov.hmrc.viewmodels.Text.Literal
+import uk.gov.hmrc.viewmodels.SummaryList.{Action, Key, Row, Value}
+import uk.gov.hmrc.viewmodels.Text.{Literal, Message}
 import uk.gov.hmrc.viewmodels._
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 class PspDetailsService @Inject()(
@@ -71,68 +71,81 @@ class PspDetailsService @Inject()(
 
   def getJson(userAnswers: Option[UserAnswers], pspId: String)
              (implicit messages: Messages, hc: HeaderCarrier, ec: ExecutionContext): Future[JsObject] =
-    getUserAnswers(userAnswers, pspId).flatMap { ua =>
-      ua.get(RegistrationDetailsPage).map { regInfo =>
-        minimalConnector.getMinimalPspDetails(pspId).map { minDetails =>
-          val (json, name) = regInfo.legalStatus match {
-            case Individual =>
-              val title: String = individualMessage("viewDetails.title").resolve
-              val json = Json.obj(
-                "pageTitle" -> title,
-                "heading" -> ua.get(IndividualDetailsPage).fold(title)(name => heading(name.fullName)),
-                "list" -> individualDetails(ua, pspId),
-                "nextPage" -> nextPage
-              )
-              (json, ua.get(IndividualDetailsPage).map(_.fullName))
-            case LimitedCompany =>
-              val title: String = companyMessage("viewDetails.title").resolve
-              val json = Json.obj(
-                "pageTitle" -> title,
-                "heading" -> ua.get(comp.BusinessNamePage).fold(title)(name => heading(name)),
-                "list" -> companyDetails(ua, pspId),
-                "nextPage" -> nextPage
-              )
-              (json, ua.get(BusinessNamePage))
-            case Partnership =>
-              val title: String = partnershipMessage("viewDetails.title").resolve
-              val json = Json.obj(
-                "pageTitle" -> title,
-                "heading" -> ua.get(BusinessNamePage).fold(title)(name => heading(name)),
-                "list" -> partnershipDetails(ua, pspId),
-                "nextPage" -> nextPage
-              )
-              (json, ua.get(BusinessNamePage))
-          }
+    getUserAnswers(userAnswers, pspId).flatMap {
+      ua =>
+        ua.get(RegistrationDetailsPage).map {
+          regInfo =>
+            minimalConnector.getMinimalPspDetails(pspId).map {
+              minDetails =>
+                val (json, name) = regInfo.legalStatus match {
+                  case Individual =>
+                    val title: String = individualMessage("viewDetails.title").resolve
+                    val json = Json.obj(
+                      "pageTitle" -> title,
+                      "heading" -> ua.get(IndividualDetailsPage).fold(title)(name => heading(name.fullName)),
+                      "list" -> individualDetails(ua, pspId),
+                      "nextPage" -> nextPage
+                    )
+                    (json, ua.get(IndividualDetailsPage).map(_.fullName))
+                  case LimitedCompany =>
+                    val title: String = companyMessage("viewDetails.title").resolve
+                    val json = Json.obj(
+                      "pageTitle" -> title,
+                      "heading" -> ua.get(comp.BusinessNamePage).fold(title)(name => heading(name)),
+                      "list" -> companyDetails(ua, pspId),
+                      "nextPage" -> nextPage
+                    )
+                    (json, ua.get(BusinessNamePage))
+                  case Partnership =>
+                    val title: String = partnershipMessage("viewDetails.title").resolve
+                    val json = Json.obj(
+                      "pageTitle" -> title,
+                      "heading" -> ua.get(BusinessNamePage).fold(title)(name => heading(name)),
+                      "list" -> partnershipDetails(ua, pspId),
+                      "nextPage" -> nextPage
+                    )
+                    (json, ua.get(BusinessNamePage))
+                }
 
-          json ++ returnUrlAndLink(name, minDetails.rlsFlag)
-        }
-      }.getOrElse(Future.successful(Json.obj()))
+                json ++ returnUrlAndLink(name, minDetails.rlsFlag)
+            }
+        }.getOrElse(Future.successful(Json.obj()))
     }
 
   def getUserAnswers(userAnswers: Option[UserAnswers], pspId: String)
                     (implicit ec: ExecutionContext, hc: HeaderCarrier): Future[UserAnswers] =
     userAnswers match {
-      case Some(ua) => Future.successful(ua)
+      case Some(ua) =>
+        Future.successful(ua)
       case _ =>
-        subscriptionConnector.getSubscriptionDetails(pspId).flatMap { pspDetails =>
-          for {
-            ua1 <- Future.fromTry(uaWithUkAnswer(uaFromJsValue(pspDetails), pspId))
-            ua2 <- Future.fromTry(ua1.set(SubscriptionTypePage, Variation))
-            _ <- userAnswersCacheConnector.save(ua2.data)
-          } yield ua2
+        subscriptionConnector.getSubscriptionDetails(pspId).flatMap {
+          pspDetails =>
+            for {
+              ua1 <- Future.fromTry(uaWithUkAnswer(uaFromJsValue(pspDetails), pspId))
+              ua2 <- Future.fromTry(ua1.set(SubscriptionTypePage, Variation))
+              _ <- userAnswersCacheConnector.save(ua2.data)
+            } yield ua2
         }
     }
 
 
   private def uaWithUkAnswer(userAnswers: UserAnswers, pspId: String): Try[UserAnswers] =
-    userAnswers.get(RegistrationDetailsPage).map { regInfo =>
+    userAnswers.get(RegistrationDetailsPage).map {
       val ua: UserAnswers = userAnswers.set(PspIdPage, pspId).getOrElse(userAnswers)
-      (regInfo.customerType, regInfo.legalStatus) match {
-        case (UK, Individual) => ua.set(AreYouUKResidentPage, true)
-        case (NonUK, Individual) => ua.set(AreYouUKResidentPage, false)
-        case (UK, _) => ua.set(AreYouUKCompanyPage, true)
-        case (NonUK, _) => ua.set(AreYouUKCompanyPage, false)
-      }
+      regInfo =>
+        (
+          regInfo.customerType,
+          regInfo.legalStatus
+        ) match {
+          case (UK, Individual) =>
+            ua.set(AreYouUKResidentPage, true)
+          case (NonUK, Individual) =>
+            ua.set(AreYouUKResidentPage, false)
+          case (UK, _) =>
+            ua.set(AreYouUKCompanyPage, true)
+          case (NonUK, _) =>
+            ua.set(AreYouUKCompanyPage, false)
+        }
     }.getOrElse(Try(userAnswers))
 
   private def uaFromJsValue(jsValue: JsValue): UserAnswers = UserAnswers(jsValue.as[JsObject])
@@ -152,57 +165,90 @@ class PspDetailsService @Inject()(
       ))
     }
 
-  private def addressLink(href: Call)
-                         (implicit messages: Messages): Seq[Action] = Seq(Action(
-    content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
-    href = href.url,
-    visuallyHiddenText = Some(msg"cya.change.address")
-  ))
-
-  private def emailLink(href: Call, name: String)
-                       (implicit messages: Messages): Seq[Action] = Seq(Action(
-    content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
-    href = href.url,
-    visuallyHiddenText = Some(msg"cya.change.email".withArgs(name))
-  ))
-
-  private def phoneLink(href: Call, name: String)
-                       (implicit messages: Messages): Seq[Action] = Seq(Action(
-    content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
-    href = href.url,
-    visuallyHiddenText = Some(msg"cya.change.phone".withArgs(name))
-  ))
-
+  private def actions(href: Call, msg: Message)
+                     (implicit messages: Messages): Seq[Action] =
+    Seq(Action(
+      content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
+      href = href.url,
+      visuallyHiddenText = Some(msg)
+    ))
 
   private def practitionerIdRow(pspId: String): Seq[Row] =
-    Seq(Row(Key(msg"viewDetails.practitioner.id", halfWidth), Value(Literal(pspId), thirdWidth), Seq.empty))
+    Seq(Row(
+      key = Key(msg"viewDetails.practitioner.id", halfWidth),
+      value = Value(Literal(pspId), thirdWidth),
+      actions = Seq.empty
+    ))
 
   private def individualMessage(message: String): Text = msg"$message".withArgs(msg"viewDetails.individual")
 
-  private def individualDetails(ua: UserAnswers, pspId: String)(implicit messages: Messages): Seq[Row] =
-    (ua.get(IndividualDetailsPage), ua.get(RegistrationDetailsPage), ua.get(IndividualManualAddressPage),
-      ua.get(IndividualEmailPage), ua.get(IndividualPhonePage)) match {
+  private def individualDetails(ua: UserAnswers, pspId: String)
+                               (implicit messages: Messages): Seq[Row] =
+    (
+      ua.get(IndividualDetailsPage),
+      ua.get(RegistrationDetailsPage),
+      ua.get(IndividualManualAddressPage),
+      ua.get(IndividualEmailPage),
+      ua.get(IndividualPhonePage)
+    ) match {
       case (Some(name), Some(regInfo), Some(address), Some(email), Some(phone)) =>
-        practitionerIdRow(pspId) ++ Seq(
-          Row(Key(individualMessage("viewDetails.name"), halfWidth), Value(Literal(name.fullName), thirdWidth),
-            nameLink(indRoutes.IndividualNameController.onPageLoad(CheckMode), regInfo, name.fullName))) ++
-          regDetailsRow(regInfo) ++ Seq(
-          Row(Key(individualMessage("viewDetails.address"), halfWidth), Value(addressAnswer(address), thirdWidth),
-            addressLink(indRoutes.IndividualPostcodeController.onPageLoad(CheckMode))),
-          Row(Key(individualMessage("viewDetails.email"), halfWidth), Value(Literal(email), thirdWidth),
-            emailLink(indRoutes.IndividualEmailController.onPageLoad(CheckMode), name.fullName)),
-          Row(Key(individualMessage("viewDetails.phone"), halfWidth), Value(Literal(phone), thirdWidth),
-            phoneLink(indRoutes.IndividualPhoneController.onPageLoad(CheckMode), name.fullName))
-        )
+        practitionerIdRow(pspId) ++
+          Seq(
+            Row(
+              key = Key(individualMessage("viewDetails.name"), halfWidth),
+              value = Value(Literal(name.fullName), thirdWidth),
+              actions = nameLink(
+                href = indRoutes.IndividualNameController.onPageLoad(CheckMode),
+                regInfo = regInfo,
+                name = name.fullName
+              )
+            )
+          ) ++
+          regDetailsRow(regInfo) ++
+          Seq(
+            Row(
+              key = Key(individualMessage("viewDetails.address"), halfWidth),
+              value = Value(addressAnswer(address), thirdWidth),
+              actions = actions(
+                href = indRoutes.IndividualPostcodeController.onPageLoad(CheckMode),
+                msg = msg"cya.change.address"
+              )
+            ),
+            Row(
+              key = Key(individualMessage("viewDetails.email"), halfWidth),
+              value = Value(Literal(email), thirdWidth),
+              actions = actions(
+                href = indRoutes.IndividualEmailController.onPageLoad(CheckMode),
+                msg = msg"cya.change.email".withArgs(name.fullName)
+              )
+            ),
+            Row(
+              key = Key(individualMessage("viewDetails.phone"), halfWidth),
+              value = Value(Literal(phone), thirdWidth),
+              actions = actions(
+                href = indRoutes.IndividualPhoneController.onPageLoad(CheckMode),
+                msg = msg"cya.change.phone".withArgs(name.fullName)
+              )
+            )
+          )
       case _ => Seq.empty
     }
 
   private def regDetailsRow(registrationDetails: RegistrationDetails): Seq[Row] =
-    (registrationDetails.idType, registrationDetails.idNumber) match {
+    (
+      registrationDetails.idType,
+      registrationDetails.idNumber
+    ) match {
       case (Some(RegistrationIdType.Nino), Some(nino)) =>
-        Seq(Row(Key(msg"viewDetails.practitioner.nino", halfWidth), Value(Literal(nino), thirdWidth), Seq.empty))
+        Seq(Row(
+          key = Key(msg"viewDetails.practitioner.nino", halfWidth),
+          value = Value(Literal(nino), thirdWidth), actions = Seq.empty)
+        )
       case (Some(RegistrationIdType.UTR), Some(utr)) =>
-        Seq(Row(Key(msg"viewDetails.practitioner.utr", halfWidth), Value(Literal(utr), thirdWidth), Seq.empty))
+        Seq(Row(
+          key = Key(msg"viewDetails.practitioner.utr", halfWidth),
+          value = Value(Literal(utr), thirdWidth), actions = Seq.empty)
+        )
       case _ => Seq.empty
     }
 
@@ -210,19 +256,52 @@ class PspDetailsService @Inject()(
 
   private def companyDetails(ua: UserAnswers, pspId: String)
                             (implicit messages: Messages): Seq[Row] =
-    (ua.get(comp.BusinessNamePage), ua.get(RegistrationDetailsPage), ua.get(CompanyAddressPage),
-      ua.get(CompanyEmailPage), ua.get(CompanyPhonePage)) match {
+    (
+      ua.get(comp.BusinessNamePage),
+      ua.get(RegistrationDetailsPage),
+      ua.get(CompanyAddressPage),
+      ua.get(CompanyEmailPage),
+      ua.get(CompanyPhonePage)
+    ) match {
       case (Some(name), Some(regInfo), Some(address), Some(email), Some(phone)) =>
-        practitionerIdRow(pspId) ++ regDetailsRow(regInfo) ++ Seq(
-          Row(Key(companyMessage("viewDetails.name"), halfWidth), Value(Literal(name), thirdWidth),
-            nameLink(compRoutes.CompanyNameController.onPageLoad(CheckMode), regInfo, name))) ++
+        practitionerIdRow(pspId) ++
+          regDetailsRow(regInfo) ++
           Seq(
-            Row(Key(companyMessage("viewDetails.address"), halfWidth), Value(addressAnswer(address), thirdWidth),
-              addressLink(compRoutes.CompanyPostcodeController.onPageLoad(CheckMode))),
-            Row(Key(companyMessage("viewDetails.email"), halfWidth), Value(Literal(email), thirdWidth),
-              emailLink(compRoutes.CompanyEmailController.onPageLoad(CheckMode), name)),
-            Row(Key(companyMessage("viewDetails.phone"), halfWidth), Value(Literal(phone), thirdWidth),
-              phoneLink(compRoutes.CompanyPhoneController.onPageLoad(CheckMode), name))
+            Row(
+              key = Key(companyMessage("viewDetails.name"), halfWidth),
+              value = Value(Literal(name), thirdWidth),
+              actions = nameLink(
+                href = compRoutes.CompanyNameController.onPageLoad(CheckMode),
+                regInfo = regInfo,
+                name = name
+              )
+            )
+          ) ++
+          Seq(
+            Row(
+              key = Key(companyMessage("viewDetails.address"), halfWidth),
+              value = Value(addressAnswer(address), thirdWidth),
+              actions = actions(
+                href = compRoutes.CompanyPostcodeController.onPageLoad(CheckMode),
+                msg = msg"cya.change.address"
+              )
+            ),
+            Row(
+              key = Key(companyMessage("viewDetails.email"), halfWidth),
+              value = Value(Literal(email), thirdWidth),
+              actions = actions(
+                href = compRoutes.CompanyEmailController.onPageLoad(CheckMode),
+                msg = msg"cya.change.email".withArgs(name)
+              )
+            ),
+            Row(
+              key = Key(companyMessage("viewDetails.phone"), halfWidth),
+              value = Value(Literal(phone), thirdWidth),
+              actions = actions(
+                href = compRoutes.CompanyPhoneController.onPageLoad(CheckMode),
+                msg = msg"cya.change.phone".withArgs(name)
+              )
+            )
           )
       case _ => Seq.empty
     }
@@ -231,22 +310,53 @@ class PspDetailsService @Inject()(
 
   private def partnershipDetails(ua: UserAnswers, pspId: String)
                                 (implicit messages: Messages): Seq[Row] =
-    (ua.get(BusinessNamePage), ua.get(RegistrationDetailsPage), ua.get(PartnershipAddressPage),
-      ua.get(PartnershipEmailPage), ua.get(PartnershipPhonePage)) match {
+    (
+      ua.get(BusinessNamePage),
+      ua.get(RegistrationDetailsPage),
+      ua.get(PartnershipAddressPage),
+      ua.get(PartnershipEmailPage),
+      ua.get(PartnershipPhonePage)
+    ) match {
       case (Some(name), Some(regInfo), Some(address), Some(email), Some(phone)) =>
-        practitionerIdRow(pspId) ++ regDetailsRow(regInfo) ++ Seq(
-          Row(Key(partnershipMessage("viewDetails.name"), halfWidth), Value(Literal(name), thirdWidth),
-            nameLink(partRoutes.PartnershipNameController.onPageLoad(CheckMode), regInfo, name))) ++
+        practitionerIdRow(pspId) ++
+          regDetailsRow(regInfo) ++
           Seq(
-            Row(Key(partnershipMessage("viewDetails.address"), halfWidth), Value(addressAnswer(address), thirdWidth),
-              addressLink(partRoutes.PartnershipPostcodeController.onPageLoad(CheckMode))),
-            Row(Key(partnershipMessage("viewDetails.email"), halfWidth), Value(Literal(email), thirdWidth),
-              emailLink(partRoutes.PartnershipEmailController.onPageLoad(CheckMode), name)),
-            Row(Key(partnershipMessage("viewDetails.phone"), halfWidth), Value(Literal(phone), thirdWidth),
-              phoneLink(partRoutes.PartnershipPhoneController.onPageLoad(CheckMode), name))
+            Row(
+              key = Key(partnershipMessage("viewDetails.name"), halfWidth),
+              value = Value(Literal(name), thirdWidth),
+              actions = nameLink(
+                href = partRoutes.PartnershipNameController.onPageLoad(CheckMode),
+                regInfo = regInfo,
+                name = name
+              )
+            )
+          ) ++
+          Seq(
+            Row(
+              key = Key(partnershipMessage("viewDetails.address"), halfWidth),
+              value = Value(addressAnswer(address), thirdWidth),
+              actions = actions(
+                href = partRoutes.PartnershipPostcodeController.onPageLoad(CheckMode),
+                msg = msg"cya.change.address"
+              )
+            ),
+            Row(
+              key = Key(partnershipMessage("viewDetails.email"), halfWidth),
+              value = Value(Literal(email), thirdWidth),
+              actions = actions(
+                href = partRoutes.PartnershipEmailController.onPageLoad(CheckMode),
+                msg = msg"cya.change.email".withArgs(name)
+              )
+            ),
+            Row(
+              key = Key(partnershipMessage("viewDetails.phone"), halfWidth),
+              value = Value(Literal(phone), thirdWidth),
+              actions = actions(
+                href = partRoutes.PartnershipPhoneController.onPageLoad(CheckMode),
+                msg = msg"cya.change.phone".withArgs(name)
+              )
+            )
           )
       case _ => Seq.empty
     }
-
-
 }

@@ -16,9 +16,49 @@
 
 package audit
 
-case class PSPAmendment(pspId:String, email: String) extends AuditEvent {
+import play.api.libs.json.Reads._
+import play.api.libs.json._
 
-  override def auditType: String = "PSPAmendment"
-  override def details: Map[String, String] = Map("pspId" -> pspId, "emailId" -> email)
+case class PSPAmendment(
+                         pspId: String,
+                         originalSubscriptionDetails: JsValue,
+                         updatedSubscriptionDetails: JsValue
+                       ) extends AuditEvent {
+
+  override def auditType: String = "PensionSchemePractitionerAmendment"
+
+  private val original: JsObject =
+    originalSubscriptionDetails.as[JsObject] - "subscriptionType"
+
+  private val updates: JsObject =
+    updatedSubscriptionDetails.as[JsObject] - "pspId" - "subscriptionType" - "areYouUKResident"
+
+  private def amendedKeys(
+                           left: JsObject,
+                           right: JsObject
+                         ): collection.Set[String] =
+    left.keys filter {
+      key => (left \ key) != (right \ key)
+    }
+
+  private def fromToJson(
+                          json: JsObject,
+                          amendedKeys: collection.Set[String]
+                        ): JsValue =
+    Json.toJson(amendedKeys map {
+      key =>
+        Json.obj(key -> json.value(key))
+    })
+
+  private def fromToString(json: JsObject): String =
+    if (original == updates) "no changes made"
+    else s"${fromToJson(json, amendedKeys(original, updates))}"
+
+  override def details: Map[String, String] =
+    Map(
+      "pensionSchemePractitionerId" -> pspId,
+      "from" -> fromToString(original),
+      "to" -> fromToString(updates)
+    )
 }
 
