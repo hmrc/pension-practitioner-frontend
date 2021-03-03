@@ -36,9 +36,7 @@ case class PSPAmendment(
       .-("pspId")
       .-("subscriptionType")
       .-("areYouUKResident")
-
-  case object ExpandAcronymTransformerFailed extends Exception
-
+  
   private def amendedKeys(
                            left: JsObject,
                            right: JsObject
