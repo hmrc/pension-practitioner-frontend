@@ -16,7 +16,7 @@
 
 package connectors
 
-import audit.{AuditService, DeenrolmentEvent, PSPEnrolment}
+import audit.{AuditService, PSPDeenrolment, PSPEnrolment}
 import com.google.inject.{ImplementedBy, Singleton}
 import config.FrontendAppConfig
 import models.KnownFacts
@@ -45,8 +45,8 @@ trait EnrolmentConnector {
 
 @Singleton
 class EnrolmentConnectorImpl @Inject()(val http: HttpClient,
-                                           config: FrontendAppConfig,
-                                           auditService: AuditService)
+                                       config: FrontendAppConfig,
+                                       auditService: AuditService)
   extends EnrolmentConnector
     with RetryHelper
     with HttpResponseHelper {
@@ -87,8 +87,11 @@ class EnrolmentConnectorImpl @Inject()(val http: HttpClient,
   }
 
   override def deEnrol(groupId: String, pspId: String, userId: String)
-             (implicit hc: HeaderCarrier, ec: ExecutionContext, rh: RequestHeader): Future[HttpResponse] = {
-    retryOnFailure(() => deEnrolmentRequest(groupId, pspId, userId), config)
+                      (implicit hc: HeaderCarrier, ec: ExecutionContext, rh: RequestHeader): Future[HttpResponse] = {
+    retryOnFailure(
+      f = () => deEnrolmentRequest(groupId, pspId, userId),
+      config = config
+    )
   } andThen {
     logDeEnrolmentExceptions
   }
@@ -100,7 +103,7 @@ class EnrolmentConnectorImpl @Inject()(val http: HttpClient,
     val deEnrolmentUrl = config.taxDeEnrolmentUrl.format(groupId, enrolmentKey)
     http.DELETE[HttpResponse](deEnrolmentUrl) flatMap {
       case response if response.status equals NO_CONTENT =>
-        auditService.sendEvent(DeenrolmentEvent(userId, pspId))
+        auditService.sendEvent(PSPDeenrolment(userId, pspId))
         Future.successful(response)
       case response =>
         Future.failed(new HttpException(response.body, response.status))

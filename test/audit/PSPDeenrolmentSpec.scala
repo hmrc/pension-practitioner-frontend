@@ -16,19 +16,23 @@
 
 package audit
 
-case class PSPEnrolment(
-                         userId: String,
-                         pspId: String
-                       )
-  extends AuditEvent {
+import base.SpecBase
 
-  override def auditType: String =
-    "PensionSchemePractitionerEnrolment"
+class PSPDeenrolmentSpec extends SpecBase {
 
-  override def details: Map[String, String] =
-    Map(
-      "userId" -> userId,
-      "pensionSchemePractitionerId" -> pspId
-    )
+  private val userId = "user"
+  private val pspId = "psp"
+
+  "details" should {
+    "return the correct values" in {
+      val result = PSPDeenrolment(userId, pspId)
+
+      result.auditType mustBe "PensionSchemePractitionerDeEnrolment"
+
+      result.details mustBe Map(
+        "userId" -> userId,
+        "pensionSchemePractitionerId" -> pspId
+      )
+    }
+  }
 }
-

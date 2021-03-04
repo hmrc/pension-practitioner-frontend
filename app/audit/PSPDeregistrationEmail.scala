@@ -16,9 +16,10 @@
 
 package audit
 
-case class PSPDeregistrationEmail(pspId:String, email: String) extends AuditEvent {
+case class PSPDeregistrationEmail(pspId: String, email: String) extends AuditEvent {
 
   override def auditType: String = "PensionSchemePractitionerDeregistrationEmail"
+
   override def details: Map[String, String] = Map("pensionSchemePractitionerId" -> pspId,
     "emailId" -> email)
 }
