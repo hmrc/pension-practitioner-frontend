@@ -64,9 +64,6 @@ abstract class AuthenticatedAuthAction @Inject()(
         logger.debug(s"Logging auth details- externalId: $id, affinityGroup: ${affinityGroup.toJson}, " +
           s"enrolments: ${enrolments.enrolments}, credentials: ${credentials.providerType}=>${credentials.providerId}, " +
           s"credentialsRole: ${credentialRole.toJson} & request: $request")
-        logger.error(s"Logging auth details- externalId: $id, affinityGroup: ${affinityGroup.toJson}, " +
-          s"enrolments: ${enrolments.enrolments}, credentials: ${credentials.providerType}=>${credentials.providerId}, " +
-          s"credentialsRole: ${credentialRole.toJson} & request: $request")
         allowAccess(id,
           affinityGroup,
           credentialRole,
