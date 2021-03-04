@@ -57,20 +57,16 @@ abstract class AuthenticatedAuthAction @Inject()(
         Retrievals.affinityGroup and
         Retrievals.allEnrolments and
         Retrievals.credentials and
-        Retrievals.credentialRole and
-        Retrievals.groupIdentifier
+        Retrievals.credentialRole
     ) {
-      case Some(id) ~ Some(affinityGroup) ~ enrolments ~ Some(credentials) ~ Some(credentialRole) ~ Some(groupIdentifier) =>
+      case Some(id) ~ Some(affinityGroup) ~ enrolments ~ Some(credentials) ~ Some(credentialRole) =>
         logger.debug(s"Logging auth details- externalId: $id, affinityGroup: ${affinityGroup.toJson}, " +
-          s"enrolments: ${enrolments.enrolments}, credentials: ${credentials.providerType}=>${credentials.providerId}, " +
-          s"credentialsRole: ${credentialRole.toJson} & request: $request")
-        logger.error(s"Logging auth details- externalId: $id, affinityGroup: ${affinityGroup.toJson}, " +
           s"enrolments: ${enrolments.enrolments}, credentials: ${credentials.providerType}=>${credentials.providerId}, " +
           s"credentialsRole: ${credentialRole.toJson} & request: $request")
         allowAccess(id,
           affinityGroup,
           credentialRole,
-          createAuthenticatedRequest(id, request, affinityGroup, credentials.providerId, enrolments, groupIdentifier),
+          createAuthenticatedRequest(id, request, affinityGroup, credentials.providerId, enrolments),
           block
         )
       case _ =>
@@ -115,8 +111,7 @@ abstract class AuthenticatedAuthAction @Inject()(
                                              request: Request[A],
                                              affinityGroup: AffinityGroup,
                                              providerId: String,
-                                             enrolments: Enrolments,
-                                             groupIdentifier: String
+                                             enrolments: Enrolments
                                            ): AuthenticatedRequest[A] = {
     val tpssPspId = enrolments.getEnrolment("HMRC-PP-ORG")
       .flatMap(_.getIdentifier("PSPID")).map(_.value)
@@ -128,8 +123,7 @@ abstract class AuthenticatedAuthAction @Inject()(
       isExistingPSP = tpssPspId.nonEmpty,
       existingPSPId = tpssPspId,
       alreadyEnrolledPspId = podsPspId,
-      userId = providerId,
-      groupIdentifier = groupIdentifier
+      userId = providerId
     )
     AuthenticatedRequest(request, externalId, pspUser)
   }
