@@ -24,7 +24,8 @@ case class PSPUser(userType: UserType,
                    isExistingPSP: Boolean,
                    existingPSPId: Option[String],
                    alreadyEnrolledPspId: Option[String] = None,
-                   userId: String = ""
+                   userId: String = "",
+                   groupIdentifier: String = ""
                   ){
   def pspIdOrException: String = alreadyEnrolledPspId.getOrElse(throw PspIdNotFoundException)
 }

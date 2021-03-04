@@ -101,7 +101,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
                 _ <- userAnswersCacheConnector.save(updatedAnswers.data)
                 _ <- deregistrationConnector.deregister(request.user.pspIdOrException, value)
                 _ <- Future(auditService.sendEvent(PSPDeregistration(pspId)))
-                _ <- enrolmentConnector.deEnrol(request.user.userId, request.user.pspIdOrException, request.externalId)
+                _ <- enrolmentConnector.deEnrol(request.user.groupIdentifier, request.user.pspIdOrException, request.externalId)
                 _ <- sendEmail(email, pspId, pspName)
               } yield Redirect(navigator.nextPage(DeregistrationDatePage, NormalMode, updatedAnswers))
           )
