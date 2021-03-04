@@ -16,7 +16,7 @@
 
 package connectors
 
-import audit.{AuditService, PSPEnrolment, StubSuccessfulAuditService}
+import audit.{AuditService, PSPEnrolmentSuccess, StubSuccessfulAuditService}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.requests.{DataRequest, PSPUser, UserType}
 import models.{KnownFact, KnownFacts, UserAnswers}
@@ -60,7 +60,7 @@ class EnrolmentConnectorSpec extends AsyncWordSpec with MustMatchers with WireMo
         "means the enrolment was updated or created successfully" in {
 
           val knownFacts = KnownFacts(Set(KnownFact("PSPID", testPspId)), Set(KnownFact("NINO", "JJ123456P")))
-          val expectedAuditEvent = PSPEnrolment(testUserId, testPspId)
+          val expectedAuditEvent = PSPEnrolmentSuccess(testUserId, testPspId)
 
           server.stubFor(
             put(urlEqualTo(url))
