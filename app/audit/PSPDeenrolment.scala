@@ -16,13 +16,19 @@
 
 package audit
 
-case class DeenrolmentEvent(userId:String, pspId:String) extends AuditEvent {
+case class PSPDeenrolment(
+                           userId: String,
+                           pspId: String
+                         )
+  extends AuditEvent {
 
-  override def auditType: String = "PSPDeEnrolment"
+  override def auditType: String =
+    "PensionSchemePractitionerDeEnrolment"
 
   override def details: Map[String, String] =
     Map(
       "userId" -> userId,
-      "pspId" -> pspId
+      "pensionSchemePractitionerId" -> pspId
     )
 }
+
