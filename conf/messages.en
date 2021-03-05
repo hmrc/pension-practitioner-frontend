@@ -18,7 +18,6 @@ site.signOut = Sign out
 site.agree_and_submit = Agree and submit this AFT return
 site.finish = Finish
 site.finishAndSignOut = Finish and sign out
-site.continuePensionSchemes = Continue to your pension schemes
 site.return_to = Return to {0}
 site.return_to_dashboard = Return to dashboard
 site.return_to_overview = Return to overview
