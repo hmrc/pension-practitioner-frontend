@@ -54,6 +54,13 @@
 
 {% block content %}
     {% block mainContent %}{% endblock %}
+    <div class="govuk-!-margin-top-7">
+        {{ reportTechnicalIssue({
+                        serviceId: "PODS",
+                        baseUrl: config.contactHost,
+                        language: "en"
+                    }) }}
+                    </div>
 {% endblock %}
 
 {% block bodyEnd %}
