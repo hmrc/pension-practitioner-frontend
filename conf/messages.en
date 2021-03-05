@@ -28,6 +28,7 @@ site.month.capitalized = Month
 site.year.capitalized = Year
 site.date.example = For example, 31 3 2020
 site.exit = Exit to your Business Tax Account
+site.continueToPspDashboard = Continue to your practitioner overview
 
 error.title.prefix = Error:
 error.summary.title = There is a problem

@@ -36,7 +36,7 @@ class AlreadyRegisteredController @Inject()(
 
   def onPageLoad: Action[AnyContent] = Action.async { implicit request =>
     val json = Json.obj(
-      "returnToPensionSchemesUrl" -> config.returnToPspDashboardUrl,
+      "returnToPspDashboardUrl" -> config.returnToPspDashboardUrl,
       "govUkUrl" -> config.govUkUrl
     )
 
