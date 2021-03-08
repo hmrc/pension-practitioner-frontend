@@ -18,7 +18,6 @@ site.signOut = Sign out
 site.agree_and_submit = Agree and submit this AFT return
 site.finish = Finish
 site.finishAndSignOut = Finish and sign out
-site.continuePensionSchemes = Continue to your pension schemes
 site.return_to = Return to {0}
 site.return_to_dashboard = Return to dashboard
 site.return_to_overview = Return to overview
@@ -28,6 +27,7 @@ site.month.capitalized = Month
 site.year.capitalized = Year
 site.date.example = For example, 31 3 2020
 site.exit = Exit to your Business Tax Account
+site.continueToPspDashboard = Continue to your practitioner overview
 
 error.title.prefix = Error:
 error.summary.title = There is a problem
