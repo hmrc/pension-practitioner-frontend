@@ -16,19 +16,26 @@
 
 package audit
 
-case class PSPEnrolment(
-                         userId: String,
-                         pspId: String
-                       )
-  extends AuditEvent {
+case class PSPEnrolmentSuccess(userId: String, pspId: String) extends AuditEvent {
 
-  override def auditType: String =
-    "PensionSchemePractitionerEnrolment"
+  override def auditType: String = "PensionSchemePractitionerEnrolmentSuccess"
 
   override def details: Map[String, String] =
     Map(
       "userId" -> userId,
       "pensionSchemePractitionerId" -> pspId
+    )
+}
+
+case class PSPEnrolmentFailure(userId: String, pspId: String, statusCode: Int) extends AuditEvent {
+
+  override def auditType: String = "PensionSchemePractitionerEnrolmentFailure"
+
+  override def details: Map[String, String] =
+    Map(
+      "userId" -> userId,
+      "pensionSchemePractitionerId" -> pspId,
+      "errorCode" -> statusCode.toString
     )
 }
 

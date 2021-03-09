@@ -16,7 +16,7 @@
 
 package connectors
 
-import audit.{AuditService, PSPDeenrolment, PSPEnrolment}
+import audit.{AuditService, PSPDeenrolment, PSPEnrolmentFailure, PSPEnrolmentSuccess}
 import com.google.inject.{ImplementedBy, Singleton}
 import config.FrontendAppConfig
 import models.KnownFacts
@@ -57,11 +57,9 @@ class EnrolmentConnectorImpl @Inject()(val http: HttpClient,
                     (implicit w: Writes[KnownFacts],
                      hc: HeaderCarrier,
                      executionContext: ExecutionContext,
-                     request: DataRequest[AnyContent]): Future[HttpResponse] = {
-    retryOnFailure(() => enrolmentRequest(enrolmentKey, knownFacts), config)
-  } andThen {
-    logExceptions(knownFacts)
-  }
+                     request: DataRequest[AnyContent]): Future[HttpResponse] =
+    retryOnFailure(() => enrolmentRequest(enrolmentKey, knownFacts), config) andThen
+      logExceptions(knownFacts)
 
   private def enrolmentRequest(enrolmentKey: String, knownFacts: KnownFacts)
                               (implicit w: Writes[KnownFacts], hc: HeaderCarrier, executionContext: ExecutionContext,
@@ -71,9 +69,10 @@ class EnrolmentConnectorImpl @Inject()(val http: HttpClient,
       response =>
         response.status match {
           case NO_CONTENT =>
-            auditService.sendEvent(PSPEnrolment(request.externalId, enrolmentKey))
+            auditService.sendEvent(PSPEnrolmentSuccess(request.externalId, enrolmentKey))
             Future.successful(response)
-          case _ =>
+          case statusCode =>
+            auditService.sendEvent(PSPEnrolmentFailure(request.externalId, enrolmentKey, statusCode))
             if (response.body.contains("INVALID_JSON")) logger.warn(s"INVALID_JSON returned from call to $url")
             handleErrorResponse("PUT", url)(response)
         }

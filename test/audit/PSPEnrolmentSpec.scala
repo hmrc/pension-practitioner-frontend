@@ -25,9 +25,9 @@ class PSPEnrolmentSpec extends SpecBase {
 
   "details" should {
     "return the correct values" in {
-      val result = PSPEnrolment(userId, pspId)
+      val result = PSPEnrolmentSuccess(userId, pspId)
 
-      result.auditType mustBe "PensionSchemePractitionerEnrolment"
+      result.auditType mustBe "PensionSchemePractitionerEnrolmentSuccess"
 
       result.details mustBe Map(
         "userId" -> userId,
