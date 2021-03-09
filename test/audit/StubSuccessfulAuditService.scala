@@ -31,10 +31,8 @@ class StubSuccessfulAuditService extends AuditService {
     events += event
   }
 
-  def verifySent[T <: AuditEvent](event: T): Boolean = {
-    println(" \n\n >>>>>>>>>>>>>>>>>>>> events "+events)
+  def verifySent[T <: AuditEvent](event: T): Boolean =
     events.contains(event)
-  }
 
   def verifyNothingSent(): Boolean = events.isEmpty
 
