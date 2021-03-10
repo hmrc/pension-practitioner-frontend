@@ -21,41 +21,39 @@ import play.api.libs.json.{JsArray, JsValue, Json}
 
 class PSPAmendmentSpec extends SpecBase {
 
-  private val inputJson: JsValue = Json.parse(
-    """{
-      |  "email" : "abc@hmrc.gsi.gov.uk",
-      |  "contactAddress" : {
-      |    "country" : "GB",
-      |    "postcode" : "TF3 4ER",
-      |    "addressLine1" : "24 Trinity Street",
-      |    "addressLine2" : "Telford",
-      |    "addressLine3" : "Shropshire"
-      |  },
-      |  "individualDetails" : {
-      |    "firstName" : "Arthur Conan",
-      |    "lastName" : "Doyle"
-      |  },
-      |  "phone" : "0044-09876542312",
-      |  "name" : "Abc Private Ltd"
-      |}""".stripMargin)
+  private val inputJson: JsValue = Json.obj(
+    "email" -> "abc@hmrc.gsi.gov.uk",
+    "contactAddress" -> Json.obj(
+      "country" -> "GB",
+      "postcode" -> "TF3 4ER",
+      "addressLine1" -> "24 Trinity Street",
+      "addressLine2" -> "Telford",
+      "addressLine3" -> "Shropshire"
+    ),
+    "individualDetails" -> Json.obj(
+      "firstName" -> "Arthur Conan",
+      "lastName" -> "Doyle"
+    ),
+    "phone" -> "0044-09876542312",
+    "name" -> "Abc Private Ltd"
+  )
 
-  private val updateJson: JsValue = Json.parse(
-    """{
-      |  "email" : "def@hmrc.gsi.gov.uk",
-      |  "contactAddress" : {
-      |    "country" : "GB",
-      |    "postcode" : "TF3 4ER",
-      |    "addressLine1" : "123 Other Street",
-      |    "addressLine2" : "New Town",
-      |    "addressLine3" : "County"
-      |  },
-      |  "individualDetails" : {
-      |    "firstName" : "Arthur Conan",
-      |    "lastName" : "Doyle"
-      |  },
-      |  "phone" : "0044-1234567890",
-      |  "name" : "Def Private Ltd"
-      |}""".stripMargin)
+  private val updateJson: JsValue = Json.obj(
+    "email" -> "def@hmrc.gsi.gov.uk",
+    "contactAddress" -> Json.obj(
+      "country" -> "GB",
+      "postcode" -> "TF3 4ER",
+      "addressLine1" -> "123 Other Street",
+      "addressLine2" -> "New Town",
+      "addressLine3" -> "County"
+    ),
+    "individualDetails" -> Json.obj(
+      "firstName" -> "Arthur Conan",
+      "lastName" -> "Doyle"
+    ),
+    "phone" -> "0044-1234567890",
+    "name" -> "Def Private Ltd"
+  )
 
   private val amendment: PSPAmendment = PSPAmendment(
     pspId = "pspId",
@@ -73,10 +71,10 @@ class PSPAmendmentSpec extends SpecBase {
     "detail from and to values when updates have been made" in {
 
       amendment.auditType mustBe "PensionSchemePractitionerAmendment"
-      amendment.details("pensionSchemePractitionerId") mustBe "pspId"
+      amendment.details("pensionSchemePractitionerId").as[String] mustBe "pspId"
 
-      val fromJson: JsArray = Json.parse(amendment.details("from")).as[JsArray]
-      val toJson: JsArray = Json.parse(amendment.details("to")).as[JsArray]
+      val fromJson: JsArray = amendment.details("from").as[JsArray]
+      val toJson: JsArray = amendment.details("to").as[JsArray]
 
       (fromJson.head \ "name").as[String] mustBe "Abc Private Ltd"
       (fromJson.value(1) \ "email").as[String] mustBe "abc@hmrc.gsi.gov.uk"
@@ -91,10 +89,10 @@ class PSPAmendmentSpec extends SpecBase {
 
     "audit \"no changes made\" when no updates are made" in {
       amendmentNoChange.auditType mustBe "PensionSchemePractitionerAmendment"
-      amendmentNoChange.details("pensionSchemePractitionerId") mustBe "pspId"
+      amendmentNoChange.details("pensionSchemePractitionerId").as[String] mustBe "pspId"
 
-      amendmentNoChange.details("from") mustBe "no changes made"
-      amendmentNoChange.details("to") mustBe "no changes made"
+      amendmentNoChange.details("from").as[JsArray] mustBe JsArray.empty
+      amendmentNoChange.details("to").as[JsArray] mustBe JsArray.empty
     }
   }
 }

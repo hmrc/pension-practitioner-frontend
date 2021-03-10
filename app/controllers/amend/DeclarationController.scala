@@ -88,7 +88,7 @@ class DeclarationController @Inject()(
                      implicit request: DataRequest[_]
                    ): Future[Unit] =
 
-    Future.successful(auditService.sendEvent(
+    Future.successful(auditService.sendExtendedEvent(
       PSPAmendment(
         pspId = pspId,
         originalSubscriptionDetails = originalSubscriptionDetails,

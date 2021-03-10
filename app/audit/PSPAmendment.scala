@@ -23,7 +23,7 @@ case class PSPAmendment(
                          pspId: String,
                          originalSubscriptionDetails: JsValue,
                          updatedSubscriptionDetails: JsValue
-                       ) extends AuditEvent {
+                       ) extends ExtendedAuditEvent {
 
   override def auditType: String = "PensionSchemePractitionerAmendment"
 
@@ -50,15 +50,16 @@ case class PSPAmendment(
         Json.obj(key -> json.value(key))
     })
 
-  private def fromToString(json: JsObject): String =
-    if (original == updates) "no changes made"
-    else s"${fromToJson(json, amendedKeys(original, updates))}"
+//  private def fromToString(json: JsObject): String =
+//    if (original == updates) "no changes made"
+//    else s"${fromToJson(json, amendedKeys(original, updates))}"
 
-  override def details: Map[String, String] =
-    Map(
+  override def details: JsObject = Json.obj(
       "pensionSchemePractitionerId" -> pspId,
-      "from" -> fromToString(original),
-      "to" -> fromToString(updates)
+      "from" -> fromToJson(original, amendedKeys(original, updates)),
+      "to" -> fromToJson(updates, amendedKeys(original, updates))
     )
+
+  println(s"\n\n\n\ndetails${Json.prettyPrint(details)}\n\n\n\n")
 }
 
