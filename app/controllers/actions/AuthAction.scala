@@ -116,7 +116,7 @@ abstract class AuthenticatedAuthAction @Inject()(
                                              groupIdentifier: String
                                            ): AuthenticatedRequest[A] = {
     val tpssPspId = enrolments.getEnrolment("HMRC-PP-ORG")
-      .flatMap(_.getIdentifier("PSPID")).map(_.value)
+      .flatMap(_.getIdentifier("PPID")).map(_.value)
     val podsPspId = enrolments.getEnrolment("HMRC-PODSPP-ORG")
       .flatMap(_.getIdentifier("PSPID").map(_.value))
     val pspUser = PSPUser(
