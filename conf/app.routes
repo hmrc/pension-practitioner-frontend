@@ -7,7 +7,9 @@
 ->          /register/partnership                           partnership.Routes
 ->          /remove-psp                                     deregister.Routes
 
-GET         /                                               controllers.IndexController.onPageLoad
+GET         /index                                          controllers.IndexController.onPageLoad
+
+GET         /                                               controllers.LoginController.onPageLoad()
 
 GET         /sign-out                                       controllers.SignOutController.signOut()
 
