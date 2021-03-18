@@ -46,6 +46,7 @@ class Renderer @Inject()(appConfig: FrontendAppConfig, renderer: NunjucksRendere
     "timeout"                         -> appConfig.timeoutSeconds,
     "countdown"                       -> appConfig.CountdownInSeconds,
     "gtmContainerId"                  -> appConfig.gtmContainerId,
-    "trackingSnippetUrl"              -> appConfig.trackingSnippetUrl
+    "trackingSnippetUrl"              -> appConfig.trackingSnippetUrl,
+    "contactHost"                     -> appConfig.contactHost
   )
 }
