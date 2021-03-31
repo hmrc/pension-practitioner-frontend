@@ -32,15 +32,15 @@ import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import scala.concurrent.ExecutionContext
 
 class BusinessDetailsNotFoundController @Inject()(
-    override val messagesApi: MessagesApi,
-    @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
-    getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  navigator: CompoundNavigator,
-  config: FrontendAppConfig,
-    val controllerComponents: MessagesControllerComponents,
-    renderer: Renderer
-)(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                                   override val messagesApi: MessagesApi,
+                                                   @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
+                                                   getData: DataRetrievalAction,
+                                                   requireData: DataRequiredAction,
+                                                   navigator: CompoundNavigator,
+                                                   config: FrontendAppConfig,
+                                                   val controllerComponents: MessagesControllerComponents,
+                                                   renderer: Renderer
+                                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>

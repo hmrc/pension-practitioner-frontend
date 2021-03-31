@@ -22,7 +22,6 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import forms.ConfirmAddressFormProvider
-import javax.inject.Inject
 import models.register.RegistrationLegalStatus.LimitedCompany
 import models.register.{BusinessType, Organisation}
 import models.requests.DataRequest
@@ -40,68 +39,81 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
 import utils.countryOptions.CountryOptions
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
-                                         userAnswersCacheConnector: UserAnswersCacheConnector,
-                                         navigator: CompoundNavigator,
-                                         authenticate: AuthAction,
-                                         getData: DataRetrievalAction,
-                                         registrationConnector: RegistrationConnector,
-                                         requireData: DataRequiredAction,
-                                         formProvider: ConfirmAddressFormProvider,
-                                         val controllerComponents: MessagesControllerComponents,
-                                         countryOptions: CountryOptions,
-                                         config: FrontendAppConfig,
-                                         renderer: Renderer
-                                        )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
+class ConfirmAddressController @Inject()(
+                                          override val messagesApi: MessagesApi,
+                                          userAnswersCacheConnector: UserAnswersCacheConnector,
+                                          navigator: CompoundNavigator,
+                                          authenticate: AuthAction,
+                                          getData: DataRetrievalAction,
+                                          registrationConnector: RegistrationConnector,
+                                          requireData: DataRequiredAction,
+                                          formProvider: ConfirmAddressFormProvider,
+                                          val controllerComponents: MessagesControllerComponents,
+                                          countryOptions: CountryOptions,
+                                          config: FrontendAppConfig,
+                                          renderer: Renderer
+                                        )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
+    with I18nSupport
+    with NunjucksSupport
+    with Retrievals {
 
   private val form = formProvider()
 
-  private def retrieveDataForRegistration(block: (String, String, BusinessType) => Future[Result])(implicit
-                                                                                                   request: DataRequest[AnyContent]): Future[Result] = {
-    (request.userAnswers.get(BusinessNamePage),
+  private def retrieveDataForRegistration(block: (String, String, BusinessType) => Future[Result])
+                                         (implicit request: DataRequest[AnyContent]): Future[Result] =
+    (
+      request.userAnswers.get(BusinessNamePage),
       request.userAnswers.get(BusinessUTRPage),
-      request.userAnswers.get(BusinessTypePage)) match {
+      request.userAnswers.get(BusinessTypePage)
+    ) match {
       case (Some(pspName), Some(utr), Some(businessType)) =>
         block(pspName, utr, businessType)
-      case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+      case _ =>
+        Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
     }
-  }
 
   private def formattedAddress(tolerantAddress: TolerantAddress) =
     Json.toJson(tolerantAddress.lines(countryOptions))
 
-  def onPageLoad(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
-    implicit request =>
-      retrieveDataForRegistration { (pspName, utr, businessType) =>
-        val organisation = Organisation(pspName, businessType)
-        registrationConnector.registerWithIdOrganisation(utr, organisation, LimitedCompany).flatMap { reg =>
+  def onPageLoad(): Action[AnyContent] =
+    (authenticate andThen getData andThen requireData).async {
+      implicit request =>
+        retrieveDataForRegistration { (pspName, utr, businessType) =>
+          val organisation = Organisation(pspName, businessType)
+          registrationConnector.registerWithIdOrganisation(
+            utr = utr,
+            organisation = organisation,
+            legalStatus = LimitedCompany
+          ) flatMap { reg =>
 
-          val ua = request.userAnswers
-            .setOrException(ConfirmAddressPage, reg.response.address)
-            .setOrException(BusinessNamePage, reg.response.organisation.organisationName)
-            .setOrException(RegistrationInfoPage, reg.info)
+            val ua = request.userAnswers
+              .setOrException(ConfirmAddressPage, reg.response.address)
+              .setOrException(BusinessNamePage, reg.response.organisation.organisationName)
+              .setOrException(RegistrationInfoPage, reg.info)
 
-          userAnswersCacheConnector.save(ua.data).flatMap { _ =>
-            val json = Json.obj(
-              "form" -> form,
-              "entityName" -> "company",
-              "pspName" -> pspName,
-              "address" -> formattedAddress(reg.response.address),
-              "submitUrl" -> routes.ConfirmAddressController.onSubmit().url,
-              "radios" -> Radios.yesNo(form("value")))
+            userAnswersCacheConnector.save(ua.data).flatMap { _ =>
+              val json = Json.obj(
+                "form" -> form,
+                "entityName" -> "company",
+                "pspName" -> pspName,
+                "address" -> formattedAddress(reg.response.address),
+                "submitUrl" -> routes.ConfirmAddressController.onSubmit().url,
+                "radios" -> Radios.yesNo(form("value")))
 
-            renderer.render("confirmAddress.njk", json).map(Ok(_))
+              renderer.render("confirmAddress.njk", json).map(Ok(_))
+            }
+          } recoverWith {
+            case _: NotFoundException =>
+              Future.successful(Redirect(controllers.register.routes.BusinessDetailsNotFoundController.onPageLoad()))
           }
-        } recoverWith {
-          case _: NotFoundException =>
-            Future.successful(Redirect(controllers.register.routes.BusinessDetailsNotFoundController.onPageLoad()))
+
+
         }
-
-
-      }
-  }
+    }
 
   def onSubmit(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
@@ -124,7 +136,6 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
 
               case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
             }
-
           },
           {
             case true =>

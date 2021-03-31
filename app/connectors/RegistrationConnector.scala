@@ -21,11 +21,12 @@ import config.FrontendAppConfig
 import models.register._
 import models.{register, _}
 import play.api.Logger
-import play.api.http.Status
+import play.api.http.Status._
 import play.api.libs.json._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, NotFoundException}
+import utils.HttpResponseHelper
 
 import javax.inject.Singleton
 import scala.concurrent.{ExecutionContext, Future}
@@ -47,17 +48,25 @@ trait RegistrationConnector {
 }
 
 @Singleton
-class RegistrationConnectorImpl @Inject()(http: HttpClient,
-                                          config: FrontendAppConfig
-                                         ) extends RegistrationConnector {
+class RegistrationConnectorImpl @Inject()(
+                                           http: HttpClient,
+                                           config: FrontendAppConfig
+                                         )
+  extends RegistrationConnector
+    with HttpResponseHelper {
 
   private val logger = Logger(classOf[RegistrationConnectorImpl])
 
   private val readsSapNumber: Reads[String] = (JsPath \ "sapNumber").read[String]
 
-  override def registerWithIdOrganisation
-  (utr: String, organisation: Organisation, legalStatus: RegistrationLegalStatus)
-  (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[OrganisationRegistration] = {
+  override def registerWithIdOrganisation(
+                                           utr: String,
+                                           organisation: Organisation,
+                                           legalStatus: RegistrationLegalStatus
+                                         )(
+                                           implicit hc: HeaderCarrier,
+                                           ec: ExecutionContext
+                                         ): Future[OrganisationRegistration] = {
 
     val url = config.registerWithIdOrganisationUrl
     val extraHeaders = hc.withExtraHeaders("utr" -> utr)
@@ -66,22 +75,36 @@ class RegistrationConnectorImpl @Inject()(http: HttpClient,
       "organisationType" -> organisation.organisationType.toString
     )
 
-    http.POST[JsObject, HttpResponse](url, body)(implicitly, implicitly, extraHeaders, implicitly) map { response =>
-      require(response.status == Status.OK, "The only valid response to registerWithIdOrganisation is 200 OK")
+    http.POST[JsObject, HttpResponse](
+      url = url,
+      body = body
+    )(
+      wts = implicitly,
+      rds = implicitly,
+      hc = extraHeaders,
+      ec = implicitly
+    ) map { response =>
 
-      val json = Json.parse(response.body)
+      response.status match {
+        case OK =>
+          val json = Json.parse(response.body)
 
-      json.validate[OrganisationRegisterWithIdResponse] match {
-        case JsSuccess(value, _) =>
-          val info = registrationInfo(
-            json,
-            legalStatus,
-            RegistrationCustomerType.fromAddress(value.address),
-            Some(RegistrationIdType.UTR), Some(utr),
-            noIdentifier = false)
-          OrganisationRegistration(value, info
-          )
-        case JsError(errors) => throw JsResultException(errors)
+          json.validate[OrganisationRegisterWithIdResponse] match {
+            case JsSuccess(value, _) =>
+              OrganisationRegistration(
+                response = value,
+                info = registrationInfo(
+                  json = json,
+                  legalStatus = legalStatus,
+                  customerType = RegistrationCustomerType.fromAddress(value.address),
+                  idType = Some(RegistrationIdType.UTR), idNumber = Some(utr),
+                  noIdentifier = false
+                )
+              )
+            case JsError(errors) => throw JsResultException(errors)
+          }
+        case _ =>
+          handleErrorResponse("POST", url)(response)
       }
     } andThen {
       case Failure(ex: NotFoundException) =>
@@ -102,7 +125,7 @@ class RegistrationConnectorImpl @Inject()(http: HttpClient,
     val postCall = http.POST[JsObject, HttpResponse](url, Json.obj())(implicitly, implicitly, extraHeaders, implicitly)
 
     postCall map { response =>
-      require(response.status == Status.OK, "The only valid response to registerWithIdIndividual is 200 OK")
+      require(response.status == OK, "The only valid response to registerWithIdIndividual is 200 OK")
 
       val json = Json.parse(response.body)
 
@@ -136,7 +159,7 @@ class RegistrationConnectorImpl @Inject()(http: HttpClient,
     val organisationRegistrant = OrganisationRegistrant(OrganisationName(name), address)
 
     http.POST[JsValue, HttpResponse](config.registerWithNoIdOrganisationUrl, Json.toJson(organisationRegistrant)) map { response =>
-      require(response.status == Status.OK, "The only valid response to registerWithNoIdOrganisation is 200 OK")
+      require(response.status == OK, "The only valid response to registerWithNoIdOrganisation is 200 OK")
       val jsValue = Json.parse(response.body)
 
       registrationInfo(
@@ -160,7 +183,7 @@ class RegistrationConnectorImpl @Inject()(http: HttpClient,
     val registrant = RegistrationNoIdIndividualRequest(firstName, lastName, address)
 
     http.POST[JsValue, HttpResponse](config.registerWithNoIdIndividualUrl, Json.toJson(registrant)) map { response =>
-      require(response.status == Status.OK, "The only valid response to registerWithNoIdIndividual is 200 OK")
+      require(response.status == OK, "The only valid response to registerWithNoIdIndividual is 200 OK")
       val jsValue = Json.parse(response.body)
 
       registrationInfo(
