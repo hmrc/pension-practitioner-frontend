@@ -18,16 +18,20 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models._
-import models.register.{RegistrationNoIdIndividualRequest, TolerantIndividual, RegistrationInfo, _}
+import models.register.{RegistrationInfo, RegistrationNoIdIndividualRequest, TolerantIndividual, _}
 import org.scalatest._
 import play.api.Application
 import play.api.http.Status
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.{Json, JsResultException}
+import play.api.libs.json.{JsResultException, Json}
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 
-class RegistrationConnectorSpec extends AsyncWordSpec with MustMatchers with OptionValues with WireMockHelper {
+class RegistrationConnectorSpec
+  extends AsyncWordSpec
+    with MustMatchers
+    with OptionValues
+    with WireMockHelper {
 
   import RegistrationConnectorSpec._
 
@@ -113,25 +117,6 @@ class RegistrationConnectorSpec extends AsyncWordSpec with MustMatchers with Opt
 
     }
 
-    "only accept responses with status 200 OK" in {
-
-      server.stubFor(
-        post(urlEqualTo(organisationPath))
-          .willReturn(
-            aResponse()
-              .withStatus(Status.ACCEPTED)
-              .withHeader("Content-Type", "application/json")
-              .withBody(Json.stringify(validOrganizationResponse(true)))
-          )
-      )
-
-      val connector = injector.instanceOf[RegistrationConnector]
-      recoverToSucceededIf[IllegalArgumentException] {
-        connector.registerWithIdOrganisation(utr, organisation, legalStatus)
-      }
-
-    }
-
     "propagate exceptions from HttpClient" in {
 
       server.stubFor(
@@ -143,7 +128,7 @@ class RegistrationConnectorSpec extends AsyncWordSpec with MustMatchers with Opt
       )
 
       val connector = injector.instanceOf[RegistrationConnector]
-      recoverToSucceededIf[IllegalArgumentException] {
+      recoverToSucceededIf[NotFoundException] {
         connector.registerWithIdOrganisation(utr, organisation, legalStatus)
       }
 
