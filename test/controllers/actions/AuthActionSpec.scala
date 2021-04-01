@@ -17,15 +17,16 @@
 package controllers.actions
 
 import base.SpecBase
-import connectors.{MinimalConnector, IdentityVerificationConnector}
 import connectors.cache.UserAnswersCacheConnector
-import models.MinimalPSP
+import connectors.{IdentityVerificationConnector, MinimalConnector, SessionDataCacheConnector}
 import models.WhatTypeBusiness.{Companyorpartnership, Yourselfasindividual}
+import models.{AdministratorOrPractitioner, MinimalPSP, UserAnswers}
 import org.mockito.Matchers.any
-import org.mockito.{Mockito, Matchers}
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.{reset, times, verify, when}
+import org.mockito.{Matchers, Mockito}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
+import pages.AdministratorOrPractitionerPage
 import play.api.libs.json.Json
 import play.api.mvc.Results.Ok
 import play.api.mvc._
@@ -46,7 +47,43 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
     Mockito.reset(mockUserAnswersCacheConnector, authConnector, mockIVConnector, mockMinimalConnector)
     when(mockMinimalConnector.getMinimalPspDetails(any())(any(),any())).thenReturn(Future(minimalPspDeceased()))
   }
+  "the user has enrolled in PODS as both a PSA AND a PSP" must {
+    "have access to PSP page when he has chosen to act as a PSP" in {
+      val optionUAJson = UserAnswers()
+        .set(AdministratorOrPractitionerPage,AdministratorOrPractitioner.Practitioner)
+        .toOption.map(_.data)
 
+      when(mockSessionDataCacheConnector.fetch(any())(any(), any())).thenReturn(Future.successful(optionUAJson))
+
+      when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = bothEnrolments))
+      when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
+      val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
+      status(result) mustBe OK
+    }
+
+    "redirect to cannot access as administrator when trying to access PSP page when chosen to act as a PSA" in {
+      val optionUAJson = UserAnswers()
+        .set(AdministratorOrPractitionerPage,AdministratorOrPractitioner.Administrator)
+        .toOption.map(_.data)
+      when(mockSessionDataCacheConnector.fetch(any())(any(), any())).thenReturn(Future.successful(optionUAJson))
+
+      when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = bothEnrolments))
+      when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
+      val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(frontendAppConfig.cannotAccessPageAsAdministratorUrl(frontendAppConfig.localFriendlyUrl(fakeRequest.uri)))
+    }
+    "redirect to administrator or practitioner page when trying to access PSA page when not chosen a role" in {
+      val optionUAJson = Some(Json.obj())
+      when(mockSessionDataCacheConnector.fetch(any())(any(), any())).thenReturn(Future.successful(optionUAJson))
+
+      when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = bothEnrolments))
+      when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
+      val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(frontendAppConfig.administratorOrPractitionerUrl)
+    }
+  }
   "Auth Action AuthenticatedAuthActionMustHaveEnrolment" when {
     "called for already enrolled User" must {
       "return OK" when {
@@ -311,12 +348,32 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 
 }
 
-object AuthActionSpec extends SpecBase with MockitoSugar {
+object AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
   private val pspId = "00000000"
   private val email = "a@a.c"
   private val nino = uk.gov.hmrc.domain.Nino("AB100100A")
   type authRetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~Option[CredentialRole] ~Option[String]
+  override def beforeEach(): Unit = {
+    reset(mockSessionDataCacheConnector)
+    super.beforeEach()
+  }
+  private val mockSessionDataCacheConnector = mock[SessionDataCacheConnector]
 
+  private val enrolmentPSP = Enrolment(
+    key = "HMRC-PODSPP-ORG",
+    identifiers = Seq(EnrolmentIdentifier(key = "PSPID", value = "20000000")),
+    state = "",
+    delegatedAuthRule = None
+  )
+
+  private  val enrolmentPSA = Enrolment(
+    key = "HMRC-PODS-ORG",
+    identifiers = Seq(EnrolmentIdentifier(key = "PSAID", value = "A0000000")),
+    state = "",
+    delegatedAuthRule = None
+  )
+
+  private val bothEnrolments = Enrolments(Set(enrolmentPSA, enrolmentPSP))
   private val enrolmentPODS = Enrolments(Set(Enrolment("HMRC-PODSPP-ORG", Seq(EnrolmentIdentifier("PSPID", pspId)), "")))
   private val startIVLink = "/start-iv-link"
 
