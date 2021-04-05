@@ -230,7 +230,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
           val userAnswersData = Json.obj("areYouInUK" -> true, "registerAsBusiness" -> false)
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          val authAction = new AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV(authConnector, frontendAppConfig, mockMinimalConnector, bodyParsers)
+          val authAction = new AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV(authConnector, frontendAppConfig, mockMinimalConnector, bodyParsers,mockSessionDataCacheConnector)
 
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(fakeRequest)
@@ -413,12 +413,12 @@ object AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach
   private val bodyParsers: BodyParsers.Default = app.injector.instanceOf[BodyParsers.Default]
 
   val authActionWithIVEnrolment = new AuthenticatedAuthActionMustHaveEnrolment(
-    authConnector, frontendAppConfig, mockMinimalConnector, bodyParsers
+    authConnector, frontendAppConfig, mockMinimalConnector, bodyParsers, mockSessionDataCacheConnector
   )
 
   val authActionWithIVNoEnrolment = new AuthenticatedAuthActionMustHaveNoEnrolmentWithIV(
     authConnector, frontendAppConfig,
-    mockUserAnswersCacheConnector, mockIVConnector, mockMinimalConnector, bodyParsers
+    mockUserAnswersCacheConnector, mockIVConnector, mockMinimalConnector, bodyParsers, mockSessionDataCacheConnector
   )
 
   val controllerWithIVEnrolment = new Harness(authActionWithIVEnrolment)

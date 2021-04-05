@@ -50,9 +50,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val pspUrl: String = servicesConfig.baseUrl("pension-practitioner")
   lazy val pensionAdministratorUrl: String = servicesConfig.baseUrl ("pension-administrator")
 
-  lazy val administratorOrPractitionerUrl: String = loadConfig("urls.manage-pensions-frontend.administratorOrPractitioner")
+  lazy val administratorOrPractitionerUrl: String = loadConfig("urls.administratorOrPractitioner")
   def cannotAccessPageAsAdministratorUrl(continueUrl:String): String =
-    loadConfig("urls.manage-pensions-frontend.cannotAccessPageAsAdministrator").format(continueUrl)
+    loadConfig("urls.cannotAccessPageAsAdministrator").format(continueUrl)
 
   lazy val timeoutSeconds: String = configuration.get[String]("session.timeoutSeconds")
   lazy val CountdownInSeconds: String = configuration.get[String]("session.CountdownInSeconds")
