@@ -24,9 +24,7 @@ import javax.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.{AuthorisedFunctions, MissingBearerToken, AuthConnector}
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-
 import scala.concurrent.{ExecutionContext, Future}
 
 class SignOutController @Inject()(
@@ -41,7 +39,7 @@ class SignOutController @Inject()(
 
   def signOut(): Action[AnyContent] = Action.async {
     implicit request =>
-      authorised().retrieve(Retrievals.externalId) {
+      authorised().retrieve(uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.externalId) {
         case Some(id) =>
           sessionDataCacheConnector.removeAll(id).flatMap { _ =>
             userAnswersCacheConnector.removeAll.map { _ =>
