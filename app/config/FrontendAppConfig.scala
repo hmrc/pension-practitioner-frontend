@@ -31,6 +31,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   private def getConfigString(key: String) = servicesConfig.getConfString(key, throw new Exception(s"Could not find config '$key'"))
 
+  def localFriendlyUrl(uri:String):String = loadConfig("host") + uri
+
   lazy val contactHost: String = servicesConfig.baseUrl("contact-frontend")
   lazy val addressLookUp = s"${servicesConfig.baseUrl("address-lookup")}"
 
@@ -46,6 +48,11 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val authUrl: String = configuration.get[Service]("auth").baseUrl
   lazy val signOutUrl: String = loadConfig("urls.logout")
   lazy val pspUrl: String = servicesConfig.baseUrl("pension-practitioner")
+  lazy val pensionAdministratorUrl: String = servicesConfig.baseUrl ("pension-administrator")
+
+  lazy val administratorOrPractitionerUrl: String = loadConfig("urls.administratorOrPractitioner")
+  def cannotAccessPageAsAdministratorUrl(continueUrl:String): String =
+    loadConfig("urls.cannotAccessPageAsAdministrator").format(continueUrl)
 
   lazy val timeoutSeconds: String = configuration.get[String]("session.timeoutSeconds")
   lazy val CountdownInSeconds: String = configuration.get[String]("session.CountdownInSeconds")

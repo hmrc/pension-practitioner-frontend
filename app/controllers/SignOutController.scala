@@ -17,32 +17,40 @@
 package controllers
 
 import config.FrontendAppConfig
+import connectors.SessionDataCacheConnector
 import connectors.cache.UserAnswersCacheConnector
-import controllers.actions.AuthAction
-import controllers.actions.DataRetrievalAction
+
 import javax.inject.Inject
 import play.api.i18n.I18nSupport
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.auth.core.{AuthorisedFunctions, MissingBearerToken, AuthConnector}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class SignOutController @Inject()(
+    override val authConnector: AuthConnector,
     config: FrontendAppConfig,
-    authenticate: AuthAction,
-    getData: DataRetrievalAction,
     val controllerComponents: MessagesControllerComponents,
-    userAnswersCacheConnector: UserAnswersCacheConnector
+    userAnswersCacheConnector: UserAnswersCacheConnector,
+    sessionDataCacheConnector: SessionDataCacheConnector
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport with AuthorisedFunctions {
 
-  def signOut(): Action[AnyContent] = authenticate.async {
+  def signOut(): Action[AnyContent] = Action.async {
     implicit request =>
-      userAnswersCacheConnector.removeAll.map { _ =>
-        Redirect(config.signOutUrl).withNewSession
+      authorised().retrieve(uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.externalId) {
+        case Some(id) =>
+          sessionDataCacheConnector.removeAll(id).flatMap { _ =>
+            userAnswersCacheConnector.removeAll.map { _ =>
+              Redirect(config.signOutUrl).withNewSession
+            }
+          }
+        case _ =>
+          Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
+      } recover {
+        case _: MissingBearerToken =>
+          Redirect(config.signOutUrl).withNewSession
       }
   }
 }
