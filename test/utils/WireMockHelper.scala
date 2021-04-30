@@ -31,6 +31,8 @@ trait WireMockHelper extends BeforeAndAfterAll with BeforeAndAfterEach {
 
   protected def portConfigKey: String
 
+  protected def bindings: Seq[GuiceableModule] = Seq.empty[GuiceableModule]
+
   protected lazy val app: Application =
     new GuiceApplicationBuilder()
       .configure(
@@ -39,10 +41,12 @@ trait WireMockHelper extends BeforeAndAfterAll with BeforeAndAfterEach {
         "metrics.enabled" -> false,
         "metrics.jvm" -> false
       )
-      .overrides(bind[Metrics].toInstance(new TestMetrics))
+      .overrides(
+        bindings ++ Seq[GuiceableModule](
+          bind[Metrics].toInstance(new TestMetrics)
+        ): _*
+      )
       .build()
-
-  protected def bindings: Seq[GuiceableModule] = Seq.empty[GuiceableModule]
 
   protected lazy val injector: Injector = app.injector
 
