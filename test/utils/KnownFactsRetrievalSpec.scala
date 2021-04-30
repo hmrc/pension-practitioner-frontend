@@ -35,7 +35,7 @@ class KnownFactsRetrievalSpec extends SpecBase {
   private val sapNumber = "test-sap-number"
   private val nonUk = "test-non-uk"
 
-  private lazy val generator = app.injector.instanceOf[KnownFactsRetrieval]
+  private lazy val generator = injector.instanceOf[KnownFactsRetrieval]
 
   "retrieve" must {
 

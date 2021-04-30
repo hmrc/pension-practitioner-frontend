@@ -19,14 +19,14 @@ package connectors.cache
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import play.api.http.Status._
-import play.api.libs.json.{Json, JsValue}
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSClient
 import play.api.mvc.Result
 import play.api.mvc.Results._
 import uk.gov.hmrc.crypto.PlainText
-import uk.gov.hmrc.http.{HttpException, HeaderCarrier}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpException}
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
 class UserAnswersCacheConnectorImpl @Inject()(
                                                config: FrontendAppConfig,
@@ -39,7 +39,7 @@ class UserAnswersCacheConnectorImpl @Inject()(
                               hc: HeaderCarrier): Future[Option[JsValue]] = {
     http
       .url(url)
-      .withHttpHeaders(hc.headers: _*)
+      .withHttpHeaders(CacheConnector.headers(hc): _*)
       .get()
       .flatMap { response =>
         response.status match {
@@ -57,7 +57,7 @@ class UserAnswersCacheConnectorImpl @Inject()(
           (implicit ec: ExecutionContext, hc: HeaderCarrier): Future[JsValue] = {
     http
       .url(url)
-      .withHttpHeaders(hc.withExtraHeaders(("content-type", "application/json")).headers: _*)
+      .withHttpHeaders(CacheConnector.headers(hc): _*)
       .post(PlainText(Json.stringify(value)).value)
       .flatMap { response =>
         response.status match {
@@ -72,7 +72,7 @@ class UserAnswersCacheConnectorImpl @Inject()(
   override def removeAll(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     http
       .url(url)
-      .withHttpHeaders(hc.headers: _*)
+      .withHttpHeaders(CacheConnector.headers(hc): _*)
       .delete()
       .map(_ => Ok)
   }

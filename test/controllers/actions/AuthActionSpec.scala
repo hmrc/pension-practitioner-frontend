@@ -406,11 +406,12 @@ object AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach
         Ok(Json.obj("userId" -> request.user.userId))
     }
   }
+
   private val mockMinimalConnector: MinimalConnector = mock[MinimalConnector]
   private val mockUserAnswersCacheConnector: UserAnswersCacheConnector = mock[UserAnswersCacheConnector]
   private val mockIVConnector: IdentityVerificationConnector = mock[IdentityVerificationConnector]
   private val authConnector: AuthConnector = mock[AuthConnector]
-  private val bodyParsers: BodyParsers.Default = app.injector.instanceOf[BodyParsers.Default]
+  private val bodyParsers: BodyParsers.Default = fakeApplication().injector.instanceOf[BodyParsers.Default]
 
   val authActionWithIVEnrolment = new AuthenticatedAuthActionMustHaveEnrolment(
     authConnector, frontendAppConfig, mockMinimalConnector, bodyParsers, mockSessionDataCacheConnector

@@ -17,17 +17,19 @@
 package connectors
 
 import java.time.LocalDate
-
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.WireMockHelper
 import org.scalatest._
 import play.api.http.Status
 import play.api.http.Status.OK
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import uk.gov.hmrc.http._
+import utils.WireMockHelper
 
-class DeregistrationConnectorSpec extends AsyncWordSpec with MustMatchers with WireMockHelper {
+class DeregistrationConnectorSpec
+  extends AsyncWordSpec
+    with MustMatchers
+    with WireMockHelper {
 
   private implicit lazy val hc: HeaderCarrier = HeaderCarrier()
 
