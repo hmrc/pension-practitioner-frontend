@@ -22,11 +22,13 @@
           rows: list
         }) }}
 
-        {{ govukButton({
-            text: messages("site.save_and_continue"),
-            href: nextPage,
-            attributes: {id: "submit"}
-          }) }}
+        {% if displayContinueButton %}
+            {{ govukButton({
+                text: messages("site.save_and_continue"),
+                href: nextPage,
+                attributes: {id: "submit"}
+              }) }}
+        {% endif %}
 
         {% if returnUrl %}
             <p class="govuk-body">
