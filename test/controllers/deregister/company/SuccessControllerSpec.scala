@@ -35,8 +35,13 @@ import uk.gov.hmrc.viewmodels.NunjucksSupport
 
 import scala.concurrent.Future
 
-class SuccessControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
-  with JsonMatchers with OptionValues with TryValues {
+class SuccessControllerSpec
+  extends ControllerSpecBase
+    with MockitoSugar
+    with NunjucksSupport
+    with JsonMatchers
+    with OptionValues
+    with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val pspName: String = "Psp name"
@@ -47,6 +52,7 @@ class SuccessControllerSpec extends ControllerSpecBase with MockitoSugar with Nu
   val userAnswers: UserAnswers = UserAnswers().setOrException(PspNamePage, pspName)
 
   private def onPageLoadUrl: String = routes.SuccessController.onPageLoad().url
+
   private def submitUrl: String = controllers.routes.SignOutController.signOut().url
 
   private val jsonToPassToTemplate: JsObject =

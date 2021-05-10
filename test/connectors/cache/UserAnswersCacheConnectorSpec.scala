@@ -17,14 +17,19 @@
 package connectors.cache
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.WireMockHelper
 import org.scalatest._
 import play.api.http.Status
 import play.api.libs.json.Json
 import play.api.mvc.Results._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpException}
+import utils.WireMockHelper
 
-class UserAnswersCacheConnectorSpec extends AsyncWordSpec with MustMatchers with WireMockHelper with OptionValues with RecoverMethods {
+class UserAnswersCacheConnectorSpec
+  extends AsyncWordSpec
+    with MustMatchers
+    with WireMockHelper
+    with OptionValues
+    with RecoverMethods {
 
   private implicit lazy val hc: HeaderCarrier = HeaderCarrier()
 

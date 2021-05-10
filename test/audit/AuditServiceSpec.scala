@@ -16,13 +16,15 @@
 
 package audit
 
+import com.kenshoo.play.metrics.Metrics
 import config.FrontendAppConfig
 import models.requests.UserType
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{times, when, verify}
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatest._
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
@@ -30,6 +32,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 import uk.gov.hmrc.play.audit.model.DataEvent
+import utils.TestMetrics
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -37,9 +40,15 @@ import scala.concurrent.Future
 class AuditServiceSpec extends WordSpec with MustMatchers with MockitoSugar with Inside {
 
   private val mockAuditConnector = mock[AuditConnector]
-  private val app = new GuiceApplicationBuilder()
+  private def app: Application = new GuiceApplicationBuilder()
+    .configure(
+      //turn off metrics
+      "metrics.jvm" -> false,
+      "metrics.enabled" -> false
+    )
     .overrides(
-      bind[AuditConnector].toInstance(mockAuditConnector)
+      bind[AuditConnector].toInstance(mockAuditConnector),
+      bind[Metrics].toInstance(new TestMetrics)
     )
     .build()
 

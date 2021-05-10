@@ -27,30 +27,48 @@ class Module extends AbstractModule {
 
   override def configure(): Unit = {
 
-    val navigators = Multibinder.newSetBinder(binder(), classOf[Navigator])
-    navigators.addBinding().to(classOf[IndividualNavigator])
+    val navigators =
+      Multibinder.newSetBinder(binder(), classOf[Navigator])
 
-    bind(classOf[UserAnswersCacheConnector]).to(classOf[UserAnswersCacheConnectorImpl]).asEagerSingleton()
-    bind(classOf[DataRetrievalAction]).to(classOf[DataRetrievalActionImpl]).asEagerSingleton()
-    bind(classOf[DataRequiredAction]).to(classOf[DataRequiredActionImpl]).asEagerSingleton()
+    bind(classOf[UserAnswersCacheConnector])
+      .to(classOf[UserAnswersCacheConnectorImpl])
+      .asEagerSingleton()
 
-    bind(classOf[AuthAction]).to(classOf[AuthenticatedAuthActionWithIV]).asEagerSingleton()
-    bind(classOf[AuthAction]).annotatedWith(classOf[AuthMustHaveNoEnrolmentWithIV])
-      .to(classOf[AuthenticatedAuthActionMustHaveNoEnrolmentWithIV]).asEagerSingleton()
-    bind(classOf[AuthAction]).annotatedWith(classOf[AuthMustHaveEnrolment])
-      .to(classOf[AuthenticatedAuthActionMustHaveEnrolment]).asEagerSingleton()
-    bind(classOf[AuthAction]).annotatedWith(classOf[AuthMustHaveNoEnrolmentWithNoIV])
-      .to(classOf[AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV]).asEagerSingleton()
+    bind(classOf[DataRetrievalAction])
+      .to(classOf[DataRetrievalActionImpl])
+      .asEagerSingleton()
+    bind(classOf[DataRequiredAction])
+      .to(classOf[DataRequiredActionImpl])
+      .asEagerSingleton()
+    bind(classOf[AuthAction])
+      .to(classOf[AuthenticatedAuthActionWithIV])
+      .asEagerSingleton()
+    bind(classOf[AuthAction])
+      .annotatedWith(classOf[AuthMustHaveNoEnrolmentWithIV])
+      .to(classOf[AuthenticatedAuthActionMustHaveNoEnrolmentWithIV])
+      .asEagerSingleton()
+    bind(classOf[AuthAction])
+      .annotatedWith(classOf[AuthMustHaveEnrolment])
+      .to(classOf[AuthenticatedAuthActionMustHaveEnrolment])
+      .asEagerSingleton()
+    bind(classOf[AuthAction])
+      .annotatedWith(classOf[AuthMustHaveNoEnrolmentWithNoIV])
+      .to(classOf[AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV])
+      .asEagerSingleton()
 
-    bind(classOf[CompoundNavigator]).to(classOf[CompoundNavigatorImpl])
+    navigators.addBinding()
+      .to(classOf[PractitionerNavigator])
+    navigators.addBinding()
+      .to(classOf[IndividualNavigator])
+    navigators.addBinding()
+      .to(classOf[CompanyNavigator])
+    navigators.addBinding()
+      .to(classOf[PartnershipNavigator])
+    navigators.addBinding()
+      .to(classOf[DeregisterNavigator])
 
-
-    navigators.addBinding().to(classOf[PractitionerNavigator])
-    navigators.addBinding().to(classOf[CompanyNavigator])
-    navigators.addBinding().to(classOf[PartnershipNavigator])
-    navigators.addBinding().to(classOf[DeregisterNavigator])
-
-    bind(classOf[CompoundNavigator]).to(classOf[CompoundNavigatorImpl])
+    bind(classOf[CompoundNavigator])
+      .to(classOf[CompoundNavigatorImpl])
 
   }
 }

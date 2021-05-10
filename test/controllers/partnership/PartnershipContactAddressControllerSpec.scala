@@ -43,7 +43,10 @@ import utils.countryOptions.CountryOptions
 
 import scala.concurrent.Future
 
-class PartnershipContactAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class PartnershipContactAddressControllerSpec
+  extends ControllerSpecBase
+    with MockitoSugar
+    with NunjucksSupport
                                 with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()

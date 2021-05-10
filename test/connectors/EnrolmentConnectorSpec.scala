@@ -29,7 +29,11 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, UpstreamErrorResponse}
 import utils.WireMockHelper
 
-class EnrolmentConnectorSpec extends AsyncWordSpec with MustMatchers with WireMockHelper with RecoverMethods {
+class EnrolmentConnectorSpec
+  extends AsyncWordSpec
+    with MustMatchers
+    with WireMockHelper
+    with RecoverMethods {
 
   override protected def portConfigKey: String = "microservice.services.tax-enrolments.port"
 
@@ -37,8 +41,18 @@ class EnrolmentConnectorSpec extends AsyncWordSpec with MustMatchers with WireMo
   private val testUserId = "test"
 
   private implicit val hc: HeaderCarrier = HeaderCarrier()
-  private implicit val dataRequest: DataRequest[AnyContent] = DataRequest(FakeRequest("", ""), testUserId,
-    PSPUser(UserType.Organisation, None, isExistingPSP = false, None, None), UserAnswers())
+  private implicit val dataRequest: DataRequest[AnyContent] = DataRequest(
+    request = FakeRequest("", ""),
+    externalId = testUserId,
+    user = PSPUser(
+      userType = UserType.Organisation,
+      nino = None,
+      isExistingPSP = false,
+      existingPSPId = None,
+      alreadyEnrolledPspId = None
+    ),
+    userAnswers = UserAnswers()
+  )
 
   private def url: String = s"/tax-enrolments/service/HMRC-PODSPP-ORG/enrolment"
 

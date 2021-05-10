@@ -16,6 +16,7 @@
 
 package renderer
 
+import com.kenshoo.play.metrics.Metrics
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.{ArgumentCaptor, Mockito}
@@ -30,6 +31,7 @@ import play.api.libs.json._
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
+import utils.TestMetrics
 
 import scala.concurrent.Future
 
@@ -45,8 +47,14 @@ class RendererSpec extends FreeSpec with MustMatchers with GuiceOneAppPerSuite w
   implicit private val request: FakeRequest[_] = FakeRequest()
 
   val application: Application = new GuiceApplicationBuilder()
+    .configure(
+      //turn off metrics
+      "metrics.jvm" -> false,
+      "metrics.enabled" -> false
+    )
     .overrides(
-      bind[NunjucksRenderer].toInstance(mockNunjucksRenderer)
+      bind[NunjucksRenderer].toInstance(mockNunjucksRenderer),
+      bind[Metrics].toInstance(new TestMetrics)
     ).build()
 
   "render" - {

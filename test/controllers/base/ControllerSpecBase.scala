@@ -17,6 +17,7 @@
 package controllers.base
 
 import base.SpecBase
+import com.kenshoo.play.metrics.Metrics
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
@@ -39,6 +40,7 @@ import play.api.test.Helpers.POST
 import play.api.test.FakeHeaders
 import play.api.test.FakeRequest
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
+import utils.TestMetrics
 import utils.annotations.AuthMustHaveEnrolment
 import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 
@@ -67,6 +69,7 @@ trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with MockitoSu
   protected val mockRenderer: NunjucksRenderer = mock[NunjucksRenderer]
 
   def modules: Seq[GuiceableModule] = Seq(
+    bind[Metrics].toInstance(new TestMetrics),
     bind[DataRequiredAction].to[DataRequiredActionImpl],
     bind[AuthAction].to[FakeAuthAction],
     bind[AuthAction].qualifiedWith(classOf[AuthMustHaveNoEnrolmentWithIV]).to[FakeAuthActionNoEnrolment],
@@ -77,18 +80,32 @@ trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with MockitoSu
     bind[CompoundNavigator].toInstance(mockCompoundNavigator)
   )
 
-  protected def applicationBuilder(userAnswers: Option[UserAnswers] = None,
-                                   extraModules: Seq[GuiceableModule] = Seq.empty): GuiceApplicationBuilder =
+  protected def applicationBuilder(
+                                    userAnswers: Option[UserAnswers] = None,
+                                    extraModules: Seq[GuiceableModule] = Seq.empty
+                                  ): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
+      .configure(
+        //turn off metrics
+        "metrics.jvm" -> false,
+        "metrics.enabled" -> false
+      )
       .overrides(
         modules ++ extraModules ++ Seq[GuiceableModule](
           bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
         ): _*
       )
 
-  protected def applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction,
-                                                         extraModules: Seq[GuiceableModule] = Seq.empty): GuiceApplicationBuilder =
+  protected def applicationBuilderMutableRetrievalAction(
+                                                          mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction,
+                                                          extraModules: Seq[GuiceableModule] = Seq.empty
+                                                        ): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
+      .configure(
+        //turn off metrics
+        "metrics.jvm" -> false,
+        "metrics.enabled" -> false
+      )
       .overrides(
         modules ++ extraModules ++ Seq[GuiceableModule](
           bind[DataRetrievalAction].toInstance(mutableFakeDataRetrievalAction)

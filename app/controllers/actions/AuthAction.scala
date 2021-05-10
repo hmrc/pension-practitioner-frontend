@@ -36,7 +36,7 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
-import uk.gov.hmrc.play.HeaderCarrierConverter
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -53,7 +53,7 @@ abstract class AuthenticatedAuthAction @Inject()(
   private val logger = Logger(classOf[AuthenticatedAuthAction])
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     authorised(User or Assistant).retrieve(
       Retrievals.externalId and
         Retrievals.affinityGroup and
@@ -86,16 +86,23 @@ abstract class AuthenticatedAuthAction @Inject()(
                                authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
                               (implicit hc: HeaderCarrier): Future[Result] = {
       (affinityGroup, role) match {
-        case (AffinityGroup.Agent, _) => Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
-        case (AffinityGroup.Individual, _) => Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
-        case (AffinityGroup.Organisation, Assistant) => Future.successful(Redirect(controllers.routes.AssistantNoAccessController.onPageLoad()))
+        case (AffinityGroup.Agent, _) =>
+          Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
+        case (AffinityGroup.Individual, _) =>
+          Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
+        case (AffinityGroup.Organisation, Assistant) =>
+          Future.successful(Redirect(controllers.routes.AssistantNoAccessController.onPageLoad()))
         case (AffinityGroup.Organisation, _) =>
           (checkAuthenticatedRequest(authRequest), authRequest.user.alreadyEnrolledPspId) match {
-            case (Some(redirect), _) => Future.successful(redirect)
-            case (_, None) => completeAuthentication(externalId, authRequest, block)
-            case _ => completeAfterDeceasedFlagCheck(authRequest, block)
+            case (Some(redirect), _) =>
+              Future.successful(redirect)
+            case (_, None) =>
+              completeAuthentication(externalId, authRequest, block)
+            case _ =>
+              completeAfterDeceasedFlagCheck(authRequest, block)
           }
-        case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+        case _ =>
+          Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
       }
     }
 
@@ -115,7 +122,7 @@ abstract class AuthenticatedAuthAction @Inject()(
   }
 
   private def checkForBothEnrolments[A](id: String, request: Request[A], enrolments:Enrolments): Future[Option[Result]] = {
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     (enrolments.getEnrolment("HMRC-PODS-ORG"), enrolments.getEnrolment("HMRC-PODSPP-ORG")) match {
       case (Some(_), Some(_)) =>
         sessionDataCacheConnector.fetch(id).flatMap { optionJsValue =>
