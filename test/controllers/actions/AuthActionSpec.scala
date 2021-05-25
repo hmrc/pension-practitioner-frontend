@@ -61,6 +61,24 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
       status(result) mustBe OK
     }
 
+    "have access to PSP page when he has chosen to act as a PSP and has role of assistant" in {
+      val optionUAJson = UserAnswers()
+        .set(AdministratorOrPractitionerPage,AdministratorOrPractitioner.Practitioner)
+        .toOption.map(_.data)
+
+      when(mockSessionDataCacheConnector.fetch(any())(any(), any())).thenReturn(Future.successful(optionUAJson))
+
+      when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(
+        authRetrievals(affinityGroup = Some(AffinityGroup.Organisation),
+          role = Some(Assistant),
+          enrolments = bothEnrolments
+        )
+      )
+      when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
+      val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
+      status(result) mustBe OK
+    }
+
     "redirect to cannot access as administrator when trying to access PSP page when chosen to act as a PSA" in {
       val optionUAJson = UserAnswers()
         .set(AdministratorOrPractitionerPage,AdministratorOrPractitioner.Administrator)
@@ -119,6 +137,48 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
     }
 
     behave like authAction(controllerWithIVEnrolment, enrolments = enrolmentPODS)
+
+    "called for Organisation that is an assistant with PODSPP (practitioner) enrolment" must {
+      "display the page" in {
+        when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any()))
+          .thenReturn(authRetrievals(affinityGroup = Some(AffinityGroup.Organisation),
+            role = Some(Assistant),
+            enrolments = enrolmentPODS))
+        val userAnswersData = Json.obj("areYouUKResident" -> true)
+        when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
+        val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
+        status(result) mustBe OK
+      }
+    }
+
+    "called for Organisation that is an assistant with no enrolments at all" must {
+      "redirect" in {
+        when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any()))
+          .thenReturn(authRetrievals(affinityGroup = Some(AffinityGroup.Organisation),
+            role = Some(Assistant),
+            enrolments = noEnrolmentPODS))
+        val userAnswersData = Json.obj("areYouUKResident" -> true)
+        when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
+        val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe Some(controllers.routes.AssistantNoAccessController.onPageLoad().url)
+      }
+    }
+
+    "called for Organisation that is an assistant with no PODSPP (practitioner) enrolment, only a PSA enrolment" must {
+      "redirect" in {
+        when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any()))
+          .thenReturn(authRetrievals(affinityGroup = Some(AffinityGroup.Organisation),
+            role = Some(Assistant),
+            enrolments = enrolmentPODSPSA))
+        val userAnswersData = Json.obj("areYouUKResident" -> true)
+        when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
+        val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe Some(controllers.routes.AssistantNoAccessController.onPageLoad().url)
+      }
+    }
+
 
   }
 
@@ -265,20 +325,6 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
         }
       }
 
-      "called for Organisation that is an assistant" must {
-        "redirect" in {
-          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any()))
-            .thenReturn(authRetrievals(affinityGroup = Some(AffinityGroup.Organisation),
-              role = Some(Assistant),
-              enrolments = enrolments))
-          val userAnswersData = Json.obj("areYouUKResident" -> true)
-          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          val result = harness.onPageLoad()(fakeRequest)
-          status(result) mustBe SEE_OTHER
-          redirectLocation(result) mustBe Some(controllers.routes.AssistantNoAccessController.onPageLoad().url)
-        }
-      }
-
       "the user hasn't logged in" must {
         "redirect the user to log in " in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(Future.failed(new MissingBearerToken))
@@ -375,6 +421,8 @@ object AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach
 
   private val bothEnrolments = Enrolments(Set(enrolmentPSA, enrolmentPSP))
   private val enrolmentPODS = Enrolments(Set(Enrolment("HMRC-PODSPP-ORG", Seq(EnrolmentIdentifier("PSPID", pspId)), "")))
+  private val noEnrolmentPODS = Enrolments(Set())
+  private val enrolmentPODSPSA = Enrolments(Set(enrolmentPSA))
   private val startIVLink = "/start-iv-link"
 
   private def minimalPspDeceased(deceasedFlag: Boolean = false) = MinimalPSP(

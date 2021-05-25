@@ -71,6 +71,7 @@ abstract class AuthenticatedAuthAction @Inject()(
             allowAccess(id,
               affinityGroup,
               credentialRole,
+              enrolments,
               createAuthenticatedRequest(id, request, affinityGroup, credentials.providerId, enrolments, groupIdentifier),
               block
             )
@@ -82,15 +83,19 @@ abstract class AuthenticatedAuthAction @Inject()(
     } recover handleFailure
   }
 
-  protected def allowAccess[A](externalId: String, affinityGroup: AffinityGroup, role: CredentialRole,
-                               authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
+  protected def allowAccess[A](
+    externalId: String,
+    affinityGroup: AffinityGroup,
+    role: CredentialRole,
+    enrolments: Enrolments,
+    authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
                               (implicit hc: HeaderCarrier): Future[Result] = {
       (affinityGroup, role) match {
         case (AffinityGroup.Agent, _) =>
           Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
         case (AffinityGroup.Individual, _) =>
           Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
-        case (AffinityGroup.Organisation, Assistant) =>
+        case (AffinityGroup.Organisation, Assistant) if enrolments.getEnrolment("HMRC-PODSPP-ORG").isEmpty =>
           Future.successful(Redirect(controllers.routes.AssistantNoAccessController.onPageLoad()))
         case (AffinityGroup.Organisation, _) =>
           (checkAuthenticatedRequest(authRequest), authRequest.user.alreadyEnrolledPspId) match {
