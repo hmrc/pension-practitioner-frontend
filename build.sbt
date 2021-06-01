@@ -1,15 +1,14 @@
-import uk.gov.hmrc.SbtArtifactory
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 import play.sbt.routes.RoutesKeys
-import sbt.{Def, CrossVersion}
+import sbt.{CrossVersion, Def}
 import scoverage.ScoverageKeys
+import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 val appName = "pension-practitioner-frontend"
 
 lazy val root = (project in file("."))
   .disablePlugins(JUnitXmlReportPlugin)
-  .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
+  .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin)
   .settings(
     name := appName,
     RoutesKeys.routesImport ++= Seq("models._"),
