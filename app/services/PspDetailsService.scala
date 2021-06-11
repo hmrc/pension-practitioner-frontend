@@ -33,7 +33,7 @@ import pages.company.{CompanyAddressPage, CompanyEmailPage, CompanyPhonePage}
 import pages.individual._
 import pages.partnership._
 import pages.register._
-import pages.{PspIdPage, RegistrationDetailsPage, SubscriptionTypePage, company => comp}
+import pages.{PspIdPage, RegistrationDetailsPage, SubscriptionTypePage, UnchangedPspDetailsPage, company => comp}
 import play.api.i18n.Messages
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc.Call
@@ -54,8 +54,6 @@ class PspDetailsService @Inject()(
 
   val halfWidth: Seq[String] = Seq("govuk-!-width-one-half")
   val thirdWidth: Seq[String] = Seq("govuk-!-width-one-third")
-
-  def nextPage: String = routes.DeclarationController.onPageLoad().url
 
   private def returnUrlAndLink(name: Option[String], rlsFlag: Boolean)
                               (implicit messages: Messages): JsObject = {
@@ -83,8 +81,7 @@ class PspDetailsService @Inject()(
                     val json = Json.obj(
                       "pageTitle" -> title,
                       "heading" -> ua.get(IndividualDetailsPage).fold(title)(name => heading(name.fullName)),
-                      "list" -> individualDetails(ua, pspId),
-                      "nextPage" -> nextPage
+                      "list" -> individualDetails(ua, pspId)
                     )
                     (json, ua.get(IndividualDetailsPage).map(_.fullName))
                   case LimitedCompany =>
@@ -92,8 +89,7 @@ class PspDetailsService @Inject()(
                     val json = Json.obj(
                       "pageTitle" -> title,
                       "heading" -> ua.get(comp.BusinessNamePage).fold(title)(name => heading(name)),
-                      "list" -> companyDetails(ua, pspId),
-                      "nextPage" -> nextPage
+                      "list" -> companyDetails(ua, pspId)
                     )
                     (json, ua.get(BusinessNamePage))
                   case Partnership =>
@@ -101,13 +97,14 @@ class PspDetailsService @Inject()(
                     val json = Json.obj(
                       "pageTitle" -> title,
                       "heading" -> ua.get(BusinessNamePage).fold(title)(name => heading(name)),
-                      "list" -> partnershipDetails(ua, pspId),
-                      "nextPage" -> nextPage
+                      "list" -> partnershipDetails(ua, pspId)
                     )
                     (json, ua.get(BusinessNamePage))
                 }
 
-                json ++ returnUrlAndLink(name, minDetails.rlsFlag)
+                json ++ returnUrlAndLink(name, minDetails.rlsFlag) ++ Json.obj(
+                  "displayContinueButton" -> amendmentsExist(ua),
+                "nextPage" -> routes.DeclarationController.onPageLoad().url)
             }
         }.getOrElse(Future.successful(Json.obj()))
     }
@@ -115,17 +112,15 @@ class PspDetailsService @Inject()(
   def getUserAnswers(userAnswers: Option[UserAnswers], pspId: String)
                     (implicit ec: ExecutionContext, hc: HeaderCarrier): Future[UserAnswers] =
     userAnswers match {
-      case Some(ua) =>
+      case Some(ua) if ua.get(UnchangedPspDetailsPage).nonEmpty =>
         Future.successful(ua)
       case _ =>
-        subscriptionConnector.getSubscriptionDetails(pspId).flatMap {
-          pspDetails =>
-            for {
-              ua1 <- Future.fromTry(uaWithUkAnswer(uaFromJsValue(pspDetails), pspId))
-              ua2 <- Future.fromTry(ua1.set(SubscriptionTypePage, Variation))
-              _ <- userAnswersCacheConnector.save(ua2.data)
-            } yield ua2
-        }
+        for {
+          pspDetails <- subscriptionConnector.getSubscriptionDetails(pspId)
+          ua1 <- Future.fromTry(uaWithUkAnswer(uaFromJsValue(pspDetails), pspId))
+          ua2 <- Future.fromTry(ua1.set(SubscriptionTypePage, Variation).flatMap(_.set(UnchangedPspDetailsPage, pspDetails)))
+          _ <- userAnswersCacheConnector.save(ua2.data)
+        } yield ua2
     }
 
 
@@ -181,6 +176,19 @@ class PspDetailsService @Inject()(
     ))
 
   private def individualMessage(message: String): Text = msg"$message".withArgs(msg"viewDetails.individual")
+
+  def amendmentsExist(ua: UserAnswers): Boolean = {
+    val originalPspDetails = ua.get(UnchangedPspDetailsPage).getOrElse(Json.obj())
+    val mismatches = ua.data.keys.filter(key => (originalPspDetails \ key) != (ua.data \ key))
+    if (mismatches.nonEmpty) {
+      ua.get(RegistrationDetailsPage).exists(_.legalStatus match {
+        case Individual => mismatches.exists(List("individualDetails", "contactAddress", "email", "phone").contains)
+        case _ => mismatches.exists(List("name", "contactAddress", "email", "phone").contains)
+      })
+    } else {
+      false
+    }
+  }
 
   private def individualDetails(ua: UserAnswers, pspId: String)
                                (implicit messages: Messages): Seq[Row] =

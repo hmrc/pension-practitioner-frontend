@@ -22,13 +22,14 @@ import connectors.cache.UserAnswersCacheConnector
 import connectors.{EmailConnector, EmailStatus, SubscriptionConnector}
 import controllers.actions._
 import controllers.{DataRetrievals, Retrievals}
-import models.JourneyType
+import models.{JourneyType, UserAnswers}
 import models.requests.DataRequest
-import pages.PspIdPage
+import pages.{PspIdPage, UnchangedPspDetailsPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
+import services.PspDetailsService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
@@ -48,6 +49,7 @@ class DeclarationController @Inject()(
                                        renderer: Renderer,
                                        emailConnector: EmailConnector,
                                        auditService: AuditService,
+                                       pspDetailsService: PspDetailsService,
                                        config: FrontendAppConfig
                                      )(implicit ec: ExecutionContext)
   extends FrontendBaseController
@@ -58,10 +60,13 @@ class DeclarationController @Inject()(
   def onPageLoad: Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
-        renderer.render(
-          template = "amend/declaration.njk",
-          ctx = Json.obj("submitUrl" -> routes.DeclarationController.onSubmit().url)
-        ).map(Ok(_))
+
+        if (pspDetailsService.amendmentsExist(request.userAnswers)) {
+          val json: JsObject = Json.obj("submitUrl" -> routes.DeclarationController.onSubmit().url)
+          renderer.render("amend/declaration.njk", json).map(Ok(_))
+        } else {
+          Future.successful(Redirect(routes.ViewDetailsController.onPageLoad()))
+        }
     }
 
   def onSubmit: Action[AnyContent] =
@@ -69,7 +74,7 @@ class DeclarationController @Inject()(
       implicit request =>
         DataRetrievals.retrievePspNameAndEmail { (pspName, email) =>
           for {
-            originalSubscriptionDetails <- subscriptionConnector.getSubscriptionDetails(request.user.pspIdOrException)
+            originalSubscriptionDetails <- getOriginalPspDetails(request.userAnswers, request.user.pspIdOrException)
             pspId <- subscriptionConnector.subscribePsp(request.userAnswers, JourneyType.PSP_AMENDMENT)
             updatedAnswers <- Future.fromTry(request.userAnswers.set(PspIdPage, pspId))
             _ <- userAnswersCacheConnector.save(updatedAnswers.data)
@@ -79,6 +84,18 @@ class DeclarationController @Inject()(
 
         }
     }
+
+  private def getOriginalPspDetails(ua: UserAnswers, pspId: String)(implicit hc: HeaderCarrier): Future[JsValue] = {
+    val pspDetailsOpt = ua.get(UnchangedPspDetailsPage)
+    if (pspDetailsOpt.nonEmpty) {
+      for {
+        updatedAnswers <- Future.fromTry(ua.remove(UnchangedPspDetailsPage))
+        _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+      } yield pspDetailsOpt.get
+    } else {
+      subscriptionConnector.getSubscriptionDetails(pspId)
+    }
+  }
 
   private def audit(
                      pspId: String,

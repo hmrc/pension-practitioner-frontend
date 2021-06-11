@@ -17,11 +17,8 @@
 package controllers.amend
 
 import com.google.inject.Inject
-import controllers.actions.{DataRetrievalAction, AuthAction}
-import models.requests.OptionalDataRequest
-import pages.{AddressChange, NameChange}
+import controllers.actions.{AuthAction, DataRetrievalAction}
 import play.api.i18n.I18nSupport
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import services.PspDetailsService
@@ -37,18 +34,11 @@ class ViewDetailsController @Inject()(@AuthMustHaveEnrolment authenticate: AuthA
                                      val controllerComponents: MessagesControllerComponents
                                     )(implicit val executionContext: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  private def anyChanges(implicit request:OptionalDataRequest[AnyContent]):Boolean = {
-    request.userAnswers.flatMap(_.get(AddressChange)).getOrElse(false) ||
-    request.userAnswers.flatMap(_.get(NameChange)).getOrElse(false)
-  }
-
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData).async {
     implicit request =>
       request.user.alreadyEnrolledPspId.map { pspId =>
-        pspDetailsService.getJson(request.userAnswers, pspId).flatMap { json =>
-          renderer.render("amend/viewDetails.njk",
-            json ++ Json.obj("displayContinueButton" -> anyChanges)
-          ).map(Ok(_))
+          pspDetailsService.getJson(request.userAnswers, pspId).flatMap { json =>
+            renderer.render("amend/viewDetails.njk", json).map(Ok(_))
         }
       }.getOrElse(
         Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
