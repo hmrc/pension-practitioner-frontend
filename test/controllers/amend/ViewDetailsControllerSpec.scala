@@ -17,12 +17,12 @@
 package controllers.amend
 
 import controllers.base.ControllerSpecBase
+import matchers.JsonMatchers
 import models.UserAnswers
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{AddressChange, NameChange}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -33,7 +33,7 @@ import services.PspDetailsService
 
 import scala.concurrent.Future
 
-class ViewDetailsControllerSpec extends ControllerSpecBase with MockitoSugar {
+class ViewDetailsControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers {
 
   private val pspDetailsService = mock[PspDetailsService]
   private val extraModules: Seq[GuiceableModule] = Seq(
@@ -60,7 +60,7 @@ class ViewDetailsControllerSpec extends ControllerSpecBase with MockitoSugar {
   }
 
   "ViewDetails Controller" must {
-    "return OK and the correct view for a GET and don't display button where no changes" in {
+    "return OK and the correct view for a GET" in {
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
@@ -71,39 +71,7 @@ class ViewDetailsControllerSpec extends ControllerSpecBase with MockitoSugar {
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
 
       templateCaptor.getValue mustEqual templateToBeRendered
-      (jsonCaptor.getValue \ "displayContinueButton").as[Boolean] mustEqual false
-    }
-
-    "return OK and the correct view for a GET and display button where name changed" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-
-      val ua = UserAnswers().set(NameChange, true).toOption
-
-      val result = route(application(ua), httpGETRequest(onPageLoadUrl)).value
-
-      status(result) mustEqual OK
-
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-      templateCaptor.getValue mustEqual templateToBeRendered
-      (jsonCaptor.getValue \ "displayContinueButton").as[Boolean] mustEqual true
-    }
-
-    "return OK and the correct view for a GET and display button where address changed" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-
-      val ua = UserAnswers().set(AddressChange, true).toOption
-
-      val result = route(application(ua), httpGETRequest(onPageLoadUrl)).value
-
-      status(result) mustEqual OK
-
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-      templateCaptor.getValue mustEqual templateToBeRendered
-      (jsonCaptor.getValue \ "displayContinueButton").as[Boolean] mustEqual true
+      jsonCaptor.getValue must containJson(json)
     }
   }
 }

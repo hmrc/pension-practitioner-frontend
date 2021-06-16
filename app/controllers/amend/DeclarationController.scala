@@ -84,18 +84,8 @@ class DeclarationController @Inject()(
 
         }
     }
-
-  private def getOriginalPspDetails(ua: UserAnswers, pspId: String)(implicit hc: HeaderCarrier): Future[JsValue] = {
-    val pspDetailsOpt = ua.get(UnchangedPspDetailsPage)
-    if (pspDetailsOpt.nonEmpty) {
-      for {
-        updatedAnswers <- Future.fromTry(ua.remove(UnchangedPspDetailsPage))
-        _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-      } yield pspDetailsOpt.get
-    } else {
-      subscriptionConnector.getSubscriptionDetails(pspId)
-    }
-  }
+  private def getOriginalPspDetails(ua: UserAnswers, pspId: String)(implicit hc: HeaderCarrier): Future[JsValue] =
+    ua.get(UnchangedPspDetailsPage).fold(subscriptionConnector.getSubscriptionDetails(pspId))(Future.successful(_))
 
   private def audit(
                      pspId: String,

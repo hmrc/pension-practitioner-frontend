@@ -180,7 +180,7 @@ class PspDetailsService @Inject()(
   def amendmentsExist(ua: UserAnswers): Boolean = {
     val originalPspDetails = ua.get(UnchangedPspDetailsPage).getOrElse(Json.obj())
     val mismatches = ua.data.keys.filter(key => (originalPspDetails \ key) != (ua.data \ key))
-    if (mismatches.nonEmpty) {
+    if (mismatches.nonEmpty && ua.get(UnchangedPspDetailsPage).nonEmpty) {
       ua.get(RegistrationDetailsPage).exists(_.legalStatus match {
         case Individual => mismatches.exists(List("individualDetails", "contactAddress", "email", "phone").contains)
         case _ => mismatches.exists(List("name", "contactAddress", "email", "phone").contains)
