@@ -35,6 +35,7 @@ import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.Helpers._
 import play.twirl.api.Html
+import services.PspDetailsService
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 
 import scala.concurrent.Future
@@ -50,12 +51,14 @@ class DeclarationControllerSpec
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
   private val mockEmailConnector: EmailConnector = mock[EmailConnector]
+  private val mockPspDetailsService: PspDetailsService = mock[PspDetailsService]
   private val partnershipName = "Acme Ltd"
   private val application: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction,
       Seq(
         bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
-        bind[EmailConnector].toInstance(mockEmailConnector)
+        bind[EmailConnector].toInstance(mockEmailConnector),
+        bind[PspDetailsService].to(mockPspDetailsService)
       )).build()
   private val templateToBeRendered = "amend/declaration.njk"
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq("true"))
@@ -73,6 +76,7 @@ class DeclarationControllerSpec
 
   "Declaration Controller" must {
     "return OK and the correct view for a GET" in {
+      when(mockPspDetailsService.amendmentsExist(any())).thenReturn(true)
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
@@ -83,6 +87,13 @@ class DeclarationControllerSpec
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
 
       templateCaptor.getValue mustEqual templateToBeRendered
+    }
+
+    "redirect to ViewDetails page if no amendments have been made" in {
+      when(mockPspDetailsService.amendmentsExist(any())).thenReturn(false)
+
+      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      status(result) mustEqual SEE_OTHER
     }
 
     "redirect to next page when valid data is submitted and send email" in {

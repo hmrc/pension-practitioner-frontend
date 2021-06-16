@@ -21,19 +21,20 @@ import config.FrontendAppConfig
 import connectors.MinimalConnector
 import connectors.SubscriptionConnector
 import connectors.cache.UserAnswersCacheConnector
-import models.MinimalPSP
+import models.{Address, CheckMode, MinimalPSP, UserAnswers}
 import models.SubscriptionType.Variation
-import models.{CheckMode, UserAnswers}
+import models.register.TolerantIndividual
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.{reset, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
-import pages.PspIdPage
-import pages.SubscriptionTypePage
-import pages.individual.AreYouUKResidentPage
+import pages.company.{CompanyAddressPage, CompanyEmailPage, CompanyPhonePage}
+import pages.{PspIdPage, SubscriptionTypePage, UnchangedPspDetailsPage}
+import pages.individual.{AreYouUKResidentPage, IndividualDetailsPage, IndividualEmailPage, IndividualManualAddressPage, IndividualPhonePage}
+import pages.partnership.{BusinessNamePage, PartnershipAddressPage, PartnershipEmailPage, PartnershipPhonePage}
 import pages.register.AreYouUKCompanyPage
-import play.api.libs.json.{JsArray, Json, JsObject}
+import play.api.libs.json.{JsArray, JsObject, Json}
 import services.PspDetailsHelper._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -63,7 +64,97 @@ class PspDetailsServiceSpec
     when(mockAppConfig.returnToPspDashboardUrl).thenReturn(frontendAppConfig.returnToPspDashboardUrl)
   }
 
+  "amendmentsExist" must {
+    "return true for individual if address has changed" in {
+      val ua = UserAnswers(uaIndividualUK)
+      val answers = ua.setOrException(UnchangedPspDetailsPage, ua.setOrException(IndividualManualAddressPage, Address("1", "2", None, None, None, "GB")).data)
+      service.amendmentsExist(answers) mustBe true
+    }
+
+    "return true for individual if phone has changed" in {
+      val ua = UserAnswers(uaIndividualUK)
+      val answers = ua.setOrException(UnchangedPspDetailsPage, ua.setOrException(IndividualPhonePage, "000000000").data)
+      service.amendmentsExist(answers) mustBe true
+    }
+
+    "return true for individual if email has changed" in {
+      val ua = UserAnswers(uaIndividualUK)
+      val answers = ua.setOrException(UnchangedPspDetailsPage, ua.setOrException(IndividualEmailPage, "new@email.com").data)
+      service.amendmentsExist(answers) mustBe true
+    }
+
+    "return true for non uk individual if name has changed" in {
+      val ua = UserAnswers(uaIndividualNonUk)
+      val answers = ua.setOrException(UnchangedPspDetailsPage,
+        ua.setOrException(IndividualDetailsPage, TolerantIndividual(Some("new"), None, Some("name"))).data)
+      service.amendmentsExist(answers) mustBe true
+    }
+
+    "return true for company if address has changed" in {
+      val ua = UserAnswers(uaCompanyUk)
+      val answers = ua.setOrException(UnchangedPspDetailsPage, ua.setOrException(CompanyAddressPage, Address("1", "2", None, None, None, "GB")).data)
+      service.amendmentsExist(answers) mustBe true
+    }
+
+    "return true for company if phone has changed" in {
+      val ua = UserAnswers(uaCompanyUk)
+      val answers = ua.setOrException(UnchangedPspDetailsPage, ua.setOrException(CompanyPhonePage, "000000000").data)
+      service.amendmentsExist(answers) mustBe true
+    }
+
+    "return true for company if email has changed" in {
+      val ua = UserAnswers(uaCompanyUk)
+      val answers = ua.setOrException(UnchangedPspDetailsPage, ua.setOrException(CompanyEmailPage, "new@email.com").data)
+      service.amendmentsExist(answers) mustBe true
+    }
+
+    "return true for partnership if address has changed" in {
+      val ua = UserAnswers(uaPartnershipNonUK)
+      val answers = ua.setOrException(UnchangedPspDetailsPage, ua.setOrException(PartnershipAddressPage, Address("1", "2", None, None, None, "GB")).data)
+      service.amendmentsExist(answers) mustBe true
+    }
+
+    "return true for partnership if phone has changed" in {
+      val ua = UserAnswers(uaPartnershipNonUK)
+      val answers = ua.setOrException(UnchangedPspDetailsPage, ua.setOrException(PartnershipPhonePage, "000000000").data)
+      service.amendmentsExist(answers) mustBe true
+    }
+
+    "return true for partnership if email has changed" in {
+      val ua = UserAnswers(uaPartnershipNonUK)
+      val answers = ua.setOrException(UnchangedPspDetailsPage, ua.setOrException(PartnershipEmailPage, "new@email.com").data)
+      service.amendmentsExist(answers) mustBe true
+    }
+
+    "return true for non uk partnership if name has changed" in {
+      val ua = UserAnswers(uaPartnershipNonUK)
+      val answers = ua.setOrException(UnchangedPspDetailsPage, ua.setOrException(BusinessNamePage, "new name").data)
+      service.amendmentsExist(answers) mustBe true
+    }
+
+    "return false if original details can't be found" in {
+      service.amendmentsExist(UserAnswers(uaPartnershipNonUK)) mustBe false
+    }
+
+    "return false if no mismatches are found" in {
+      val ua = UserAnswers(uaPartnershipNonUK)
+      val answers = ua.setOrException(UnchangedPspDetailsPage, ua.data)
+      service.amendmentsExist(answers) mustBe false
+    }
+  }
+
   "getJson" must {
+
+    "return appropriate json for nonUk Partnership" in {
+      when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
+      when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
+        .thenReturn(Future.successful(uaPartnershipNonUK))
+
+      whenReady(service.getJson(None, pspId)) { result =>
+        result mustBe expected("Partnership", "Testing Ltd", Json.obj(), nonUkAddress, includeReturnLinkAndUrl = true)
+      }
+    }
+
     "return appropriate json for Individual" in {
       when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
         .thenReturn(Future.successful(uaIndividualUK))
@@ -75,19 +166,11 @@ class PspDetailsServiceSpec
     }
 
     "return appropriate json for Company" in {
+      when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
+        .thenReturn(Future.successful(uaCompanyUk))
       when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
       whenReady(service.getJson(Some(UserAnswers(uaCompanyUk)), pspId)) { result =>
         result mustBe expected("Company", "Test Ltd", utr, includeReturnLinkAndUrl = true)
-      }
-    }
-
-    "return appropriate json for nonUk Partnership" in {
-      when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
-      when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
-        .thenReturn(Future.successful(uaPartnershipNonUK))
-
-      whenReady(service.getJson(None, pspId)) { result =>
-        result mustBe expected("Partnership", "Testing Ltd", Json.obj(), nonUkAddress, includeReturnLinkAndUrl = true)
       }
     }
 
@@ -115,6 +198,7 @@ class PspDetailsServiceSpec
             .setOrException(PspIdPage, pspId)
             .setOrException(AreYouUKResidentPage, true)
             .setOrException(SubscriptionTypePage, Variation)
+            .setOrException(UnchangedPspDetailsPage, uaIndividualUK)
       }
     }
 
@@ -128,6 +212,7 @@ class PspDetailsServiceSpec
             .setOrException(PspIdPage, pspId)
             .setOrException(AreYouUKCompanyPage, true)
             .setOrException(SubscriptionTypePage, Variation)
+            .setOrException(UnchangedPspDetailsPage, uaCompanyUk)
       }
     }
 
@@ -141,6 +226,7 @@ class PspDetailsServiceSpec
             .setOrException(PspIdPage, pspId)
             .setOrException(AreYouUKCompanyPage, false)
             .setOrException(SubscriptionTypePage, Variation)
+            .setOrException(UnchangedPspDetailsPage, uaPartnershipNonUK)
       }
     }
   }
@@ -322,14 +408,16 @@ object PspDetailsServiceSpec {
         "list" -> list(typeText, name, address),
         "nextPage" -> "/pension-scheme-practitioner/declare",
         "returnLink" -> s"Return to $name",
-        "returnUrl" -> "http://localhost:8204/manage-pension-schemes/dashboard"
+        "returnUrl" -> "http://localhost:8204/manage-pension-schemes/dashboard",
+        "displayContinueButton" -> false
       )
     } else {
       Json.obj(
         "pageTitle" -> s"$typeText details",
         "heading" -> s"$name’s details",
         "list" -> list(typeText, name, address),
-        "nextPage" -> "/pension-scheme-practitioner/declare"
+        "nextPage" -> "/pension-scheme-practitioner/declare",
+        "displayContinueButton" -> false
       )
     }
   }
