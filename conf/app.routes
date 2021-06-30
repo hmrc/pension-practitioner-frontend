@@ -53,3 +53,5 @@ GET         /declare                                        controllers.amend.De
 POST        /declare                                        controllers.amend.DeclarationController.onSubmit()
 
 GET         /success                                        controllers.amend.ConfirmationController.onPageLoad()
+
+GET         /your-action-was-not-processed                  controllers.YourActionWasNotProcessedController.onPageLoad()
