@@ -367,4 +367,16 @@ class PspDetailsService @Inject()(
           )
       case _ => Seq.empty
     }
+
+  def getPspName(ua: UserAnswers): Option[String] = ua.get(RegistrationDetailsPage).flatMap {
+    regInfo =>
+      regInfo.legalStatus match {
+        case Individual =>
+          ua.get(IndividualDetailsPage).map(_.fullName)
+        case LimitedCompany =>
+          ua.get(comp.BusinessNamePage)
+        case Partnership =>
+          ua.get(BusinessNamePage)
+      }
+  }
 }
