@@ -10,9 +10,8 @@ object AppDependencies {
     play.sbt.PlayImport.ws,
     "uk.gov.hmrc"                   %%  "simple-reactivemongo"           % "8.0.0-play-27",
     "uk.gov.hmrc"                   %%  "logback-json-logger"            % "5.1.0",
-    "uk.gov.hmrc"                   %%  "play-health"                    % "3.16.0-play-27",
     "uk.gov.hmrc"                   %%  "play-conditional-form-mapping"  % "1.9.0-play-27",
-    "uk.gov.hmrc"                   %%  "bootstrap-frontend-play-27"     % "5.3.0",
+    "uk.gov.hmrc"                   %%  "bootstrap-frontend-play-28"     % "5.12.0",
     "uk.gov.hmrc"                   %%  "play-whitelist-filter"          % "3.4.0-play-27",
     "uk.gov.hmrc"                   %%  "play-nunjucks"                  % "0.27.0-play-27",
     "uk.gov.hmrc"                   %%  "play-nunjucks-viewmodel"        % "0.13.0-play-27",
@@ -24,7 +23,7 @@ object AppDependencies {
 
   val test = Seq(
     "org.scalatest"               %% "scalatest"          % "3.0.7",
-    "org.scalatestplus.play"      %% "scalatestplus-play" % "4.0.2",
+    "org.scalatestplus.play"      %% "scalatestplus-play" % "5.1.0",
     "org.pegdown"                 %  "pegdown"            % "1.6.0",
     "org.jsoup"                   %  "jsoup"              % "1.10.3",
     "com.typesafe.play"           %% "play-test"          % PlayVersion.current,
