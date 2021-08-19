@@ -53,4 +53,7 @@ class SignOutController @Inject()(
           Redirect(config.signOutUrl).withNewSession
       }
   }
+  def keepAlive: Action[AnyContent] = Action.async {
+    Future successful Ok("OK")
+  }
 }
