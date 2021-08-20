@@ -21,9 +21,9 @@ import controllers.base.ControllerSpecBase
 import forms.address.AddressListFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, TolerantAddress, UserAnswers}
-import org.mockito.Matchers.{any, eq => eqTo}
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{times, verify, when}
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.partnership.{BusinessNamePage, PartnershipAddressListPage, PartnershipAddressPage, PartnershipPostcodePage}
@@ -114,7 +114,7 @@ class PartnershipAddressListControllerSpec extends ControllerSpecBase with Mocki
         PartnershipPostcodePage.toString -> Seq(tolerantAddress),
         PartnershipAddressPage.toString -> tolerantAddress.copy(country = Some("GB")).toAddress)
 
-      when(mockCompoundNavigator.nextPage(Matchers.eq(PartnershipAddressListPage), any(), any())).thenReturn(enterManuallyUrl)
+      when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(PartnershipAddressListPage), any(), any())).thenReturn(enterManuallyUrl)
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
       val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value

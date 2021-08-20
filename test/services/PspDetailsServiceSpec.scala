@@ -24,7 +24,7 @@ import connectors.cache.UserAnswersCacheConnector
 import models.{Address, CheckMode, MinimalPSP, UserAnswers}
 import models.SubscriptionType.Variation
 import models.register.TolerantIndividual
-import org.mockito.Matchers.{any, eq => eqTo}
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{reset, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures

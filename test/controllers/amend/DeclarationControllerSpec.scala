@@ -23,7 +23,7 @@ import data.SampleData
 import matchers.JsonMatchers
 import models.{JourneyType, UserAnswers}
 import models.register.RegistrationLegalStatus
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.{OptionValues, TryValues}
@@ -101,10 +101,10 @@ class DeclarationControllerSpec
       val templateId = "dummyTemplateId"
       when(mockEmailConnector.sendEmail(
         requestId = any(),
-        pspId = Matchers.eq(pspId),
-        journeyType = Matchers.eq(JourneyType.PSP_AMENDMENT),
-        emailAddress = Matchers.eq(email),
-        templateName = Matchers.eq(templateId), templateParams = any()
+        pspId = ArgumentMatchers.eq(pspId),
+        journeyType = ArgumentMatchers.eq(JourneyType.PSP_AMENDMENT),
+        emailAddress = ArgumentMatchers.eq(email),
+        templateName = ArgumentMatchers.eq(templateId), templateParams = any()
       )(
         hc = any(),
         executionContext = any()

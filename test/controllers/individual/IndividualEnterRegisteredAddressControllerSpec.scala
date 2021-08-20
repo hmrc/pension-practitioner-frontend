@@ -25,7 +25,7 @@ import models.register._
 import models.{Address, NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.individual.{IndividualAddressPage, IndividualDetailsPage}
@@ -134,7 +134,7 @@ class IndividualEnterRegisteredAddressControllerSpec extends ControllerSpecBase 
       val expectedJson = Json.obj(
         IndividualAddressPage.toString -> address)
 
-      when(mockCompoundNavigator.nextPage(Matchers.eq(IndividualAddressPage), any(), any())).thenReturn(dummyCall)
+      when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(IndividualAddressPage), any(), any())).thenReturn(dummyCall)
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
       val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value

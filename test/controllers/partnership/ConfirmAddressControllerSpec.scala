@@ -26,7 +26,7 @@ import models.register._
 import models.{TolerantAddress, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{BeforeAndAfterEach, OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.partnership.{BusinessNamePage, BusinessUTRPage, ConfirmAddressPage}
@@ -91,7 +91,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
       when(mockRegistrationConnector.registerWithIdOrganisation(any(),any(),any())(any(),any()))
         .thenReturn(Future.successful(organisationRegistration))
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
-      when(mockCountryOptions.getCountryNameFromCode(Matchers.any[TolerantAddress])).thenReturn(Some("GB"))
+      when(mockCountryOptions.getCountryNameFromCode(ArgumentMatchers.any[TolerantAddress])).thenReturn(Some("GB"))
 
       val request = FakeRequest(GET, confirmAddressRoute)
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
@@ -142,7 +142,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
     "return a Bad Request and errors when invalid data is submitted" in {
 
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-      when(mockCountryOptions.getCountryNameFromCode(Matchers.any[TolerantAddress])).thenReturn(Some("GB"))
+      when(mockCountryOptions.getCountryNameFromCode(ArgumentMatchers.any[TolerantAddress])).thenReturn(Some("GB"))
 
       val userAnswersWithAddress = userAnswersWithRegistrationValues
         .setOrException(ConfirmAddressPage, SampleData.addressUK)

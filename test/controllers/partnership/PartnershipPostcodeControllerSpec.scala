@@ -24,7 +24,7 @@ import matchers.JsonMatchers
 import models.{NormalMode, TolerantAddress, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.partnership.{BusinessNamePage, PartnershipPostcodePage}
@@ -110,7 +110,7 @@ class PartnershipPostcodeControllerSpec extends ControllerSpecBase with MockitoS
           BusinessNamePage.toString -> partnershipName,
           PartnershipPostcodePage.toString -> seqAddresses)
 
-      when(mockCompoundNavigator.nextPage(Matchers.eq(PartnershipPostcodePage), any(), any())).thenReturn(enterManuallyUrl)
+      when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(PartnershipPostcodePage), any(), any())).thenReturn(enterManuallyUrl)
       when(mockAddressLookupConnector.addressLookupByPostCode(any())(any(), any())).thenReturn(Future.successful(seqAddresses))
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])

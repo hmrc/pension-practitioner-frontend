@@ -23,7 +23,7 @@ import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.partnership.{BusinessNamePage, PartnershipEmailPage}
@@ -118,7 +118,7 @@ class PartnershipEmailControllerSpec extends ControllerSpecBase with MockitoSuga
         BusinessNamePage.toString -> partnershipName,
         PartnershipEmailPage.toString -> email)
 
-      when(mockCompoundNavigator.nextPage(Matchers.eq(PartnershipEmailPage), any(), any())).thenReturn(dummyCall)
+      when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(PartnershipEmailPage), any(), any())).thenReturn(dummyCall)
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
       val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value

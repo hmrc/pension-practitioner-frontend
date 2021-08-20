@@ -21,21 +21,16 @@ import controllers.base.ControllerSpecBase
 import forms.BusinessNameFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.when
-import org.mockito.ArgumentCaptor
-import org.mockito.Matchers
-import org.scalatest.OptionValues
-import org.scalatest.TryValues
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.BusinessNamePage
 import pages.register.AreYouUKCompanyPage
 import play.api.Application
 import play.api.data.Form
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -149,7 +144,7 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
         BusinessNamePage.toString -> companyName,
         BusinessNamePage.toString -> name)
 
-      when(mockCompoundNavigator.nextPage(Matchers.eq(BusinessNamePage), any(), any())).thenReturn(dummyCall)
+      when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(BusinessNamePage), any(), any())).thenReturn(dummyCall)
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
       val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
