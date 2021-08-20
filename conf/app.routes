@@ -13,6 +13,8 @@ GET         /                                               controllers.LoginCon
 
 GET         /sign-out                                       controllers.SignOutController.signOut()
 
+GET         /keep-alive                                     controllers.SignOutController.keepAlive()
+
 GET         /assets/*file                                   controllers.Assets.versioned(path="/public", file: Asset)
 
 GET         /language/:lang                                 controllers.LanguageSwitchController.switchToLanguage(lang: String)

@@ -15,7 +15,7 @@
     {{ hmrcTimeoutDialog({
         timeout:config.timeout ,
         countdown: config.countdown,
-        keepAliveUrl: '/keep-alive',
+        keepAliveUrl: routes.controllers.SignOutController.keepAlive().url,
         signOutUrl: routes.controllers.SignOutController.signOut(srn, startDate).url
     }) }}
     {{ trackingSnippet({
