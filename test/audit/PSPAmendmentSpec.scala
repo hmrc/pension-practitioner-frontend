@@ -76,15 +76,15 @@ class PSPAmendmentSpec extends SpecBase {
       val fromJson: JsArray = amendment.details("from").as[JsArray]
       val toJson: JsArray = amendment.details("to").as[JsArray]
 
-      (fromJson.head \ "name").as[String] mustBe "Abc Private Ltd"
-      (fromJson.value(1) \ "email").as[String] mustBe "abc@hmrc.gsi.gov.uk"
-      (fromJson.value(2) \ "contactAddress" \ "addressLine1").as[String] mustBe "24 Trinity Street"
-      (fromJson.value(3) \ "phone").as[String] mustBe "0044-09876542312"
+      (fromJson.value(3) \ "name").as[String] mustBe "Abc Private Ltd"
+      (fromJson.head \ "email").as[String] mustBe "abc@hmrc.gsi.gov.uk"
+      (fromJson.value(1) \ "contactAddress" \ "addressLine1").as[String] mustBe "24 Trinity Street"
+      (fromJson.value(2) \ "phone").as[String] mustBe "0044-09876542312"
 
-      (toJson.head \ "name").as[String] mustBe "Def Private Ltd"
-      (toJson.value(1) \ "email").as[String] mustBe "def@hmrc.gsi.gov.uk"
-      (toJson.value(2) \ "contactAddress" \ "addressLine1").as[String] mustBe "123 Other Street"
-      (toJson.value(3) \ "phone").as[String] mustBe "0044-1234567890"
+      (toJson.value(3) \ "name").as[String] mustBe "Def Private Ltd"
+      (toJson.head \ "email").as[String] mustBe "def@hmrc.gsi.gov.uk"
+      (toJson.value(1) \ "contactAddress" \ "addressLine1").as[String] mustBe "123 Other Street"
+      (toJson.value(2) \ "phone").as[String] mustBe "0044-1234567890"
     }
 
     "audit \"no changes made\" when no updates are made" in {
