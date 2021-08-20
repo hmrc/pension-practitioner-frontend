@@ -21,7 +21,7 @@ import connectors.cache.UserAnswersCacheConnector
 import connectors.{IdentityVerificationConnector, MinimalConnector, SessionDataCacheConnector}
 import models.WhatTypeBusiness.{Companyorpartnership, Yourselfasindividual}
 import models.{AdministratorOrPractitioner, MinimalPSP, UserAnswers}
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.mockito.{Matchers, Mockito}
 import org.scalatest.BeforeAndAfterEach

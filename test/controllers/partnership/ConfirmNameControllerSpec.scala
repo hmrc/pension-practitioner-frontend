@@ -22,7 +22,7 @@ import forms.ConfirmNameFormProvider
 import matchers.JsonMatchers
 import models.UserAnswers
 import org.mockito.ArgumentCaptor
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
@@ -82,7 +82,7 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
     "populate the view correctly on a GET when the question has previously been answered" in {
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-    
+
       val application = applicationBuilder(userAnswers = Some(answers))
         .overrides(
         )
@@ -90,15 +90,15 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
       val request = FakeRequest(GET, confirmNameRoute)
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-    
+
       val result = route(application, request).value
-    
+
       status(result) mustEqual OK
-    
+
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-    
+
       val filledForm = form.bind(Map("value" -> "true"))
-    
+
       val expectedJson = Json.obj(
         "form"   -> filledForm,
         "entityName" -> "partnership",
@@ -106,39 +106,39 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
         "submitUrl" -> confirmNameSubmitRoute,
         "radios" -> Radios.yesNo(filledForm("value"))
       )
-    
+
       templateCaptor.getValue mustEqual "confirmName.njk"
       jsonCaptor.getValue must containJson(expectedJson)
-    
+
       application.stop()
     }
-    
+
     "redirect to the next page when valid data is submitted" in {
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
-    
+
       val application = applicationBuilder(userAnswers = Some(UserAnswers().setOrException(BusinessNamePage, pspName)))
         .overrides(
         )
         .build()
-    
+
       val request =
         FakeRequest(POST, confirmNameSubmitRoute)
       .withFormUrlEncodedBody(("value", "true"))
-    
+
       val result = route(application, request).value
-    
+
       status(result) mustEqual SEE_OTHER
-    
+
       redirectLocation(result).value mustEqual onwardRoute.url
-    
+
       application.stop()
     }
-    
+
     "return a Bad Request and errors when invalid data is submitted" in {
-    
+
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-    
+
       val application = applicationBuilder(userAnswers = Some(UserAnswers().setOrException(BusinessNamePage, pspName)))
         .overrides(
         )
@@ -147,13 +147,13 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
       val boundForm = form.bind(Map("value" -> ""))
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-    
+
       val result = route(application, request).value
-    
+
       status(result) mustEqual BAD_REQUEST
-    
+
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-    
+
       val expectedJson = Json.obj(
         "form"   -> boundForm,
         "entityName" -> "partnership",
@@ -161,42 +161,42 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
         "submitUrl" -> confirmNameSubmitRoute,
         "radios" -> Radios.yesNo(boundForm("value"))
       )
-    
+
       templateCaptor.getValue mustEqual "confirmName.njk"
       jsonCaptor.getValue must containJson(expectedJson)
-    
+
       application.stop()
     }
-    
+
     "redirect to Session Expired for a GET if no existing data is found" in {
-    
+
       val application = applicationBuilder(userAnswers = None).build()
-    
+
       val request = FakeRequest(GET, confirmNameRoute)
-    
+
       val result = route(application, request).value
-    
+
       status(result) mustEqual SEE_OTHER
-    
+
       redirectLocation(result).value mustEqual controllers.routes.SessionExpiredController.onPageLoad().url
-    
+
       application.stop()
     }
-    
+
     "redirect to Session Expired for a POST if no existing data is found" in {
-    
+
       val application = applicationBuilder(userAnswers = None).build()
-    
+
       val request =
         FakeRequest(POST, confirmNameSubmitRoute)
       .withFormUrlEncodedBody(("value", "true"))
-    
+
       val result = route(application, request).value
-    
+
       status(result) mustEqual SEE_OTHER
-    
+
       redirectLocation(result).value mustEqual controllers.routes.SessionExpiredController.onPageLoad().url
-    
+
       application.stop()
     }
   }

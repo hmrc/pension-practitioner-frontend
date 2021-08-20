@@ -22,7 +22,7 @@ import forms.individual.IndividualNameFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
 import models.register.TolerantIndividual
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.{OptionValues, TryValues}

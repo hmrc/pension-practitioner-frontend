@@ -23,7 +23,7 @@ import data.SampleData
 import matchers.JsonMatchers
 import models.register.RegistrationLegalStatus
 import models.{ExistingPSP, JourneyType, KnownFact, KnownFacts, UserAnswers}
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.{OptionValues, TryValues}

@@ -24,7 +24,7 @@ import data.SampleData._
 import models.CheckMode
 import models.UserAnswers
 import org.mockito.ArgumentCaptor
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.reset
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify

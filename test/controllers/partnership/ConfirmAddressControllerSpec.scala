@@ -24,7 +24,7 @@ import forms.ConfirmAddressFormProvider
 import matchers.JsonMatchers
 import models.register._
 import models.{TolerantAddress, UserAnswers}
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.{BeforeAndAfterEach, OptionValues, TryValues}

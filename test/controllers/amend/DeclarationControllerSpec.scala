@@ -24,7 +24,7 @@ import matchers.JsonMatchers
 import models.{JourneyType, UserAnswers}
 import models.register.RegistrationLegalStatus
 import org.mockito.{ArgumentCaptor, Matchers}
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
