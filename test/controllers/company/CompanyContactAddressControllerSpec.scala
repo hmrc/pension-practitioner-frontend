@@ -23,12 +23,12 @@ import matchers.JsonMatchers
 import models.Address
 import models.NormalMode
 import models.UserAnswers
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.when
 import org.mockito.ArgumentCaptor
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.scalatest.OptionValues
 import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
@@ -137,7 +137,7 @@ class CompanyContactAddressControllerSpec extends ControllerSpecBase with Mockit
           BusinessNamePage.toString -> companyName,
           CompanyAddressPage.toString -> address)
 
-      when(mockCompoundNavigator.nextPage(Matchers.eq(CompanyAddressPage), any(), any())).thenReturn(dummyCall)
+      when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(CompanyAddressPage), any(), any())).thenReturn(dummyCall)
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
       val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value

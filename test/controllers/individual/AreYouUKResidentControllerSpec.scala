@@ -31,7 +31,7 @@ import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
 import navigators.CompoundNavigator
 import org.mockito.ArgumentCaptor
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.when

@@ -23,9 +23,9 @@ import data.SampleData
 import matchers.JsonMatchers
 import models.register.RegistrationLegalStatus
 import models.{ExistingPSP, JourneyType, KnownFact, KnownFacts, UserAnswers}
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.{BusinessNamePage, CompanyEmailPage, DeclarationPage}
@@ -109,10 +109,10 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
       val pspId = "psp-id"
       when(mockEmailConnector
         .sendEmail(any(),
-          Matchers.eq(pspId),
-          Matchers.eq(JourneyType.PSP_SUBSCRIPTION),
-          Matchers.eq(email),
-          Matchers.eq(templateId),any())(any(),any()))
+          ArgumentMatchers.eq(pspId),
+          ArgumentMatchers.eq(JourneyType.PSP_SUBSCRIPTION),
+          ArgumentMatchers.eq(email),
+          ArgumentMatchers.eq(templateId),any())(any(),any()))
         .thenReturn(Future.successful(EmailSent))
       when(mockEnrolmentConnector.enrol(any(), any())(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse.apply(NO_CONTENT, "")))
@@ -125,7 +125,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       val uaCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
-      when(mockCompoundNavigator.nextPage(Matchers.eq(DeclarationPage), any(), any())).thenReturn(dummyCall)
+      when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(DeclarationPage), any(), any())).thenReturn(dummyCall)
       when(mockSubscriptionConnector.subscribePsp(uaCaptor.capture(), any())(any(), any())).thenReturn(Future.successful(pspId))
       when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
 

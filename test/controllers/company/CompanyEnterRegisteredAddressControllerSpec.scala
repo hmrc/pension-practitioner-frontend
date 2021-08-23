@@ -21,11 +21,11 @@ import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import forms.address.AddressFormProvider
 import matchers.JsonMatchers
-import models.{Address, NormalMode, UserAnswers}
 import models.register.{RegistrationCustomerType, RegistrationInfo, RegistrationLegalStatus}
-import org.mockito.{ArgumentCaptor, Matchers}
-import org.mockito.Matchers.any
+import models.{Address, NormalMode, UserAnswers}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.{BusinessNamePage, CompanyRegisteredAddressPage}
@@ -141,7 +141,7 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
         idNumber = Some("pspId")
       )
 
-      when(mockCompoundNavigator.nextPage(Matchers.eq(CompanyRegisteredAddressPage), any(), any())).thenReturn(dummyCall)
+      when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(CompanyRegisteredAddressPage), any(), any())).thenReturn(dummyCall)
       when(mockRegistrationConnector.registerWithNoIdOrganisation(any(),any(),any())(any(),any()))
         .thenReturn(Future.successful(regInfo))
 
@@ -156,9 +156,9 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
      redirectLocation(result) mustBe Some(dummyCall.url)
       verify(mockRegistrationConnector, times(1))
         .registerWithNoIdOrganisation(
-          Matchers.eq(companyName),
-          Matchers.eq(address),
-          Matchers.eq(RegistrationLegalStatus.LimitedCompany))(any(),any())
+          ArgumentMatchers.eq(companyName),
+          ArgumentMatchers.eq(address),
+          ArgumentMatchers.eq(RegistrationLegalStatus.LimitedCompany))(any(),any())
 
     }
 

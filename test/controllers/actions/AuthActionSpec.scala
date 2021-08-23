@@ -21,9 +21,9 @@ import connectors.cache.UserAnswersCacheConnector
 import connectors.{IdentityVerificationConnector, MinimalConnector, SessionDataCacheConnector}
 import models.WhatTypeBusiness.{Companyorpartnership, Yourselfasindividual}
 import models.{AdministratorOrPractitioner, MinimalPSP, UserAnswers}
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
-import org.mockito.{Matchers, Mockito}
+import org.mockito.{ArgumentMatchers, Mockito}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.AdministratorOrPractitionerPage
@@ -116,7 +116,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
         "deceasedFlag is true" in {
             when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = enrolmentPODS))
             when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
-            when(mockMinimalConnector.getMinimalPspDetails(Matchers.eq(pspId))(any(),any())).thenReturn(Future(minimalPspDeceased(true)))
+            when(mockMinimalConnector.getMinimalPspDetails(ArgumentMatchers.eq(pspId))(any(),any())).thenReturn(Future(minimalPspDeceased(true)))
             val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
             status(result) mustBe SEE_OTHER
             redirectLocation(result) mustBe Some(frontendAppConfig.youMustContactHMRCUrl)

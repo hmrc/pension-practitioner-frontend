@@ -22,9 +22,9 @@ import controllers.base.ControllerSpecBase
 import forms.address.PostcodeFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, TolerantAddress, UserAnswers}
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.{BusinessNamePage, CompanyPostcodePage}
@@ -110,7 +110,7 @@ class CompanyPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar
           BusinessNamePage.toString -> companyName,
           CompanyPostcodePage.toString -> seqAddresses)
 
-      when(mockCompoundNavigator.nextPage(Matchers.eq(CompanyPostcodePage), any(), any())).thenReturn(enterManuallyUrl)
+      when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(CompanyPostcodePage), any(), any())).thenReturn(enterManuallyUrl)
       when(mockAddressLookupConnector.addressLookupByPostCode(any())(any(), any())).thenReturn(Future.successful(seqAddresses))
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])

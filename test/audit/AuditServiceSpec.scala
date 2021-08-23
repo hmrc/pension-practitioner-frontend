@@ -20,7 +20,7 @@ import com.kenshoo.play.metrics.Metrics
 import config.FrontendAppConfig
 import models.requests.UserType
 import org.mockito.ArgumentCaptor
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest._
 import org.scalatestplus.mockito.MockitoSugar

@@ -21,12 +21,12 @@ import controllers.base.ControllerSpecBase
 import forms.BusinessNameFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.when
 import org.mockito.ArgumentCaptor
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.scalatest.OptionValues
 import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
@@ -146,7 +146,7 @@ class PartnershipNameControllerSpec extends ControllerSpecBase with MockitoSugar
       val expectedJson = Json.obj(
         BusinessNamePage.toString -> name)
 
-      when(mockCompoundNavigator.nextPage(Matchers.eq(BusinessNamePage), any(), any())).thenReturn(dummyCall)
+      when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(BusinessNamePage), any(), any())).thenReturn(dummyCall)
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
       val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value

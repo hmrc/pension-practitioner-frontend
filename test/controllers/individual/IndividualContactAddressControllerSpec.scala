@@ -20,20 +20,17 @@ import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import forms.address.AddressFormProvider
 import matchers.JsonMatchers
-import models.{NormalMode, Address, UserAnswers}
-import org.mockito.Matchers.any
-import org.mockito.Mockito.{times, when, verify}
-import org.mockito.{Matchers, ArgumentCaptor}
+import models.{Address, NormalMode, UserAnswers}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{times, verify, when}
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.individual.AreYouUKResidentPage
-import pages.individual.IndividualManualAddressPage
+import pages.individual.{AreYouUKResidentPage, IndividualManualAddressPage}
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
-import play.api.libs.json.JsArray
-import play.api.libs.json.JsBoolean
-import play.api.libs.json.{Json, JsObject}
+import play.api.libs.json.{JsArray, JsBoolean, JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -124,7 +121,7 @@ class IndividualContactAddressControllerSpec extends ControllerSpecBase with Moc
       val expectedJson = Json.obj(
           IndividualManualAddressPage.toString -> address)
 
-      when(mockCompoundNavigator.nextPage(Matchers.eq(IndividualManualAddressPage), any(), any())).thenReturn(dummyCall)
+      when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(IndividualManualAddressPage), any(), any())).thenReturn(dummyCall)
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
       val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value

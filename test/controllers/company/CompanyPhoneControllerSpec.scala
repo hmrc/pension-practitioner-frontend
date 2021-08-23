@@ -21,9 +21,9 @@ import controllers.base.ControllerSpecBase
 import forms.PhoneFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.{BusinessNamePage, CompanyPhonePage}
@@ -119,7 +119,7 @@ class CompanyPhoneControllerSpec extends ControllerSpecBase with MockitoSugar wi
         BusinessNamePage.toString -> companyName,
         CompanyPhonePage.toString -> phone)
 
-      when(mockCompoundNavigator.nextPage(Matchers.eq(CompanyPhonePage), any(), any())).thenReturn(dummyCall)
+      when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(CompanyPhonePage), any(), any())).thenReturn(dummyCall)
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
       val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value

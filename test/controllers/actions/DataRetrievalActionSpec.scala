@@ -22,7 +22,7 @@ import models.requests.AuthenticatedRequest
 import models.requests.OptionalDataRequest
 import models.requests.PSPUser
 import models.requests.UserType
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar

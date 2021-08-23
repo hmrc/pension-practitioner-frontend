@@ -23,9 +23,9 @@ import controllers.base.ControllerSpecBase
 import forms.deregister.DeregistrationDateFormProvider
 import matchers.JsonMatchers
 import models.{JourneyType, UserAnswers}
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.deregister.DeregistrationDatePage
@@ -170,7 +170,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       )
 
       mutableFakeDataRetrievalAction.setDataToReturn(Some(ua))
-      when(mockCompoundNavigator.nextPage(Matchers.eq(DeregistrationDatePage), any(), any())).thenReturn(dummyCall)
+      when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(DeregistrationDatePage), any(), any())).thenReturn(dummyCall)
       when(mockEmailConnector.sendEmail(any(), any(), any(), any(), any(),any())(any(),any()))
         .thenReturn(Future.successful(EmailSent))
       when(mockAppConfig.emailPspDeregistrationTemplateId).thenReturn(templateId)
@@ -180,13 +180,13 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
       verify(mockEmailConnector, times(1))
-        .sendEmail(any(), Matchers.eq(pspId), Matchers.eq(JourneyType.PSP_DEREGISTRATION), Matchers.eq(email), Matchers.eq(templateId), any())(any(), any())
+        .sendEmail(any(), ArgumentMatchers.eq(pspId), ArgumentMatchers.eq(JourneyType.PSP_DEREGISTRATION), ArgumentMatchers.eq(email), ArgumentMatchers.eq(templateId), any())(any(), any())
       jsonCaptor.getValue must containJson(expectedJson)
       redirectLocation(result) mustBe Some(dummyCall.url)
       verify(mockAuditService, times(1))
-        .sendEvent(Matchers.eq(PSPDeregistrationEmail(pspId, email)))(any(), any())
+        .sendEvent(ArgumentMatchers.eq(PSPDeregistrationEmail(pspId, email)))(any(), any())
       verify(mockAuditService, times(1))
-        .sendEvent(Matchers.eq(PSPDeregistration(pspId)))(any(), any())
+        .sendEvent(ArgumentMatchers.eq(PSPDeregistration(pspId)))(any(), any())
     }
 
     "return a BAD REQUEST when invalid data is submitted" in {

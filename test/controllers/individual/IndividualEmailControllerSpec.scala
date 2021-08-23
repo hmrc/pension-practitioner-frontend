@@ -21,9 +21,9 @@ import controllers.base.ControllerSpecBase
 import forms.EmailFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.individual.IndividualEmailPage
@@ -95,7 +95,7 @@ class IndividualEmailControllerSpec extends ControllerSpecBase with MockitoSugar
 
       val expectedJson = Json.obj(IndividualEmailPage.toString -> email)
 
-      when(mockCompoundNavigator.nextPage(Matchers.eq(IndividualEmailPage), any(), any())).thenReturn(dummyCall)
+      when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(IndividualEmailPage), any(), any())).thenReturn(dummyCall)
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
       val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value

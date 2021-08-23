@@ -19,7 +19,7 @@ package controllers.individual
 import controllers.base.ControllerSpecBase
 import data.SampleData._
 import org.mockito.ArgumentCaptor
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest

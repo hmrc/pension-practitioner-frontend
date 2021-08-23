@@ -20,11 +20,11 @@ import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import forms.individual.IndividualNameFormProvider
 import matchers.JsonMatchers
-import models.{NormalMode, UserAnswers}
 import models.register.TolerantIndividual
-import org.mockito.Matchers.any
+import models.{NormalMode, UserAnswers}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.individual.IndividualDetailsPage
@@ -98,7 +98,7 @@ class IndividualNameControllerSpec extends ControllerSpecBase with MockitoSugar 
 
       val expectedJson = Json.obj(IndividualDetailsPage.toString -> name)
 
-      when(mockCompoundNavigator.nextPage(Matchers.eq(IndividualDetailsPage), any(), any())).thenReturn(dummyCall)
+      when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(IndividualDetailsPage), any(), any())).thenReturn(dummyCall)
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
       val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
