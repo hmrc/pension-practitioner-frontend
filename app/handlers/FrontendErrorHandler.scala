@@ -16,14 +16,15 @@
 
 package handlers
 
+import config.FrontendAppConfig
 import play.api.http.HeaderNames.CACHE_CONTROL
 import play.api.http.HttpErrorHandler
 import play.api.http.Status._
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{MessagesApi, I18nSupport}
 import play.api.libs.json.Json
 import play.api.mvc.Results._
-import play.api.mvc.{RequestHeader, Result, Results}
-import play.api.{Logger, PlayException}
+import play.api.mvc.{Results, RequestHeader, Result}
+import play.api.{PlayException, Logger}
 import renderer.Renderer
 
 import javax.inject.{Inject, Singleton}
@@ -33,7 +34,8 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class FrontendErrorHandler @Inject()(
                                       renderer: Renderer,
-                                      val messagesApi: MessagesApi
+                                      val messagesApi: MessagesApi,
+                                      config: FrontendAppConfig
                                     )(implicit ec: ExecutionContext) extends HttpErrorHandler with I18nSupport {
 
   override def onClientError(request: RequestHeader, statusCode: Int, message: String = ""): Future[Result] = {
@@ -44,7 +46,10 @@ class FrontendErrorHandler @Inject()(
       case BAD_REQUEST =>
         renderer.render("badRequest.njk").map(BadRequest(_))
       case NOT_FOUND =>
-        renderer.render("notFound.njk").map(NotFound(_))
+        val json = Json.obj(
+          "yourPensionSchemesUrl" -> config.pspListSchemesUrl
+        )
+        renderer.render("notFound.njk", json).map(NotFound(_))
       case _ =>
         renderer.render("error.njk", Json.obj()).map {
           content =>

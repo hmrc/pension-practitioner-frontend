@@ -49,7 +49,8 @@ class BusinessDetailsNotFoundController @Inject()(
         "companiesHouseUrl" -> config.companiesHouseFileChangesUrl,
         "hmrcUrl" -> config.hmrcChangesMustReportUrl,
         "hmrcTaxHelplineUrl" -> config.hmrcTaxHelplineUrl,
-        "enterDetailsAgainUrl" -> enterDetailsUrl
+        "enterDetailsAgainUrl" -> enterDetailsUrl,
+        "yourPensionSchemesUrl" -> config.pspListSchemesUrl
       )
       renderer.render("register/businessDetailsNotFound.njk", json).map(Ok(_))
   }
