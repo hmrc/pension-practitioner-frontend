@@ -50,6 +50,6 @@ class DeregistrationDateFormProviderSpec extends DateBehaviours {
     behave like mandatoryDateField(
       form = form,
       key = deRegDateKey,
-      requiredAllKey = s"$deRegDateMsgKey.error.required.all")
+      requiredAllKey = s"$deRegDateMsgKey.error.required.one")
   }
 }

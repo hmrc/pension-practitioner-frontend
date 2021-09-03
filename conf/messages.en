@@ -646,6 +646,7 @@ deregistrationDate.company.p1 = {0} registered as a pension scheme practitioner 
 deregistrationDate.company.error.invalid = Enter a real date for the date  the company or partnership stopped being a pension scheme practitioner
 deregistrationDate.company.error.required.all = Enter a date the company or partnership stopped being a pension scheme practitioner
 deregistrationDate.company.error.required.two = The date the company or partnership stopped being a pension scheme practitioner must include a day, month and year
+deregistrationDate.company.error.required.one = The date the company or partnership stopped being a pension scheme practitioner must include a {0}
 deregistrationDate.company.error.futureDate = The date the company or partnership stopped being a pension scheme practitioner must be today or in the past.
 deregistrationDate.company.error.minDate = Enter a date after {0}
 
@@ -663,7 +664,8 @@ deregistrationDate.individual.title = When did you stop being a pension scheme p
 deregistrationDate.individual.p1 = You were authorised as a pension scheme practitioner for this scheme on {0}. The date you stopped must be between {0} and today.
 deregistrationDate.individual.error.invalid = Enter a real date for the date you stopped being a pension scheme practitioner
 deregistrationDate.individual.error.required.all = Enter a date you stopped being a pension scheme practitioner
-deregistrationDate.individual.error.required.two = The date you stopped being a pension scheme practitioner must include a day, month and year
+deregistrationDate.individual.error.required.two = The date the company or partnership stopped being a pension scheme practitioner must include a day, month and year
+deregistrationDate.individual.error.required.one = The date you stopped being a pension scheme practitioner must include a {0}
 deregistrationDate.individual.error.futureDate = The date you stopped being a pension scheme practitioner must be today or in the past.
 deregistrationDate.individual.error.minDate = Enter a date after {0}
 

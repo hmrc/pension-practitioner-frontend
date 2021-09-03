@@ -31,6 +31,7 @@ class DeregistrationDateFormProvider @Inject() extends Mappings with Constraints
         invalidKey = s"deregistrationDate.$pspType.error.invalid",
         allRequiredKey = s"deregistrationDate.$pspType.error.required.all",
         twoRequiredKey = s"deregistrationDate.$pspType.error.required.two",
+        oneRequiredKey = s"deregistrationDate.$pspType.error.required.one",
         requiredKey = s"deregistrationDate.$pspType.error.required.all"
       ).verifying(
         maxDate(LocalDate.now(), messages(s"deregistrationDate.$pspType.error.futureDate")),
