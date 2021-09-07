@@ -27,6 +27,7 @@ private[mappings] class LocalDateFormatter(
                                             invalidKey: String,
                                             allRequiredKey: String,
                                             twoRequiredKey: String,
+                                            oneRequiredKey: String,
                                             requiredKey: String,
                                             args: Seq[String] = Seq.empty
                                           ) extends Formatter[LocalDate] with Formatters {
@@ -58,6 +59,18 @@ private[mappings] class LocalDateFormatter(
     } yield date
   }
 
+  private def errorKeyChange(key:String,missingFields:Seq[String]):String={
+    if(missingFields.contains("day")){
+      key
+    }else if(missingFields.contains("month")){
+      s"$key.month"
+    }else if(missingFields.contains("year")){
+      s"$key.year"
+    }else{
+      key
+    }
+  }
+
   override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], LocalDate] = {
 
     val fields = fieldKeys.map {
@@ -70,17 +83,18 @@ private[mappings] class LocalDateFormatter(
       .map(_._1)
       .toList
 
+   val missingCase= Left(missingFields.flatMap {
+      field =>
+        List(FormError(errorKeyChange(key,Seq(field)), oneRequiredKey, Seq(field)))
+    })
+
     fields.count(_._2.isDefined) match {
       case 3 =>
         formatDate(key, data).left.map {
           _.map(_.copy(key = key, args = args))
         }
-      case 2 =>
-        Left(List(FormError(key, twoRequiredKey, missingFields ++ args)))
-      case 1 =>
-        Left(List(FormError(key, twoRequiredKey, missingFields ++ args)))
       case _ =>
-        Left(List(FormError(key, allRequiredKey, args)))
+        missingCase
     }
   }
 
