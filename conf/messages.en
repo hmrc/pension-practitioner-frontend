@@ -200,6 +200,7 @@ address.line3 = Address line 3 (optional)
 address.line4 = Address line 4 (optional)
 address.postcode = Postcode
 address.country = Country
+addressList.h1 = Select the contact address for {0}
 
 
 error.address_line_1.required = Enter the first line of address
@@ -562,7 +563,7 @@ individual.postcode.error.required = Enter the address we can use to contact you
 individual.postcode.error.invalid = Enter a valid address which we can use to contact you
 
 individual.addressList.error.required = Select your contact address
-individual.addressList.title = Select your contact address
+individual.addressList.title = Select the contact address for the individual
 
 individual.address.title = What is your address?
 

@@ -20,13 +20,14 @@ import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import forms.address.AddressListFormProvider
 import matchers.JsonMatchers
+import models.register.TolerantIndividual
 import models.{NormalMode, TolerantAddress, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.individual.{IndividualAddressListPage, IndividualManualAddressPage, IndividualPostcodePage}
+import pages.individual.{IndividualAddressListPage, IndividualDetailsPage, IndividualManualAddressPage, IndividualPostcodePage}
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
@@ -36,6 +37,7 @@ import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.countryOptions.CountryOptions
+import viewmodels.CommonViewModel
 
 import scala.concurrent.Future
 
@@ -43,6 +45,9 @@ class IndividualAddressListControllerSpec extends ControllerSpecBase with Mockit
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
+ // private val individualName: String = "individual name"
+  private val tolerantIndividualName: TolerantIndividual = TolerantIndividual(Some("individual"),None,Some("name"))
+
   private val countryOptions: CountryOptions = mock[CountryOptions]
   private val application: Application =
     applicationBuilderMutableRetrievalAction(
@@ -53,7 +58,8 @@ class IndividualAddressListControllerSpec extends ControllerSpecBase with Mockit
   private val form = new AddressListFormProvider()(messages("individual.addressList.error.required"))
   private val tolerantAddress = TolerantAddress(Some("addr1"), Some("addr2"), Some("addr3"), Some("addr4"), Some("postcode"), Some("GB"))
 
-  private val userAnswers: UserAnswers = UserAnswers().set(IndividualPostcodePage, Seq(tolerantAddress)).toOption.value
+  private val userAnswers: UserAnswers = UserAnswers().set(IndividualDetailsPage, tolerantIndividualName).toOption.value
+    .set(IndividualPostcodePage, Seq(tolerantAddress)).toOption.value
 
   private def onPageLoadUrl: String = routes.IndividualAddressListController.onPageLoad(NormalMode).url
 
@@ -64,13 +70,16 @@ class IndividualAddressListControllerSpec extends ControllerSpecBase with Mockit
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq("0"))
 
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
-
   private val jsonToPassToTemplate: Form[Int] => JsObject =
     form => Json.obj(
       "form" -> form,
       "addresses" -> Json.arr(Json.obj("value" -> 0, "text" -> "addr1, addr2, addr3, addr4, postcode, United Kingdom")),
-      "submitUrl" -> submitUrl,
-      "enterManuallyUrl" -> enterManuallyUrl.url
+      "viewmodel" -> CommonViewModel(
+        "individual",
+        tolerantIndividualName.fullName,
+        submitUrl,
+        Some(enterManuallyUrl.url)
+    )
     )
 
   override def beforeEach: Unit = {
@@ -83,8 +92,8 @@ class IndividualAddressListControllerSpec extends ControllerSpecBase with Mockit
 
   "IndividualAddressList Controller" must {
     "return OK and the correct view for a GET" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+      val templateCaptor:ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
+      val jsonCaptor:ArgumentCaptor[JsObject] = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 
@@ -109,14 +118,14 @@ class IndividualAddressListControllerSpec extends ControllerSpecBase with Mockit
     "Save data to user answers and redirect to next page when valid data is submitted" in {
 
       val expectedJson = Json.obj(
+        IndividualDetailsPage.toString -> tolerantIndividualName,
         IndividualPostcodePage.toString -> Seq(tolerantAddress),
         IndividualManualAddressPage.toString -> tolerantAddress.toAddress)
 
       when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(IndividualAddressListPage), any(), any())).thenReturn(enterManuallyUrl)
 
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+      val jsonCaptor: ArgumentCaptor[JsObject] = ArgumentCaptor.forClass(classOf[JsObject])
       val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
-
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
       jsonCaptor.getValue must containJson(expectedJson)

@@ -22,7 +22,7 @@
           }) }}
         {% endif %}
 
-        <h1 class="govuk-heading-xl">{{messages('individual.addressList.title')}}</h1>
+        <h1 class="govuk-heading-xl">{{messages('addressList.h1', viewmodel.entityName)}}</h1>
 
         <p class="govuk-body">
           {{ messages("addressList.select") }} <a href="{{ enterManuallyUrl }}" class="govuk-link">{{ messages("address.linkText.enterManually") }}</a>.
