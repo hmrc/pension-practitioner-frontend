@@ -21,18 +21,20 @@ import controllers.Retrievals
 import controllers.actions._
 import controllers.address.{AddressListController, AddressPages}
 import forms.address.AddressListFormProvider
-import javax.inject.Inject
 import models.Mode
 import navigators.CompoundNavigator
-import pages.individual.{IndividualPostcodePage, IndividualManualAddressPage, IndividualAddressListPage}
+import pages.individual.IndividualDetailsPage
+import pages.individual.{IndividualAddressListPage, IndividualManualAddressPage, IndividualPostcodePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{Json, JsObject}
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.countryOptions.CountryOptions
+import viewmodels.CommonViewModel
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class IndividualAddressListController @Inject()(override val messagesApi: MessagesApi,
@@ -70,13 +72,17 @@ class IndividualAddressListController @Inject()(override val messagesApi: Messag
   private def getFormToJson(mode: Mode): Retrieval[Form[Int] => JsObject] =
     Retrieval(
       implicit request =>
-        IndividualPostcodePage.retrieve.right.map { addresses =>
+        (IndividualDetailsPage and IndividualPostcodePage).retrieve.right.map {
+          case individualName ~ addresses =>
           form =>
             Json.obj(
               "form" -> form,
               "addresses" -> transformAddressesForTemplate(addresses, countryOptions),
-              "submitUrl" -> routes.IndividualAddressListController.onSubmit(mode).url,
-              "enterManuallyUrl" -> routes.IndividualContactAddressController.onSubmit(mode).url
+              "viewmodel" -> CommonViewModel(
+                "individual",
+                individualName.fullName,
+                routes.IndividualAddressListController.onSubmit(mode).url,
+                Some(routes.IndividualContactAddressController.onSubmit(mode).url))
             )
         }
     )
