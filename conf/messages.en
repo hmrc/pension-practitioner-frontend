@@ -181,8 +181,8 @@ confirmAddress.heading = Is this {0}’s registered address?
 confirmAddress.company.error.required = Select yes if this is the company’s registered address
 confirmAddress.partnership.error.required = Select yes if this is the partnership’s registered address
 
-postcode.error.required = Enter the address we can use to contact {0}
-postcode.error.invalid = Enter a valid address which we can use to contact {0}
+postcode.error.required = Enter the postcode we can use to contact {0}
+postcode.error.invalid = Enter a valid postcode which we can use to contact {0}
 postcode.title = Which address can we use to contact {0}?
 postcode.youCan = You can
 address.linkText.enterManually = enter the address manually
@@ -222,7 +222,7 @@ error.postcode.length = The postcode cannot be more than 8 characters
 error.postcode.nonUK.length = The postcode cannot be more than 10 characters
 error.postcode.failed = There is a problem with the address finder. Try again or enter the address manually
 error.postcode.invalid = Enter a valid postcode
-error.postcode.noResults = There are no addresses for that postcode
+error.postcode.noResults = Postcode cannot be found
 
 youNeedToTellHMRC.title = You need to update your details before registering
 youNeedToTellHMRC.heading = You need to update your details before registering
@@ -559,8 +559,8 @@ individual.phone.hint = We will only use this to contact you about pension schem
 individual.phone.error.required = Enter your phone number
 
 individual.postcode.title = Which address can we use to contact you?
-individual.postcode.error.required = Enter the address we can use to contact you
-individual.postcode.error.invalid = Enter a valid address which we can use to contact you
+individual.postcode.error.required = Enter a postcode
+individual.postcode.error.invalid = Enter a postcode in the correct format.
 
 individual.addressList.error.required = Select your contact address
 individual.addressList.title = Select the contact address for the individual

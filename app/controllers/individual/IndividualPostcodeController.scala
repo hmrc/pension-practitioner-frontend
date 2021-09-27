@@ -64,7 +64,7 @@ class IndividualPostcodeController @Inject()(override val messagesApi: MessagesA
 
   def onSubmit(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      post(mode, getFormToJson(mode), IndividualPostcodePage, "individual.postcode.error.invalid")
+      post(mode, getFormToJson(mode), IndividualPostcodePage, "error.postcode.noResults")
   }
 
   def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Form[String] => JsObject = {
