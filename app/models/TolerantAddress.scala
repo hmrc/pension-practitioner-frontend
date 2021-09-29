@@ -29,7 +29,7 @@ case class TolerantAddress(
                             addressLine3: Option[String],
                             addressLine4: Option[String],
                             postcode: Option[String],
-                            country: Option[String]
+                            countryOpt: Option[String]
                           ) {
 
   def lines(countryOptions: CountryOptions): Seq[String] = {
@@ -47,15 +47,36 @@ case class TolerantAddress(
     lines(countryOptions).mkString(", ")
   }
 
-  def toAddress: Address = {
+  private def prepopAddress: Address = {
     Address(
       addressLine1.getOrElse(""),
       addressLine2.getOrElse(""),
       addressLine3,
       addressLine4,
       postcode,
-      country.getOrElse("")
+      countryOpt.getOrElse("")
     )
+  }
+
+  def toPrepopAddress: Address = toAddress.getOrElse(prepopAddress)
+
+
+  def toAddress: Option[Address] = (addressLine1, addressLine2, countryOpt) match {
+    case (Some(line1), Some(line2), Some(country)) => Some(Address(line1, line2, addressLine3, addressLine4, postcode, country))
+    case (_, _, None) => None
+    case (None, None, _) if addressLine3.nonEmpty && addressLine4.nonEmpty => shuffle
+    case (Some(_), None, _) if addressLine3.nonEmpty || addressLine4.nonEmpty => shuffle
+    case (None, Some(_), _) if addressLine3.nonEmpty || addressLine4.nonEmpty => shuffle
+    case _ => None
+  }
+
+  private def shuffle: Option[Address] = (addressLine1, addressLine2, addressLine3, addressLine4) match {
+    case (None, None, Some(line3), Some(line4)) => Some(Address(line3, line4, None, None, postcode, countryOpt.get))
+    case (Some(line1), None, Some(line3), al4) => Some(Address(line1, line3, al4, None, postcode, countryOpt.get))
+    case (Some(line1), None, None, Some(line4)) => Some(Address(line1, line4, None, None, postcode, countryOpt.get))
+    case (None, Some(line2), Some(line3), al4) => Some(Address(line2, line3, al4, None, postcode, countryOpt.get))
+    case (None, Some(line2), None, Some(line4)) => Some(Address(line2, line4, None, None, postcode, countryOpt.get))
+    case _ => None
   }
 
   def equalsAddress(address: Address): Boolean = {
@@ -63,7 +84,7 @@ case class TolerantAddress(
       address.addressLine2 == addressLine2.getOrElse("") &&
       address.addressLine3 == addressLine3 &&
       address.addressLine4 == addressLine4 &&
-      address.country == country.getOrElse("") &&
+      address.country == countryOpt.getOrElse("") &&
       address.postcode == postcode
   }
 }
@@ -164,7 +185,7 @@ object TolerantAddress {
     for {
       addressLine1 <- tolerant.addressLine1
       addressLine2 <- tolerant.addressLine2
-      country <- tolerant.country
+      country <- tolerant.countryOpt
     } yield {
       Address(
         addressLine1,

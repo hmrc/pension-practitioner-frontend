@@ -63,7 +63,7 @@ class PartnershipAddressListController @Inject()(override val messagesApi: Messa
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
         val addressPages: AddressPages = AddressPages(PartnershipPostcodePage, PartnershipAddressListPage, PartnershipAddressPage)
-        getFormToJson(mode).retrieve.right.map(post(mode, _, addressPages))
+        getFormToJson(mode).retrieve.right.map(post(mode, _, addressPages, manualUrlCall = routes.PartnershipContactAddressController.onPageLoad(mode)))
     }
 
   def getFormToJson(mode: Mode): Retrieval[Form[Int] => JsObject] =

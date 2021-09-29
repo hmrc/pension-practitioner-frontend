@@ -137,7 +137,7 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
               tolerantAddress.addressLine3,
               tolerantAddress.addressLine4,
               tolerantAddress.postcode,
-              tolerantAddress.country.getOrElse("GB")
+              tolerantAddress.countryOpt.getOrElse("GB")
             ))
           }
       }

@@ -25,7 +25,7 @@ import pages.{AddressChange, QuestionPage}
 import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.libs.json.{Json, JsObject}
-import play.api.mvc.{Result, AnyContent}
+import play.api.mvc.{Result, Call, AnyContent}
 import renderer.Renderer
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -44,19 +44,27 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
   def get(json: Form[Int] => JsObject)(implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] =
           renderer.render(viewTemplate, json(form)).map(Ok(_))
 
-  def post(mode: Mode, json: Form[Int] => JsObject, pages: AddressPages)
+  def post(mode: Mode, json: Form[Int] => JsObject, pages: AddressPages, manualUrlCall:Call)
           (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
         form.bindFromRequest().fold(
           formWithErrors =>
             renderer.render(viewTemplate, json(formWithErrors)).map(BadRequest(_)),
           value =>
             pages.postcodePage.retrieve.right.map { addresses =>
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(pages.addressPage,
-                  addresses(value).copy(country = Some("GB")).toAddress))
-                answersWithChangeFlag <- Future.fromTry(setChangeFlag(updatedAnswers, AddressChange))
+              val address = addresses(value).copy(countryOpt = Some("GB"))
+              address.toAddress match {
+                case Some(addr) =>
+                for {
+                  updatedAnswers <- Future.fromTry(request.userAnswers.set(pages.addressPage,
+                    addr))
+                  answersWithChangeFlag <- Future.fromTry(setChangeFlag(updatedAnswers, AddressChange))
+                  _ <- userAnswersCacheConnector.save(answersWithChangeFlag.data)
+                } yield Redirect(navigator.nextPage(pages.addressListPage, mode, answersWithChangeFlag))
+              case None => for {
+                answersWithChangeFlag <- Future.fromTry(setChangeFlag(request.userAnswers, AddressChange))
                 _ <- userAnswersCacheConnector.save(answersWithChangeFlag.data)
-              } yield Redirect(navigator.nextPage(pages.addressListPage, mode, answersWithChangeFlag))
+              }yield Redirect(manualUrlCall)
+              }
             }
         )
   }

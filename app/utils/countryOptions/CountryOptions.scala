@@ -42,7 +42,7 @@ class CountryOptions @Inject()(environment: Environment, config: FrontendAppConf
   def getCountryNameFromCode(address: Address): String = getCountryNameFromCode(address.country)
 
   def getCountryNameFromCode(address: TolerantAddress): Option[String] = {
-    address.country.map(getCountryNameFromCode)
+    address.countryOpt.map(getCountryNameFromCode)
   }
 
 }

@@ -561,7 +561,7 @@ object RegistrationConnectorSpec extends OptionValues {
     "addressLine2" -> address.addressLine2.value,
     "addressLine3" -> address.addressLine3.value,
     "addressLine4" -> address.addressLine4.value,
-    "countryCode" -> address.country.value,
+    "countryCode" -> address.countryOpt.value,
     "postalCode" -> address.postcode.value
   )
 
