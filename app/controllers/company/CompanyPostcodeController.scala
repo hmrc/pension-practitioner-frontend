@@ -65,7 +65,7 @@ class CompanyPostcodeController @Inject()(override val messagesApi: MessagesApi,
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
         getFormToJson(mode).retrieve.right.map(
-          post(mode, _, CompanyPostcodePage, Messages("postcode.error.invalid", Messages("company")))
+          post(mode, _, CompanyPostcodePage, Messages("error.postcode.noResults"))
         )
     }
 
