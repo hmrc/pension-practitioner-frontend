@@ -22,7 +22,7 @@ import controllers.{Retrievals, Variation}
 import models.requests.DataRequest
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import models.AddressConfiguration.AddressConfiguration
-import models.{Mode, Address, AddressConfiguration}
+import models.{Mode, Address, AddressConfiguration, TolerantAddress}
 import navigators.CompoundNavigator
 import pages.{AddressChange, QuestionPage}
 import pages.company.CompanyAddressPage
@@ -69,13 +69,19 @@ trait ManualAddressController
 
   protected def get(mode: Mode,
                     name: Option[String],
+                    selectedAddress: QuestionPage[TolerantAddress],
                     addressLocation: AddressConfiguration)(
     implicit request: DataRequest[AnyContent],
     ec: ExecutionContext
   ): Future[Result] = {
-    val filledForm =
-      request.userAnswers.get(addressPage).fold(form)(form.fill)
-    renderer.render(viewTemplate, json(mode, name, filledForm, addressLocation)).map(Ok(_))
+    val preparedForm = request.userAnswers.get(addressPage) match {
+      case None => request.userAnswers.get(selectedAddress) match {
+        case Some(value) => form.fill(value.toPrepopAddress)
+        case None => form
+      }
+      case Some(value) => form.fill(value)
+    }
+    renderer.render(viewTemplate, json(mode, name, preparedForm, addressLocation)).map(Ok(_))
   }
 
   protected def post(mode: Mode,

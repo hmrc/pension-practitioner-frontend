@@ -386,7 +386,7 @@ class RegistrationConnectorSpec
       )
 
       val connector = injector.instanceOf[RegistrationConnector]
-      connector.registerWithNoIdOrganisation(organisation.organisationName, expectedAddress(uk = false).toAddress, legalStatus).map { registration =>
+      connector.registerWithNoIdOrganisation(organisation.organisationName, expectedAddress(uk = false).toPrepopAddress, legalStatus).map { registration =>
         registration.sapNumber mustBe sapNumber
       }
     }
@@ -404,7 +404,7 @@ class RegistrationConnectorSpec
       )
 
       val connector = injector.instanceOf[RegistrationConnector]
-      connector.registerWithNoIdOrganisation(organisation.organisationName, expectedAddress(uk = false).toAddress, legalStatus).map { registration =>
+      connector.registerWithNoIdOrganisation(organisation.organisationName, expectedAddress(uk = false).toPrepopAddress, legalStatus).map { registration =>
         registration.noIdentifier mustBe true
       }
     }
@@ -423,7 +423,7 @@ class RegistrationConnectorSpec
 
       val connector = injector.instanceOf[RegistrationConnector]
       recoverToSucceededIf[IllegalArgumentException] {
-        connector.registerWithNoIdOrganisation(organisation.organisationName, expectedAddress(uk = false).toAddress, legalStatus)
+        connector.registerWithNoIdOrganisation(organisation.organisationName, expectedAddress(uk = false).toPrepopAddress, legalStatus)
       }
 
     }
@@ -440,7 +440,7 @@ class RegistrationConnectorSpec
 
       val connector = injector.instanceOf[RegistrationConnector]
       recoverToSucceededIf[IllegalArgumentException] {
-        connector.registerWithNoIdOrganisation(organisation.organisationName, expectedAddress(uk = false).toAddress, legalStatus)
+        connector.registerWithNoIdOrganisation(organisation.organisationName, expectedAddress(uk = false).toPrepopAddress, legalStatus)
       }
     }
 
@@ -461,7 +461,7 @@ class RegistrationConnectorSpec
       )
 
       val connector = injector.instanceOf[RegistrationConnector]
-      connector.registerWithNoIdIndividual(firstName, lastName, expectedAddress(uk = false).toAddress).map { registration =>
+      connector.registerWithNoIdIndividual(firstName, lastName, expectedAddress(uk = false).toPrepopAddress).map { registration =>
         registration.sapNumber mustBe sapNumber
       }
     }
@@ -480,7 +480,7 @@ class RegistrationConnectorSpec
       )
 
       val connector = injector.instanceOf[RegistrationConnector]
-      connector.registerWithNoIdIndividual(firstName, lastName, expectedAddress(uk = false).toAddress).map { registration =>
+      connector.registerWithNoIdIndividual(firstName, lastName, expectedAddress(uk = false).toPrepopAddress).map { registration =>
         registration.noIdentifier mustBe true
       }
     }
@@ -498,7 +498,7 @@ class RegistrationConnectorSpec
 
       val connector = injector.instanceOf[RegistrationConnector]
       recoverToSucceededIf[IllegalArgumentException] {
-        connector.registerWithNoIdIndividual(firstName, lastName, expectedAddress(uk = false).toAddress)
+        connector.registerWithNoIdIndividual(firstName, lastName, expectedAddress(uk = false).toPrepopAddress)
       }
 
     }
@@ -516,7 +516,7 @@ class RegistrationConnectorSpec
 
       val connector = injector.instanceOf[RegistrationConnector]
       recoverToSucceededIf[IllegalArgumentException] {
-        connector.registerWithNoIdIndividual(firstName, lastName, expectedAddress(uk = false).toAddress)
+        connector.registerWithNoIdIndividual(firstName, lastName, expectedAddress(uk = false).toPrepopAddress)
       }
 
     }
@@ -539,7 +539,7 @@ object RegistrationConnectorSpec extends OptionValues {
   private val lastName = "Doe"
   private val legalStatus = RegistrationLegalStatus.LimitedCompany
   private val registerWithoutIdIndividualRequest = Json.toJson(
-    RegistrationNoIdIndividualRequest(firstName, lastName, expectedAddress(uk = false).toAddress))
+    RegistrationNoIdIndividualRequest(firstName, lastName, expectedAddress(uk = false).toPrepopAddress))
 
   private val expectedIndividual = TolerantIndividual(
     Some("John"),

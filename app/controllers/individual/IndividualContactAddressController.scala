@@ -25,7 +25,7 @@ import forms.address.AddressFormProvider
 import models.{Address, Mode}
 import navigators.CompoundNavigator
 import pages.QuestionPage
-import pages.individual.{AreYouUKResidentPage, IndividualManualAddressPage}
+import pages.individual.{AreYouUKResidentPage, IndividualAddressListPage, IndividualManualAddressPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -65,7 +65,7 @@ class IndividualContactAddressController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
       AreYouUKResidentPage.retrieve.right.map { areYouUKResident =>
-        get(mode, None, addressConfigurationForPostcodeAndCountry(areYouUKResident))
+        get(mode, None, IndividualAddressListPage, addressConfigurationForPostcodeAndCountry(areYouUKResident))
       }
     }
 

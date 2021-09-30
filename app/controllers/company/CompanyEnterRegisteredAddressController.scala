@@ -29,7 +29,7 @@ import models.{Address, AddressConfiguration, Mode}
 import models.register.RegistrationLegalStatus
 import navigators.CompoundNavigator
 import pages.{QuestionPage, RegistrationInfoPage}
-import pages.company.{CompanyRegisteredAddressPage, BusinessNamePage}
+import pages.company.{CompanyRegisteredAddressPage, CompanyAddressListPage, BusinessNamePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -63,7 +63,7 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
       BusinessNamePage.retrieve.right.map { companyName =>
-          get(mode, Some(companyName), AddressConfiguration.CountryOnly)
+          get(mode, Some(companyName), CompanyAddressListPage, AddressConfiguration.CountryOnly)
       }
     }
 

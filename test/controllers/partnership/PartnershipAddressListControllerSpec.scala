@@ -112,7 +112,7 @@ class PartnershipAddressListControllerSpec extends ControllerSpecBase with Mocki
       val expectedJson = Json.obj(
         BusinessNamePage.toString -> partnershipName,
         PartnershipPostcodePage.toString -> Seq(tolerantAddress),
-        PartnershipAddressPage.toString -> tolerantAddress.copy(country = Some("GB")).toAddress)
+        PartnershipAddressPage.toString -> tolerantAddress.copy(countryOpt = Some("GB")).toAddress)
 
       when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(PartnershipAddressListPage), any(), any())).thenReturn(enterManuallyUrl)
 

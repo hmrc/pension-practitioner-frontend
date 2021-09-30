@@ -60,10 +60,15 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
                   answersWithChangeFlag <- Future.fromTry(setChangeFlag(updatedAnswers, AddressChange))
                   _ <- userAnswersCacheConnector.save(answersWithChangeFlag.data)
                 } yield Redirect(navigator.nextPage(pages.addressListPage, mode, answersWithChangeFlag))
-              case None => for {
-                answersWithChangeFlag <- Future.fromTry(setChangeFlag(request.userAnswers, AddressChange))
-                _ <- userAnswersCacheConnector.save(answersWithChangeFlag.data)
-              }yield Redirect(manualUrlCall)
+              case None =>
+                for {
+                  updatedAnswers <- Future.fromTry(request.userAnswers.set(pages.addressListPage,
+                      address)
+                    )
+                  _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+                } yield {
+                  Redirect(manualUrlCall)
+                }
               }
             }
         )
@@ -81,5 +86,5 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
 }
 
 case class AddressPages(postcodePage: QuestionPage[Seq[TolerantAddress]],
-                        addressListPage: QuestionPage[Int],
+                        addressListPage: QuestionPage[TolerantAddress],
                         addressPage: QuestionPage[Address])
