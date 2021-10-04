@@ -18,8 +18,9 @@ package pages.individual
 
 import pages.QuestionPage
 import play.api.libs.json.JsPath
+import models.TolerantAddress
 
-case object IndividualAddressListPage extends QuestionPage[Int] {
+case object IndividualAddressListPage extends QuestionPage[TolerantAddress] {
 
   override def path: JsPath = JsPath \ toString
   override def toString: String = "addressList"

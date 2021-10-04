@@ -22,10 +22,11 @@ import pages.behaviours.PageBehaviours
 class UseAddressForContactPageSpec extends PageBehaviours {
 
   private val tolerantAddress = Seq(TolerantAddress(Some("line1"), Some("line2"), Some("line3"), Some("line4"), Some("post code"), Some("GB")))
+  private val tolerantAddress1 = TolerantAddress(Some("line1"), Some("line2"), Some("line3"), Some("line4"), Some("post code"), Some("GB"))
   private val address = Address("line1", "line2", Some("line3"), Some("line4"), Some("post code"), "GB")
   private val ua: UserAnswers = UserAnswers().set(UseAddressForContactPage, value = false).
     flatMap(_.set(IndividualPostcodePage, tolerantAddress)).
-    flatMap(_.set(IndividualAddressListPage, 1)
+    flatMap(_.set(IndividualAddressListPage, tolerantAddress1)
     flatMap(_.set(IndividualManualAddressPage, address))).getOrElse(UserAnswers())
 
   "UseAddressForContactPage" - {

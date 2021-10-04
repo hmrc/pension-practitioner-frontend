@@ -75,12 +75,12 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
             case Some(nino) =>
               registrationConnector.registerWithIdIndividual(nino).flatMap { registration =>
                 Future.fromTry(ua.set(IndividualDetailsPage, registration.response.individual).flatMap(
-                  _.set(IndividualAddressPage, registration.response.address.toAddress)).flatMap(
+                  _.set(IndividualAddressPage, registration.response.address.toPrepopAddress)).flatMap(
                   _.set(RegistrationInfoPage, registration.info)
                 )).flatMap { uaWithRegInfo =>
                   userAnswersCacheConnector.save(uaWithRegInfo.data).flatMap { _ =>
                     renderer.render(template = "individual/isThisYou.njk", json ++
-                      jsonWithNameAndAddress(registration.response.individual, registration.response.address.toAddress)).map(Ok(_))
+                      jsonWithNameAndAddress(registration.response.individual, registration.response.address.toPrepopAddress)).map(Ok(_))
                   }
                 }
               }

@@ -26,7 +26,7 @@ import javax.inject.Inject
 import models.{Mode, Address}
 import navigators.CompoundNavigator
 import pages.QuestionPage
-import pages.company.{CompanyAddressPage, BusinessNamePage}
+import pages.company.{CompanyAddressPage, BusinessNamePage, CompanyAddressListPage}
 import pages.register.AreYouUKCompanyPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -67,7 +67,7 @@ class CompanyContactAddressController @Inject()(
     (authenticate andThen getData andThen requireData).async { implicit request =>
       (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
         case areYouUKCompany ~ companyName =>
-          get(mode, Some(companyName), addressConfigurationForPostcodeAndCountry(areYouUKCompany))
+          get(mode, Some(companyName), CompanyAddressListPage, addressConfigurationForPostcodeAndCountry(areYouUKCompany))
       }
     }
 

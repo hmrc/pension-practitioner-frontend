@@ -28,7 +28,7 @@ import models.register.RegistrationInfo
 import models.requests.DataRequest
 import models.{Mode, Address}
 import navigators.CompoundNavigator
-import pages.individual.{IndividualDetailsPage, IndividualAddressPage}
+import pages.individual.{IndividualDetailsPage, IndividualAddressListPage, IndividualAddressPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{Json, JsObject}
@@ -61,7 +61,7 @@ class IndividualEnterRegisteredAddressController @Inject()(override val messages
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
-        get(getFormToJson(mode), IndividualAddressPage)
+        get(getFormToJson(mode), IndividualAddressPage, IndividualAddressListPage)
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =

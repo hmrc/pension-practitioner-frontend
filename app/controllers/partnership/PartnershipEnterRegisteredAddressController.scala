@@ -32,7 +32,7 @@ import navigators.CompoundNavigator
 import pages.QuestionPage
 import pages.RegistrationInfoPage
 import pages.partnership.BusinessNamePage
-import pages.partnership.PartnershipRegisteredAddressPage
+import pages.partnership.{PartnershipRegisteredAddressPage, PartnershipAddressListPage}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.i18n.Messages
@@ -72,7 +72,7 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
       BusinessNamePage.retrieve.right.map { companyName =>
-        get(mode, Some(companyName), AddressConfiguration.CountryOnly)
+        get(mode, Some(companyName), PartnershipAddressListPage, AddressConfiguration.CountryOnly)
       }
     }
 

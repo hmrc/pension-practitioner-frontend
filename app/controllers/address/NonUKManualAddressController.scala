@@ -22,7 +22,7 @@ import controllers.Retrievals
 import models.register.InternationalRegion.{RestOfTheWorld, EuEea}
 import models.register.RegistrationInfo
 import models.requests.DataRequest
-import models.{Mode, Address}
+import models.{Mode, Address, TolerantAddress}
 import navigators.CompoundNavigator
 import pages.{RegistrationInfoPage, QuestionPage}
 import play.api.data.Form
@@ -47,10 +47,16 @@ trait NonUKManualAddressController extends FrontendBaseController with Retrieval
 
   protected def viewTemplate = "address/nonUKAddress.njk"
 
-  def get(json: Form[Address] => JsObject, addressPage: QuestionPage[Address])
+  def get(json: Form[Address] => JsObject, addressPage: QuestionPage[Address], selectedAddress: QuestionPage[TolerantAddress])
          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
-    val formFilled = request.userAnswers.get(addressPage).fold(form)(v => form.fill(v))
-    renderer.render(viewTemplate, json(formFilled)).map(Ok(_))
+    val preparedForm = request.userAnswers.get(addressPage) match {
+      case None => request.userAnswers.get(selectedAddress) match {
+        case Some(value) => form.fill(value.toPrepopAddress)
+        case None => form
+      }
+      case Some(value) => form.fill(value)
+    }
+    renderer.render(viewTemplate, json(preparedForm)).map(Ok(_))
   }
 
   def post(mode: Mode, json: Form[Address] => JsObject, addressPage: QuestionPage[Address],

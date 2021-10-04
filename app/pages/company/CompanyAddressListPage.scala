@@ -18,8 +18,9 @@ package pages.company
 
 import pages.QuestionPage
 import play.api.libs.json.JsPath
+import models.TolerantAddress
 
-case object CompanyAddressListPage extends QuestionPage[Int] {
+case object CompanyAddressListPage extends QuestionPage[TolerantAddress] {
 
   override def path: JsPath = JsPath \ toString
   override def toString: String = "addressList"
