@@ -57,3 +57,5 @@ POST        /declare                                        controllers.amend.De
 GET         /success                                        controllers.amend.ConfirmationController.onPageLoad()
 
 GET         /your-action-was-not-processed                  controllers.YourActionWasNotProcessedController.onPageLoad()
+
+GET         /cannot-register-practitioner                   controllers.CannotRegisterPractitionerController.onPageLoad

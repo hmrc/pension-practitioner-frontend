@@ -21,19 +21,21 @@ import play.api.http.Status._
 
 trait HttpResponseHelper extends HttpErrorFunctions {
 
-  def handleErrorResponse(httpMethod: String, url: String)(response: HttpResponse): Nothing =
+  def handleErrorResponse(httpMethod: String, url: String)(response: HttpResponse): Nothing = {
     response.status match {
       case BAD_REQUEST =>
         throw new BadRequestException(badRequestMessage(httpMethod, url, response.body))
       case NOT_FOUND =>
         throw new NotFoundException(notFoundMessage(httpMethod, url, response.body))
       case status if is4xx(status) =>
+        println("status _____________is4xx"+ response.status)
         throw UpstreamErrorResponse(upstreamResponseMessage(httpMethod, url, status, response.body), status, status, response.headers)
       case status if is5xx(status) =>
         throw UpstreamErrorResponse(upstreamResponseMessage(httpMethod, url, status, response.body), status, BAD_GATEWAY)
       case _ =>
         throw new UnrecognisedHttpResponseException(httpMethod, url, response)
     }
+  }
 
 }
 

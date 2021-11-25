@@ -1,0 +1,26 @@
+{% extends "includes/layout.njk" %}
+
+{% from "macros/title.njk"                         import title %}
+
+{% block pageTitle %}
+  {{ title(messages("cannotRegisterPractitioner.title")) }}
+{% endblock %}
+
+{% block mainContent %}
+
+  <div class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+
+        <h1 class="govuk-heading-xl">
+          {{ messages("cannotRegisterPractitioner.title") }}
+        </h1>
+        <p class="govuk-body">{{messages('cannotRegisterPractitioner.p1')}}</p>
+
+        <a class="govuk-link" href="{{ contactHmrcUrl }}">{{messages("cannotRegisterPractitioner.head.link")}}</a>
+
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
