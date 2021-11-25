@@ -19,6 +19,7 @@ package controllers.partnership
 import connectors.{EmailConnector, EmailSent, EnrolmentConnector, SubscriptionConnector}
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
+import controllers.partnership.DeclarationControllerSpec.{email, ua}
 import data.SampleData
 import matchers.JsonMatchers
 import models.register.RegistrationLegalStatus
@@ -37,7 +38,7 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.KnownFactsRetrieval
 
@@ -67,9 +68,6 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   private def onPageLoadUrl: String = routes.DeclarationController.onPageLoad().url
   private def submitUrl: String = routes.DeclarationController.onSubmit().url
-
-  private val companyName = "Acme Ltd"
-  private val email = "a@a.c"
 
   private val knownFacts = Some(KnownFacts(
     Set(KnownFact("PSPID", "test-psa")),
@@ -118,10 +116,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
           ArgumentMatchers.eq(templateId),any())(any(),any()))
         .thenReturn(Future.successful(EmailSent))
       when(mockAppConfig.emailPspSubscriptionTemplateId).thenReturn(templateId)
-      val ua = UserAnswers()
-        .setOrException(RegistrationInfoPage, SampleData.registrationInfo(RegistrationLegalStatus.Partnership))
-        .setOrException(BusinessNamePage, companyName)
-          .setOrException(PartnershipEmailPage, email)
+
       when(mockEnrolmentConnector.enrol(any(), any())(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse.apply(NO_CONTENT, "")))
       when(knownFactsRetrieval.retrieve(any())(any())).thenReturn(knownFacts)
@@ -152,5 +147,33 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       redirectLocation(result).value mustBe controllers.routes.SessionExpiredController.onPageLoad().url
     }
+
+    "redirect to Cannot register Practitioner page for a POST when there is active Psp exists" in {
+      mutableFakeDataRetrievalAction.setDataToReturn(Some(ua))
+      when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(DeclarationPage), any(), any())).thenReturn(dummyCall)
+
+      when(mockSubscriptionConnector.subscribePsp(any(), any())(any(), any())).thenReturn(Future.failed(UpstreamErrorResponse(
+        message = "ACTIVE_PSPID_ALREADY_EXISTS",
+        statusCode = FORBIDDEN,
+        reportAs = FORBIDDEN
+      )))
+
+      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+
+      status(result) mustEqual SEE_OTHER
+
+      redirectLocation(result).value mustBe controllers.routes.CannotRegisterPractitionerController.onPageLoad().url
+
+    }
   }
+}
+
+object DeclarationControllerSpec {
+  private val companyName = "Acme Ltd"
+  private val email = "a@a.c"
+
+  val ua = UserAnswers()
+    .setOrException(RegistrationInfoPage, SampleData.registrationInfo(RegistrationLegalStatus.Partnership))
+    .setOrException(BusinessNamePage, companyName)
+    .setOrException(PartnershipEmailPage, email)
 }
