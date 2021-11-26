@@ -36,7 +36,7 @@ class CannotRegisterPractitionerController @Inject()(
 
   def onPageLoad: Action[AnyContent] = Action.async { implicit request =>
     val json = Json.obj(
-      "contactHmrcUrl" -> config.contactHmrcUrl,
+      "contactHmrcUrl" -> config.contactHmrcUrl
     )
     renderer.render("cannotRegisterPractitioner.njk",json).map(Ok(_))
   }
