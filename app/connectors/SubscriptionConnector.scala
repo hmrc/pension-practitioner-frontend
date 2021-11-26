@@ -16,7 +16,6 @@
 
 package connectors
 
-import java.time.LocalDate
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import models.{JourneyType, _}
@@ -24,10 +23,10 @@ import play.api.Logger
 import play.api.http.Status.{BAD_REQUEST, NOT_FOUND, OK}
 import play.api.libs.json._
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
 import utils.HttpResponseHelper
 
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Failure
 

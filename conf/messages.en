@@ -72,6 +72,11 @@ alreadyRegistered.title = You have already registered as a pension scheme practi
 alreadyRegistered.heading = You have already registered as a pension scheme practitioner
 alreadyRegistered.p1 = This Government Gateway account has already been used to register as a pension scheme practitioner.
 
+cannotRegisterPractitioner.title = You cannot register as a practitioner using this ID
+cannotRegisterPractitioner.heading = You cannot register as a practitioner using this ID
+cannotRegisterPractitioner.p1 = Our records show that the scheme practitioner ID you are trying to register with is used by another practitioner.
+cannotRegisterPractitioner.head.link = Contact HMRC for help
+
 updateContactAddress.title = You must update your contact address
 updateContactAddress.heading = You must update your contact address
 updateContactAddress.p1 = A letter we sent to your current contact address:

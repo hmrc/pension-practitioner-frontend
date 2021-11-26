@@ -21,7 +21,7 @@ import play.api.http.Status._
 
 trait HttpResponseHelper extends HttpErrorFunctions {
 
-  def handleErrorResponse(httpMethod: String, url: String)(response: HttpResponse): Nothing =
+  def handleErrorResponse(httpMethod: String, url: String)(response: HttpResponse): Nothing = {
     response.status match {
       case BAD_REQUEST =>
         throw new BadRequestException(badRequestMessage(httpMethod, url, response.body))
@@ -34,6 +34,7 @@ trait HttpResponseHelper extends HttpErrorFunctions {
       case _ =>
         throw new UnrecognisedHttpResponseException(httpMethod, url, response)
     }
+  }
 
 }
 

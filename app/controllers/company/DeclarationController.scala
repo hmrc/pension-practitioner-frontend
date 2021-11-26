@@ -32,7 +32,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
-import uk.gov.hmrc.http.HttpReads.is5xx
+import uk.gov.hmrc.http.HttpReads.{is4xx, is5xx}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
@@ -91,7 +91,10 @@ class DeclarationController @Inject()(
       } recoverWith {
         case ex: UpstreamErrorResponse if is5xx(ex.statusCode) =>
           Future.successful(Redirect(controllers.routes.YourActionWasNotProcessedController.onPageLoad()))
-        case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+        case ex: UpstreamErrorResponse if ex.message.contains("ACTIVE_PSPID") && is4xx(ex.statusCode) =>
+          Future.successful(Redirect(controllers.routes.CannotRegisterPractitionerController.onPageLoad()))
+        case _ =>
+          Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
       }
     }
 
