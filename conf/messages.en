@@ -499,12 +499,12 @@ tellHMRC.hmrc = HMRC
 email.error.invalid = Enter an email address in the correct format, like name@example.com
 email.error.required = Enter {0}’s email address
 email.title = What is {0}’s email address?
-email.hint = We will only use this to contact {0} about pension scheme practitioners.
+email.hint = We will use this email address to contact {0} if we have any questions about this practitioner registration.
 
 phone.error.required = Enter {0}’s phone number
 phone.error.invalid = Enter a phone number in the correct format
 phone.title = What is {0}’s phone number?
-phone.hint = We will only use this to contact {0} about pension scheme practitioners.
+phone.hint = We will use this phone number to contact {0} if we have any questions about this practitioner registration.
 
 cya.companyName = Company name
 cya.utr = UTR
