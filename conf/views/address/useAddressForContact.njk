@@ -26,6 +26,10 @@
                 {{ messages("useAddressForContact.title", messages(viewmodel.entityName)) }}
         </h1>
 
+        {% if messages(entity) == 'Partnership' or messages(entity) == 'Company' %}
+            <p> {{ messages("useAddressForContact.confirm.text") }}</p>
+        {% endif %}
+
         <form action="{{ viewmodel.submitUrl }}" method="post" autocomplete="off" novalidate>
 
           {{ csrf() | safe }}

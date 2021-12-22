@@ -94,7 +94,8 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
         "form" -> form,
         "viewmodel" -> CommonViewModel("individual.you", "individual.you", routes.UseAddressForContactController.onSubmit().url),
         "radios" -> Radios.yesNo(form("value")),
-        "address" -> address.lines(countryOptions)
+        "address" -> address.lines(countryOptions),
+        "entity" -> "Individual"
       )
       block(json)
     }

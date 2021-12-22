@@ -131,7 +131,8 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
             "form" -> form,
             "viewmodel" -> CommonViewModel("partnership", companyName, routes.PartnershipUseSameAddressController.onSubmit().url),
             "radios" -> Radios.yesNo(form("value")),
-            "address" -> tolerantAddress.lines(countryOptions)
+            "address" -> tolerantAddress.lines(countryOptions),
+            "entity" -> "Partnership"
           )
           block(json)
         }

@@ -525,7 +525,7 @@ cya.partnershipName = Partnership name
 
 useAddressForContact.title = Can HMRC use this address to contact {0}?
 useAddressForContact.error.required = Select yes if HMRC can use this address to contact {0}
-
+useAddressForContact.confirm.text = Select yes if we can use this address to contact about this practitioner registration.
 
 useAddressForContact.title = Can HMRC use this address to contact {0}?
 useAddressForContact.error.required = Select yes if HMRC can use this address to contact {0}
