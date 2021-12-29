@@ -19,44 +19,47 @@ package connectors
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import connectors.cache.CacheConnector
-import play.api.libs.json._
-import uk.gov.hmrc.http._
 import play.api.http.Status._
-import play.api.libs.ws.WSClient
-import play.api.mvc.Results._
+import play.api.libs.json._
 import play.api.mvc.Result
+import play.api.mvc.Results._
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class SessionDataCacheConnector  @Inject()(
   config: FrontendAppConfig,
-  http: WSClient
+  http: HttpClient
 ) {
   private def url(cacheId:String) = s"${config.pensionAdministratorUrl}/pension-administrator/journey-cache/session-data/$cacheId"
 
   def fetch(id: String)(implicit ec: ExecutionContext,
-    hc: HeaderCarrier): Future[Option[JsValue]] = {
-    http
-      .url(url(id))
-      .withHttpHeaders(CacheConnector.headers(hc): _*)
-      .get()
-      .flatMap { response =>
+                        headerCarrier: HeaderCarrier): Future[Option[JsValue]] = {
+    val hc: HeaderCarrier = headerCarrier.withExtraHeaders(CacheConnector.headers(headerCarrier): _*)
+    http.GET[HttpResponse](url(id))(implicitly, hc, implicitly)
+      .recoverWith(mapExceptionsToStatus)
+      .map { response =>
         response.status match {
           case NOT_FOUND =>
-            Future.successful(None)
+           None
           case OK =>
-            Future.successful(Some(Json.parse(response.body)))
+            Some(Json.parse(response.body))
           case _ =>
-            Future.failed(new HttpException(response.body, response.status))
+            throw new HttpException(response.body, response.status)
         }
       }
   }
 
-  def removeAll(id: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
-    http
-      .url(url(id))
-      .withHttpHeaders(CacheConnector.headers(hc): _*)
-      .delete()
-      .map(_=>Ok)
+  def removeAll(id: String)(implicit ec: ExecutionContext, headerCarrier: HeaderCarrier): Future[Result] = {
+    val hc: HeaderCarrier = headerCarrier.withExtraHeaders(CacheConnector.headers(headerCarrier): _*)
+    http.DELETE[HttpResponse](url(id))(implicitly, hc, implicitly).map { _ =>
+      Ok
+    }
+  }
+
+  private def mapExceptionsToStatus: PartialFunction[Throwable, Future[HttpResponse]] = {
+    case _: NotFoundException =>
+      Future.successful(HttpResponse(NOT_FOUND, "Not found"))
   }
 }
