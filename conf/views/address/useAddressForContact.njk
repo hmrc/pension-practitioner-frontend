@@ -25,7 +25,11 @@
         <h1 class="govuk-heading-xl">
                 {{ messages("useAddressForContact.title", messages(viewmodel.entityName)) }}
         </h1>
-
+        {% if messages(entity) == 'Partnership' or messages(entity) == 'Company' %}
+            <p class="govuk-body">
+                {{ messages("useAddressForContact.confirm.text",messages(viewmodel.entityName)) }}
+            </p>
+        {% endif %}
         <form action="{{ viewmodel.submitUrl }}" method="post" autocomplete="off" novalidate>
 
           {{ csrf() | safe }}

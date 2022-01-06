@@ -117,7 +117,8 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
             "form" -> form,
             "viewmodel" -> CommonViewModel("company", companyName, routes.CompanyUseSameAddressController.onSubmit().url),
             "radios" -> Radios.yesNo(form("value")),
-            "address" -> tolerantAddress.lines(countryOptions)
+            "address" -> tolerantAddress.lines(countryOptions),
+            "entity" -> "Company"
           )
           block(json)
         }
