@@ -36,7 +36,9 @@ class SessionDataCacheConnector  @Inject()(
 
   def fetch(id: String)(implicit ec: ExecutionContext,
                         headerCarrier: HeaderCarrier): Future[Option[JsValue]] = {
-    val hc: HeaderCarrier = headerCarrier.withExtraHeaders(CacheConnector.headers(headerCarrier): _*)
+    val headers: Seq[(String, String)] = Seq(("Content-Type", "application/json"))
+    val hc: HeaderCarrier = headerCarrier.withExtraHeaders(headers: _*)
+
     http.GET[HttpResponse](url(id))(implicitly, hc, implicitly)
       .recoverWith(mapExceptionsToStatus)
       .map { response =>
@@ -52,7 +54,9 @@ class SessionDataCacheConnector  @Inject()(
   }
 
   def removeAll(id: String)(implicit ec: ExecutionContext, headerCarrier: HeaderCarrier): Future[Result] = {
-    val hc: HeaderCarrier = headerCarrier.withExtraHeaders(CacheConnector.headers(headerCarrier): _*)
+    val headers: Seq[(String, String)] = Seq(("Content-Type", "application/json"))
+    val hc: HeaderCarrier = headerCarrier.withExtraHeaders(headers: _*)
+
     http.DELETE[HttpResponse](url(id))(implicitly, hc, implicitly).map { _ =>
       Ok
     }

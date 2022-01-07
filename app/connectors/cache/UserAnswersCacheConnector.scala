@@ -36,7 +36,9 @@ class UserAnswersCacheConnectorImpl @Inject()(
 
   override def fetch(implicit ec: ExecutionContext,
                      headerCarrier: HeaderCarrier): Future[Option[JsValue]] = {
-    val hc: HeaderCarrier = headerCarrier.withExtraHeaders(CacheConnector.headers(headerCarrier): _*)
+    val headers: Seq[(String, String)] = Seq(("Content-Type", "application/json"))
+    val hc: HeaderCarrier = headerCarrier.withExtraHeaders(headers: _*)
+
     http.GET[HttpResponse](url)(implicitly, hc, implicitly)
       .recoverWith(mapExceptionsToStatus)
       .map { response =>
@@ -53,8 +55,8 @@ class UserAnswersCacheConnectorImpl @Inject()(
 
   def save(value: JsValue)
           (implicit ec: ExecutionContext, headerCarrier: HeaderCarrier): Future[JsValue] = {
-
-    val hc: HeaderCarrier = headerCarrier.withExtraHeaders(CacheConnector.headers(headerCarrier): _*)
+    val headers: Seq[(String, String)] = Seq(("Content-Type", "application/json"))
+    val hc: HeaderCarrier = headerCarrier.withExtraHeaders(headers: _*)
     http.POST[JsValue, HttpResponse](url, value)(implicitly, implicitly, hc, implicitly)
       .map { response =>
         response.status match {
@@ -67,7 +69,8 @@ class UserAnswersCacheConnectorImpl @Inject()(
   }
 
   override def removeAll(implicit ec: ExecutionContext, headerCarrier: HeaderCarrier): Future[Result] = {
-    val hc: HeaderCarrier = headerCarrier.withExtraHeaders(CacheConnector.headers(headerCarrier): _*)
+    val headers: Seq[(String, String)] = Seq(("Content-Type", "application/json"))
+    val hc: HeaderCarrier = headerCarrier.withExtraHeaders(headers: _*)
     http.DELETE[HttpResponse](url)(implicitly, hc, implicitly).map { _ =>
       Ok
     }
