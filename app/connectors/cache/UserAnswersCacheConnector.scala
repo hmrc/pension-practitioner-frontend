@@ -36,7 +36,9 @@ class UserAnswersCacheConnectorImpl @Inject()(
 
   override def fetch(implicit ec: ExecutionContext,
                      headerCarrier: HeaderCarrier): Future[Option[JsValue]] = {
-    val hc: HeaderCarrier = headerCarrier.withExtraHeaders(CacheConnector.headers(headerCarrier): _*)
+    val headers: Seq[(String, String)] = Seq(("Content-Type", "application/json"))
+    val hc: HeaderCarrier = headerCarrier.withExtraHeaders(headers: _*)
+
     http.GET[HttpResponse](url)(implicitly, hc, implicitly)
       .recoverWith(mapExceptionsToStatus)
       .map { response =>
