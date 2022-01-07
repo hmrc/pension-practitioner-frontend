@@ -18,7 +18,6 @@ package connectors
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import connectors.cache.CacheConnector
 import play.api.http.Status._
 import play.api.libs.json._
 import play.api.mvc.Result
