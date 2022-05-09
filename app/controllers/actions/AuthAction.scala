@@ -19,7 +19,7 @@ package controllers.actions
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import connectors.{IdentityVerificationConnector, MinimalConnector, SessionDataCacheConnector}
+import connectors.{PersonalDetailsValidationConnector, MinimalConnector, SessionDataCacheConnector}
 import models.AdministratorOrPractitioner.Administrator
 import models.UserAnswers
 import models.WhatTypeBusiness.Yourselfasindividual
@@ -204,7 +204,7 @@ trait AuthAction extends ActionBuilder[AuthenticatedRequest, AnyContent] with Ac
 class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthConnector,
                                               config: FrontendAppConfig,
                                               userAnswersCacheConnector: UserAnswersCacheConnector,
-                                              identityVerificationConnector: IdentityVerificationConnector,
+                                              personalDetailsValidationConnector: PersonalDetailsValidationConnector,
                                               minimalConnector: MinimalConnector,
                                               parser: BodyParsers.Default,
                                               sessionDataCacheConnector:SessionDataCacheConnector
@@ -246,7 +246,7 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
 
   private def getNinoAndUpdateAuthRequest[A](externalId: String, journeyId: String, block: AuthenticatedRequest[A] => Future[Result],
                                              authRequest: AuthenticatedRequest[A])(implicit hc: HeaderCarrier): Future[Result] = {
-    identityVerificationConnector.retrieveNinoFromIV(journeyId).flatMap {
+    personalDetailsValidationConnector.retrieveNino(journeyId).flatMap {
       case Some(nino) =>
         val updatedAuth = AuthenticatedRequest(authRequest.request, externalId, authRequest.user.copy(nino = Some(nino)))
         block(updatedAuth)
@@ -265,7 +265,7 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
                              block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
     getData(WhatTypeBusinessPage).flatMap {
       case Some(Yourselfasindividual) =>
-        identityVerificationConnector.startRegisterOrganisationAsIndividual(
+        personalDetailsValidationConnector.startRegisterOrganisationAsIndividual(
           config.ukJourneyContinueUrl,
           failureURL = s"${config.loginContinueUrl}/unauthorised"
         ).map { link =>
@@ -291,12 +291,12 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
 class AuthenticatedAuthActionMustHaveNoEnrolmentWithIV @Inject()(override val authConnector: AuthConnector,
                                                                  config: FrontendAppConfig,
                                                                  userAnswersCacheConnector: UserAnswersCacheConnector,
-                                                                 identityVerificationConnector: IdentityVerificationConnector,
+                                                                 personalDetailsValidationConnector: PersonalDetailsValidationConnector,
                                                                  minimalConnector: MinimalConnector,
                                                                  parser: BodyParsers.Default,
                                                                  sessionDataCacheConnector:SessionDataCacheConnector
                                                                 )(implicit executionContext: ExecutionContext) extends
-  AuthenticatedAuthActionWithIV(authConnector, config, userAnswersCacheConnector, identityVerificationConnector, minimalConnector, parser, sessionDataCacheConnector)
+  AuthenticatedAuthActionWithIV(authConnector, config, userAnswersCacheConnector, personalDetailsValidationConnector, minimalConnector, parser, sessionDataCacheConnector)
   with AuthorisedFunctions {
 
   override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] = {

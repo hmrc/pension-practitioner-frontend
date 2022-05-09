@@ -90,6 +90,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   lazy val identityVerification: String = servicesConfig.baseUrl("identity-verification")
 
+  lazy val personalDetailsValidation: String = s"${servicesConfig.baseUrl("personal-details-validation")}"
+
   lazy val identityVerificationFrontend: String = servicesConfig.baseUrl("identity-verification-frontend")
 
   lazy val identityVerificationProxy: String = servicesConfig.baseUrl("identity-verification-proxy")
@@ -140,4 +142,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   lazy val gtmContainerId: String = configuration.get[String]("tracking-consent-frontend.gtm.container")
   lazy val trackingSnippetUrl: String = configuration.get[String]("tracking-consent-frontend.url")
+
+  lazy val pointingFromIvApiToPdvApi: Boolean = configuration.getOptional[Boolean]("features.pointing-from-iv-api-to-pdv-api").getOrElse(true)
+
 }

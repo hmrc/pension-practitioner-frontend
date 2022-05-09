@@ -18,7 +18,7 @@ package controllers.actions
 
 import base.SpecBase
 import connectors.cache.UserAnswersCacheConnector
-import connectors.{IdentityVerificationConnector, MinimalConnector, SessionDataCacheConnector}
+import connectors.{PersonalDetailsValidationConnector, MinimalConnector, SessionDataCacheConnector}
 import models.WhatTypeBusiness.{Companyorpartnership, Yourselfasindividual}
 import models.{AdministratorOrPractitioner, MinimalPSP, UserAnswers}
 import org.mockito.ArgumentMatchers.any
@@ -44,7 +44,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
   import AuthActionSpec._
 
   override def beforeEach: Unit = {
-    Mockito.reset(mockUserAnswersCacheConnector, authConnector, mockIVConnector, mockMinimalConnector)
+    Mockito.reset(mockUserAnswersCacheConnector, authConnector, mockPDVConnector, mockMinimalConnector)
     when(mockMinimalConnector.getMinimalPspDetails(any())(any(),any())).thenReturn(Future(minimalPspDeceased()))
   }
   "the user has enrolled in PODS as both a PSA AND a PSP" must {
@@ -203,7 +203,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
         "they want to register as Individual" in {
           val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Yourselfasindividual.toString)
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
-          when(mockIVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
+          when(mockPDVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
           val result = controllerWithIVNoEnrolment.onPageLoad()(fakeRequest)
           status(result) mustBe SEE_OTHER
@@ -212,8 +212,8 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 
         "journey Id is correct and in the cache but no nino returned from IV" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
-          when(mockIVConnector.retrieveNinoFromIV(any())(any(), any())).thenReturn(Future(None))
-          when(mockIVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
+          when(mockPDVConnector.retrieveNino(any())(any(), any())).thenReturn(Future(None))
+          when(mockPDVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
           val userAnswersData = Json.obj("areYouUKResident" -> true,
             "whatTypeBusiness" -> Yourselfasindividual.toString, "journeyId" -> "test-journey")
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
@@ -225,8 +225,8 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 
         "journey Id is not present in url and not in the cache" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
-          when(mockIVConnector.retrieveNinoFromIV(any())(any(), any())).thenReturn(Future(None))
-          when(mockIVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
+          when(mockPDVConnector.retrieveNino(any())(any(), any())).thenReturn(Future(None))
+          when(mockPDVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
           val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Yourselfasindividual.toString)
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
           val result = controllerWithIVNoEnrolment.onPageLoad()(fakeRequest)
@@ -238,7 +238,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
       "return OK, retrieve the nino from IV when selected as Individual" when {
         "journey Id is saved in user answers" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
-          when(mockIVConnector.retrieveNinoFromIV(any())(any(), any())).thenReturn(Future(Some(nino)))
+          when(mockPDVConnector.retrieveNino(any())(any(), any())).thenReturn(Future(Some(nino)))
           val userAnswersData = Json.obj("areYouUKResident" -> true,
             "whatTypeBusiness" -> Yourselfasindividual.toString, "journeyId" -> "test-journey")
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
@@ -249,8 +249,8 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 
         "journey Id is not in user answers but present in url" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
-          when(mockIVConnector.retrieveNinoFromIV(any())(any(), any())).thenReturn(Future(Some(nino)))
-          when(mockIVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
+          when(mockPDVConnector.retrieveNino(any())(any(), any())).thenReturn(Future(Some(nino)))
+          when(mockPDVConnector.startRegisterOrganisationAsIndividual(any(), any())(any(), any())).thenReturn(Future(startIVLink))
           val journeyId = "test-journey-id"
           val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Yourselfasindividual.toString)
           when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future(Json.obj()))
@@ -457,7 +457,7 @@ object AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach
 
   private val mockMinimalConnector: MinimalConnector = mock[MinimalConnector]
   private val mockUserAnswersCacheConnector: UserAnswersCacheConnector = mock[UserAnswersCacheConnector]
-  private val mockIVConnector: IdentityVerificationConnector = mock[IdentityVerificationConnector]
+  private val mockPDVConnector: PersonalDetailsValidationConnector = mock[PersonalDetailsValidationConnector]
   private val authConnector: AuthConnector = mock[AuthConnector]
   private val bodyParsers: BodyParsers.Default = fakeApplication().injector.instanceOf[BodyParsers.Default]
 
@@ -467,7 +467,7 @@ object AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach
 
   val authActionWithIVNoEnrolment = new AuthenticatedAuthActionMustHaveNoEnrolmentWithIV(
     authConnector, frontendAppConfig,
-    mockUserAnswersCacheConnector, mockIVConnector, mockMinimalConnector, bodyParsers, mockSessionDataCacheConnector
+    mockUserAnswersCacheConnector, mockPDVConnector, mockMinimalConnector, bodyParsers, mockSessionDataCacheConnector
   )
 
   val controllerWithIVEnrolment = new Harness(authActionWithIVEnrolment)

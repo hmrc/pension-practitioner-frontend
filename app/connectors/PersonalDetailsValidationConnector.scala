@@ -29,9 +29,9 @@ import uk.gov.hmrc.http.HttpClient
 import scala.concurrent.{Future, ExecutionContext}
 import scala.util.{Failure, Try}
 
-class IdentityVerificationConnector @Inject()(http: HttpClient, appConfig: FrontendAppConfig) {
+class PersonalDetailsValidationConnector @Inject()(http: HttpClient, appConfig: FrontendAppConfig) {
 
-  private val logger = Logger(classOf[IdentityVerificationConnector])
+  private val logger = Logger(classOf[PersonalDetailsValidationConnector])
 
   def startRegisterOrganisationAsIndividual(completionURL: String, failureURL: String)
                                            (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String] = {
@@ -54,15 +54,29 @@ class IdentityVerificationConnector @Inject()(http: HttpClient, appConfig: Front
     }
   }
 
-  def retrieveNinoFromIV(journeyId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[Nino]] = {
-    val url = s"${appConfig.identityVerification}/identity-verification/journey/$journeyId"
+  def retrieveNino(journeyId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[Nino]] = {
 
-    http.GET[HttpResponse](url).flatMap {
-      case response if response.status equals Status.OK =>
-        Future.successful((response.json \ "nino").asOpt[Nino])
-      case response =>
-        logger.debug(s"Call to retrieve Nino from IV failed with status ${response.status} and response body ${response.body}")
-        Future.successful(None)
+    if (appConfig.pointingFromIvApiToPdvApi) {
+
+      val url = s"${appConfig.personalDetailsValidation}/personal-details-validation/$journeyId"
+
+      http.GET[HttpResponse](url).map {
+        case response if response.status equals Status.OK =>
+          (response.json \ "personalDetails" \ "nino").asOpt[Nino]
+        case response =>
+          logger.debug(s"Call to retrieve Nino failed with status ${response.status} and response body ${response.body}")
+          None
+      }
+    } else {
+      val url = s"${appConfig.identityVerification}/identity-verification/journey/$journeyId"
+
+      http.GET[HttpResponse](url).flatMap {
+        case response if response.status equals Status.OK =>
+          Future.successful((response.json \ "nino").asOpt[Nino])
+        case response =>
+          logger.debug(s"Call to retrieve Nino from IV failed with status ${response.status} and response body ${response.body}")
+          Future.successful(None)
+      }
     }
   } andThen {
     logExceptions("Unable to retrieve Nino from IV")
