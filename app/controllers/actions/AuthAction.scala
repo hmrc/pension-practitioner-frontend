@@ -293,8 +293,8 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
       case _ if validationId.nonEmpty =>
         for {
           ua <- getUa
-          uaWithJourneyId <- Future.fromTry(ua.set(ValidationPage, validationId.getOrElse("")))
-          _ <- userAnswersCacheConnector.save(uaWithJourneyId.data)
+          uaWithValidationId <- Future.fromTry(ua.set(ValidationPage, validationId.getOrElse("")))
+          _ <- userAnswersCacheConnector.save(uaWithValidationId.data)
           finalAuthRequest <- getNinoAndUpdateAuthRequestPDV(externalId, validationId.getOrElse(""), block, authRequest)
         } yield {
           finalAuthRequest
