@@ -91,6 +91,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val identityVerification: String = servicesConfig.baseUrl("identity-verification")
 
   lazy val personalDetailsValidation: String = s"${servicesConfig.baseUrl("personal-details-validation")}"
+
   lazy val personalDetailsValidationFrontEnd: String = s"${servicesConfig.baseUrl("personal-details-validation-frontend")}"
 
   lazy val identityVerificationFrontend: String = servicesConfig.baseUrl("identity-verification-frontend")

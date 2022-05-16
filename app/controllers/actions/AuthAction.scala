@@ -143,6 +143,7 @@ abstract class AuthenticatedAuthAction @Inject()(
       case _ => Future.successful(None)
     }
   }
+
   private def createAuthenticatedRequest[A](
                                              externalId: String,
                                              request: Request[A],
@@ -254,7 +255,7 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
 
   private def getNinoAndUpdateAuthRequestIV[A](externalId: String, journeyId: String, block: AuthenticatedRequest[A] => Future[Result],
                                              authRequest: AuthenticatedRequest[A])(implicit hc: HeaderCarrier): Future[Result] = {
-    personalDetailsValidationConnector.retrieveNino(journeyId).flatMap {
+    identityVerificationConnector.retrieveNinoFromIV(journeyId).flatMap {
       case Some(nino) =>
         val updatedAuth = AuthenticatedRequest(authRequest.request, externalId, authRequest.user.copy(nino = Some(nino)))
         block(updatedAuth)
