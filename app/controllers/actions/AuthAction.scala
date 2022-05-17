@@ -18,18 +18,19 @@ package controllers.actions
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import connectors.cache.UserAnswersCacheConnector
-import connectors.{IdentityVerificationConnector, MinimalConnector, SessionDataCacheConnector}
+import connectors.cache.{FeatureToggleConnector, UserAnswersCacheConnector}
+import connectors.{IdentityVerificationConnector, MinimalConnector, PersonalDetailsValidationConnector, SessionDataCacheConnector}
 import models.AdministratorOrPractitioner.Administrator
+import models.FeatureToggleName.PspFromIvToPdv
 import models.UserAnswers
 import models.WhatTypeBusiness.Yourselfasindividual
 import models.requests.UserType.UserType
 import models.requests.{AuthenticatedRequest, PSPUser, UserType}
 import pages.individual.AreYouUKResidentPage
-import pages.{AdministratorOrPractitionerPage, JourneyPage, QuestionPage, WhatTypeBusinessPage}
+import pages.{AdministratorOrPractitionerPage, JourneyPage, QuestionPage, ValidationPage, WhatTypeBusinessPage}
 import play.api.Logger
 import play.api.libs.json.{JsObject, Json, Reads}
-import play.api.mvc.Results.Redirect
+import play.api.mvc.Results.{Redirect, SeeOther}
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AffinityGroup._
 import uk.gov.hmrc.auth.core._
@@ -142,6 +143,7 @@ abstract class AuthenticatedAuthAction @Inject()(
       case _ => Future.successful(None)
     }
   }
+
   private def createAuthenticatedRequest[A](
                                              externalId: String,
                                              request: Request[A],
@@ -204,10 +206,12 @@ trait AuthAction extends ActionBuilder[AuthenticatedRequest, AnyContent] with Ac
 class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthConnector,
                                               config: FrontendAppConfig,
                                               userAnswersCacheConnector: UserAnswersCacheConnector,
-                                              identityVerificationConnector: IdentityVerificationConnector,
+                                              personalDetailsValidationConnector: PersonalDetailsValidationConnector,
                                               minimalConnector: MinimalConnector,
                                               parser: BodyParsers.Default,
-                                              sessionDataCacheConnector:SessionDataCacheConnector
+                                              sessionDataCacheConnector:SessionDataCacheConnector,
+                                              identityVerificationConnector: IdentityVerificationConnector,
+                                              featureToggleConnector: FeatureToggleConnector
                                              )(implicit executionContext: ExecutionContext) extends
   AuthenticatedAuthAction(authConnector, config, minimalConnector, parser,sessionDataCacheConnector)
   with AuthorisedFunctions {
@@ -220,7 +224,12 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
                                                     block: AuthenticatedRequest[A] => Future[Result]
                                                   )(implicit hc: HeaderCarrier): Future[Result] = {
     getData(AreYouUKResidentPage) flatMap {
-      case Some(true) => doManualIVAndRetrieveNino(externalId, authRequest, block)
+      case Some(true) => featureToggleConnector.get(PspFromIvToPdv.asString).map { toggle =>
+        toggle.isEnabled
+      }.flatMap {
+        case true => doManualPDVAndRetrieveNino(externalId, authRequest, block)
+        case false => doManualIVAndRetrieveNino(externalId, authRequest, block)
+      }
       case _ => block(authRequest)
     }
   }
@@ -229,13 +238,13 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
                                            block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
     val journeyId = authRequest.request.getQueryString(key = "journeyId")
     getData(JourneyPage).flatMap {
-      case Some(journey) => getNinoAndUpdateAuthRequest(externalId, journey, block, authRequest)
+      case Some(journey) => getNinoAndUpdateAuthRequestIV(externalId, journey, block, authRequest)
       case _ if journeyId.nonEmpty =>
         for {
           ua <- getUa
           uaWithJourneyId <- Future.fromTry(ua.set(JourneyPage, journeyId.getOrElse("")))
           _ <- userAnswersCacheConnector.save(uaWithJourneyId.data)
-          finalAuthRequest <- getNinoAndUpdateAuthRequest(externalId, journeyId.getOrElse(""), block, authRequest)
+          finalAuthRequest <- getNinoAndUpdateAuthRequestIV(externalId, journeyId.getOrElse(""), block, authRequest)
         } yield {
           finalAuthRequest
         }
@@ -244,7 +253,7 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
     }
   }
 
-  private def getNinoAndUpdateAuthRequest[A](externalId: String, journeyId: String, block: AuthenticatedRequest[A] => Future[Result],
+  private def getNinoAndUpdateAuthRequestIV[A](externalId: String, journeyId: String, block: AuthenticatedRequest[A] => Future[Result],
                                              authRequest: AuthenticatedRequest[A])(implicit hc: HeaderCarrier): Future[Result] = {
     identityVerificationConnector.retrieveNinoFromIV(journeyId).flatMap {
       case Some(nino) =>
@@ -276,6 +285,57 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
     }
   }
 
+  private def doManualPDVAndRetrieveNino[A](externalId: String, authRequest: AuthenticatedRequest[A],
+                                           block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
+    val validationId = authRequest.request.getQueryString(key = "validationId")
+    getData(ValidationPage).flatMap {
+      case Some(validation) =>
+        getNinoAndUpdateAuthRequestPDV(externalId, validation, block, authRequest)
+      case _ if validationId.nonEmpty =>
+        for {
+          ua <- getUa
+          uaWithValidationId <- Future.fromTry(ua.set(ValidationPage, validationId.getOrElse("")))
+          _ <- userAnswersCacheConnector.save(uaWithValidationId.data)
+          finalAuthRequest <- getNinoAndUpdateAuthRequestPDV(externalId, validationId.getOrElse(""), block, authRequest)
+        } yield {
+          finalAuthRequest
+        }
+      case _ =>
+        orgManualPDV(authRequest, block)
+    }
+  }
+
+  private def getNinoAndUpdateAuthRequestPDV[A](externalId: String, validationId: String, block: AuthenticatedRequest[A] => Future[Result],
+                                             authRequest: AuthenticatedRequest[A])(implicit hc: HeaderCarrier): Future[Result] = {
+    personalDetailsValidationConnector.retrieveNino(validationId).flatMap {
+      case Some(nino) =>
+        val updatedAuth = AuthenticatedRequest(authRequest.request, externalId, authRequest.user.copy(nino = Some(nino)))
+        block(updatedAuth)
+      case _ =>
+        getUa.flatMap { answers =>
+          Future.fromTry(answers.remove(ValidationPage)).flatMap { ua =>
+            userAnswersCacheConnector.save(ua.data).flatMap { _ =>
+              orgManualPDV(authRequest, block)
+            }
+          }
+        }
+    }
+  }
+
+  private def orgManualPDV[A](authRequest: AuthenticatedRequest[A],
+                             block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
+    getData(WhatTypeBusinessPage).flatMap {
+      case Some(Yourselfasindividual) =>
+        val completionURL = config.ukJourneyContinueUrl
+        val failureURL = s"${config.loginContinueUrl}/unauthorised"
+        val url = s"${config.personalDetailsValidationFrontEnd}" +
+          s"/personal-details-validation/start?completionUrl=$completionURL&failureUrl=$failureURL"
+        Future.successful(SeeOther(url))
+      case _ =>
+        block(authRequest)
+    }
+  }
+
   private def getData[A](typedId: QuestionPage[A])(implicit hc: HeaderCarrier, rds: Reads[A]): Future[Option[A]] =
     getUa.map(_.get(typedId))
 
@@ -291,12 +351,15 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
 class AuthenticatedAuthActionMustHaveNoEnrolmentWithIV @Inject()(override val authConnector: AuthConnector,
                                                                  config: FrontendAppConfig,
                                                                  userAnswersCacheConnector: UserAnswersCacheConnector,
-                                                                 identityVerificationConnector: IdentityVerificationConnector,
+                                                                 personalDetailsValidationConnector: PersonalDetailsValidationConnector,
                                                                  minimalConnector: MinimalConnector,
                                                                  parser: BodyParsers.Default,
-                                                                 sessionDataCacheConnector:SessionDataCacheConnector
+                                                                 sessionDataCacheConnector:SessionDataCacheConnector,
+                                                                 identityVerificationConnector: IdentityVerificationConnector,
+                                                                 featureToggleConnector: FeatureToggleConnector
                                                                 )(implicit executionContext: ExecutionContext) extends
-  AuthenticatedAuthActionWithIV(authConnector, config, userAnswersCacheConnector, identityVerificationConnector, minimalConnector, parser, sessionDataCacheConnector)
+  AuthenticatedAuthActionWithIV(authConnector, config, userAnswersCacheConnector, personalDetailsValidationConnector,
+    minimalConnector, parser, sessionDataCacheConnector, identityVerificationConnector, featureToggleConnector)
   with AuthorisedFunctions {
 
   override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] = {
