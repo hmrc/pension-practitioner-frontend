@@ -22,23 +22,25 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import forms.individual.IsThisYouFormProvider
+import models.register.RegistrationIdType.Nino
+
 import javax.inject.Inject
 import models.register.TolerantIndividual
-import models.{Mode, Address}
+import models.{Address, Mode}
 import navigators.CompoundNavigator
 import pages.RegistrationInfoPage
-import pages.individual.{IndividualDetailsPage, IndividualAddressPage, IsThisYouPage}
+import pages.individual.{IndividualAddressPage, IndividualDetailsPage, IsThisYouPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.{Json, JsObject}
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
 import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import utils.countryOptions.CountryOptions
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
 class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
                                     userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -67,12 +69,13 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
         "submitUrl" -> routes.IsThisYouController.onSubmit(mode).url,
         "radios" -> Radios.yesNo(preparedForm("value"))
       )
-      (ua.get(IndividualDetailsPage), ua.get(IndividualAddressPage), ua.get(RegistrationInfoPage)) match {
-        case (Some(individual), Some(address), Some(_)) =>
-          renderer.render(template = "individual/isThisYou.njk", json ++ jsonWithNameAndAddress(individual, address)).map(Ok(_))
-        case _ =>
-          request.user.nino match {
-            case Some(nino) =>
+      request.user.nino match {
+        case None => Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
+        case Some(nino) =>
+          (ua.get(IndividualDetailsPage), ua.get(IndividualAddressPage), ua.get(RegistrationInfoPage)) match {
+            case (Some(individual), Some(address), Some(info)) if info.idType.contains(Nino) && info.idNumber.contains(nino.value) =>
+              renderer.render(template = "individual/isThisYou.njk", json ++ jsonWithNameAndAddress(individual, address)).map(Ok(_))
+            case _ =>
               registrationConnector.registerWithIdIndividual(nino).flatMap { registration =>
                 Future.fromTry(ua.set(IndividualDetailsPage, registration.response.individual).flatMap(
                   _.set(IndividualAddressPage, registration.response.address.toPrepopAddress)).flatMap(
@@ -84,8 +87,6 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
                   }
                 }
               }
-            case _ =>
-              Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
           }
       }
 
