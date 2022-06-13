@@ -78,8 +78,12 @@ class IsThisYouControllerSpec extends ControllerSpecBase with MockitoSugar with 
     "on a GET" must {
 
       "return OK with the correct view if individual details are in the cache" in {
+        when(registrationConnector.registerWithIdIndividual(any())(any(), any())).
+          thenReturn(Future.successful(IndividualRegistration(IndividualRegisterWithIdResponse(individual, address.toTolerantAddress), registrationInfo)))
+        when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
         val application = applicationBuilder(userAnswers = Some(uaWithIndividualAddressRegInfo),
-          extraModules = Seq(bind[CountryOptions].toInstance(countryOptions))).overrides().build()
+          extraModules = Seq(bind[CountryOptions].toInstance(countryOptions),
+            bind[RegistrationConnector].toInstance(registrationConnector))).overrides().build()
         val request = FakeRequest(GET, isThisYouGetRoute)
         val result = route(application, request).value
 
@@ -94,8 +98,12 @@ class IsThisYouControllerSpec extends ControllerSpecBase with MockitoSugar with 
       }
 
       "return OK and populate the view correctly when the question has previously been answered" in {
+        when(registrationConnector.registerWithIdIndividual(any())(any(), any())).
+          thenReturn(Future.successful(IndividualRegistration(IndividualRegisterWithIdResponse(individual, address.toTolerantAddress), registrationInfo)))
+        when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
         val application = applicationBuilder(userAnswers = Some(uaWithIndividualAddressRegInfo.set(IsThisYouPage, true).success.value),
-          extraModules = Seq(bind[CountryOptions].toInstance(countryOptions))).overrides().build()
+          extraModules = Seq(bind[CountryOptions].toInstance(countryOptions),
+            bind[RegistrationConnector].toInstance(registrationConnector))).overrides().build()
         val request = FakeRequest(GET, isThisYouGetRoute)
 
         val result = route(application, request).value
