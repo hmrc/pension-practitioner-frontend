@@ -96,7 +96,9 @@ class DeclarationController @Inject()(
           Future.successful(Redirect(controllers.routes.YourActionWasNotProcessedController.onPageLoad()))
         case ex: UpstreamErrorResponse if ex.message.contains("ACTIVE_PSPID") && is4xx(ex.statusCode) =>
           Future.successful(Redirect(controllers.routes.CannotRegisterPractitionerController.onPageLoad()))
-        case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+        case ex =>
+          logger.warn("Error - redirecting to session expired page", ex)
+          Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
       }
     }
 
