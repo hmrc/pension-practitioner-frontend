@@ -25,40 +25,33 @@ import play.api.mvc.Call
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
-class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig: ServicesConfig) {
+class FrontendAppConfig @Inject()(configuration: Configuration, servicesConfig: ServicesConfig) {
 
   private def loadConfig(key: String): String = configuration.getOptional[String](key).getOrElse(throw new Exception(s"Missing configuration key: $key"))
 
   private def getConfigString(key: String) = servicesConfig.getConfString(key, throw new Exception(s"Could not find config '$key'"))
 
-  def localFriendlyUrl(uri:String):String = loadConfig("host") + uri
+  def localFriendlyUrl(uri: String): String = loadConfig("host") + uri
 
-  lazy val contactHost: String = servicesConfig.baseUrl("contact-frontend")
   lazy val addressLookUp = s"${servicesConfig.baseUrl("address-lookup")}"
 
   lazy val appName: String = configuration.get[String](path = "appName")
-  val analyticsToken: String = configuration.get[String](s"google-analytics.token")
-  val analyticsHost: String = configuration.get[String](s"google-analytics.host")
 
   val reportAProblemPartialUrl: String = getConfigString("contact-frontend.report-problem-url.with-js")
   val reportAProblemNonJSUrl: String = getConfigString("contact-frontend.report-problem-url.non-js")
-  val betaFeedbackUrl: String = getConfigString("contact-frontend.beta-feedback-url.authenticated")
   val betaFeedbackUnauthenticatedUrl: String = getConfigString("contact-frontend.beta-feedback-url.unauthenticated")
 
-  lazy val authUrl: String = configuration.get[Service]("auth").baseUrl
   lazy val signOutUrl: String = loadConfig("urls.logout")
   lazy val pspUrl: String = servicesConfig.baseUrl("pension-practitioner")
-  lazy val pensionAdministratorUrl: String = servicesConfig.baseUrl ("pension-administrator")
+  lazy val pensionAdministratorUrl: String = servicesConfig.baseUrl("pension-administrator")
 
   lazy val administratorOrPractitionerUrl: String = loadConfig("urls.administratorOrPractitioner")
-  def cannotAccessPageAsAdministratorUrl(continueUrl:String): String =
+
+  def cannotAccessPageAsAdministratorUrl(continueUrl: String): String =
     loadConfig("urls.cannotAccessPageAsAdministrator").format(continueUrl)
 
   lazy val timeoutSeconds: String = configuration.get[String]("session.timeoutSeconds")
   lazy val CountdownInSeconds: String = configuration.get[String]("session.CountdownInSeconds")
-
-  lazy val languageTranslationEnabled: Boolean =
-    configuration.get[Boolean]("microservice.services.features.welsh-translation")
 
   lazy val validCountryCodes: Seq[String] = configuration.get[String]("validCountryCodes").split(",").toSeq
   lazy val locationCanonicalList: String = loadConfig("location.canonical.list.all")
@@ -119,8 +112,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val createGovGatewayUrl: String = configuration.get[String]("urls.createGovGateway")
 
   lazy val youMustContactHMRCUrl: String = configuration.get[String]("urls.youMustContactHMRC")
-  lazy val returnToPensionSchemesUrl: String = configuration.get[String]("urls.pensionSchemesList")
-  lazy val returnToOverviewUrl: String = configuration.get[String]("urls.overview")
   lazy val returnToPspDashboardUrl: String = configuration.get[String]("urls.pspDashboard")
   lazy val pspListSchemesUrl: String = configuration.get[String]("urls.pspListSchemes")
   lazy val youNeedToRegisterUrl: String = configuration.get[String]("urls.youNeedToRegister")
@@ -144,5 +135,5 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   lazy val gtmContainerId: String = configuration.get[String]("tracking-consent-frontend.gtm.container")
   lazy val trackingSnippetUrl: String = configuration.get[String]("tracking-consent-frontend.url")
 
-  def featureToggleUrl(toggle:String) : String = s"$pspUrl${configuration.get[String]("urls.featureToggle").format(toggle)}"
+  def featureToggleUrl(toggle: String): String = s"$pspUrl${configuration.get[String]("urls.featureToggle").format(toggle)}"
 }
