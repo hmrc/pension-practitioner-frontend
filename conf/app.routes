@@ -7,7 +7,7 @@
 ->          /register/partnership                           partnership.Routes
 ->          /remove-psp                                     deregister.Routes
 
-GET         /index                                          controllers.IndexController.onPageLoad
+GET         /index                                          controllers.IndexController.onPageLoad()
 
 GET         /                                               controllers.LoginController.onPageLoad()
 
@@ -19,19 +19,19 @@ GET         /assets/*file                                   controllers.Assets.v
 
 GET         /language/:lang                                 controllers.LanguageSwitchController.switchToLanguage(lang: String)
 
-GET         /this-service-has-been-reset                    controllers.SessionExpiredController.onPageLoad
+GET         /this-service-has-been-reset                    controllers.SessionExpiredController.onPageLoad()
 
-GET         /unauthorised                                   controllers.UnauthorisedController.onPageLoad
+GET         /unauthorised                                   controllers.UnauthorisedController.onPageLoad()
 
-GET         /cannot-register                                controllers.AgentCannotRegisterController.onPageLoad
+GET         /cannot-register                                controllers.AgentCannotRegisterController.onPageLoad()
 
-GET         /need-an-organisation-account                   controllers.NeedAnOrganisationAccountController.onPageLoad
+GET         /need-an-organisation-account                   controllers.NeedAnOrganisationAccountController.onPageLoad()
 
-GET         /do-not-have-access                             controllers.AssistantNoAccessController.onPageLoad
+GET         /do-not-have-access                             controllers.AssistantNoAccessController.onPageLoad()
 
-GET         /already-registered                             controllers.AlreadyRegisteredController.onPageLoad
+GET         /already-registered                             controllers.AlreadyRegisteredController.onPageLoad()
 
-GET         /update-contact-address-psp                     controllers.UpdateContactAddressController.onPageLoad
+GET         /update-contact-address-psp                     controllers.UpdateContactAddressController.onPageLoad()
 
 GET         /register/who-are-you-registering               controllers.WhatTypeBusinessController.onPageLoad()
 POST        /register/who-are-you-registering               controllers.WhatTypeBusinessController.onSubmit()
@@ -58,4 +58,4 @@ GET         /success                                        controllers.amend.Co
 
 GET         /your-action-was-not-processed                  controllers.YourActionWasNotProcessedController.onPageLoad()
 
-GET         /cannot-register-practitioner                   controllers.CannotRegisterPractitionerController.onPageLoad
+GET         /cannot-register-practitioner                   controllers.CannotRegisterPractitionerController.onPageLoad()

@@ -43,7 +43,7 @@ POST        /contact-details/contact-phone                    controllers.compan
 GET         /contact-details/change-contact-phone             controllers.company.CompanyPhoneController.onPageLoad(mode: Mode = CheckMode)
 POST        /contact-details/change-contact-phone             controllers.company.CompanyPhoneController.onSubmit(mode: Mode = CheckMode)
 
-GET         /check-your-answers                               controllers.company.CheckYourAnswersController.onPageLoad
+GET         /check-your-answers                               controllers.company.CheckYourAnswersController.onPageLoad()
 
 GET         /declaration                                      controllers.company.DeclarationController.onPageLoad()
 POST        /declaration                                      controllers.company.DeclarationController.onSubmit()

@@ -42,7 +42,7 @@ POST        /contact-details/contact-phone                    controllers.partne
 GET         /contact-details/change-contact-phone             controllers.partnership.PartnershipPhoneController.onPageLoad(mode: Mode = CheckMode)
 POST        /contact-details/change-contact-phone             controllers.partnership.PartnershipPhoneController.onSubmit(mode: Mode = CheckMode)
 
-GET         /check-your-answers                               controllers.partnership.CheckYourAnswersController.onPageLoad
+GET         /check-your-answers                               controllers.partnership.CheckYourAnswersController.onPageLoad()
 
 GET         /declaration                                      controllers.partnership.DeclarationController.onPageLoad()
 POST        /declaration                                      controllers.partnership.DeclarationController.onSubmit()
