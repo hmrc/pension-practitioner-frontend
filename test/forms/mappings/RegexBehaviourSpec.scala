@@ -16,14 +16,15 @@
 
 package forms.mappings
 
+import org.scalatest.matchers.should.Matchers
 import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor1}
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.wordspec.AnyWordSpec
 import play.api.data.Form
 import play.api.data.validation.{Constraint, Invalid, Valid}
 
 trait RegexBehaviourSpec extends TableDrivenPropertyChecks {
 
-  this: WordSpec with Matchers =>
+  this: AnyWordSpec with Matchers =>
 
   def regexWithValidAndInvalidExamples(
                                         constraint: String => Constraint[String],

@@ -50,7 +50,7 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
           formWithErrors =>
             renderer.render(viewTemplate, json(formWithErrors)).map(BadRequest(_)),
           value =>
-            pages.postcodePage.retrieve.right.map { addresses =>
+            pages.postcodePage.retrieve.map { addresses =>
               val address = addresses(value).copy(countryOpt = Some("GB"))
               address.toAddress match {
                 case Some(addr) =>

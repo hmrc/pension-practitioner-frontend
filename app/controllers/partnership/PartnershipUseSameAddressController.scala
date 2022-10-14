@@ -126,7 +126,7 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
   private def getJson(form: Form[Boolean])(block: JsObject => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
     retrieveTolerantAddress match {
       case Some(tolerantAddress) =>
-        BusinessNamePage.retrieve.right.map{ companyName =>
+        BusinessNamePage.retrieve.map{ companyName =>
           val json = Json.obj(
             "form" -> form,
             "viewmodel" -> CommonViewModel("partnership", companyName, routes.PartnershipUseSameAddressController.onSubmit().url),

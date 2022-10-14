@@ -19,7 +19,7 @@ package forms.individual
 import forms.behaviours.StringFieldBehaviours
 import forms.mappings.Constraints
 import models.register.TolerantIndividual
-import org.scalatest.Matchers
+import org.scalatest.matchers.should.Matchers
 import play.api.data.FormError
 
 class IndividualNameFormProviderSpec extends StringFieldBehaviours with Constraints with Matchers {

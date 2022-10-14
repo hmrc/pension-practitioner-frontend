@@ -24,29 +24,21 @@ import controllers.actions._
 import models.UserAnswers
 import models.requests.DataRequest
 import navigators.CompoundNavigator
-import org.mockito.Mockito
+import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.HeaderNames
 import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.inject.guice.GuiceableModule
-import play.api.mvc.ActionFilter
-import play.api.mvc.AnyContentAsEmpty
-import play.api.mvc.AnyContentAsFormUrlEncoded
-import play.api.mvc.Result
-import play.api.test.Helpers.GET
-import play.api.test.Helpers.POST
-import play.api.test.FakeHeaders
-import play.api.test.FakeRequest
+import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
+import play.api.mvc.{ActionFilter, AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
+import play.api.test.Helpers.{GET, POST}
+import play.api.test.{FakeHeaders, FakeRequest}
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import utils.TestMetrics
-import utils.annotations.AuthMustHaveEnrolment
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
+import utils.annotations.{AuthMustHaveEnrolment, AuthMustHaveNoEnrolmentWithIV}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with MockitoSugar {
 
@@ -56,8 +48,10 @@ trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with MockitoSu
     override protected def filter[A](request: DataRequest[A]): Future[Option[Result]] = Future.successful(None)
   }
 
-  override def beforeEach: Unit = {
-    Mockito.reset(mockRenderer, mockUserAnswersCacheConnector, mockCompoundNavigator)
+  override def beforeEach(): Unit = {
+    reset(mockRenderer)
+    reset(mockUserAnswersCacheConnector)
+    reset(mockCompoundNavigator)
   }
 
   protected def mockDataRetrievalAction: DataRetrievalAction = mock[DataRetrievalAction]

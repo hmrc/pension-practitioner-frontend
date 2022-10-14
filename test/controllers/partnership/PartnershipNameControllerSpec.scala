@@ -22,9 +22,7 @@ import forms.BusinessNameFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.when
+import org.mockito.Mockito._
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers
 import org.scalatest.OptionValues
@@ -70,8 +68,8 @@ class PartnershipNameControllerSpec extends ControllerSpecBase with MockitoSugar
     "entityName" -> "partnership"
     )
 
-  override def beforeEach: Unit = {
-    super.beforeEach
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))

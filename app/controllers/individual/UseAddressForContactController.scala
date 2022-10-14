@@ -72,7 +72,7 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
           }
         },
         value => {
-          IndividualAddressPage.retrieve.right.map { address =>
+          IndividualAddressPage.retrieve.map { address =>
             val ua = request.userAnswers.setOrException(UseAddressForContactPage, value)
             val updatedAnswers = if (value) {
               ua.setOrException(IndividualManualAddressPage, address)
@@ -89,7 +89,7 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
 
   private def getJson(form: Form[Boolean])(block: JsObject => Future[Result])
                      (implicit request: DataRequest[AnyContent]): Future[Result] =
-    IndividualAddressPage.retrieve.right.map { address =>
+    IndividualAddressPage.retrieve.map { address =>
       val json = Json.obj(
         "form" -> form,
         "viewmodel" -> CommonViewModel("individual.you", "individual.you", routes.UseAddressForContactController.onSubmit().url),

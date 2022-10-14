@@ -22,9 +22,9 @@ import connectors.{IdentityVerificationConnector, MinimalConnector, PersonalDeta
 import models.FeatureToggleName.PspFromIvToPdv
 import models.WhatTypeBusiness.{Companyorpartnership, Yourselfasindividual}
 import models.{AdministratorOrPractitioner, FeatureToggle, MinimalPSP, UserAnswers}
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, times, verify, when}
-import org.mockito.{ArgumentMatchers, Mockito}
+import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.AdministratorOrPractitionerPage
@@ -44,8 +44,13 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 
   import AuthActionSpec._
 
-  override def beforeEach: Unit = {
-    Mockito.reset(mockUserAnswersCacheConnector, authConnector, mockPDVConnector, mockMinimalConnector, mockFeatureToggleConnector, mockIVConnector)
+  override def beforeEach(): Unit = {
+    reset(mockUserAnswersCacheConnector)
+    reset(authConnector)
+    reset(mockPDVConnector)
+    reset(mockMinimalConnector)
+    reset(mockFeatureToggleConnector)
+    reset(mockIVConnector)
     when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future(minimalPspDeceased()))
   }
 

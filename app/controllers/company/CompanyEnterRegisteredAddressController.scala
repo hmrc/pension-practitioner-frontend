@@ -62,14 +62,14 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
-      BusinessNamePage.retrieve.right.map { companyName =>
+      BusinessNamePage.retrieve.map { companyName =>
           get(mode, Some(companyName), CompanyAddressListPage, AddressConfiguration.CountryOnly)
       }
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
-      BusinessNamePage.retrieve.right.map { companyName =>
+      BusinessNamePage.retrieve.map { companyName =>
         form
           .bindFromRequest()
           .fold(

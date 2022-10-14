@@ -20,19 +20,21 @@ import generators.Generators
 import models.UserAnswers
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import org.scalatest.{OptionValues, FreeSpec, MustMatchers, TryValues}
 import pages.QuestionPage
 import play.api.libs.json._
 import queries.Gettable
 
-trait PageBehaviours extends FreeSpec with MustMatchers with ScalaCheckPropertyChecks with Generators with OptionValues with TryValues {
+trait PageBehaviours extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with Generators with OptionValues with TryValues {
 
-  def areAllPagesEmpty(userAnswers: UserAnswers, pages:Set[Gettable[_]]):Boolean = {
+  def areAllPagesEmpty(userAnswers: UserAnswers, pages: Set[Gettable[_]]): Boolean = {
     pages.flatMap(_.path.asSingleJsResult(userAnswers.data).asOpt.toSeq).isEmpty
   }
 
-  def areAllPagesNonEmpty(userAnswers: UserAnswers, pages:Set[Gettable[_]]):Boolean = {
+  def areAllPagesNonEmpty(userAnswers: UserAnswers, pages: Set[Gettable[_]]): Boolean = {
     pages.flatMap(_.path.asSingleJsResult(userAnswers.data).asOpt.toSeq).size == pages.size
   }
 
@@ -48,9 +50,9 @@ trait PageBehaviours extends FreeSpec with MustMatchers with ScalaCheckPropertyC
           "and the question has not been answered" in {
 
             val gen: Gen[(P, UserAnswers)] = for {
-              page        <- genP
+              page <- genP
               userAnswers <- arbitrary[UserAnswers]
-              json        =  userAnswers.data.removeObject(page.path).asOpt.getOrElse(userAnswers.data)
+              json = userAnswers.data.removeObject(page.path).asOpt.getOrElse(userAnswers.data)
             } yield (page, userAnswers.copy(data = json))
 
             forAll(gen) {
@@ -69,10 +71,10 @@ trait PageBehaviours extends FreeSpec with MustMatchers with ScalaCheckPropertyC
           "and the question has been answered" in {
 
             val gen = for {
-              page        <- genP
-              savedValue  <- arbitrary[A]
+              page <- genP
+              savedValue <- arbitrary[A]
               userAnswers <- arbitrary[UserAnswers]
-              json        =  userAnswers.data.setObject(page.path, Json.toJson(savedValue)).asOpt.value
+              json = userAnswers.data.setObject(page.path, Json.toJson(savedValue)).asOpt.value
             } yield (page, savedValue, userAnswers.copy(data = json))
 
             forAll(gen) {
@@ -91,8 +93,8 @@ trait PageBehaviours extends FreeSpec with MustMatchers with ScalaCheckPropertyC
       "must be able to be set on UserAnswers" in {
 
         val gen = for {
-          page        <- genP
-          newValue    <- arbitrary[A]
+          page <- genP
+          newValue <- arbitrary[A]
           userAnswers <- arbitrary[UserAnswers]
         } yield (page, newValue, userAnswers)
 
@@ -112,8 +114,8 @@ trait PageBehaviours extends FreeSpec with MustMatchers with ScalaCheckPropertyC
       "must be able to be removed from UserAnswers" in {
 
         val gen = for {
-          page        <- genP
-          savedValue  <- arbitrary[A]
+          page <- genP
+          savedValue <- arbitrary[A]
           userAnswers <- arbitrary[UserAnswers]
         } yield (page, userAnswers.set(page, savedValue).success.value)
 

@@ -44,7 +44,7 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      (PspIdPage and IndividualEmailPage).retrieve.right.map {
+      (PspIdPage and IndividualEmailPage).retrieve.map {
         case pspId ~ email =>
           val json: JsObject = Json.obj(
             "panelHtml" -> confirmationPanelText(pspId).toString(),

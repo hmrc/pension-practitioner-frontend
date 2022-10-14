@@ -117,7 +117,7 @@ class ConfirmAddressController @Inject()(
 
   def onSubmit(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      BusinessNamePage.retrieve.right.map { pspName =>
+      BusinessNamePage.retrieve.map { pspName =>
         form.bindFromRequest().fold(
           formWithErrors => {
 

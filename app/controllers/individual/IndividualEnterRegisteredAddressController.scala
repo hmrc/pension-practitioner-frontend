@@ -67,7 +67,7 @@ class IndividualEnterRegisteredAddressController @Inject()(override val messages
   def onSubmit(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
-        IndividualDetailsPage.retrieve.right.map { individual =>
+        IndividualDetailsPage.retrieve.map { individual =>
           (individual.firstName, individual.lastName) match {
             case (Some(firstName), Some(lastName)) =>
               val regCall: Address => Future[RegistrationInfo] = address =>

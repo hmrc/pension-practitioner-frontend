@@ -56,20 +56,20 @@ class PartnershipAddressListController @Inject()(override val messagesApi: Messa
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
-        getFormToJson(mode).retrieve.right.map(get)
+        getFormToJson(mode).retrieve.map(get)
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
         val addressPages: AddressPages = AddressPages(PartnershipPostcodePage, PartnershipAddressListPage, PartnershipAddressPage)
-        getFormToJson(mode).retrieve.right.map(post(mode, _, addressPages, manualUrlCall = routes.PartnershipContactAddressController.onPageLoad(mode)))
+        getFormToJson(mode).retrieve.map(post(mode, _, addressPages, manualUrlCall = routes.PartnershipContactAddressController.onPageLoad(mode)))
     }
 
   def getFormToJson(mode: Mode): Retrieval[Form[Int] => JsObject] =
     Retrieval(
       implicit request =>
-      (BusinessNamePage and PartnershipPostcodePage).retrieve.right.map {
+      (BusinessNamePage and PartnershipPostcodePage).retrieve.map {
         case partnershipName ~ addresses =>
           form => Json.obj(
             "form" -> form,

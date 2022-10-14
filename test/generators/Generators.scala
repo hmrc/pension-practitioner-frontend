@@ -18,7 +18,7 @@ package generators
 
 import org.scalacheck.Arbitrary._
 import org.scalacheck.Gen._
-import org.scalacheck.{Shrink, Gen}
+import org.scalacheck.{Gen, Shrink}
 
 import scala.math.BigDecimal.RoundingMode
 
@@ -64,7 +64,7 @@ trait Generators extends UserAnswersGenerator with PageGenerators with ModelGene
     arbitrary[BigDecimal]
       .suchThat(_.abs < Int.MaxValue)
       .suchThat(!_.isValidInt)
-      .map(_.formatted("%f"))
+      .map("%f".format(_))
 
   def decimalsBelowValue(value: BigDecimal): Gen[String] =
     arbitrary[BigDecimal]

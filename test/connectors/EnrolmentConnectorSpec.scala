@@ -20,7 +20,9 @@ import audit.{AuditService, PSPEnrolmentSuccess, StubSuccessfulAuditService}
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.requests.{DataRequest, PSPUser, UserType}
 import models.{KnownFact, KnownFacts, UserAnswers}
-import org.scalatest.{AsyncWordSpec, MustMatchers, RecoverMethods}
+import org.scalatest.RecoverMethods
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.mvc.AnyContent
@@ -31,7 +33,7 @@ import utils.WireMockHelper
 
 class EnrolmentConnectorSpec
   extends AsyncWordSpec
-    with MustMatchers
+    with Matchers
     with WireMockHelper
     with RecoverMethods {
 

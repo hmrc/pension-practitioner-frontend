@@ -25,7 +25,7 @@ import matchers.JsonMatchers
 import models.register._
 import models.{TolerantAddress, UserAnswers}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, times, verify, when}
+import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{BeforeAndAfterEach, OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
@@ -51,9 +51,10 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
   private val form = formProvider("confirmAddress.partnership.error.required")
 
   private def confirmAddressRoute = routes.ConfirmAddressController.onPageLoad().url
+
   private def confirmAddressSubmitRoute = routes.ConfirmAddressController.onSubmit().url
 
-  private val organisation = Organisation(pspName,BusinessType.LimitedPartnership)
+  private val organisation = Organisation(pspName, BusinessType.LimitedPartnership)
   private val organisationRegistration = OrganisationRegistration(
     OrganisationRegisterWithIdResponse(
       organisation,
@@ -73,9 +74,12 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
     .setOrException(BusinessUTRPage, utr).setOrException(BusinessNamePage, "test-partnership")
 
 
-  override def beforeEach: Unit = {
-    super.beforeEach
-    reset(mockRenderer, mockRegistrationConnector, mockUserAnswersCacheConnector, mockCountryOptions)
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockRenderer)
+    reset(mockRegistrationConnector)
+    reset(mockUserAnswersCacheConnector)
+    reset(mockCountryOptions)
   }
 
   "ConfirmAddress Controller" must {
@@ -88,7 +92,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
         ).build()
 
       when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-      when(mockRegistrationConnector.registerWithIdOrganisation(any(),any(),any())(any(),any()))
+      when(mockRegistrationConnector.registerWithIdOrganisation(any(), any(), any())(any(), any()))
         .thenReturn(Future.successful(organisationRegistration))
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
       when(mockCountryOptions.getCountryNameFromCode(ArgumentMatchers.any[TolerantAddress])).thenReturn(Some("GB"))
@@ -103,11 +107,11 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
 
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
       verify(mockRegistrationConnector, times(1))
-        .registerWithIdOrganisation(any(),any(),any())(any(),any())
-      verify(mockUserAnswersCacheConnector, times(1)).save(any())(any(),any())
+        .registerWithIdOrganisation(any(), any(), any())(any(), any())
+      verify(mockUserAnswersCacheConnector, times(1)).save(any())(any(), any())
 
       val expectedJson = Json.obj(
-        "form"   -> form,
+        "form" -> form,
         "entityName" -> "partnership",
         "submitUrl" -> confirmAddressSubmitRoute,
         "radios" -> Radios.yesNo(form("value"))
@@ -128,7 +132,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
 
       val request =
         FakeRequest(POST, confirmAddressSubmitRoute)
-      .withFormUrlEncodedBody(("value", "true"))
+          .withFormUrlEncodedBody(("value", "true"))
 
       val result = route(application, request).value
 
@@ -164,7 +168,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
 
       val expectedJson = Json.obj(
-        "form"   -> boundForm,
+        "form" -> boundForm,
         "entityName" -> "partnership",
         "submitUrl" -> confirmAddressSubmitRoute,
         "radios" -> Radios.yesNo(boundForm("value"))
@@ -197,7 +201,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
 
       val request =
         FakeRequest(POST, confirmAddressSubmitRoute)
-      .withFormUrlEncodedBody(("value", "true"))
+          .withFormUrlEncodedBody(("value", "true"))
 
       val result = route(application, request).value
 

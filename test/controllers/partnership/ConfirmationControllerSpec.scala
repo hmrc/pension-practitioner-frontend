@@ -23,7 +23,7 @@ import models.UserAnswers
 import models.WhatTypeBusiness.Companyorpartnership
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{PspIdPage, WhatTypeBusinessPage}
@@ -66,8 +66,8 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
     )
 
 
-  override def beforeEach: Unit = {
-    super.beforeEach
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
   }

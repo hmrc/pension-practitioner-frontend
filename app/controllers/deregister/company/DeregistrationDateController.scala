@@ -67,7 +67,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       getDate.flatMap { date =>
-        PspNamePage.retrieve.right.map { name =>
+        PspNamePage.retrieve.map { name =>
 
           val preparedForm = request.userAnswers.get(DeregistrationDateCompanyPage).fold(form(date))(form(date).fill)
           val json = Json.obj(
@@ -87,7 +87,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
     implicit request =>
       val pspId = request.user.pspIdOrException
       getDate.flatMap { date =>
-        (PspNamePage and PspEmailPage).retrieve.right.map { case pspName ~ email =>
+        (PspNamePage and PspEmailPage).retrieve.map { case pspName ~ email =>
           form(date).bindFromRequest().fold(
             formWithErrors => {
               val json = Json.obj(

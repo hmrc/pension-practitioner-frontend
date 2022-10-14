@@ -17,18 +17,13 @@
 package controllers
 
 import com.kenshoo.play.metrics.Metrics
-import controllers.actions.AuthAction
-import controllers.actions.FakeAuthAction
+import controllers.actions.{AuthAction, FakeAuthAction}
 import controllers.base.ControllerSpecBase
 import data.SampleData._
-import models.CheckMode
-import models.UserAnswers
+import models.{CheckMode, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.reset
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.when
+import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -37,9 +32,9 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import services.PspDetailsHelper._
 import services.PspDetailsService
+import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import utils.TestMetrics
 import utils.annotations.AuthMustHaveEnrolment
 
@@ -47,6 +42,7 @@ import scala.concurrent.Future
 
 class UpdateContactAddressControllerSpec extends ControllerSpecBase with MockitoSugar {
   private def onwardRoute = Call("GET", "/foo")
+
   private val mockPspDetailsService = mock[PspDetailsService]
 
   override def modules: Seq[GuiceableModule] = Seq(
@@ -56,13 +52,13 @@ class UpdateContactAddressControllerSpec extends ControllerSpecBase with Mockito
     bind[NunjucksRenderer].toInstance(mockRenderer)
   )
 
-  override def beforeEach: Unit = {
-    super.beforeEach
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     reset(mockPspDetailsService)
   }
 
-  val expectedAddressUK = Seq("4 Other Place", "Some District", "Anytown", "Somerset", "ZZ1 1ZZ", "United Kingdom")
-  val expectedAddressNonUK = Seq("4 Other Place", "Some District", "Anytown", "Somerset", "France")
+  val expectedAddressUK: Seq[String] = Seq("4 Other Place", "Some District", "Anytown", "Somerset", "ZZ1 1ZZ", "United Kingdom")
+  val expectedAddressNonUK: Seq[String] = Seq("4 Other Place", "Some District", "Anytown", "Somerset", "France")
 
   "UpdateContactAddress Controller" must {
 
@@ -87,7 +83,7 @@ class UpdateContactAddressControllerSpec extends ControllerSpecBase with Mockito
       expectedAddress = expectedAddressNonUK
     )
 
-    def updateContactAddressController(description:String, jsObject:JsObject, expectedUrl: => String, expectedAddress: => Seq[String]):Unit = {
+    def updateContactAddressController(description: String, jsObject: JsObject, expectedUrl: => String, expectedAddress: => Seq[String]): Unit = {
       s"return OK and the correct view for a GET for $description" in {
         when(mockRenderer.render(any(), any())(any()))
           .thenReturn(Future.successful(Html("")))

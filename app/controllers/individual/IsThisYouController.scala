@@ -101,7 +101,7 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
             "submitUrl" -> routes.IsThisYouController.onSubmit(mode).url,
             "radios" -> Radios.yesNo(form("value"))
           )
-          (IndividualDetailsPage and IndividualAddressPage).retrieve.right.map {
+          (IndividualDetailsPage and IndividualAddressPage).retrieve.map {
             case individual ~ address =>
               renderer.render("individual/isThisYou.njk", json ++ jsonWithNameAndAddress(individual, address)).map(BadRequest(_))
             case _ =>

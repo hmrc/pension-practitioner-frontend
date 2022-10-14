@@ -18,13 +18,13 @@ package navigators
 
 import base.SpecBase
 import models.{Mode, UserAnswers}
-import org.scalatest.MustMatchers
+import org.scalatest.matchers.must.Matchers
 import org.scalatest.prop.TableFor3
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import pages.Page
 import play.api.mvc.Call
 
-trait NavigatorBehaviour extends SpecBase with MustMatchers with ScalaCheckPropertyChecks {
+trait NavigatorBehaviour extends SpecBase with Matchers with ScalaCheckPropertyChecks {
 
   protected def row(page: Page)(call: Call, ua: Option[UserAnswers] = None): (Page, UserAnswers, Call) = {
     Tuple3(page, ua.getOrElse(UserAnswers()), call)
@@ -33,7 +33,7 @@ trait NavigatorBehaviour extends SpecBase with MustMatchers with ScalaCheckPrope
 
   protected def navigatorWithRoutesForMode(mode: Mode)(navigator: CompoundNavigator,
                                                        routes: TableFor3[Page, UserAnswers, Call]
-                                                       ): Unit = {
+  ): Unit = {
     forAll(routes) {
       (page: Page, userAnswers: UserAnswers, call: Call) =>
         s"move from $page to $call in ${Mode.jsLiteral.to(mode)} with data: ${userAnswers.toString}" in {

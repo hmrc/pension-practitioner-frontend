@@ -22,7 +22,7 @@ import forms.PhoneFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
@@ -62,8 +62,8 @@ class PartnershipPhoneControllerSpec extends ControllerSpecBase with MockitoSuga
   private val jsonToPassToTemplate: Form[String] => JsObject =
     form => Json.obj("form" -> form, "viewmodel" -> CommonViewModel("partnership", PartnershipName, submitUrl))
 
-  override def beforeEach: Unit = {
-    super.beforeEach
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))

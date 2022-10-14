@@ -65,7 +65,7 @@ class CompanyContactAddressController @Inject()(
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
-      (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
+      (AreYouUKCompanyPage and BusinessNamePage).retrieve.map {
         case areYouUKCompany ~ companyName =>
           get(mode, Some(companyName), CompanyAddressListPage, addressConfigurationForPostcodeAndCountry(areYouUKCompany))
       }
@@ -73,7 +73,7 @@ class CompanyContactAddressController @Inject()(
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
-      (AreYouUKCompanyPage and BusinessNamePage).retrieve.right.map {
+      (AreYouUKCompanyPage and BusinessNamePage).retrieve.map {
         case areYouUKCompany ~ companyName =>
           post(mode, Some(companyName), addressConfigurationForPostcodeAndCountry(areYouUKCompany))
       }

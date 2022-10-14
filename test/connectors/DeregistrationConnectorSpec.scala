@@ -16,9 +16,9 @@
 
 package connectors
 
-import java.time.LocalDate
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.scalatest._
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 import play.api.http.Status
 import play.api.http.Status.OK
 import play.api.libs.json.{JsValue, Json}
@@ -26,9 +26,11 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http._
 import utils.WireMockHelper
 
+import java.time.LocalDate
+
 class DeregistrationConnectorSpec
   extends AsyncWordSpec
-    with MustMatchers
+    with Matchers
     with WireMockHelper {
 
   private implicit lazy val hc: HeaderCarrier = HeaderCarrier()
@@ -48,7 +50,7 @@ class DeregistrationConnectorSpec
     "countryCode" -> "AD"
   )
   private val requestBody: JsValue = Json.obj(
-    "deregistrationDate"-> date.toString,
+    "deregistrationDate" -> date.toString,
     "reason" -> "1"
   )
 
@@ -181,7 +183,7 @@ class DeregistrationConnectorSpec
           )
       )
 
-        connector.canDeRegister(pspId).map {
+      connector.canDeRegister(pspId).map {
         result =>
           result mustBe true
           server.findAll(getRequestedFor(urlEqualTo(canDeregisterUrl))).size() mustBe 1

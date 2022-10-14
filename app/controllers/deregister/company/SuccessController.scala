@@ -42,7 +42,7 @@ class SuccessController @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      PspNamePage.retrieve.right.map { name =>
+      PspNamePage.retrieve.map { name =>
           val json: JsObject = Json.obj(
             "pspName" -> name,
             "submitUrl" -> controllers.routes.SignOutController.signOut().url
