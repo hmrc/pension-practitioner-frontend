@@ -25,7 +25,8 @@ object AppDependencies {
     "com.typesafe.play"           %% "play-test"              % PlayVersion.current,
     "org.scalacheck"              %% "scalacheck"             % "1.17.0",
     "com.github.tomakehurst"      %  "wiremock-jre8"          % "2.26.0",
-    "com.vladsch.flexmark"        %  "flexmark-all"           % "0.62.2"
+    "com.vladsch.flexmark"        %  "flexmark-all"           % "0.62.2",
+    "org.scoverage"               %  "sbt-scoverage_2.12_1.0" % "2.0.5"
   ).map(_ % Test)
 
   def apply(): Seq[ModuleID] = compile ++ test
