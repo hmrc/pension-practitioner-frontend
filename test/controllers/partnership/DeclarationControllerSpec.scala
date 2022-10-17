@@ -25,7 +25,7 @@ import matchers.JsonMatchers
 import models.register.RegistrationLegalStatus
 import models.{ExistingPSP, JourneyType, KnownFact, KnownFacts, UserAnswers}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
@@ -74,8 +74,8 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
     Set(KnownFact("NINO", "test-nino")
     )))
 
-  override def beforeEach: Unit = {
-    super.beforeEach
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
     mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
 

@@ -64,14 +64,14 @@ class IndividualContactAddressController @Inject()(
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
-      AreYouUKResidentPage.retrieve.right.map { areYouUKResident =>
+      AreYouUKResidentPage.retrieve.map { areYouUKResident =>
         get(mode, None, IndividualAddressListPage, addressConfigurationForPostcodeAndCountry(areYouUKResident))
       }
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
-      AreYouUKResidentPage.retrieve.right.map { areYouUKResident =>
+      AreYouUKResidentPage.retrieve.map { areYouUKResident =>
         post(mode, None, addressConfigurationForPostcodeAndCountry(areYouUKResident))
       }
     }

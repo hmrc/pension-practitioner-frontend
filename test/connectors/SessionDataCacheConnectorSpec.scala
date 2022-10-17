@@ -18,14 +18,15 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.AdministratorOrPractitioner
-import org.scalatest._
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 import play.api.libs.json.Json
 import uk.gov.hmrc.http._
 import utils.WireMockHelper
 
 class SessionDataCacheConnectorSpec
   extends AsyncWordSpec
-    with MustMatchers
+    with Matchers
     with WireMockHelper {
 
   private implicit lazy val hc: HeaderCarrier = HeaderCarrier()
@@ -36,10 +37,10 @@ class SessionDataCacheConnectorSpec
   private val externalId = "test-value"
   private val sessionDataCacheUrl = s"/pension-administrator/journey-cache/session-data/$externalId"
 
-  private def jsonAOP(aop:AdministratorOrPractitioner) =
+  private def jsonAOP(aop: AdministratorOrPractitioner) =
     Json.obj("administratorOrPractitioner" -> aop.toString)
 
-  private def validResponse(administratorOrPractitioner:String) =
+  private def validResponse(administratorOrPractitioner: String) =
     Json.stringify(
       Json.obj(
         "administratorOrPractitioner" -> administratorOrPractitioner
@@ -98,9 +99,9 @@ class SessionDataCacheConnectorSpec
           )
       )
 
-        recoverToSucceededIf[HttpException] {
-          connector.fetch(externalId)
-        }
+      recoverToSucceededIf[HttpException] {
+        connector.fetch(externalId)
+      }
     }
   }
 }

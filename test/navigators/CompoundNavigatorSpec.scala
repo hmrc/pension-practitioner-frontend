@@ -22,7 +22,7 @@ import pages.Page
 import play.api.libs.json.Json
 import play.api.mvc.Call
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class CompoundNavigatorSpec extends SpecBase {
 

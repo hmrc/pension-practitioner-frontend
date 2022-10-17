@@ -18,15 +18,13 @@ package models.register
 
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import org.scalatest.FreeSpec
-import org.scalatest.MustMatchers
 import org.scalatest.OptionValues
-import play.api.libs.json.JsError
-import play.api.libs.json.JsString
-import play.api.libs.json.Json
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import play.api.libs.json.{JsError, JsString, Json}
 
-class BusinessRegistrationTypeSpec extends FreeSpec with MustMatchers with ScalaCheckPropertyChecks with OptionValues {
+class BusinessRegistrationTypeSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with OptionValues {
 
   "BusinessRegistrationType" - {
 

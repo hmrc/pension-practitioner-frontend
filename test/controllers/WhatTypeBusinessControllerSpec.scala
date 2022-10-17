@@ -61,10 +61,10 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
     applicationBuilder(userAnswers,
       extraModules = extraModules).build()
 
-  override def beforeEach: Unit = {
+  override def beforeEach(): Unit = {
     reset(mockAuditService)
     doNothing().when(mockAuditService).sendEvent(any())(any(), any())
-    super.beforeEach
+    super.beforeEach()
   }
 
   val answers: UserAnswers = userAnswersWithCompanyName.set(WhatTypeBusinessPage, WhatTypeBusiness.values.head).success.value

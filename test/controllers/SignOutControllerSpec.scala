@@ -27,8 +27,8 @@ import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
-import play.api.mvc.Results.Ok
 import play.api.inject.guice.GuiceableModule
+import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -39,27 +39,29 @@ import scala.concurrent.Future
 class SignOutControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
 
   private def signOutRoute: String = routes.SignOutController.signOut().url
+
   private val signoutUrl = "/foo"
-  private val mockSessionDataCacheConnector = mock[SessionDataCacheConnector]
+  private val mockSessionDataCacheConnector: SessionDataCacheConnector = mock[SessionDataCacheConnector]
   private val mockAuthConnector: AuthConnector = mock[AuthConnector]
   private val extraModules: Seq[GuiceableModule] = Seq(
     bind[SessionDataCacheConnector].toInstance(mockSessionDataCacheConnector),
     bind[AuthConnector].toInstance(mockAuthConnector)
   )
 
-  private def buildApp(userAnswers:Option[UserAnswers]): Application =
+  private def buildApp(userAnswers: Option[UserAnswers]): Application =
     applicationBuilder(userAnswers,
       extraModules = extraModules).build()
 
-  override def beforeEach: Unit = {
-    reset(mockSessionDataCacheConnector, mockAuthConnector)
-    super.beforeEach
+  override def beforeEach(): Unit = {
+    reset(mockSessionDataCacheConnector)
+    reset(mockAuthConnector)
+    super.beforeEach()
   }
 
   "SignOut Controller" must {
     "redirect and remove all items from mongo caches" in {
       when(mockUserAnswersCacheConnector.removeAll(any(), any())).thenReturn(Future.successful(Ok))
-      when(mockSessionDataCacheConnector.removeAll(any())(any(),any())).thenReturn(Future.successful(Ok))
+      when(mockSessionDataCacheConnector.removeAll(any())(any(), any())).thenReturn(Future.successful(Ok))
       when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any())).thenReturn(Future.successful(Some("id")))
       when(mockAppConfig.signOutUrl).thenReturn(signoutUrl)
 

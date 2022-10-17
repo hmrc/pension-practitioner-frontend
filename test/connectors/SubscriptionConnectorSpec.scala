@@ -16,10 +16,10 @@
 
 package connectors
 
-import java.time.LocalDate
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.{JourneyType, UserAnswers}
-import org.scalatest._
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 import play.api.http.Status
 import play.api.http.Status.OK
 import play.api.libs.json.{JsValue, Json}
@@ -27,9 +27,11 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http._
 import utils.WireMockHelper
 
+import java.time.LocalDate
+
 class SubscriptionConnectorSpec
   extends AsyncWordSpec
-    with MustMatchers
+    with Matchers
     with WireMockHelper {
 
   private implicit lazy val hc: HeaderCarrier = HeaderCarrier()

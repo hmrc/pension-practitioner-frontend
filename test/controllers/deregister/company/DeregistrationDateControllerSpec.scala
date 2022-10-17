@@ -16,50 +16,39 @@
 
 package controllers.deregister.company
 
-import java.time.LocalDate
-import audit.AuditService
-import audit.PSPDeregistration
-import audit.PSPDeregistrationEmail
-import connectors.{DeregistrationConnector, EmailConnector, EmailSent, EnrolmentConnector, SubscriptionConnector}
+import audit.{AuditService, PSPDeregistration, PSPDeregistrationEmail}
+import connectors._
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import forms.deregister.DeregistrationDateFormProvider
 import matchers.JsonMatchers
 import models.{JourneyType, UserAnswers}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.when
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.doNothing
-import org.mockito.Mockito.reset
-import org.scalatest.OptionValues
-import org.scalatest.TryValues
+import org.mockito.Mockito._
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.PspEmailPage
-import pages.PspNamePage
 import pages.deregister.DeregistrationDateCompanyPage
+import pages.{PspEmailPage, PspNamePage}
 import play.api.Application
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.viewmodels.DateInput
-import uk.gov.hmrc.viewmodels.NunjucksSupport
+import uk.gov.hmrc.viewmodels.{DateInput, NunjucksSupport}
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
-  private val minDate: LocalDate = LocalDate.of(2020,2, 1)
+  private val minDate: LocalDate = LocalDate.of(2020, 2, 1)
   private val templateToBeRendered = "deregister/company/deregistrationDate.njk"
   private val form = new DeregistrationDateFormProvider()("company", minDate)
   private val dummyCall: Call = Call("GET", "/foo")
@@ -74,6 +63,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
   private val userAnswers: UserAnswers = UserAnswers().set(PspNamePage, companyName).toOption.value
 
   private def onPageLoadUrl: String = routes.DeregistrationDateController.onPageLoad().url
+
   private def submitUrl: String = routes.DeregistrationDateController.onSubmit().url
 
   private val ua: UserAnswers = UserAnswers()
@@ -101,6 +91,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       "submitUrl" -> routes.DeregistrationDateController.onSubmit().url,
       "date" -> DateInput.localDate(form("deregistrationDate"))
     )
+
   def extraModules: Seq[GuiceableModule] = Seq(
     bind[DeregistrationConnector].toInstance(mockDeregistrationConnector),
     bind[EnrolmentConnector].toInstance(mockEnrolmentConnector),
@@ -111,8 +102,9 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
 
   private val application: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction, extraModules).build()
-  override def beforeEach: Unit = {
-    super.beforeEach
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     reset(mockAuditService)
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockEnrolmentConnector.deEnrol(any(), any(), any())(any(), any(), any()))
@@ -123,7 +115,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       .thenReturn(Future.successful(HttpResponse(OK, "")))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-    doNothing().when(mockAuditService).sendEvent(any())(any(), any())
+    doNothing.when(mockAuditService).sendEvent(any())(any(), any())
   }
 
   "DeregistrationDate Controller" must {
@@ -180,7 +172,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       )
       mutableFakeDataRetrievalAction.setDataToReturn(Some(ua))
       when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(DeregistrationDateCompanyPage), any(), any())).thenReturn(dummyCall)
-      when(mockEmailConnector.sendEmail(any(), any(), any(), any(), any(),any())(any(),any()))
+      when(mockEmailConnector.sendEmail(any(), any(), any(), any(), any(), any())(any(), any()))
         .thenReturn(Future.successful(EmailSent))
       when(mockAppConfig.emailPspDeregistrationTemplateId).thenReturn(templateId)
 

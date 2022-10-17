@@ -81,7 +81,7 @@ class PartnershipEmailController @Inject()(override val messagesApi: MessagesApi
 
   private def getJson(mode: Mode, form: Form[String])(block: JsObject => Future[Result])
                      (implicit w: Writes[Form[String]], request: DataRequest[AnyContent]): Future[Result] =
-    BusinessNamePage.retrieve.right.map { partnershipName =>
+    BusinessNamePage.retrieve.map { partnershipName =>
       val json = Json.obj(
         "form" -> Json.toJsFieldJsValueWrapper(form)(w),
         "viewmodel" -> CommonViewModel(

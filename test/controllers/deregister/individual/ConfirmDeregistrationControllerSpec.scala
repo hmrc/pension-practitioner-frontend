@@ -28,7 +28,7 @@ import models.{MinimalPSP, UserAnswers}
 import navigators.CompoundNavigator
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.PspNamePage
@@ -75,8 +75,8 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
     bind[CompoundNavigator].toInstance(mockCompoundNavigator)
   )
 
-  override def beforeEach: Unit = {
-    super.beforeEach
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
     when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp))

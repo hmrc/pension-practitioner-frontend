@@ -1,5 +1,5 @@
 
-GET         /what-you-will-need                                 controllers.individual.WhatYouWillNeedController.onPageLoad
+GET         /what-you-will-need                                 controllers.individual.WhatYouWillNeedController.onPageLoad()
 
 GET         /are-you-uk-resident                                controllers.individual.AreYouUKResidentController.onPageLoad(mode: Mode = NormalMode)
 POST        /are-you-uk-resident                                controllers.individual.AreYouUKResidentController.onSubmit(mode: Mode = NormalMode)
@@ -43,7 +43,7 @@ POST        /addresses/address-manual-individual                controllers.indi
 GET         /addresses/change-address-manual-individual         controllers.individual.IndividualContactAddressController.onPageLoad(mode: Mode = CheckMode)
 POST        /addresses/change-address-manual-individual         controllers.individual.IndividualContactAddressController.onSubmit(mode: Mode = CheckMode)
 
-GET         /check-your-answers-individual                      controllers.individual.CheckYourAnswersController.onPageLoad
+GET         /check-your-answers-individual                      controllers.individual.CheckYourAnswersController.onPageLoad()
 
 GET         /declaration                                        controllers.individual.DeclarationController.onPageLoad()
 POST        /declaration                                        controllers.individual.DeclarationController.onSubmit()

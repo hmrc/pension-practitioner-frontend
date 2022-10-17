@@ -22,7 +22,7 @@ import forms.address.AddressFormProvider
 import matchers.JsonMatchers
 import models.{Address, NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
@@ -78,8 +78,8 @@ class IndividualContactAddressControllerSpec extends ControllerSpecBase with Moc
       "h1" -> messages("individual.address.title")
     )
 
-  override def beforeEach: Unit = {
-    super.beforeEach
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(
       UserAnswers().setOrException(AreYouUKResidentPage, true)
     ))

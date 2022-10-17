@@ -24,7 +24,7 @@ import matchers.JsonMatchers
 import models.register.{RegistrationCustomerType, RegistrationInfo, RegistrationLegalStatus}
 import models.{Address, NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
@@ -91,8 +91,8 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
       "h1" -> messages("address.title", companyName)
     )
 
-  override def beforeEach: Unit = {
-    super.beforeEach
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))

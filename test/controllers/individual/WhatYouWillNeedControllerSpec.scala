@@ -25,7 +25,7 @@ import data.SampleData._
 import navigators.CompoundNavigator
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -41,6 +41,7 @@ import scala.concurrent.Future
 
 class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar {
   private def onwardRoute = Call("GET", "/foo")
+
   override def modules: Seq[GuiceableModule] = Seq(
     bind[Metrics].toInstance(new TestMetrics),
     bind[DataRequiredAction].to[DataRequiredActionImpl],
@@ -50,6 +51,7 @@ class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar
     bind[UserAnswersCacheConnector].toInstance(mockUserAnswersCacheConnector),
     bind[CompoundNavigator].toInstance(mockCompoundNavigator)
   )
+
   "WhatYouWillNeed Controller" must {
 
     "return OK and the correct view for a GET" in {

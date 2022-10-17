@@ -58,13 +58,13 @@ class CompanyPostcodeController @Inject()(override val messagesApi: MessagesApi,
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
-        getFormToJson(mode).retrieve.right.map(get)
+        getFormToJson(mode).retrieve.map(get)
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
-        getFormToJson(mode).retrieve.right.map(
+        getFormToJson(mode).retrieve.map(
           post(mode, _, CompanyPostcodePage, Messages("error.postcode.noResults"))
         )
     }
@@ -72,7 +72,7 @@ class CompanyPostcodeController @Inject()(override val messagesApi: MessagesApi,
   def getFormToJson(mode: Mode): Retrieval[Form[String] => JsObject] =
     Retrieval(
       implicit request =>
-        BusinessNamePage.retrieve.right.map { companyName =>
+        BusinessNamePage.retrieve.map { companyName =>
             form => Json.obj(
               "form" -> form,
               "viewmodel" -> CommonViewModel(

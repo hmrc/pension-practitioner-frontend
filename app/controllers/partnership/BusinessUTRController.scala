@@ -54,7 +54,7 @@ class BusinessUTRController @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      BusinessTypePage.retrieve.right.map { businessType =>
+      BusinessTypePage.retrieve.map { businessType =>
         val preparedForm = request.userAnswers.get(BusinessUTRPage) match {
           case None => form
           case Some(value) => form.fill(value)
@@ -72,7 +72,7 @@ class BusinessUTRController @Inject()(override val messagesApi: MessagesApi,
 
   def onSubmit(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      BusinessTypePage.retrieve.right.map { businessType =>
+      BusinessTypePage.retrieve.map { businessType =>
         form.bindFromRequest().fold(
           formWithErrors => {
 

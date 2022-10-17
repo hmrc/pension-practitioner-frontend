@@ -101,8 +101,8 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
   private val application: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction, extraModules).build()
 
-  override def beforeEach: Unit = {
-    super.beforeEach
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     reset(mockAuditService)
     mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
     when(mockEnrolmentConnector.deEnrol(any(), any(), any())(any(), any(), any()))

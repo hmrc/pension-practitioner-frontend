@@ -19,12 +19,7 @@ package controllers.individual
 import com.kenshoo.play.metrics.Metrics
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
-import controllers.actions.AuthAction
-import controllers.actions.DataRequiredAction
-import controllers.actions.DataRequiredActionImpl
-import controllers.actions.FakeAuthAction
-import controllers.actions.FakeAuthAction
-import controllers.actions.AuthAction
+import controllers.actions.{AuthAction, DataRequiredAction, DataRequiredActionImpl, FakeAuthAction}
 import controllers.base.ControllerSpecBase
 import forms.individual.AreYouUKResidentFormProvider
 import matchers.JsonMatchers
@@ -32,24 +27,19 @@ import models.{NormalMode, UserAnswers}
 import navigators.CompoundNavigator
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.when
-import org.scalatest.OptionValues
-import org.scalatest.TryValues
+import org.mockito.Mockito._
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.individual.AreYouUKResidentPage
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import uk.gov.hmrc.viewmodels.Radios
+import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
 import utils.TestMetrics
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 
@@ -63,6 +53,7 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
   private val form = formProvider()
 
   private def areYouUKResidentRoute: String = routes.AreYouUKResidentController.onPageLoad(NormalMode).url
+
   private def areYouUKResidentSubmitRoute: String = routes.AreYouUKResidentController.onSubmit(NormalMode).url
 
   override def modules: Seq[GuiceableModule] = Seq(
@@ -74,6 +65,7 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
     bind[UserAnswersCacheConnector].toInstance(mockUserAnswersCacheConnector),
     bind[CompoundNavigator].toInstance(mockCompoundNavigator)
   )
+
   private val answers: UserAnswers = UserAnswers().set(AreYouUKResidentPage, value = true).success.value
 
   "AreYouUKResident Controller" must {
@@ -96,7 +88,7 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
 
       val expectedJson = Json.obj(
-        "form"   -> form,
+        "form" -> form,
         "submitUrl" -> areYouUKResidentSubmitRoute,
         "radios" -> Radios.yesNo(form("value"))
       )
@@ -124,7 +116,7 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
       val filledForm = form.bind(Map("value" -> "true"))
 
       val expectedJson = Json.obj(
-        "form"   -> filledForm,
+        "form" -> filledForm,
         "submitUrl" -> areYouUKResidentSubmitRoute,
         "radios" -> Radios.yesNo(filledForm("value"))
       )
@@ -145,7 +137,7 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
         .build()
 
       val request = FakeRequest(POST, areYouUKResidentRoute)
-      .withFormUrlEncodedBody(("value", "true"))
+        .withFormUrlEncodedBody(("value", "true"))
 
       val result = route(application, request).value
 
@@ -176,7 +168,7 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
 
       val expectedJson = Json.obj(
-        "form"   -> boundForm,
+        "form" -> boundForm,
         "submitUrl" -> areYouUKResidentSubmitRoute,
         "radios" -> Radios.yesNo(boundForm("value"))
       )
@@ -208,7 +200,7 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
 
       val request =
         FakeRequest(POST, areYouUKResidentRoute)
-      .withFormUrlEncodedBody(("value", "true"))
+          .withFormUrlEncodedBody(("value", "true"))
 
       val result = route(application, request).value
 

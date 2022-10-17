@@ -24,7 +24,7 @@ import models.register._
 import models.{Address, NormalMode, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.RegistrationInfoPage
@@ -67,8 +67,8 @@ class IsThisYouControllerSpec extends ControllerSpecBase with MockitoSugar with 
     "address" -> address.lines(countryOptions)
   )
 
-  override def beforeEach: Unit = {
-    super.beforeEach
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     when(countryOptions.getCountryNameFromCode(eqTo(address))).thenReturn("United Kingdom")
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
   }

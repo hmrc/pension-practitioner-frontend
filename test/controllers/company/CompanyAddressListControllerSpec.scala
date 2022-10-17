@@ -22,7 +22,7 @@ import forms.address.AddressListFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, TolerantAddress, UserAnswers, Address}
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
@@ -102,8 +102,8 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
         Json.obj("value" -> 2,"text" -> "Address 1 Line 1, A1 1PC, United Kingdom")),
       "viewmodel" -> CommonViewModel("company", companyName, submitUrl, Some(enterManuallyUrl.url)))
 
-  override def beforeEach: Unit = {
-    super.beforeEach
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))

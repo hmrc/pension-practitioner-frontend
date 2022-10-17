@@ -22,7 +22,7 @@ import pages.Page
 import play.api.Logger
 import play.api.mvc.Call
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait CompoundNavigator {
   def nextPage(id: Page, mode: Mode, userAnswers: UserAnswers): Call

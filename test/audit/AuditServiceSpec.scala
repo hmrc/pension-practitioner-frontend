@@ -21,8 +21,10 @@ import config.FrontendAppConfig
 import models.requests.UserType
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito._
 import org.scalatest._
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
@@ -37,9 +39,10 @@ import utils.TestMetrics
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class AuditServiceSpec extends WordSpec with MustMatchers with MockitoSugar with Inside {
+class AuditServiceSpec extends AnyWordSpec with Matchers with MockitoSugar with Inside {
 
   private val mockAuditConnector = mock[AuditConnector]
+
   private def app: Application = new GuiceApplicationBuilder()
     .configure(
       //turn off metrics
@@ -69,7 +72,7 @@ class AuditServiceSpec extends WordSpec with MustMatchers with MockitoSugar with
 
       verify(mockAuditConnector, times(1)).sendEvent(templateCaptor.capture())
       inside(templateCaptor.getValue) {
-        case DataEvent(auditSource, auditType, _, _, detail, _) =>
+        case DataEvent(auditSource, auditType, _, _, detail, _, _, _) =>
           auditSource mustBe config.appName
           auditType mustBe "PSPStartNew"
           detail mustBe Map("userType" -> "Organisation", "existingUser" -> "false")

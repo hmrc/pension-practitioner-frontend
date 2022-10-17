@@ -65,8 +65,8 @@ class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSuga
 
   private val jsonToPassToTemplate: JsObject = Json.obj("list" -> list, "redirectUrl" -> redirectUrl)
 
-  override def beforeEach: Unit = {
-    super.beforeEach
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
   }

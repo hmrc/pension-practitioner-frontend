@@ -89,7 +89,7 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
 
   def onSubmit: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      PspNamePage.retrieve.right.map { name =>
+      PspNamePage.retrieve.map { name =>
         form.bindFromRequest().fold(
           formWithErrors => {
 

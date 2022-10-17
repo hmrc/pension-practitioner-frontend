@@ -24,7 +24,7 @@ import matchers.JsonMatchers
 import models.register._
 import models.{Address, NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
@@ -93,8 +93,8 @@ class IndividualEnterRegisteredAddressControllerSpec extends ControllerSpecBase 
       "submitUrl" -> submitUrl
     )
 
-  override def beforeEach: Unit = {
-    super.beforeEach
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(ua))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
     when(mockRegistrationConnector.registerWithNoIdIndividual(any(), any(), any())(any(), any()))

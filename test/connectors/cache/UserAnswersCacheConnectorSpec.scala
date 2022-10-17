@@ -18,6 +18,8 @@ package connectors.cache
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatest._
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 import play.api.http.Status
 import play.api.libs.json.Json
 import play.api.mvc.Results._
@@ -26,7 +28,7 @@ import utils.WireMockHelper
 
 class UserAnswersCacheConnectorSpec
   extends AsyncWordSpec
-    with MustMatchers
+    with Matchers
     with WireMockHelper
     with OptionValues
     with RecoverMethods {

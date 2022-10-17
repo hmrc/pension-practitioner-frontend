@@ -16,15 +16,15 @@
 
 package models
 
-import org.scalatest.FreeSpec
-import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers
 import pages.QuestionPage
 import pages.company.CompanyEmailPage
 import play.api.libs.json.{Format, JsPath, Json}
 
 import scala.util.{Success, Try}
 
-class UserAnswersSpec extends FreeSpec {
+class UserAnswersSpec extends AnyFreeSpec with Matchers {
 
   private case object DummyStringPage extends QuestionPage[String] {
     override def path: JsPath = JsPath \ toString

@@ -59,20 +59,20 @@ class IndividualAddressListController @Inject()(override val messagesApi: Messag
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
-        getFormToJson(mode).retrieve.right.map(get)
+        getFormToJson(mode).retrieve.map(get)
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
         val addressPages: AddressPages = AddressPages(IndividualPostcodePage, IndividualAddressListPage, IndividualManualAddressPage)
-        getFormToJson(mode).retrieve.right.map(post(mode, _, addressPages, manualUrlCall = routes.IndividualContactAddressController.onPageLoad(mode)))
+        getFormToJson(mode).retrieve.map(post(mode, _, addressPages, manualUrlCall = routes.IndividualContactAddressController.onPageLoad(mode)))
     }
 
   private def getFormToJson(mode: Mode): Retrieval[Form[Int] => JsObject] =
     Retrieval(
       implicit request =>
-        (IndividualDetailsPage and IndividualPostcodePage).retrieve.right.map {
+        (IndividualDetailsPage and IndividualPostcodePage).retrieve.map {
           case individualName ~ addresses =>
           form =>
             Json.obj(

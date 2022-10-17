@@ -18,22 +18,21 @@ package services
 
 import base.SpecBase
 import config.FrontendAppConfig
-import connectors.MinimalConnector
-import connectors.SubscriptionConnector
 import connectors.cache.UserAnswersCacheConnector
-import models.{Address, CheckMode, MinimalPSP, UserAnswers}
+import connectors.{MinimalConnector, SubscriptionConnector}
 import models.SubscriptionType.Variation
 import models.register.TolerantIndividual
+import models.{Address, CheckMode, MinimalPSP, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.{CompanyAddressPage, CompanyEmailPage, CompanyPhonePage}
-import pages.{PspIdPage, SubscriptionTypePage, UnchangedPspDetailsPage}
-import pages.individual.{AreYouUKResidentPage, IndividualDetailsPage, IndividualEmailPage, IndividualManualAddressPage, IndividualPhonePage}
+import pages.individual._
 import pages.partnership.{BusinessNamePage, PartnershipAddressPage, PartnershipEmailPage, PartnershipPhonePage}
 import pages.register.AreYouUKCompanyPage
+import pages.{PspIdPage, SubscriptionTypePage, UnchangedPspDetailsPage}
 import play.api.libs.json.{JsArray, JsObject, Json}
 import services.PspDetailsHelper._
 
@@ -53,13 +52,16 @@ class PspDetailsServiceSpec
   private val pspId: String = "psp-id"
   private val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
   private val mockUserAnswersCacheConnector: UserAnswersCacheConnector = mock[UserAnswersCacheConnector]
-  private val mockMinimalConnector = mock[MinimalConnector]
+  private val mockMinimalConnector: MinimalConnector = mock[MinimalConnector]
   private val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
   private val service: PspDetailsService = new PspDetailsService(mockAppConfig, mockSubscriptionConnector, mockUserAnswersCacheConnector, mockMinimalConnector)
 
-  override def beforeEach: Unit = {
-    super.beforeEach
-    reset(mockSubscriptionConnector, mockUserAnswersCacheConnector, mockAppConfig, mockMinimalConnector)
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockSubscriptionConnector)
+    reset(mockUserAnswersCacheConnector)
+    reset(mockAppConfig)
+    reset(mockMinimalConnector)
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
     when(mockAppConfig.returnToPspDashboardUrl).thenReturn(frontendAppConfig.returnToPspDashboardUrl)
   }

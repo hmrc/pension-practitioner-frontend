@@ -117,7 +117,8 @@ package object models {
         case ((n: KeyPathNode) :: Nil, value: JsObject) if !value.keys.contains(n.key) => JsSuccess(value)
         case ((n: IdxPathNode) :: Nil, value: JsArray) => removeIndexNode(n, value)
         case ((_: KeyPathNode) :: Nil, _) => JsError(s"cannot remove a key on $jsValue")
-        case (first :: second :: rest, oldValue) =>removeWithOldValue(first, second, rest, oldValue)
+        case (first :: second :: rest, oldValue) => removeWithOldValue(first, second, rest, oldValue)
+        case (_, _) => JsError(s"path and value can not be empty")
       }
     }
 

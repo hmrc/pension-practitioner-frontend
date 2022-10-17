@@ -19,8 +19,10 @@ package connectors
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.kenshoo.play.metrics.Metrics
 import models._
-import models.register.{RegistrationInfo, RegistrationNoIdIndividualRequest, TolerantIndividual, _}
+import models.register._
 import org.scalatest._
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 import play.api.Application
 import play.api.http.Status
 import play.api.inject.bind
@@ -32,7 +34,7 @@ import utils.{TestMetrics, WireMockHelper}
 
 class RegistrationConnectorSpec
   extends AsyncWordSpec
-    with MustMatchers
+    with Matchers
     with OptionValues
     with WireMockHelper {
 
