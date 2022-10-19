@@ -10,8 +10,8 @@ object AppDependencies {
     "uk.gov.hmrc"                   %%  "bootstrap-frontend-play-28"     % "7.8.0",
     "uk.gov.hmrc"                   %%  "play-nunjucks"                  % "0.40.0-play-28",
     "uk.gov.hmrc"                   %%  "play-nunjucks-viewmodel"        % "0.16.0-play-28",
-    "org.webjars.npm"               %   "govuk-frontend"                 % "3.7.0",
-    "org.webjars.npm"               %   "hmrc-frontend"                  % "1.15.1",
+    "org.webjars.npm"               %   "govuk-frontend"                 % "4.2.0",
+    "org.webjars.npm"               %   "hmrc-frontend"                  % "1.35.2",
     "com.google.inject.extensions"  %   "guice-multibindings"            % "4.2.3",
     "uk.gov.hmrc"                   %%  "domain"                         % "8.1.0-play-28"
   )
@@ -22,7 +22,6 @@ object AppDependencies {
     "org.scalatestplus"           %% "mockito-3-4"            % "3.2.10.0",
     "org.scalatestplus"           %% "scalacheck-1-15"        % "3.2.11.0",
     "org.pegdown"                 %  "pegdown"                % "1.6.0",
-    "com.typesafe.play"           %% "play-test"              % PlayVersion.current,
     "org.scalacheck"              %% "scalacheck"             % "1.17.0",
     "com.github.tomakehurst"      %  "wiremock-jre8"          % "2.26.0",
     "com.vladsch.flexmark"        %  "flexmark-all"           % "0.62.2"
