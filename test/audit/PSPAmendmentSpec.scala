@@ -16,10 +16,11 @@
 
 package audit
 
-import base.SpecBase
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.{JsArray, JsValue, Json}
 
-class PSPAmendmentSpec extends SpecBase {
+class PSPAmendmentSpec extends AnyFreeSpec with Matchers {
 
   private val inputJson: JsValue = Json.obj(
     "email" -> "abc@hmrc.gsi.gov.uk",
@@ -67,7 +68,7 @@ class PSPAmendmentSpec extends SpecBase {
     updatedSubscriptionDetails = inputJson
   )
 
-  "Amendment audit" must {
+  "Amendment audit" - {
     "detail from and to values when updates have been made" in {
 
       amendment.auditType mustBe "PensionSchemePractitionerAmendment"

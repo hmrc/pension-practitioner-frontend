@@ -1,11 +1,9 @@
 import sbt._
 
 object AppDependencies {
-  import play.core.PlayVersion
 
   val compile = Seq(
     play.sbt.PlayImport.ws,
-    "uk.gov.hmrc"                   %%  "logback-json-logger"            % "5.2.0",
     "uk.gov.hmrc"                   %%  "play-conditional-form-mapping"  % "1.12.0-play-28",
     "uk.gov.hmrc"                   %%  "bootstrap-frontend-play-28"     % "7.8.0",
     "uk.gov.hmrc"                   %%  "play-nunjucks"                  % "0.40.0-play-28",

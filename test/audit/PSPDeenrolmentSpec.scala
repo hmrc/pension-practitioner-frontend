@@ -16,14 +16,15 @@
 
 package audit
 
-import base.SpecBase
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 
-class PSPDeenrolmentSpec extends SpecBase {
+class PSPDeenrolmentSpec extends AnyFreeSpec with Matchers {
 
   private val userId = "user"
   private val pspId = "psp"
 
-  "details" should {
+  "details" - {
     "return the correct values" in {
       val result = PSPDeenrolment(userId, pspId)
 

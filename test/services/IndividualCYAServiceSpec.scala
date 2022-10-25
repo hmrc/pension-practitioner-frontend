@@ -16,21 +16,23 @@
 
 package services
 
-import base.SpecBase
 import models.register.TolerantIndividual
 import models.{Address, CheckMode, UserAnswers}
-import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.{BeforeAndAfterEach, OptionValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.individual._
+import play.api.i18n.Messages
+import play.api.test.Helpers.stubMessages
 import uk.gov.hmrc.viewmodels.SummaryList.{Action, Key, Row, Value}
 import uk.gov.hmrc.viewmodels.Text.Literal
 import uk.gov.hmrc.viewmodels._
 
 class IndividualCYAServiceSpec
-  extends SpecBase
-    with MockitoSugar
-    with BeforeAndAfterEach
-    with CYAService {
+  extends AnyWordSpec with MockitoSugar with BeforeAndAfterEach with CYAService with Matchers with OptionValues {
+
+  private implicit val messages: Messages = stubMessages()
 
   private val service: IndividualCYAService = new IndividualCYAService
   private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("zz1 1zz"), "GB")
