@@ -16,17 +16,22 @@
 
 package services
 
-import base.SpecBase
 import models.{Address, CheckMode, UserAnswers}
 import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company._
 import pages.register.AreYouUKCompanyPage
-import uk.gov.hmrc.viewmodels._
-import uk.gov.hmrc.viewmodels.SummaryList.{Key, Value, Row, Action}
+import play.api.i18n.Messages
+import play.api.test.Helpers.stubMessages
+import uk.gov.hmrc.viewmodels.SummaryList.{Action, Key, Row, Value}
 import uk.gov.hmrc.viewmodels.Text.Literal
+import uk.gov.hmrc.viewmodels._
 
-class CompanyCYAServiceSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach with CYAService {
+class CompanyCYAServiceSpec extends AnyWordSpec with MockitoSugar with BeforeAndAfterEach with CYAService with Matchers {
+
+  private implicit val messages: Messages = stubMessages()
 
   val service: CompanyCYAService = new CompanyCYAService
   private val companyName: String = "Company Name"

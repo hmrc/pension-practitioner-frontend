@@ -16,21 +16,8 @@
 
 package helpers
 
-import java.text.NumberFormat
 import java.time.format.DateTimeFormatter
-import java.util.{Currency, Locale}
 
 object FormatHelper {
-
-  val currencyFormatter: NumberFormat = {
-    val cf = java.text.NumberFormat.getCurrencyInstance(new Locale("en", "GB"))
-    cf.setCurrency(Currency.getInstance(new Locale("en", "GB")))
-    cf
-  }
-
-  val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d/M/yyyy")
   val dateContentFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
-
-  def formatCurrencyAmountAsString(bd: BigDecimal): String = currencyFormatter.format(bd)
-
 }
