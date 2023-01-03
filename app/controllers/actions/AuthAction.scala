@@ -18,16 +18,15 @@ package controllers.actions
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import connectors.cache.{FeatureToggleConnector, UserAnswersCacheConnector}
-import connectors.{IdentityVerificationConnector, MinimalConnector, PersonalDetailsValidationConnector, SessionDataCacheConnector}
+import connectors.cache.UserAnswersCacheConnector
+import connectors.{MinimalConnector, PersonalDetailsValidationConnector, SessionDataCacheConnector}
 import models.AdministratorOrPractitioner.Administrator
-import models.FeatureToggleName.PspFromIvToPdv
 import models.UserAnswers
 import models.WhatTypeBusiness.Yourselfasindividual
 import models.requests.UserType.UserType
 import models.requests.{AuthenticatedRequest, PSPUser, UserType}
+import pages._
 import pages.individual.AreYouUKResidentPage
-import pages.{AdministratorOrPractitionerPage, JourneyPage, QuestionPage, ValidationPage, WhatTypeBusinessPage}
 import play.api.Logger
 import play.api.libs.json.{JsObject, Json, Reads}
 import play.api.mvc.Results.{Redirect, SeeOther}
@@ -46,7 +45,7 @@ abstract class AuthenticatedAuthAction @Inject()(
                                                   config: FrontendAppConfig,
                                                   minimalConnector: MinimalConnector,
                                                   val parser: BodyParsers.Default,
-                                                  sessionDataCacheConnector:SessionDataCacheConnector
+                                                  sessionDataCacheConnector: SessionDataCacheConnector
                                                 )(
                                                   implicit val executionContext: ExecutionContext
                                                 ) extends AuthAction with AuthorisedFunctions {
@@ -67,7 +66,7 @@ abstract class AuthenticatedAuthAction @Inject()(
         logger.debug(s"Logging auth details- externalId: $id, affinityGroup: ${affinityGroup.toJson}, " +
           s"enrolments: ${enrolments.enrolments}, credentials: ${credentials.providerType}=>${credentials.providerId}, " +
           s"credentialsRole: ${credentialRole.toJson} & request: $request")
-        checkForBothEnrolments(id,request,enrolments).flatMap{
+        checkForBothEnrolments(id, request, enrolments).flatMap {
           case None =>
             allowAccess(id,
               affinityGroup,
@@ -85,39 +84,39 @@ abstract class AuthenticatedAuthAction @Inject()(
   }
 
   protected def allowAccess[A](
-    externalId: String,
-    affinityGroup: AffinityGroup,
-    role: CredentialRole,
-    enrolments: Enrolments,
-    authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
+                                externalId: String,
+                                affinityGroup: AffinityGroup,
+                                role: CredentialRole,
+                                enrolments: Enrolments,
+                                authRequest: => AuthenticatedRequest[A], block: AuthenticatedRequest[A] => Future[Result])
                               (implicit hc: HeaderCarrier): Future[Result] = {
-      (affinityGroup, role) match {
-        case (AffinityGroup.Agent, _) =>
-          Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
-        case (AffinityGroup.Individual, _) =>
-          Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
-        case (AffinityGroup.Organisation, Assistant) if enrolments.getEnrolment("HMRC-PODSPP-ORG").isEmpty =>
-          Future.successful(Redirect(controllers.routes.AssistantNoAccessController.onPageLoad()))
-        case (AffinityGroup.Organisation, _) =>
-          (checkAuthenticatedRequest(authRequest), authRequest.user.alreadyEnrolledPspId) match {
-            case (Some(redirect), _) =>
-              Future.successful(redirect)
-            case (_, None) =>
-              completeAuthentication(externalId, authRequest, block)
-            case _ =>
-              completeAfterDeceasedFlagCheck(authRequest, block)
-          }
-        case _ =>
-          Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
-      }
+    (affinityGroup, role) match {
+      case (AffinityGroup.Agent, _) =>
+        Future.successful(Redirect(controllers.routes.AgentCannotRegisterController.onPageLoad()))
+      case (AffinityGroup.Individual, _) =>
+        Future.successful(Redirect(controllers.routes.NeedAnOrganisationAccountController.onPageLoad()))
+      case (AffinityGroup.Organisation, Assistant) if enrolments.getEnrolment("HMRC-PODSPP-ORG").isEmpty =>
+        Future.successful(Redirect(controllers.routes.AssistantNoAccessController.onPageLoad()))
+      case (AffinityGroup.Organisation, _) =>
+        (checkAuthenticatedRequest(authRequest), authRequest.user.alreadyEnrolledPspId) match {
+          case (Some(redirect), _) =>
+            Future.successful(redirect)
+          case (_, None) =>
+            completeAuthentication(externalId, authRequest, block)
+          case _ =>
+            completeAfterDeceasedFlagCheck(authRequest, block)
+        }
+      case _ =>
+        Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
     }
+  }
 
   private def completeAfterDeceasedFlagCheck[A](authRequest: => AuthenticatedRequest[A],
-    block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier):Future[Result] = {
+                                                block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
     authRequest.user.alreadyEnrolledPspId match {
       case None => block(authRequest)
       case Some(pspId) =>
-        minimalConnector.getMinimalPspDetails(pspId).flatMap{ minimalDetails =>
+        minimalConnector.getMinimalPspDetails(pspId).flatMap { minimalDetails =>
           if (minimalDetails.deceasedFlag) {
             Future.successful(Redirect(config.youMustContactHMRCUrl))
           } else {
@@ -127,12 +126,12 @@ abstract class AuthenticatedAuthAction @Inject()(
     }
   }
 
-  private def checkForBothEnrolments[A](id: String, request: Request[A], enrolments:Enrolments): Future[Option[Result]] = {
+  private def checkForBothEnrolments[A](id: String, request: Request[A], enrolments: Enrolments): Future[Option[Result]] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     (enrolments.getEnrolment("HMRC-PODS-ORG"), enrolments.getEnrolment("HMRC-PODSPP-ORG")) match {
       case (Some(_), Some(_)) =>
         sessionDataCacheConnector.fetch(id).flatMap { optionJsValue =>
-          optionJsValue.map(a=> UserAnswers(a.as[JsObject])).flatMap(_.get(AdministratorOrPractitionerPage)) match {
+          optionJsValue.map(a => UserAnswers(a.as[JsObject])).flatMap(_.get(AdministratorOrPractitionerPage)) match {
             case None => Future.successful(Some(Redirect(config.administratorOrPractitionerUrl)))
             case Some(Administrator) =>
               Future.successful(Some(Redirect(Call("GET",
@@ -209,11 +208,9 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
                                               personalDetailsValidationConnector: PersonalDetailsValidationConnector,
                                               minimalConnector: MinimalConnector,
                                               parser: BodyParsers.Default,
-                                              sessionDataCacheConnector:SessionDataCacheConnector,
-                                              identityVerificationConnector: IdentityVerificationConnector,
-                                              featureToggleConnector: FeatureToggleConnector
+                                              sessionDataCacheConnector: SessionDataCacheConnector
                                              )(implicit executionContext: ExecutionContext) extends
-  AuthenticatedAuthAction(authConnector, config, minimalConnector, parser,sessionDataCacheConnector)
+  AuthenticatedAuthAction(authConnector, config, minimalConnector, parser, sessionDataCacheConnector)
   with AuthorisedFunctions {
 
   override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] = None
@@ -224,69 +221,13 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
                                                     block: AuthenticatedRequest[A] => Future[Result]
                                                   )(implicit hc: HeaderCarrier): Future[Result] = {
     getData(AreYouUKResidentPage) flatMap {
-      case Some(true) => featureToggleConnector.get(PspFromIvToPdv.asString).map { toggle =>
-        toggle.isEnabled
-      }.flatMap {
-        case true => doManualPDVAndRetrieveNino(externalId, authRequest, block)
-        case false => doManualIVAndRetrieveNino(externalId, authRequest, block)
-      }
+      case Some(true) => doManualPDVAndRetrieveNino(externalId, authRequest, block)
       case _ => block(authRequest)
     }
   }
 
-  private def doManualIVAndRetrieveNino[A](externalId: String, authRequest: AuthenticatedRequest[A],
-                                           block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
-    val journeyId = authRequest.request.getQueryString(key = "journeyId")
-    getData(JourneyPage).flatMap {
-      case Some(journey) => getNinoAndUpdateAuthRequestIV(externalId, journey, block, authRequest)
-      case _ if journeyId.nonEmpty =>
-        for {
-          ua <- getUa
-          uaWithJourneyId <- Future.fromTry(ua.set(JourneyPage, journeyId.getOrElse("")))
-          _ <- userAnswersCacheConnector.save(uaWithJourneyId.data)
-          finalAuthRequest <- getNinoAndUpdateAuthRequestIV(externalId, journeyId.getOrElse(""), block, authRequest)
-        } yield {
-          finalAuthRequest
-        }
-      case _ =>
-        orgManualIV(authRequest, block)
-    }
-  }
-
-  private def getNinoAndUpdateAuthRequestIV[A](externalId: String, journeyId: String, block: AuthenticatedRequest[A] => Future[Result],
-                                             authRequest: AuthenticatedRequest[A])(implicit hc: HeaderCarrier): Future[Result] = {
-    identityVerificationConnector.retrieveNinoFromIV(journeyId).flatMap {
-      case Some(nino) =>
-        val updatedAuth = AuthenticatedRequest(authRequest.request, externalId, authRequest.user.copy(nino = Some(nino)))
-        block(updatedAuth)
-      case _ =>
-        getUa.flatMap { answers =>
-          Future.fromTry(answers.remove(JourneyPage)).flatMap { ua =>
-            userAnswersCacheConnector.save(ua.data).flatMap { _ =>
-              orgManualIV(authRequest, block)
-            }
-          }
-        }
-    }
-  }
-
-  private def orgManualIV[A](authRequest: AuthenticatedRequest[A],
-                             block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
-    getData(WhatTypeBusinessPage).flatMap {
-      case Some(Yourselfasindividual) =>
-        identityVerificationConnector.startRegisterOrganisationAsIndividual(
-          config.ukJourneyContinueUrl,
-          failureURL = s"${config.loginContinueUrl}/unauthorised"
-        ).map { link =>
-          Redirect(url = s"${config.manualIvUrl}$link")
-        }
-      case _ =>
-        block(authRequest)
-    }
-  }
-
   private def doManualPDVAndRetrieveNino[A](externalId: String, authRequest: AuthenticatedRequest[A],
-                                           block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
+                                            block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
     val validationId = authRequest.request.getQueryString(key = "validationId")
     getData(ValidationPage).flatMap {
       case Some(validation) =>
@@ -306,7 +247,7 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
   }
 
   private def getNinoAndUpdateAuthRequestPDV[A](externalId: String, validationId: String, block: AuthenticatedRequest[A] => Future[Result],
-                                             authRequest: AuthenticatedRequest[A])(implicit hc: HeaderCarrier): Future[Result] = {
+                                                authRequest: AuthenticatedRequest[A])(implicit hc: HeaderCarrier): Future[Result] = {
     personalDetailsValidationConnector.retrieveNino(validationId).flatMap {
       case Some(nino) =>
         val updatedAuth = AuthenticatedRequest(authRequest.request, externalId, authRequest.user.copy(nino = Some(nino)))
@@ -323,7 +264,7 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
   }
 
   private def orgManualPDV[A](authRequest: AuthenticatedRequest[A],
-                             block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
+                              block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
     getData(WhatTypeBusinessPage).flatMap {
       case Some(Yourselfasindividual) =>
         val completionURL = config.ukJourneyContinueUrl
@@ -348,18 +289,16 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
     }
 }
 
-class AuthenticatedAuthActionMustHaveNoEnrolmentWithIV @Inject()(override val authConnector: AuthConnector,
-                                                                 config: FrontendAppConfig,
-                                                                 userAnswersCacheConnector: UserAnswersCacheConnector,
-                                                                 personalDetailsValidationConnector: PersonalDetailsValidationConnector,
-                                                                 minimalConnector: MinimalConnector,
-                                                                 parser: BodyParsers.Default,
-                                                                 sessionDataCacheConnector:SessionDataCacheConnector,
-                                                                 identityVerificationConnector: IdentityVerificationConnector,
-                                                                 featureToggleConnector: FeatureToggleConnector
+class AuthenticatedAuthActionMustHaveNoEnrolmentWithPDV @Inject()(override val authConnector: AuthConnector,
+                                                                  config: FrontendAppConfig,
+                                                                  userAnswersCacheConnector: UserAnswersCacheConnector,
+                                                                  personalDetailsValidationConnector: PersonalDetailsValidationConnector,
+                                                                  minimalConnector: MinimalConnector,
+                                                                  parser: BodyParsers.Default,
+                                                                  sessionDataCacheConnector: SessionDataCacheConnector
                                                                 )(implicit executionContext: ExecutionContext) extends
   AuthenticatedAuthActionWithIV(authConnector, config, userAnswersCacheConnector, personalDetailsValidationConnector,
-    minimalConnector, parser, sessionDataCacheConnector, identityVerificationConnector, featureToggleConnector)
+    minimalConnector, parser, sessionDataCacheConnector)
   with AuthorisedFunctions {
 
   override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] = {
@@ -371,7 +310,7 @@ class AuthenticatedAuthActionMustHaveEnrolment @Inject()(override val authConnec
                                                          config: FrontendAppConfig,
                                                          minimalConnector: MinimalConnector,
                                                          parser: BodyParsers.Default,
-                                                         sessionDataCacheConnector:SessionDataCacheConnector
+                                                         sessionDataCacheConnector: SessionDataCacheConnector
                                                         )(implicit executionContext: ExecutionContext) extends
   AuthenticatedAuthAction(authConnector, config, minimalConnector, parser, sessionDataCacheConnector)
   with AuthorisedFunctions {
@@ -390,13 +329,13 @@ class AuthenticatedAuthActionMustHaveEnrolment @Inject()(override val authConnec
   }
 }
 
-class AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV @Inject()(override val authConnector: AuthConnector,
-                                                                   config: FrontendAppConfig,
-                                                                   minimalConnector: MinimalConnector,
-                                                                   parser: BodyParsers.Default,
-                                                                   sessionDataCacheConnector:SessionDataCacheConnector
+class AuthenticatedAuthActionMustHaveNoEnrolmentWithNoPDV @Inject()(override val authConnector: AuthConnector,
+                                                                    config: FrontendAppConfig,
+                                                                    minimalConnector: MinimalConnector,
+                                                                    parser: BodyParsers.Default,
+                                                                    sessionDataCacheConnector: SessionDataCacheConnector
                                                                   )(implicit executionContext: ExecutionContext) extends
-  AuthenticatedAuthAction(authConnector, config, minimalConnector, parser,sessionDataCacheConnector)
+  AuthenticatedAuthAction(authConnector, config, minimalConnector, parser, sessionDataCacheConnector)
   with AuthorisedFunctions {
 
   override protected def completeAuthentication[A](
