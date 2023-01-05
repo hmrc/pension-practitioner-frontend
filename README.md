@@ -16,8 +16,6 @@ This service has a corresponding back-end service, namely pension-practitioner w
 | Address Lookup              | https://github.com/hmrc/address-lookup              |
 | Email                       | https://github.com/hmrc/email                       |
 | Auth                        | https://github.com/hmrc/auth                        |
-| Identity Verification       | https://github.com/hmrc/identity-verification       |
-| Identity Verification Proxy | https://github.com/hmrc/identity-verification-proxy |
 | Tax Enrolments              | https://github.com/hmrc/tax-enrolments              |
 
 
@@ -37,8 +35,6 @@ This service has a corresponding back-end service, namely pension-practitioner w
 | Pension Practitioner        | GET         | ```/pension-practitioner/can-deregister/:id                                     ```       | Can de-register a Psp                                                                                     |
 | Address Lookup              | GET         | ```/v2/uk/addresses ```                                                                   | Returns a list of addresses that match a given postcode                                                   | 
 | Email                       | POST        | ```/hmrc/email```                                                                         | Sends an email to an email address                                                                        | 
-| Identity Verification Proxy | POST        | ```/identity-verification-proxy/journey/start    ```                                      | Store IV Journey Data and generates a link that can be used to start IV Process                           | 
-| Identity Verification       | GET         | ```/identity-verification/journey/:journeyId  ```                                         | Return the journey data e.g NINO for the given journey id                                                 | 
 | Tax Enrolments              | POST        | ```/tax-enrolments/service/:serviceName/enrolment ```                                     | Enrols a user synchronously for a given service name                                                      | 
 
 

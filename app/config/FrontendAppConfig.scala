@@ -81,20 +81,11 @@ class FrontendAppConfig @Inject()(configuration: Configuration, servicesConfig: 
 
   lazy val registerWithIdIndividualUrl: String = s"$pspUrl${configuration.get[String]("urls.registration.registerWithIdIndividual")}"
 
-  lazy val identityVerification: String = servicesConfig.baseUrl("identity-verification")
-
   lazy val personalDetailsValidation: String = s"${servicesConfig.baseUrl("personal-details-validation")}"
 
   lazy val personalDetailsValidationFrontEnd: String = loadConfig("microservice.services.personal-details-validation-frontend.url")
 
-  lazy val identityVerificationFrontend: String = servicesConfig.baseUrl("identity-verification-frontend")
-
-  lazy val identityVerificationProxy: String = servicesConfig.baseUrl("identity-verification-proxy")
   lazy val enrolmentBase: String = servicesConfig.baseUrl("tax-enrolments")
-
-  lazy val ivRegisterOrganisationAsIndividualUrl: String = s"$identityVerificationProxy${configuration.get[String]("urls.ivRegisterOrganisationAsIndividual")}"
-
-  lazy val manualIvUrl: String = configuration.get[String]("urls.manualIvUrl")
 
   lazy val ukJourneyContinueUrl: String = configuration.get[String]("urls.ukJourneyContinue")
   lazy val companiesHouseFileChangesUrl: String = configuration.get[String]("urls.companiesHouseFileChanges")
@@ -134,6 +125,4 @@ class FrontendAppConfig @Inject()(configuration: Configuration, servicesConfig: 
 
   lazy val gtmContainerId: String = configuration.get[String]("tracking-consent-frontend.gtm.container")
   lazy val trackingSnippetUrl: String = configuration.get[String]("tracking-consent-frontend.url")
-
-  def featureToggleUrl(toggle: String): String = s"$pspUrl${configuration.get[String]("urls.featureToggle").format(toggle)}"
 }

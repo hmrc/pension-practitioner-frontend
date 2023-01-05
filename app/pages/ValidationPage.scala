@@ -18,12 +18,6 @@ package pages
 
 import play.api.libs.json.JsPath
 
-object JourneyPage extends QuestionPage[String] {
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "journeyId"
-}
-
 object ValidationPage extends QuestionPage[String] {
   override def path: JsPath = JsPath \ toString
 
