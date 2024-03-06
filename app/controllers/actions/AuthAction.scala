@@ -242,7 +242,7 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
           finalAuthRequest
         }
       case _ =>
-        orgManualPDV(authRequest, block)
+        orgManualIV(authRequest, block)
     }
   }
 
@@ -260,6 +260,19 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
             }
           }
         }
+    }
+  }
+
+  private def orgManualIV[A](authRequest: AuthenticatedRequest[A],
+                             block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
+    getData(WhatTypeBusinessPage).flatMap {
+      case Some(Yourselfasindividual) =>
+        val completionURL = config.ukJourneyContinueUrl
+        val failureURL = s"${config.loginContinueUrlRelative}/unauthorised"
+        val url = config.identityValidationFrontEndEntry(completionURL, failureURL)
+        Future.successful(SeeOther(url))
+      case _ =>
+        block(authRequest)
     }
   }
 

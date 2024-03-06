@@ -24,6 +24,8 @@ import play.api.i18n.Lang
 import play.api.mvc.Call
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.net.URLEncoder
+
 @Singleton
 class FrontendAppConfig @Inject()(configuration: Configuration, servicesConfig: ServicesConfig) {
 
@@ -85,6 +87,13 @@ class FrontendAppConfig @Inject()(configuration: Configuration, servicesConfig: 
 
   lazy val personalDetailsValidationFrontEnd: String = loadConfig("microservice.services.personal-details-validation-frontend.url")
 
+  def identityValidationFrontEndEntry(relativeCompletionURL: String, relativeFailureURL: String): String = {
+    val url = servicesConfig.baseUrl("identity-verification-frontend") +
+      loadConfig("microservice.services.identity-verification-frontend.iv-uplift-entry")
+    val query = s"?origin=pods&confidenceLevel=250&completionURL=$relativeCompletionURL&failureURL=$relativeFailureURL}"
+    url + query
+  }
+
   lazy val enrolmentBase: String = servicesConfig.baseUrl("tax-enrolments")
 
   lazy val ukJourneyContinueUrl: String = configuration.get[String]("urls.ukJourneyContinue")
@@ -93,6 +102,7 @@ class FrontendAppConfig @Inject()(configuration: Configuration, servicesConfig: 
   lazy val hmrcTaxHelplineUrl: String = configuration.get[String]("urls.hmrcTaxHelpline")
 
   lazy val loginContinueUrl: String = configuration.get[String]("urls.loginContinue")
+  lazy val loginContinueUrlRelative: String = configuration.get[String]("urls.loginContinueRelative")
 
   lazy val loginUrl: String = configuration.get[String]("urls.login")
 
