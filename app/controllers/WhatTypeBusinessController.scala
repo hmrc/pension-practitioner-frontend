@@ -21,7 +21,6 @@ import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import forms.WhatTypeBusinessFormProvider
-import javax.inject.Inject
 import models.{NormalMode, UserAnswers, WhatTypeBusiness}
 import navigators.CompoundNavigator
 import pages.WhatTypeBusinessPage
@@ -31,14 +30,15 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
+import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi,
                                            userAnswersCacheConnector: UserAnswersCacheConnector,
                                            navigator: CompoundNavigator,
-                                           @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
+                                           @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
                                            getData: DataRetrievalAction,
                                            requireData: DataRequiredAction,
                                            formProvider: WhatTypeBusinessFormProvider,

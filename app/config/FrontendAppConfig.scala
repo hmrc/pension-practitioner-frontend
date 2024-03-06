@@ -83,10 +83,6 @@ class FrontendAppConfig @Inject()(configuration: Configuration, servicesConfig: 
 
   lazy val registerWithIdIndividualUrl: String = s"$pspUrl${configuration.get[String]("urls.registration.registerWithIdIndividual")}"
 
-  lazy val personalDetailsValidation: String = s"${servicesConfig.baseUrl("personal-details-validation")}"
-
-  lazy val personalDetailsValidationFrontEnd: String = loadConfig("microservice.services.personal-details-validation-frontend.url")
-
   def identityValidationFrontEndEntry(relativeCompletionURL: String, relativeFailureURL: String): String = {
     val url = servicesConfig.baseUrl("identity-verification-frontend") +
       loadConfig("microservice.services.identity-verification-frontend.iv-uplift-entry")
