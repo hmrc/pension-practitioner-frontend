@@ -45,7 +45,7 @@ class Module extends AbstractModule {
       .asEagerSingleton()
     bind(classOf[AuthAction])
       .annotatedWith(classOf[AuthMustHaveNoEnrolmentWithIV])
-      .to(classOf[AuthenticatedAuthActionMustHaveNoEnrolmentWithPDV])
+      .to(classOf[AuthenticatedAuthActionMustHaveNoEnrolmentWithIV])
       .asEagerSingleton()
     bind(classOf[AuthAction])
       .annotatedWith(classOf[AuthMustHaveEnrolment])
@@ -53,7 +53,7 @@ class Module extends AbstractModule {
       .asEagerSingleton()
     bind(classOf[AuthAction])
       .annotatedWith(classOf[AuthMustHaveNoEnrolmentWithNoIV])
-      .to(classOf[AuthenticatedAuthActionMustHaveNoEnrolmentWithNoPDV])
+      .to(classOf[AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV])
       .asEagerSingleton()
 
     navigators.addBinding()
