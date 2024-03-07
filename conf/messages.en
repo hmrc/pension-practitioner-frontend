@@ -601,6 +601,14 @@ outsideEuEea.title = You cannot register as a PSP
 outsideEuEea.p1 = This is because you are based in {0} and outside of the European Union and European Economic Area.
 outsideEuEea.p2 = Only people based inside the European Union and European Economic Area can register as a PSP.
 
+nonUKPractitioner.title            = You cannot register as a scheme practitioner
+nonUKPractitioner.heading          = You cannot register as a scheme practitioner
+nonUKPractitioner.p1               = You must be a UK resident.
+nonUKPractitioner.p2.1             = To register, email
+nonUKPractitioner.p2.email         = administrationpensions@hmrc.gov.uk
+nonUKPractitioner.p2.emailHref     = administrationpensions@hmrc.gov.uk?subject=Non-UK
+nonUKPractitioner.p2.2             = and include ‘Non-UK’ in the title.
+
 businessRegistrationType.title = What is the business registered as?
 businessRegistrationType.heading = What is the business registered as?
 businessRegistrationType.company = Company
