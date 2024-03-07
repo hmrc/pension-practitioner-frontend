@@ -37,7 +37,7 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AuthenticatedAuthAction @Inject()(
+protected class AuthenticatedAuthAction(
                                                   override val authConnector: AuthConnector,
                                                   config: FrontendAppConfig,
                                                   minimalConnector: MinimalConnector,
