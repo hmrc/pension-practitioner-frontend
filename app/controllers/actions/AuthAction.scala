@@ -52,14 +52,18 @@ protected class AuthenticatedAuthAction(
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    authorised(User or Assistant).retrieve(
+
+    val auth = minimalConfidenceLevel.map(minimalConfidenceLevel =>
+      authorised((User or Assistant) and minimalConfidenceLevel)
+    ).getOrElse(authorised(User or Assistant))
+
+    auth.retrieve(
       Retrievals.externalId and
         Retrievals.affinityGroup and
         Retrievals.allEnrolments and
         Retrievals.credentials and
         Retrievals.credentialRole and
         Retrievals.groupIdentifier and
-        Retrievals.confidenceLevel and
         Retrievals.nino
     ) {
       case Some(id) ~
@@ -68,35 +72,26 @@ protected class AuthenticatedAuthAction(
         Some(credentials) ~
         Some(credentialRole) ~
         Some(groupIdentifier) ~
-        confidenceLevel ~
         nino =>
         logger.debug(s"Logging auth details- externalId: $id, affinityGroup: ${affinityGroup.toJson}, " +
           s"enrolments: ${enrolments.enrolments}, credentials: ${credentials.providerType}=>${credentials.providerId}, " +
           s"credentialsRole: ${credentialRole.toJson} & request: $request")
 
-        val confidenceLevelPassed = minimalConfidenceLevel.forall(_.level <= confidenceLevel.level)
-        if(confidenceLevelPassed) {
-          checkForBothEnrolments(id, request, enrolments).flatMap {
-            case None =>
-              allowAccess(id,
-                affinityGroup,
-                credentialRole,
-                enrolments,
-                createAuthenticatedRequest(id, request, affinityGroup, credentials.providerId, enrolments, groupIdentifier, nino),
-                block
-              )
-            case Some(r) => Future.successful(r)
-          }
-        } else {
-          val completionURL = request.uri
-          val failureURL = s"${config.loginContinueUrlRelative}/unauthorised"
-          val url = config.identityValidationFrontEndEntry(completionURL, failureURL)
-          Future.successful(SeeOther(url))
+        checkForBothEnrolments(id, request, enrolments).flatMap {
+          case None =>
+            allowAccess(id,
+              affinityGroup,
+              credentialRole,
+              enrolments,
+              createAuthenticatedRequest(id, request, affinityGroup, credentials.providerId, enrolments, groupIdentifier, nino),
+              block
+            )
+          case Some(r) => Future.successful(r)
         }
 
       case _ =>
         Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
-    } recover handleFailure
+    } recover handleFailure(request)
   }
 
   protected def allowAccess[A](
@@ -193,13 +188,16 @@ protected class AuthenticatedAuthAction(
     }
   }
 
-  private def handleFailure: PartialFunction[Throwable, Result] = {
+  private def handleFailure(request: RequestHeader): PartialFunction[Throwable, Result] = {
     case _: NoActiveSession =>
       Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
     case _: InsufficientEnrolments =>
       Redirect(controllers.routes.UnauthorisedController.onPageLoad())
     case _: InsufficientConfidenceLevel =>
-      Redirect(controllers.routes.UnauthorisedController.onPageLoad())
+      val completionURL = request.uri
+      val failureURL = s"${config.loginContinueUrlRelative}/unauthorised"
+      val url = config.identityValidationFrontEndEntry(completionURL, failureURL)
+      SeeOther(url)
     case _: UnsupportedAuthProvider =>
       Redirect(controllers.routes.UnauthorisedController.onPageLoad())
     case _: UnsupportedAffinityGroup =>

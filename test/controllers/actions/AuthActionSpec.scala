@@ -234,7 +234,9 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
           val userAnswersData = Json.obj("areYouInUK" -> true, "registerAsBusiness" -> false)
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          val authAction = new AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV(authConnector, frontendAppConfig, mockMinimalConnector, bodyParsers, mockSessionDataCacheConnector)
+          val authAction = new AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV(
+            authConnector, frontendAppConfig, mockMinimalConnector, bodyParsers, mockSessionDataCacheConnector
+          )
 
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(fakeRequest)
@@ -300,7 +302,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
         when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(Future.failed(new InsufficientConfidenceLevel))
         val result = harness.onPageLoad()(fakeRequest)
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(controllers.routes.UnauthorisedController.onPageLoad().url)
+        redirectLocation(result) mustBe Some("http://localhost:9938/mdtp/uplift?origin=pods&confidenceLevel=250&completionURL=&failureURL=/pension-scheme-practitioner/unauthorised")
       }
 
       "the user used an unaccepted auth provider" in {
@@ -335,15 +337,6 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 
     }
 
-    "redirect user to IV if confidence level is below 250" in {
-      when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any()))
-        .thenReturn(authRetrievals(confidenceLevel = ConfidenceLevel.L200))
-      val result = harness.onPageLoad()(fakeRequest)
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe
-        Some("http://localhost:9938/mdtp/uplift?origin=pods&confidenceLevel=250&completionURL=&failureURL=/pension-scheme-practitioner/unauthorised")
-    }
-
   }
 
 }
@@ -351,7 +344,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 object AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
   private val pspId = "00000000"
   private val email = "a@a.c"
-  type authRetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[CredentialRole] ~ Option[String] ~ ConfidenceLevel ~ Option[String]
+  type authRetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[CredentialRole] ~ Option[String] ~ Option[String]
 
   override def beforeEach(): Unit = {
     reset(mockSessionDataCacheConnector)
@@ -392,17 +385,15 @@ object AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach
                              creds: Option[Credentials] = Option(Credentials(providerId = "test provider", providerType = "")),
                              role: Option[CredentialRole] = Option(User),
                              groupId: Option[String] = Some("test-group-id"),
-                             confidenceLevel: ConfidenceLevel = ConfidenceLevel.L250,
                              nino: Option[String] = Some("AA000003D")
                             ): Future[authRetrievalsType] = Future.successful(
-    new~(new~(new~(new~(new~(new~(new~(
+    new~(new~(new~(new~(new~(new~(
       Some("id"),
       affinityGroup),
       enrolments),
       creds),
       role),
       groupId),
-      confidenceLevel),
       nino)
   )
 
