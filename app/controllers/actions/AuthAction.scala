@@ -88,19 +88,15 @@ class AuthenticatedAuthAction @Inject()(
             case Some(r) => Future.successful(r)
           }
         } else {
-          Future.successful(ivRedirect)
+          val completionURL = request.uri
+          val failureURL = s"${config.loginContinueUrlRelative}/unauthorised"
+          val url = config.identityValidationFrontEndEntry(completionURL, failureURL)
+          Future.successful(SeeOther(url))
         }
 
       case _ =>
         Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
     } recover handleFailure
-  }
-
-  protected def ivRedirect: Result = {
-    val completionURL = config.ukJourneyContinueUrl
-    val failureURL = s"${config.loginContinueUrlRelative}/unauthorised"
-    val url = config.identityValidationFrontEndEntry(completionURL, failureURL)
-    SeeOther(url)
   }
 
   protected def allowAccess[A](

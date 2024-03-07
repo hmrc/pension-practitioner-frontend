@@ -84,9 +84,8 @@ class FrontendAppConfig @Inject()(configuration: Configuration, servicesConfig: 
   lazy val registerWithIdIndividualUrl: String = s"$pspUrl${configuration.get[String]("urls.registration.registerWithIdIndividual")}"
 
   def identityValidationFrontEndEntry(relativeCompletionURL: String, relativeFailureURL: String): String = {
-    val url = servicesConfig.baseUrl("identity-verification-frontend") +
-      loadConfig("microservice.services.identity-verification-frontend.iv-uplift-entry")
-    val query = s"?origin=pods&confidenceLevel=250&completionURL=$relativeCompletionURL&failureURL=$relativeFailureURL}"
+    val url = loadConfig("urls.iv-uplift-entry")
+    val query = s"?origin=pods&confidenceLevel=250&completionURL=$relativeCompletionURL&failureURL=$relativeFailureURL"
     url + query
   }
 
