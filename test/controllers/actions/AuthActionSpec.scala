@@ -18,8 +18,8 @@ package controllers.actions
 
 import base.SpecBase
 import connectors.cache.UserAnswersCacheConnector
-import connectors.{MinimalConnector, PersonalDetailsValidationConnector, SessionDataCacheConnector}
-import models.WhatTypeBusiness.{Companyorpartnership, Yourselfasindividual}
+import connectors.{MinimalConnector, SessionDataCacheConnector}
+import models.WhatTypeBusiness.Companyorpartnership
 import models.{AdministratorOrPractitioner, MinimalPSP, UserAnswers}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -46,7 +46,6 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
   override def beforeEach(): Unit = {
     reset(mockUserAnswersCacheConnector)
     reset(authConnector)
-    reset(mockPDVConnector)
     reset(mockMinimalConnector)
     when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future(minimalPspDeceased()))
   }
@@ -61,7 +60,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 
       when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = bothEnrolments))
       when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
-      val result = controllerWithPDVEnrolment.onPageLoad()(fakeRequest)
+      val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
       status(result) mustBe OK
     }
 
@@ -79,7 +78,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
         )
       )
       when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
-      val result = controllerWithPDVEnrolment.onPageLoad()(fakeRequest)
+      val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
       status(result) mustBe OK
     }
 
@@ -91,7 +90,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 
       when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = bothEnrolments))
       when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
-      val result = controllerWithPDVEnrolment.onPageLoad()(fakeRequest)
+      val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(frontendAppConfig.cannotAccessPageAsAdministratorUrl(frontendAppConfig.localFriendlyUrl(fakeRequest.uri)))
     }
@@ -102,7 +101,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 
       when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = bothEnrolments))
       when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
-      val result = controllerWithPDVEnrolment.onPageLoad()(fakeRequest)
+      val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(frontendAppConfig.administratorOrPractitionerUrl)
     }
@@ -115,7 +114,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
         "coming from any page" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = enrolmentPODS))
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
-          val result = controllerWithPDVEnrolment.onPageLoad()(fakeRequest)
+          val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
           status(result) mustBe OK
         }
       }
@@ -125,7 +124,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = enrolmentPODS))
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
           when(mockMinimalConnector.getMinimalPspDetails(ArgumentMatchers.eq(pspId))(any(), any())).thenReturn(Future(minimalPspDeceased(true)))
-          val result = controllerWithPDVEnrolment.onPageLoad()(fakeRequest)
+          val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
           status(result) mustBe SEE_OTHER
           redirectLocation(result) mustBe Some(frontendAppConfig.youMustContactHMRCUrl)
         }
@@ -137,14 +136,14 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
         "coming from any page" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
-          val result = controllerWithPDVEnrolment.onPageLoad()(fakeRequest)
+          val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
           status(result) mustBe SEE_OTHER
           redirectLocation(result) mustBe Some(frontendAppConfig.youNeedToRegisterUrl)
         }
       }
     }
 
-    behave like authAction(controllerWithPDVEnrolment, enrolments = enrolmentPODS)
+    behave like authAction(controllerWithIVEnrolment, enrolments = enrolmentPODS)
 
     "called for Organisation that is an assistant with PODSPP (practitioner) enrolment" must {
       "display the page" in {
@@ -154,7 +153,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
             enrolments = enrolmentPODS))
         val userAnswersData = Json.obj("areYouUKResident" -> true)
         when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-        val result = controllerWithPDVEnrolment.onPageLoad()(fakeRequest)
+        val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
         status(result) mustBe OK
       }
     }
@@ -167,7 +166,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
             enrolments = noEnrolmentPODS))
         val userAnswersData = Json.obj("areYouUKResident" -> true)
         when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-        val result = controllerWithPDVEnrolment.onPageLoad()(fakeRequest)
+        val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(controllers.routes.AssistantNoAccessController.onPageLoad().url)
       }
@@ -181,107 +180,46 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
             enrolments = enrolmentPODSPSA))
         val userAnswersData = Json.obj("areYouUKResident" -> true)
         when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-        val result = controllerWithPDVEnrolment.onPageLoad()(fakeRequest)
+        val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(controllers.routes.AssistantNoAccessController.onPageLoad().url)
       }
     }
   }
 
-  "Auth Action AuthenticatedAuthActionMustHaveNoEnrolmentWithPDV" when {
+  "Auth Action AuthenticatedAuthActionMustHaveNoEnrolmentWithIV" when {
 
     "called for already enrolled User" must {
       "return redirect to already registered page" when {
         "coming from any page" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = enrolmentPODS))
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
-          val result = controllerWithPDVNoEnrolment.onPageLoad()(fakeRequest)
+          val result = controllerWithIVNoEnrolment.onPageLoad()(fakeRequest)
           status(result) mustBe SEE_OTHER
           redirectLocation(result) mustBe Some(controllers.routes.AlreadyRegisteredController.onPageLoad().url)
         }
       }
     }
 
-    behave like authAction(controllerWithPDVNoEnrolment, enrolments = Enrolments(Set()))
+    behave like authAction(controllerWithIVNoEnrolment, enrolments = Enrolments(Set()))
 
     "called for Organisation user that is not an assistant" must {
-      "redirect to Manual PDV " when {
-        "they want to register as Individual" in {
-          val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Yourselfasindividual.toString)
-          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
-          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          val result = controllerWithPDVNoEnrolment.onPageLoad()(fakeRequest)
-          status(result) mustBe SEE_OTHER
-          val url = s"${frontendAppConfig.personalDetailsValidationFrontEnd}/personal-details-validation/start?completionUrl=${frontendAppConfig.ukJourneyContinueUrl}&failureUrl=${frontendAppConfig.loginContinueUrl}/unauthorised"
-          redirectLocation(result) mustBe Some(url)
-        }
-
-        "validation Id is correct and in the cache but no nino returned from PDV" in {
-          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
-          when(mockPDVConnector.retrieveNino(any())(any(), any())).thenReturn(Future(None))
-          val userAnswersData = Json.obj("areYouUKResident" -> true,
-            "whatTypeBusiness" -> Yourselfasindividual.toString, "validationId" -> "test-validation")
-          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future(userAnswersData))
-          val result = controllerWithPDVNoEnrolment.onPageLoad()(fakeRequest)
-          status(result) mustBe SEE_OTHER
-          val url = s"${frontendAppConfig.personalDetailsValidationFrontEnd}/personal-details-validation/start?completionUrl=${frontendAppConfig.ukJourneyContinueUrl}&failureUrl=${frontendAppConfig.loginContinueUrl}/unauthorised"
-          redirectLocation(result) mustBe Some(url)
-        }
-
-        "validation Id is not present in url and not in the cache" in {
-          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
-          when(mockPDVConnector.retrieveNino(any())(any(), any())).thenReturn(Future(None))
-          val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Yourselfasindividual.toString)
-          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          val result = controllerWithPDVNoEnrolment.onPageLoad()(fakeRequest)
-          status(result) mustBe SEE_OTHER
-          val url = s"${frontendAppConfig.personalDetailsValidationFrontEnd}/personal-details-validation/start?completionUrl=${frontendAppConfig.ukJourneyContinueUrl}&failureUrl=${frontendAppConfig.loginContinueUrl}/unauthorised"
-          redirectLocation(result) mustBe Some(url)
-        }
-      }
-
-      "return OK, retrieve the nino from PDV when selected as Individual" when {
-
-        "validation Id is saved in user answers" in {
-          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
-          when(mockPDVConnector.retrieveNino(any())(any(), any())).thenReturn(Future(Some(nino)))
-          val userAnswersData = Json.obj("areYouUKResident" -> true,
-            "whatTypeBusiness" -> Yourselfasindividual.toString, "validationId" -> "test-validation")
-          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-
-          val result = controllerWithPDVNoEnrolment.onPageLoad()(fakeRequest)
-          status(result) mustBe OK
-        }
-
-        "journey Id is not in user answers but present in url" in {
-          when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
-          when(mockPDVConnector.retrieveNino(any())(any(), any())).thenReturn(Future(Some(nino)))
-          val validationId = "test-validation-id"
-          val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Yourselfasindividual.toString)
-          when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future(Json.obj()))
-          when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          val result = controllerWithPDVNoEnrolment.onPageLoad()(FakeRequest("", s"/url?validationId=$validationId"))
-          status(result) mustBe OK
-          verify(mockUserAnswersCacheConnector, times(1)).save(any())(any(), any())
-        }
-      }
 
       "return OK" when {
         "the user is non uk user" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
           val userAnswersData = Json.obj("areYouUKResident" -> false)
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          val result = controllerWithPDVNoEnrolment.onPageLoad()(fakeRequest)
+          val result = controllerWithIVNoEnrolment.onPageLoad()(fakeRequest)
           status(result) mustBe OK
         }
 
-        "user is in UK and wants to register as Organisation in PDV" in {
+        "user is in UK and wants to register as Organisation in IV" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
           val userAnswersData = Json.obj("areYouUKResident" -> true, "whatTypeBusiness" -> Companyorpartnership.toString)
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
 
-          val result = controllerWithPDVNoEnrolment.onPageLoad()(fakeRequest)
+          val result = controllerWithIVNoEnrolment.onPageLoad()(fakeRequest)
           status(result) mustBe OK
         }
       }
@@ -289,14 +227,16 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 
   }
 
-  "Auth Action AuthenticatedAuthActionMustHaveNoEnrolmentWithNoPDV" when {
+  "Auth Action AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV" when {
     "called for Company user" must {
-      "return OK and able to view the page and not redirect to PDV" when {
+      "return OK and able to view the page and not redirect to IV" when {
         "they want to register as Individual" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals())
           val userAnswersData = Json.obj("areYouInUK" -> true, "registerAsBusiness" -> false)
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(Some(userAnswersData)))
-          val authAction = new AuthenticatedAuthActionMustHaveNoEnrolmentWithNoPDV(authConnector, frontendAppConfig, mockMinimalConnector, bodyParsers, mockSessionDataCacheConnector)
+          val authAction = new AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV(
+            authConnector, frontendAppConfig, mockMinimalConnector, bodyParsers, mockSessionDataCacheConnector
+          )
 
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(fakeRequest)
@@ -360,9 +300,9 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 
       "the user doesn't have sufficient confidence level" in {
         when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(Future.failed(new InsufficientConfidenceLevel))
-        val result = harness.onPageLoad()(fakeRequest)
+        val result = harness.onPageLoad()(FakeRequest("GET", "/test"))
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(controllers.routes.UnauthorisedController.onPageLoad().url)
+        redirectLocation(result) mustBe Some("http://localhost:9938/mdtp/uplift?origin=pods&confidenceLevel=250&completionURL=/test&failureURL=/pension-scheme-practitioner/unauthorised")
       }
 
       "the user used an unaccepted auth provider" in {
@@ -404,8 +344,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 object AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
   private val pspId = "00000000"
   private val email = "a@a.c"
-  private val nino = uk.gov.hmrc.domain.Nino("AB100100A")
-  type authRetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[CredentialRole] ~ Option[String]
+  type authRetrievalsType = Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[CredentialRole] ~ Option[String] ~ Option[String]
 
   override def beforeEach(): Unit = {
     reset(mockSessionDataCacheConnector)
@@ -445,15 +384,17 @@ object AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach
                              enrolments: Enrolments = Enrolments(Set()),
                              creds: Option[Credentials] = Option(Credentials(providerId = "test provider", providerType = "")),
                              role: Option[CredentialRole] = Option(User),
-                             groupId: Option[String] = Some("test-group-id")
+                             groupId: Option[String] = Some("test-group-id"),
+                             nino: Option[String] = Some("AA000003D")
                             ): Future[authRetrievalsType] = Future.successful(
-    new~(new~(new~(new~(new~(
+    new~(new~(new~(new~(new~(new~(
       Some("id"),
       affinityGroup),
       enrolments),
       creds),
       role),
-      groupId)
+      groupId),
+      nino)
   )
 
   class Harness(identifierAction: AuthAction) {
@@ -465,18 +406,17 @@ object AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach
 
   private val mockMinimalConnector: MinimalConnector = mock[MinimalConnector]
   private val mockUserAnswersCacheConnector: UserAnswersCacheConnector = mock[UserAnswersCacheConnector]
-  private val mockPDVConnector: PersonalDetailsValidationConnector = mock[PersonalDetailsValidationConnector]
   private val authConnector: AuthConnector = mock[AuthConnector]
   private val bodyParsers: BodyParsers.Default = fakeApplication().injector.instanceOf[BodyParsers.Default]
 
-  val authActionWithPDVEnrolment = new AuthenticatedAuthActionMustHaveEnrolment(
+  val authActionWithIVEnrolment = new AuthenticatedAuthActionMustHaveEnrolment(
     authConnector, frontendAppConfig, mockMinimalConnector, bodyParsers, mockSessionDataCacheConnector
   )
 
-  val authActionWithPDVNoEnrolment = new AuthenticatedAuthActionMustHaveNoEnrolmentWithPDV(
+  val authActionWithIVNoEnrolment = new AuthenticatedAuthActionMustHaveNoEnrolmentWithIV(
     authConnector, frontendAppConfig,
-    mockUserAnswersCacheConnector, mockPDVConnector, mockMinimalConnector, bodyParsers, mockSessionDataCacheConnector)
+    mockMinimalConnector, bodyParsers, mockSessionDataCacheConnector)
 
-  val controllerWithPDVEnrolment = new Harness(authActionWithPDVEnrolment)
-  val controllerWithPDVNoEnrolment = new Harness(authActionWithPDVNoEnrolment)
+  val controllerWithIVEnrolment = new Harness(authActionWithIVEnrolment)
+  val controllerWithIVNoEnrolment = new Harness(authActionWithIVNoEnrolment)
 }

@@ -22,6 +22,8 @@ import models.JourneyType
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.Call
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
+import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
@@ -81,9 +83,11 @@ class FrontendAppConfig @Inject()(configuration: Configuration, servicesConfig: 
 
   lazy val registerWithIdIndividualUrl: String = s"$pspUrl${configuration.get[String]("urls.registration.registerWithIdIndividual")}"
 
-  lazy val personalDetailsValidation: String = s"${servicesConfig.baseUrl("personal-details-validation")}"
-
-  lazy val personalDetailsValidationFrontEnd: String = loadConfig("microservice.services.personal-details-validation-frontend.url")
+  def identityValidationFrontEndEntry(relativeCompletionURL: RedirectUrl, relativeFailureURL: RedirectUrl): String = {
+    val url = loadConfig("urls.iv-uplift-entry")
+    val query = s"?origin=pods&confidenceLevel=250&completionURL=${relativeCompletionURL.get(OnlyRelative).url}&failureURL=${relativeFailureURL.get(OnlyRelative).url}"
+    url + query
+  }
 
   lazy val enrolmentBase: String = servicesConfig.baseUrl("tax-enrolments")
 
@@ -93,6 +97,7 @@ class FrontendAppConfig @Inject()(configuration: Configuration, servicesConfig: 
   lazy val hmrcTaxHelplineUrl: String = configuration.get[String]("urls.hmrcTaxHelpline")
 
   lazy val loginContinueUrl: String = configuration.get[String]("urls.loginContinue")
+  lazy val loginContinueUrlRelative: String = configuration.get[String]("urls.loginContinueRelative")
 
   lazy val loginUrl: String = configuration.get[String]("urls.login")
 

@@ -1,6 +1,8 @@
 
 # Pensions Practitioner Frontend
 
+[Identity verification testing](#identity-verification-testing)
+
 ## Info
 
 This service allows a user to register as a pension practitioner.
@@ -54,3 +56,15 @@ Enrolment key: HMRC-PODS-ORG
 |---------------|--------------------------------------------|
 | Journey tests | https://github.com/hmrc/pods-journey-tests |
 | Prototype     | https://pods-prototype.herokuapp.com/      |
+
+### Identity verification testing
+Additional services required to test IV uplift: KEYSTORE, PLATFORM_ANALYTICS, IV_CALLVALIDATE_PROXY, IV_TEST_DATA, IDENTITY_VERIFICATION_FRONTEND
+
+Relevant application.conf field: urls.iv-uplift-entry
+
+Manual testing might require disabling CORS on identity_verification_frontend repository, this was the case during writing this.
+
+Add the following to application.conf of identity_verification_frontend:
+```play.filters.disabled += play.filters.csrf.CSRFFilter```
+
+Eventually we might want to move to iv-stubs, but currently they don't support organisations. identity_verification_stub repository.

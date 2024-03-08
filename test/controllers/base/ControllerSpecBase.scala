@@ -35,7 +35,7 @@ import play.api.test.Helpers.{GET, POST}
 import play.api.test.{FakeHeaders, FakeRequest}
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import utils.TestMetrics
-import utils.annotations.{AuthMustHaveEnrolment, AuthMustHaveNoEnrolmentWithIV}
+import utils.annotations.{AuthMustHaveEnrolment, AuthMustHaveNoEnrolmentWithIV, AuthMustHaveNoEnrolmentWithNoIV}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
@@ -68,6 +68,7 @@ trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with MockitoSu
     bind[AuthAction].to[FakeAuthAction],
     bind[AuthAction].qualifiedWith(classOf[AuthMustHaveNoEnrolmentWithIV]).to[FakeAuthActionNoEnrolment],
     bind[AuthAction].qualifiedWith(classOf[AuthMustHaveEnrolment]).to[FakeAuthAction],
+    bind[AuthAction].qualifiedWith(classOf[AuthMustHaveNoEnrolmentWithNoIV]).to[FakeAuthAction],
     bind[NunjucksRenderer].toInstance(mockRenderer),
     bind[FrontendAppConfig].toInstance(mockAppConfig),
     bind[UserAnswersCacheConnector].toInstance(mockUserAnswersCacheConnector),
