@@ -300,9 +300,9 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 
       "the user doesn't have sufficient confidence level" in {
         when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(Future.failed(new InsufficientConfidenceLevel))
-        val result = harness.onPageLoad()(fakeRequest)
+        val result = harness.onPageLoad()(FakeRequest("GET", "/test"))
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some("http://localhost:9938/mdtp/uplift?origin=pods&confidenceLevel=250&completionURL=&failureURL=/pension-scheme-practitioner/unauthorised")
+        redirectLocation(result) mustBe Some("http://localhost:9938/mdtp/uplift?origin=pods&confidenceLevel=250&completionURL=/test&failureURL=/pension-scheme-practitioner/unauthorised")
       }
 
       "the user used an unaccepted auth provider" in {
