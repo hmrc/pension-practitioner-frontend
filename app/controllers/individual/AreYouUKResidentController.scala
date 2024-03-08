@@ -76,7 +76,6 @@ class AreYouUKResidentController @Inject()(override val messagesApi: MessagesApi
             "submitUrl" -> routes.AreYouUKResidentController.onSubmit(mode).url,
             "radios" -> Radios.yesNo(formWithErrors("value"))
           )
-
           renderer.render("individual/areYouUKResident.njk", json).map(BadRequest(_))
         },
         value =>

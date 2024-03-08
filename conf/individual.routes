@@ -61,4 +61,4 @@ GET         /change-address-manual                              controllers.indi
 POST        /change-address-manual                              controllers.individual.IndividualEnterRegisteredAddressController.onSubmit(mode: Mode = CheckMode)
 
 GET         /outside-eu-eea                                     controllers.individual.OutsideEuEeaController.onPageLoad()
-
+GET         /non-uk-practitioner                                controllers.individual.NonUKPractitionerController.onPageLoad()
