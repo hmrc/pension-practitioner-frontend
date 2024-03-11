@@ -630,7 +630,6 @@ isPartnershipRegisteredInUk.error.required = Select yes if the partnership is re
 
 viewDetails.practitioner.id = Practitioner ID
 viewDetails.practitioner.utr = Unique Taxpayer Reference
-viewDetails.practitioner.nino = Individual’s National Insurance number
 viewDetails.title = {0} details
 viewDetails.heading = {0}’s details
 viewDetails.company = Company

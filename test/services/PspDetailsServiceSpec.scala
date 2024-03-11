@@ -153,7 +153,7 @@ class PspDetailsServiceSpec
         .thenReturn(Future.successful(uaPartnershipNonUK))
 
       whenReady(service.getJson(None, pspId)) { result =>
-        result mustBe expected("Partnership", "Testing Ltd", Json.obj(), nonUkAddress, includeReturnLinkAndUrl = true)
+        result mustBe expected("Partnership", "Testing Ltd", nonUkAddress, includeReturnLinkAndUrl = true)
       }
     }
 
@@ -163,7 +163,7 @@ class PspDetailsServiceSpec
       when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
 
       whenReady(service.getJson(None, pspId)) { result =>
-        result mustBe expected("Individual", "Stephen Wood", nino, includeReturnLinkAndUrl = true)
+        result mustBe expected("Individual", "Stephen Wood", includeReturnLinkAndUrl = true)
       }
     }
 
@@ -172,7 +172,7 @@ class PspDetailsServiceSpec
         .thenReturn(Future.successful(uaCompanyUk))
       when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
       whenReady(service.getJson(Some(UserAnswers(uaCompanyUk)), pspId)) { result =>
-        result mustBe expected("Company", "Test Ltd", utr, includeReturnLinkAndUrl = true)
+        result mustBe expected("Company", "Test Ltd", includeReturnLinkAndUrl = true)
       }
     }
 
@@ -182,7 +182,7 @@ class PspDetailsServiceSpec
       when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = true)))
 
       whenReady(service.getJson(None, pspId)) { result =>
-        result mustBe expected("Individual", "Stephen Wood", nino, includeReturnLinkAndUrl = false)
+        result mustBe expected("Individual", "Stephen Wood", includeReturnLinkAndUrl = false)
       }
     }
 
@@ -249,17 +249,6 @@ object PspDetailsServiceSpec {
     "value" -> Json.obj(
       "classes" -> thirdWidth,
       "text" -> "1234567890"
-    )
-  )
-
-  val nino: JsObject = Json.obj(
-    "key" -> Json.obj(
-      "text" -> s"Individual’s National Insurance number",
-      "classes" -> halfWidth
-    ),
-    "value" -> Json.obj(
-      "text" -> "AB123456C",
-      "classes" -> thirdWidth
     )
   )
 
@@ -372,7 +361,6 @@ object PspDetailsServiceSpec {
   def individualList(typeText: String, name: String, address: JsObject): JsArray = Json.arr(
     pspIdRow,
     nameRow(typeText, name),
-    nino,
     addressRow(typeText, address, controllers.individual.routes.IndividualPostcodeController.onPageLoad(CheckMode).url),
     emailRow(typeText, name, controllers.individual.routes.IndividualEmailController.onPageLoad(CheckMode).url),
     phoneRow(typeText, name, controllers.individual.routes.IndividualPhoneController.onPageLoad(CheckMode).url)
@@ -402,7 +390,7 @@ object PspDetailsServiceSpec {
       case _ => partnershipList(typeText, name, address)
     }
 
-  def expected(typeText: String, name: String, ninoUtr: JsObject, address: JsObject = ukAddress, includeReturnLinkAndUrl: Boolean): JsObject = {
+  def expected(typeText: String, name: String, address: JsObject = ukAddress, includeReturnLinkAndUrl: Boolean): JsObject = {
     if (includeReturnLinkAndUrl) {
       Json.obj(
         "pageTitle" -> s"$typeText details",

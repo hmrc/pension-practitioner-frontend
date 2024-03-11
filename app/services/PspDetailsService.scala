@@ -248,10 +248,7 @@ class PspDetailsService @Inject()(
       registrationDetails.idNumber
     ) match {
       case (Some(RegistrationIdType.Nino), Some(nino)) =>
-        Seq(Row(
-          key = Key(msg"viewDetails.practitioner.nino", halfWidth),
-          value = Value(Literal(nino), thirdWidth), actions = Seq.empty)
-        )
+        Seq()
       case (Some(RegistrationIdType.UTR), Some(utr)) =>
         Seq(Row(
           key = Key(msg"viewDetails.practitioner.utr", halfWidth),
