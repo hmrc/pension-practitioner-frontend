@@ -196,7 +196,7 @@ protected class AuthenticatedAuthAction(
       Redirect(controllers.routes.UnauthorisedController.onPageLoad())
     case _: InsufficientConfidenceLevel =>
       val completionURL = RedirectUrl(request.uri)
-      val failureURL = RedirectUrl(s"${config.loginContinueUrlRelative}/unauthorised")
+      val failureURL = RedirectUrl(controllers.routes.UnauthorisedController.onPageLoad.url)
       val url = config.identityValidationFrontEndEntry(completionURL, failureURL)
       SeeOther(url)
     case _: UnsupportedAuthProvider =>
