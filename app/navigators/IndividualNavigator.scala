@@ -37,7 +37,6 @@ class IndividualNavigator @Inject()(countryOptions: CountryOptions) extends Navi
         case Some(false) => NonUKPractitionerController.onPageLoad()
         case _ => controllers.routes.SessionExpiredController.onPageLoad()
       }
-    case IndividualDetailsPage => IndividualEnterRegisteredAddressController.onPageLoad(NormalMode)
     case IndividualAddressPage => regionBasedNavigation(ua)
     case IsThisYouPage =>
       ua.get(IsThisYouPage) match {
