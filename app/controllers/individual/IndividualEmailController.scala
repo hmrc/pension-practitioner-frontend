@@ -20,21 +20,22 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.{Retrievals, Variation}
 import controllers.actions._
 import forms.EmailFormProvider
+
 import javax.inject.Inject
 import models.Mode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.AddressChange
-import pages.individual.IndividualEmailPage
+import pages.individual.{AreYouUKResidentPage, IndividualEmailPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{Json, JsObject}
-import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
 class IndividualEmailController @Inject()(override val messagesApi: MessagesApi,
                                           userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -54,9 +55,15 @@ class IndividualEmailController @Inject()(override val messagesApi: MessagesApi,
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
-        val formFilled = request.userAnswers.get(IndividualEmailPage).fold(form)(form.fill)
-        getJson(mode, formFilled) { json =>
-          renderer.render(template = "individual/email.njk", json).map(Ok(_))
+        request.userAnswers.get(AreYouUKResidentPage) match {
+          case Some(true) =>
+            val formFilled = request.userAnswers.get(IndividualEmailPage).fold(form)(form.fill)
+            getJson(mode, formFilled) { json =>
+              renderer.render(template = "individual/email.njk", json).map(Ok(_))
+            }
+          case _ => Future.successful(
+            Redirect(controllers.individual.routes.AreYouUKResidentController.onPageLoad(mode))
+          )
         }
     }
 
