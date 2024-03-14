@@ -59,6 +59,7 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
 
   private val form: Form[Boolean] = formProvider()
 
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       val ua = request.userAnswers
