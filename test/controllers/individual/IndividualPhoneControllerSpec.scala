@@ -26,7 +26,7 @@ import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.individual.IndividualPhonePage
+import pages.individual.{AreYouUKResidentPage, IndividualPhonePage}
 import play.api.Application
 import play.api.data.Form
 import play.api.libs.json.{JsObject, Json}
@@ -60,7 +60,7 @@ class IndividualPhoneControllerSpec extends ControllerSpecBase with MockitoSugar
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
+    mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers().set(AreYouUKResidentPage, true).success.value))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
   }
