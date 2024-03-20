@@ -206,8 +206,7 @@ class PspDetailsService @Inject()(
               key = Key(individualMessage("viewDetails.name"), halfWidth),
               value = Value(Literal(name.fullName), thirdWidth),
               actions = nameLink(
-                // TODO: Is this the right change to Call route?
-                href = indRoutes.IsThisYouController.onPageLoad(CheckMode), // REMOVED: indRoutes.IndividualNameController.onPageLoad(CheckMode)
+                href = indRoutes.IsThisYouController.onPageLoad(CheckMode),
                 regInfo = regInfo,
                 name = name.fullName
               )
