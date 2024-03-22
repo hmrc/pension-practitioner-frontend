@@ -20,21 +20,22 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.{Retrievals, Variation}
 import controllers.actions._
 import forms.PhoneFormProvider
+
 import javax.inject.Inject
 import models.Mode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.AddressChange
-import pages.individual.IndividualPhonePage
+import pages.individual.{AreYouUKResidentPage, IndividualPhonePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{Json, JsObject}
-import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
 class IndividualPhoneController @Inject()(override val messagesApi: MessagesApi,
                                           userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -48,15 +49,18 @@ class IndividualPhoneController @Inject()(override val messagesApi: MessagesApi,
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController
   with Retrievals with I18nSupport with NunjucksSupport with Variation {
 
-  private def form(implicit messages: Messages): Form[String] =
-    formProvider(messages("individual.phone.error.required"))
-
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
-        val formFilled = request.userAnswers.get(IndividualPhonePage).fold(form)(form.fill)
-        getJson(mode, formFilled) { json =>
-          renderer.render(template = "individual/phone.njk", json).map(Ok(_))
+        request.userAnswers.get(AreYouUKResidentPage) match {
+          case Some(true) =>
+            val formFilled = request.userAnswers.get(IndividualPhonePage).fold(form)(form.fill)
+            getJson(mode, formFilled) { json =>
+              renderer.render(template = "individual/phone.njk", json).map(Ok(_))
+            }
+          case _ => Future.successful(
+            Redirect(controllers.individual.routes.AreYouUKResidentController.onPageLoad(mode))
+          )
         }
     }
 
@@ -77,6 +81,9 @@ class IndividualPhoneController @Inject()(override val messagesApi: MessagesApi,
         )
 
     }
+
+  private def form(implicit messages: Messages): Form[String] =
+    formProvider(messages("individual.phone.error.required"))
 
   private def getJson(mode: Mode, form: Form[String])(block: JsObject => Future[Result])
                      (implicit request: DataRequest[AnyContent]): Future[Result] =

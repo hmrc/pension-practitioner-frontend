@@ -21,22 +21,23 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import forms.address.UseAddressForContactFormProvider
+
 import javax.inject.Inject
 import models.requests.DataRequest
-import models.{Mode, NormalMode, TolerantAddress, Address}
+import models.{Address, Mode, NormalMode, TolerantAddress}
 import navigators.CompoundNavigator
-import pages.individual.{IndividualAddressPage, IndividualManualAddressPage, UseAddressForContactPage}
+import pages.individual.{AreYouUKResidentPage, IndividualAddressPage, IndividualManualAddressPage, UseAddressForContactPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{Json, JsObject}
-import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
 import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModel
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
 class UseAddressForContactController @Inject()(override val messagesApi: MessagesApi,
                                                userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -57,9 +58,15 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      val preparedForm = request.userAnswers.get(UseAddressForContactPage).fold(form)(form.fill)
-      getJson(preparedForm) { json =>
-        renderer.render("address/useAddressForContact.njk", json).map(Ok(_))
+      request.userAnswers.get(AreYouUKResidentPage) match {
+        case Some(true) =>
+          val preparedForm = request.userAnswers.get(UseAddressForContactPage).fold(form)(form.fill)
+          getJson(preparedForm) { json =>
+            renderer.render("address/useAddressForContact.njk", json).map(Ok(_))
+          }
+        case _ => Future.successful(
+          Redirect(controllers.individual.routes.AreYouUKResidentController.onPageLoad(mode))
+        )
       }
   }
 

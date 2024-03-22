@@ -25,7 +25,7 @@ import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.individual.{IndividualAddressPage, IndividualManualAddressPage, UseAddressForContactPage}
+import pages.individual.{AreYouUKResidentPage, IndividualAddressPage, IndividualManualAddressPage, UseAddressForContactPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
@@ -56,6 +56,7 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
   private val templateCaptor = ArgumentCaptor.forClass(classOf[String])
   private val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
   private val uaWithIndividualAddress = UserAnswers().set(IndividualAddressPage, address).success.value
+  private val uaWithAddressAndUkResident = uaWithIndividualAddress.set(AreYouUKResidentPage, true).success.value
 
   private def expectedJson(form: Form[Boolean]): JsObject = Json.obj(
     "form" -> form,
@@ -75,7 +76,7 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
     "on a GET" must {
 
       "return OK with the correct view" in {
-        val application = applicationBuilder(userAnswers = Some(uaWithIndividualAddress),
+        val application = applicationBuilder(userAnswers = Some(uaWithAddressAndUkResident),
           extraModules = Seq(bind[CountryOptions].toInstance(countryOptions))).overrides().build()
         val request = FakeRequest(GET, useAddressForContactGetRoute)
         val result = route(application, request).value
@@ -91,7 +92,7 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
       }
 
       "return OK and populate the view correctly when the question has previously been answered" in {
-        val application = applicationBuilder(userAnswers = Some(uaWithIndividualAddress.set(UseAddressForContactPage, true).success.value),
+        val application = applicationBuilder(userAnswers = Some(uaWithAddressAndUkResident.set(UseAddressForContactPage, true).success.value),
           extraModules = Seq(bind[CountryOptions].toInstance(countryOptions))).overrides().build()
         val request = FakeRequest(GET, useAddressForContactGetRoute)
 
