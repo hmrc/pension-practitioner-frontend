@@ -23,8 +23,6 @@ import controllers.Retrievals
 import controllers.actions._
 import controllers.address.NonUKManualAddressController
 import forms.address.NonUKAddressFormProvider
-
-import javax.inject.Inject
 import models.register.RegistrationInfo
 import models.requests.DataRequest
 import models.{Address, Mode}
@@ -36,15 +34,16 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
+import utils.annotations.AuthWithIV
 import utils.countryOptions.CountryOptions
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class IndividualEnterRegisteredAddressController @Inject()(override val messagesApi: MessagesApi,
                                                  val userAnswersCacheConnector: UserAnswersCacheConnector,
                                                  val navigator: CompoundNavigator,
-                                                 @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
+                                                 @AuthWithIV authenticate: AuthAction,
                                                  getData: DataRetrievalAction,
                                                  requireData: DataRequiredAction,
                                                  formProvider: NonUKAddressFormProvider,

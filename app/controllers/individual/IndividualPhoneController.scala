@@ -34,14 +34,14 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
+import utils.annotations.{AuthMustHaveNoEnrolmentWithIV, AuthWithIV}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class IndividualPhoneController @Inject()(override val messagesApi: MessagesApi,
                                           userAnswersCacheConnector: UserAnswersCacheConnector,
                                           navigator: CompoundNavigator,
-                                          @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
+                                          @AuthWithIV authenticate: AuthAction,
                                           getData: DataRetrievalAction,
                                           requireData: DataRequiredAction,
                                           formProvider: PhoneFormProvider,

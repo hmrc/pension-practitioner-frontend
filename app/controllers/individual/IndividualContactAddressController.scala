@@ -31,7 +31,7 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
+import utils.annotations.AuthWithIV
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -41,7 +41,7 @@ class IndividualContactAddressController @Inject()(
                                                     override val messagesApi: MessagesApi,
                                                     val userAnswersCacheConnector: UserAnswersCacheConnector,
                                                     val navigator: CompoundNavigator,
-                                                    @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
+                                                    @AuthWithIV authenticate: AuthAction,
                                                     getData: DataRetrievalAction,
                                                     requireData: DataRequiredAction,
                                                     formProvider: AddressFormProvider,

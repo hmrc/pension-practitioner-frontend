@@ -21,7 +21,7 @@ import com.google.inject.multibindings.Multibinder
 import connectors.cache.{UserAnswersCacheConnector, UserAnswersCacheConnectorImpl}
 import controllers.actions._
 import navigators._
-import utils.annotations.{AuthMustHaveEnrolmentWithNoIV, AuthMustHaveNoEnrolmentWithIV, AuthMustHaveNoEnrolmentWithNoIV}
+import utils.annotations.{AuthMustHaveEnrolmentWithNoIV, AuthMustHaveNoEnrolmentWithIV, AuthMustHaveNoEnrolmentWithNoIV, AuthWithIV}
 
 class Module extends AbstractModule {
 
@@ -42,6 +42,10 @@ class Module extends AbstractModule {
       .asEagerSingleton()
     bind(classOf[AuthAction])
       .to(classOf[AuthenticatedAuthActionWithNoIV])
+      .asEagerSingleton()
+    bind(classOf[AuthAction])
+      .annotatedWith(classOf[AuthWithIV])
+      .to(classOf[AuthenticatedAuthActionWithIV])
       .asEagerSingleton()
     bind(classOf[AuthAction])
       .annotatedWith(classOf[AuthMustHaveNoEnrolmentWithIV])
