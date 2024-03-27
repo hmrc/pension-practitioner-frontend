@@ -28,13 +28,13 @@ import renderer.Renderer
 import services.PartnershipCYAService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
+import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 
 import scala.concurrent.ExecutionContext
 
 class CheckYourAnswersController @Inject()(config: FrontendAppConfig,
                                            override val messagesApi: MessagesApi,
-                                           @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
+                                           @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
                                            getData: DataRetrievalAction,
                                            requireData: DataRequiredAction,
                                            userAnswersCacheConnector: UserAnswersCacheConnector,

@@ -33,7 +33,7 @@ import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
-import utils.annotations.AuthMustHaveEnrolment
+import utils.annotations.AuthMustHaveEnrolmentWithNoIV
 
 import scala.concurrent.{Future, ExecutionContext}
 
@@ -41,7 +41,7 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
                                                 override val messagesApi: MessagesApi,
                                                 userAnswersCacheConnector: UserAnswersCacheConnector,
                                                 navigator: CompoundNavigator,
-                                                @AuthMustHaveEnrolment authenticate: AuthAction,
+                                                @AuthMustHaveEnrolmentWithNoIV authenticate: AuthAction,
                                                 getData: DataRetrievalAction,
                                                 requireData: DataRequiredAction,
                                                 formProvider: ConfirmDeregistrationFormProvider,

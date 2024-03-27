@@ -34,7 +34,7 @@ import uk.gov.hmrc.http.HttpReads.is5xx
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.AuthMustHaveEnrolment
+import utils.annotations.AuthMustHaveEnrolmentWithNoIV
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -43,7 +43,7 @@ class DeclarationController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        subscriptionConnector: SubscriptionConnector,
                                        userAnswersCacheConnector: UserAnswersCacheConnector,
-                                       @AuthMustHaveEnrolment authenticate: AuthAction,
+                                       @AuthMustHaveEnrolmentWithNoIV authenticate: AuthAction,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,

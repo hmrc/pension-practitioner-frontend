@@ -18,10 +18,10 @@ package config
 
 import com.google.inject.AbstractModule
 import com.google.inject.multibindings.Multibinder
-import connectors.cache.{UserAnswersCacheConnectorImpl, UserAnswersCacheConnector}
+import connectors.cache.{UserAnswersCacheConnector, UserAnswersCacheConnectorImpl}
 import controllers.actions._
 import navigators._
-import utils.annotations.{AuthMustHaveEnrolment, AuthMustHaveNoEnrolmentWithIV, AuthMustHaveNoEnrolmentWithNoIV}
+import utils.annotations.{AuthMustHaveEnrolmentWithNoIV, AuthMustHaveNoEnrolmentWithIV, AuthMustHaveNoEnrolmentWithNoIV, AuthWithIV}
 
 class Module extends AbstractModule {
 
@@ -41,6 +41,10 @@ class Module extends AbstractModule {
       .to(classOf[DataRequiredActionImpl])
       .asEagerSingleton()
     bind(classOf[AuthAction])
+      .to(classOf[AuthenticatedAuthActionWithNoIV])
+      .asEagerSingleton()
+    bind(classOf[AuthAction])
+      .annotatedWith(classOf[AuthWithIV])
       .to(classOf[AuthenticatedAuthActionWithIV])
       .asEagerSingleton()
     bind(classOf[AuthAction])
@@ -48,8 +52,8 @@ class Module extends AbstractModule {
       .to(classOf[AuthenticatedAuthActionMustHaveNoEnrolmentWithIV])
       .asEagerSingleton()
     bind(classOf[AuthAction])
-      .annotatedWith(classOf[AuthMustHaveEnrolment])
-      .to(classOf[AuthenticatedAuthActionMustHaveEnrolment])
+      .annotatedWith(classOf[AuthMustHaveEnrolmentWithNoIV])
+      .to(classOf[AuthenticatedAuthActionMustHaveEnrolmentWithNoIV])
       .asEagerSingleton()
     bind(classOf[AuthAction])
       .annotatedWith(classOf[AuthMustHaveNoEnrolmentWithNoIV])

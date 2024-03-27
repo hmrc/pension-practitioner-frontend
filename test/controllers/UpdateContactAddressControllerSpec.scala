@@ -36,7 +36,7 @@ import services.PspDetailsHelper._
 import services.PspDetailsService
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import utils.TestMetrics
-import utils.annotations.AuthMustHaveEnrolment
+import utils.annotations.AuthMustHaveEnrolmentWithNoIV
 
 import scala.concurrent.Future
 
@@ -48,7 +48,7 @@ class UpdateContactAddressControllerSpec extends ControllerSpecBase with Mockito
   override def modules: Seq[GuiceableModule] = Seq(
     bind[Metrics].toInstance(new TestMetrics),
     bind[PspDetailsService].toInstance(mockPspDetailsService),
-    bind[AuthAction].qualifiedWith(classOf[AuthMustHaveEnrolment]).to[FakeAuthAction],
+    bind[AuthAction].qualifiedWith(classOf[AuthMustHaveEnrolmentWithNoIV]).to[FakeAuthAction],
     bind[NunjucksRenderer].toInstance(mockRenderer)
   )
 

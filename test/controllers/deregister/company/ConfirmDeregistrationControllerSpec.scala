@@ -43,7 +43,7 @@ import play.twirl.api.Html
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
 import utils.TestMetrics
-import utils.annotations.AuthMustHaveEnrolment
+import utils.annotations.AuthMustHaveEnrolmentWithNoIV
 
 import scala.concurrent.Future
 
@@ -68,7 +68,7 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
     bind[Metrics].toInstance(new TestMetrics),
     bind[MinimalConnector].toInstance(mockMinimalConnector),
     bind[DeregistrationConnector].toInstance(mockDeregistrationConnector),
-    bind[AuthAction].qualifiedWith(classOf[AuthMustHaveEnrolment]).to[FakeAuthAction],
+    bind[AuthAction].qualifiedWith(classOf[AuthMustHaveEnrolmentWithNoIV]).to[FakeAuthAction],
     bind[NunjucksRenderer].toInstance(mockRenderer),
     bind[FrontendAppConfig].toInstance(mockAppConfig),
     bind[UserAnswersCacheConnector].toInstance(mockUserAnswersCacheConnector),

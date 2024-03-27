@@ -17,10 +17,9 @@
 package controllers.individual
 
 import connectors.cache.UserAnswersCacheConnector
-import controllers.{Retrievals, Variation}
 import controllers.actions._
+import controllers.{Retrievals, Variation}
 import forms.EmailFormProvider
-import javax.inject.Inject
 import models.Mode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
@@ -28,18 +27,20 @@ import pages.AddressChange
 import pages.individual.IndividualEmailPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{Json, JsObject}
-import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.annotations.AuthWithIV
 
-import scala.concurrent.{Future, ExecutionContext}
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class IndividualEmailController @Inject()(override val messagesApi: MessagesApi,
                                           userAnswersCacheConnector: UserAnswersCacheConnector,
                                           navigator: CompoundNavigator,
-                                          authenticate: AuthAction,
+                                          @AuthWithIV authenticate: AuthAction,
                                           getData: DataRetrievalAction,
                                           requireData: DataRequiredAction,
                                           formProvider: EmailFormProvider,

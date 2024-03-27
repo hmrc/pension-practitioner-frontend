@@ -409,7 +409,7 @@ object AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach
   private val authConnector: AuthConnector = mock[AuthConnector]
   private val bodyParsers: BodyParsers.Default = fakeApplication().injector.instanceOf[BodyParsers.Default]
 
-  val authActionWithIVEnrolment = new AuthenticatedAuthActionMustHaveEnrolment(
+  val authActionWithIVEnrolment = new AuthenticatedAuthActionMustHaveEnrolmentWithNoIV(
     authConnector, frontendAppConfig, mockMinimalConnector, bodyParsers, mockSessionDataCacheConnector
   )
 

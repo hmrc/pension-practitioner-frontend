@@ -29,7 +29,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import services.PspDetailsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.annotations.AuthMustHaveEnrolment
+import utils.annotations.AuthMustHaveEnrolmentWithNoIV
 import utils.countryOptions.CountryOptions
 
 import javax.inject.Inject
@@ -38,7 +38,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class UpdateContactAddressController @Inject()(
                                                 val controllerComponents: MessagesControllerComponents,
                                                 renderer: Renderer,
-                                                @AuthMustHaveEnrolment authenticate: AuthAction,
+                                                @AuthMustHaveEnrolmentWithNoIV authenticate: AuthAction,
                                                 getData: DataRetrievalAction,
                                                 countryOptions: CountryOptions,
                                                 pspDetailsService: PspDetailsService
