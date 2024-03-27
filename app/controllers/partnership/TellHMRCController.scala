@@ -18,19 +18,19 @@ package controllers.partnership
 
 import config.FrontendAppConfig
 import controllers.actions._
-import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
+import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class TellHMRCController @Inject()(
     override val messagesApi: MessagesApi,
-    @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
+    @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
   config: FrontendAppConfig,

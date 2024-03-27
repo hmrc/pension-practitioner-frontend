@@ -20,6 +20,7 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import controllers.{Retrievals, Variation}
 import forms.individual.IndividualNameFormProvider
+
 import javax.inject.Inject
 import models.Mode
 import models.register.TolerantIndividual
@@ -34,12 +35,14 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class IndividualNameController @Inject()(override val messagesApi: MessagesApi,
                                          userAnswersCacheConnector: UserAnswersCacheConnector,
                                          navigator: CompoundNavigator,
+                                         @AuthMustHaveNoEnrolmentWithIV
                                          authenticate: AuthAction,
                                          getData: DataRetrievalAction,
                                          requireData: DataRequiredAction,

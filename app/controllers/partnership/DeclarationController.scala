@@ -17,14 +17,12 @@
 package controllers.partnership
 
 import config.FrontendAppConfig
-import connectors.{EmailConnector, EmailStatus, EnrolmentConnector, SubscriptionConnector}
 import connectors.cache.UserAnswersCacheConnector
-import controllers.{DataRetrievals, Retrievals}
+import connectors.{EmailConnector, EmailStatus, EnrolmentConnector, SubscriptionConnector}
 import controllers.actions._
-
-import javax.inject.Inject
-import models.{ExistingPSP, JourneyType, NormalMode}
+import controllers.{DataRetrievals, Retrievals}
 import models.requests.DataRequest
+import models.{ExistingPSP, JourneyType, NormalMode}
 import navigators.CompoundNavigator
 import pages.PspIdPage
 import pages.partnership.DeclarationPage
@@ -39,8 +37,9 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.KnownFactsRetrieval
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
+import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeclarationController @Inject()(
@@ -48,7 +47,7 @@ class DeclarationController @Inject()(
                                        subscriptionConnector: SubscriptionConnector,
                                        userAnswersCacheConnector: UserAnswersCacheConnector,
                                        navigator: CompoundNavigator,
-                                       @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
+                                       @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,

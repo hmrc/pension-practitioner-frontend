@@ -221,6 +221,15 @@ class AuthenticatedAuthActionWithIV @Inject()(override val authConnector: AuthCo
   AuthenticatedAuthAction(authConnector, config, minimalConnector, parser, sessionDataCacheConnector, Some(ConfidenceLevel.L250))
   with AuthorisedFunctions
 
+class AuthenticatedAuthActionWithNoIV @Inject()(override val authConnector: AuthConnector,
+                                              config: FrontendAppConfig,
+                                              minimalConnector: MinimalConnector,
+                                              parser: BodyParsers.Default,
+                                              sessionDataCacheConnector: SessionDataCacheConnector
+                                             )(implicit executionContext: ExecutionContext) extends
+  AuthenticatedAuthAction(authConnector, config, minimalConnector, parser, sessionDataCacheConnector, None)
+  with AuthorisedFunctions
+
 class AuthenticatedAuthActionMustHaveNoEnrolmentWithIV @Inject()(override val authConnector: AuthConnector,
                                                                  config: FrontendAppConfig,
                                                                  minimalConnector: MinimalConnector,
@@ -235,13 +244,13 @@ class AuthenticatedAuthActionMustHaveNoEnrolmentWithIV @Inject()(override val au
   }
 }
 
-class AuthenticatedAuthActionMustHaveEnrolment @Inject()(override val authConnector: AuthConnector,
-                                                         config: FrontendAppConfig,
-                                                         minimalConnector: MinimalConnector,
-                                                         parser: BodyParsers.Default,
-                                                         sessionDataCacheConnector: SessionDataCacheConnector
+class AuthenticatedAuthActionMustHaveEnrolmentWithNoIV @Inject()(override val authConnector: AuthConnector,
+                                                                 config: FrontendAppConfig,
+                                                                 minimalConnector: MinimalConnector,
+                                                                 parser: BodyParsers.Default,
+                                                                 sessionDataCacheConnector: SessionDataCacheConnector
                                                         )(implicit executionContext: ExecutionContext) extends
-  AuthenticatedAuthActionWithIV(authConnector, config, minimalConnector, parser, sessionDataCacheConnector)
+  AuthenticatedAuthAction(authConnector, config, minimalConnector, parser, sessionDataCacheConnector)
   with AuthorisedFunctions {
 
   override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] = {
