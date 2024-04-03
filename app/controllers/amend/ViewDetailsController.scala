@@ -23,15 +23,15 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import services.PspDetailsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.annotations.AuthMustHaveEnrolment
+import utils.annotations.AuthMustHaveEnrolmentWithNoIV
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ViewDetailsController @Inject()(@AuthMustHaveEnrolment authenticate: AuthAction,
-                                     getData: DataRetrievalAction,
-                                     pspDetailsService: PspDetailsService,
-                                     renderer: Renderer,
-                                     val controllerComponents: MessagesControllerComponents
+class ViewDetailsController @Inject()(@AuthMustHaveEnrolmentWithNoIV authenticate: AuthAction,
+                                      getData: DataRetrievalAction,
+                                      pspDetailsService: PspDetailsService,
+                                      renderer: Renderer,
+                                      val controllerComponents: MessagesControllerComponents
                                     )(implicit val executionContext: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData).async {

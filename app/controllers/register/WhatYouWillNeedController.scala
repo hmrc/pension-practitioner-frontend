@@ -17,22 +17,23 @@
 package controllers.register
 
 import controllers.actions._
+
 import javax.inject.Inject
 import models.NormalMode
 import navigators.CompoundNavigator
 import pages.register.WhatYouWillNeedPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
+import utils.annotations.{AuthMustHaveNoEnrolmentWithIV, AuthMustHaveNoEnrolmentWithNoIV}
 
 import scala.concurrent.ExecutionContext
 
 class WhatYouWillNeedController @Inject()(
     override val messagesApi: MessagesApi,
-    @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
+    @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
     getData: DataRetrievalAction,
     requireData: DataRequiredAction,
     navigator: CompoundNavigator,

@@ -18,7 +18,6 @@ package controllers.register
 
 import config.FrontendAppConfig
 import controllers.actions._
-import javax.inject.Inject
 import models.NormalMode
 import navigators.CompoundNavigator
 import pages.register.BusinessDetailsNotFoundPage
@@ -27,13 +26,14 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.annotations.AuthMustHaveNoEnrolmentWithIV
+import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class BusinessDetailsNotFoundController @Inject()(
                                                    override val messagesApi: MessagesApi,
-                                                   @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
+                                                   @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
                                                    getData: DataRetrievalAction,
                                                    requireData: DataRequiredAction,
                                                    navigator: CompoundNavigator,
