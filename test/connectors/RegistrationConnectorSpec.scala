@@ -17,7 +17,6 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import com.kenshoo.play.metrics.Metrics
 import models._
 import models.register._
 import org.scalatest._
@@ -25,12 +24,11 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 import play.api.Application
 import play.api.http.Status
-import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsResultException, Json}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
-import utils.{TestMetrics, WireMockHelper}
+import utils.WireMockHelper
 
 class RegistrationConnectorSpec
   extends AsyncWordSpec
@@ -215,7 +213,6 @@ class RegistrationConnectorSpec
           "metrics.enabled" -> false,
           "metrics.jvm" -> false
         )
-        .overrides(bind[Metrics].toInstance(new TestMetrics))
         .build()
 
       val injector = appWithIvDisabled.injector

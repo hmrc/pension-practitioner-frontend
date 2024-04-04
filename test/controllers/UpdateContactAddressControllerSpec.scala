@@ -16,7 +16,6 @@
 
 package controllers
 
-import com.kenshoo.play.metrics.Metrics
 import controllers.actions.{AuthAction, FakeAuthAction}
 import controllers.base.ControllerSpecBase
 import data.SampleData._
@@ -35,7 +34,6 @@ import play.twirl.api.Html
 import services.PspDetailsHelper._
 import services.PspDetailsService
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
-import utils.TestMetrics
 import utils.annotations.AuthMustHaveEnrolmentWithNoIV
 
 import scala.concurrent.Future
@@ -46,7 +44,6 @@ class UpdateContactAddressControllerSpec extends ControllerSpecBase with Mockito
   private val mockPspDetailsService = mock[PspDetailsService]
 
   override def modules: Seq[GuiceableModule] = Seq(
-    bind[Metrics].toInstance(new TestMetrics),
     bind[PspDetailsService].toInstance(mockPspDetailsService),
     bind[AuthAction].qualifiedWith(classOf[AuthMustHaveEnrolmentWithNoIV]).to[FakeAuthAction],
     bind[NunjucksRenderer].toInstance(mockRenderer)

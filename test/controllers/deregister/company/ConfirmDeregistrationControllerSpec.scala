@@ -16,7 +16,6 @@
 
 package controllers.deregister.company
 
-import com.kenshoo.play.metrics.Metrics
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import connectors.{DeregistrationConnector, MinimalConnector}
@@ -42,7 +41,6 @@ import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
-import utils.TestMetrics
 import utils.annotations.AuthMustHaveEnrolmentWithNoIV
 
 import scala.concurrent.Future
@@ -65,7 +63,6 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
   private def postRoute: String = routes.ConfirmDeregistrationController.onSubmit().url
 
   override def modules: Seq[GuiceableModule] = Seq(
-    bind[Metrics].toInstance(new TestMetrics),
     bind[MinimalConnector].toInstance(mockMinimalConnector),
     bind[DeregistrationConnector].toInstance(mockDeregistrationConnector),
     bind[AuthAction].qualifiedWith(classOf[AuthMustHaveEnrolmentWithNoIV]).to[FakeAuthAction],

@@ -16,7 +16,6 @@
 
 package audit
 
-import com.kenshoo.play.metrics.Metrics
 import config.FrontendAppConfig
 import models.requests.UserType
 import org.mockito.ArgumentCaptor
@@ -34,7 +33,6 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 import uk.gov.hmrc.play.audit.model.DataEvent
-import utils.TestMetrics
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -51,7 +49,6 @@ class AuditServiceSpec extends AnyWordSpec with Matchers with MockitoSugar with 
     )
     .overrides(
       bind[AuditConnector].toInstance(mockAuditConnector),
-      bind[Metrics].toInstance(new TestMetrics)
     )
     .build()
 

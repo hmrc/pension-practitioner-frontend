@@ -16,19 +16,16 @@
 
 package base
 
-import com.kenshoo.play.metrics.Metrics
 import config.FrontendAppConfig
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice._
 import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
-import play.api.inject.bind
 import play.api.inject.Injector
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.TestMetrics
 
 trait SpecBase extends PlaySpec with GuiceOneAppPerSuite {
 
@@ -40,7 +37,6 @@ trait SpecBase extends PlaySpec with GuiceOneAppPerSuite {
       "metrics.jvm"     -> false,
       "metrics.enabled" -> false
     )
-    .overrides(bind[Metrics].toInstance(new TestMetrics))
     .build()
 
   protected def injector: Injector = fakeApplication().injector

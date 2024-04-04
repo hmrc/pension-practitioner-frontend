@@ -16,7 +16,6 @@
 
 package controllers.individual
 
-import com.kenshoo.play.metrics.Metrics
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.actions.{AuthAction, DataRequiredAction, DataRequiredActionImpl, FakeAuthAction}
@@ -40,7 +39,6 @@ import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
-import utils.TestMetrics
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 
 import scala.concurrent.Future
@@ -57,7 +55,6 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
   private def areYouUKResidentSubmitRoute: String = routes.AreYouUKResidentController.onSubmit(NormalMode).url
 
   override def modules: Seq[GuiceableModule] = Seq(
-    bind[Metrics].toInstance(new TestMetrics),
     bind[DataRequiredAction].to[DataRequiredActionImpl],
     bind[AuthAction].qualifiedWith(classOf[AuthMustHaveNoEnrolmentWithNoIV]).to[FakeAuthAction],
     bind[NunjucksRenderer].toInstance(mockRenderer),

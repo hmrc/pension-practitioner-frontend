@@ -17,7 +17,6 @@
 package controllers.base
 
 import base.SpecBase
-import com.kenshoo.play.metrics.Metrics
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
@@ -34,7 +33,6 @@ import play.api.mvc.{ActionFilter, AnyContentAsEmpty, AnyContentAsFormUrlEncoded
 import play.api.test.Helpers.{GET, POST}
 import play.api.test.{FakeHeaders, FakeRequest}
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
-import utils.TestMetrics
 import utils.annotations.{AuthMustHaveEnrolmentWithNoIV, AuthMustHaveNoEnrolmentWithIV, AuthMustHaveNoEnrolmentWithNoIV, AuthWithIV}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -63,7 +61,6 @@ trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with MockitoSu
   protected val mockRenderer: NunjucksRenderer = mock[NunjucksRenderer]
 
   def modules: Seq[GuiceableModule] = Seq(
-    bind[Metrics].toInstance(new TestMetrics),
     bind[DataRequiredAction].to[DataRequiredActionImpl],
     bind[AuthAction].to[FakeAuthAction],
     bind[AuthAction].qualifiedWith(classOf[AuthWithIV]).to[FakeAuthAction],

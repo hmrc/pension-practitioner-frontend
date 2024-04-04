@@ -16,7 +16,6 @@
 
 package controllers.individual
 
-import com.kenshoo.play.metrics.Metrics
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.actions.{AuthAction, DataRequiredAction, DataRequiredActionImpl, FakeAuthAction}
@@ -34,7 +33,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
-import utils.TestMetrics
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 
 import scala.concurrent.Future
@@ -43,7 +41,6 @@ class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar
   private def onwardRoute = Call("GET", "/foo")
 
   override def modules: Seq[GuiceableModule] = Seq(
-    bind[Metrics].toInstance(new TestMetrics),
     bind[DataRequiredAction].to[DataRequiredActionImpl],
     bind[AuthAction].qualifiedWith(classOf[AuthMustHaveNoEnrolmentWithNoIV]).to[FakeAuthAction],
     bind[NunjucksRenderer].toInstance(mockRenderer),
