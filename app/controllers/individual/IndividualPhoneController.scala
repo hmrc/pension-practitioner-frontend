@@ -17,11 +17,9 @@
 package controllers.individual
 
 import connectors.cache.UserAnswersCacheConnector
-import controllers.{Retrievals, Variation}
 import controllers.actions._
+import controllers.{Retrievals, Variation}
 import forms.PhoneFormProvider
-
-import javax.inject.Inject
 import models.Mode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
@@ -34,8 +32,9 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.annotations.{AuthMustHaveNoEnrolmentWithIV, AuthWithIV}
+import utils.annotations.AuthWithIV
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class IndividualPhoneController @Inject()(override val messagesApi: MessagesApi,
