@@ -33,7 +33,7 @@ lazy val root = (project in file("."))
     scalacOptions += "-Wconf:cat=unused-imports&src=html/.*:s",
     Assets / pipelineStages := Seq(concat, uglify)
   )
-  .settings(scalaVersion := "2.13.8")
+  .settings(scalaVersion := "2.13.12")
   .settings(inConfig(Test)(testSettings): _*)
   .settings(resolvers += Resolver.jcenterRepo)
 
