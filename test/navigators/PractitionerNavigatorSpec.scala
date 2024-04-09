@@ -50,7 +50,7 @@ class PractitionerNavigatorSpec extends NavigatorBehaviour {
         row(WhatTypeBusinessPage)(controllers.individual.routes.WhatYouWillNeedController.onPageLoad(), Some(uaIndividual)),
         row(WhatYouWillNeedPage)(controllers.register.routes.AreYouUKCompanyController.onPageLoad()),
         row(AreYouUKCompanyPage)(controllers.register.routes.BusinessTypeController.onPageLoad(), Some(uaInUk(true))),
-        row(AreYouUKCompanyPage)(controllers.register.routes.BusinessRegistrationTypeController.onPageLoad(), Some(uaInUk(false))),
+        row(AreYouUKCompanyPage)(controllers.register.routes.NonUKPractitionerController.onPageLoad(), Some(uaInUk(false))),
         row(BusinessTypePage)(controllers.company.routes.BusinessUTRController.onPageLoad(), Some(uaBusinessTypeLimitedCompany)),
         row(BusinessTypePage)(controllers.company.routes.BusinessUTRController.onPageLoad(), Some(uaBusinessTypeUnlimitedCompany)),
         row(BusinessDetailsNotFoundPage)(controllers.routes.WhatTypeBusinessController.onPageLoad()),
