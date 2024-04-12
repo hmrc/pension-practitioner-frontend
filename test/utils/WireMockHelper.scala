@@ -18,10 +18,9 @@ package utils
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
-import com.kenshoo.play.metrics.Metrics
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Suite}
 import play.api.Application
-import play.api.inject.{Injector, bind}
+import play.api.inject.Injector
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 
 trait WireMockHelper extends BeforeAndAfterAll with BeforeAndAfterEach {
@@ -42,9 +41,7 @@ trait WireMockHelper extends BeforeAndAfterAll with BeforeAndAfterEach {
         "metrics.jvm" -> false
       )
       .overrides(
-        bindings ++ Seq[GuiceableModule](
-          bind[Metrics].toInstance(new TestMetrics)
-        ): _*
+        bindings: _*
       )
       .build()
 

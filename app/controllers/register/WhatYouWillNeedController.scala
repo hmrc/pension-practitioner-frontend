@@ -17,8 +17,6 @@
 package controllers.register
 
 import controllers.actions._
-
-import javax.inject.Inject
 import models.NormalMode
 import navigators.CompoundNavigator
 import pages.register.WhatYouWillNeedPage
@@ -27,8 +25,9 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.annotations.{AuthMustHaveNoEnrolmentWithIV, AuthMustHaveNoEnrolmentWithNoIV}
+import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class WhatYouWillNeedController @Inject()(

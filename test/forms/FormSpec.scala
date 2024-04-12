@@ -16,7 +16,6 @@
 
 package forms
 
-import com.kenshoo.play.metrics.Metrics
 import config.FrontendAppConfig
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -24,12 +23,11 @@ import org.scalatest.{Assertion, OptionValues}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.data.{Form, FormError}
 import play.api.i18n.{Messages, MessagesApi}
+import play.api.inject.Injector
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.inject.{Injector, bind}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.{Application, Environment}
-import utils.TestMetrics
 
 trait FormSpec extends AnyWordSpec with OptionValues with Matchers with GuiceOneAppPerSuite {
 
@@ -46,9 +44,9 @@ trait FormSpec extends AnyWordSpec with OptionValues with Matchers with GuiceOne
     )
   }
 
-  def error(key: String, value: String, args: Any*) = Seq(FormError(key, value, args))
+  def error(key: String, value: String, args: Any*): Seq[FormError] = Seq(FormError(key, value, args))
 
-  lazy val emptyForm = Map[String, String]()
+  lazy val emptyForm: Map[String, String] = Map[String, String]()
 
   def fakeApp(): Application = new GuiceApplicationBuilder()
     .configure(
@@ -56,7 +54,6 @@ trait FormSpec extends AnyWordSpec with OptionValues with Matchers with GuiceOne
       "metrics.jvm" -> false,
       "metrics.enabled" -> false
     )
-    .overrides(bind[Metrics].toInstance(new TestMetrics))
     .build()
 
   def injector: Injector = fakeApp().injector

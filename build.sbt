@@ -1,7 +1,6 @@
 import play.sbt.routes.RoutesKeys
 import sbt.Def
 import scoverage.ScoverageKeys
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 val appName = "pension-practitioner-frontend"
@@ -34,8 +33,7 @@ lazy val root = (project in file("."))
     scalacOptions += "-Wconf:cat=unused-imports&src=html/.*:s",
     Assets / pipelineStages := Seq(concat, uglify)
   )
-  .settings(scalaVersion := "2.13.8")
-  .settings(publishingSettings: _*)
+  .settings(scalaVersion := "2.13.12")
   .settings(inConfig(Test)(testSettings): _*)
   .settings(resolvers += Resolver.jcenterRepo)
 
