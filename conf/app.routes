@@ -59,3 +59,5 @@ GET         /success                                        controllers.amend.Co
 GET         /your-action-was-not-processed                  controllers.YourActionWasNotProcessedController.onPageLoad()
 
 GET         /cannot-register-practitioner                   controllers.CannotRegisterPractitionerController.onPageLoad()
+
+GET         /register/non-uk-practitioner                   controllers.register.NonUKPractitionerController.onPageLoad()
