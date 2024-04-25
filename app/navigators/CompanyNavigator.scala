@@ -29,48 +29,59 @@ import play.api.mvc.Call
 class CompanyNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector)
   extends Navigator {
 
+  private val nextPageOrNonUkRedirect: (UserAnswers, Call) => Call = (ua: UserAnswers, call: Call) =>
+    ua.get(AreYouUKCompanyPage) match {
+      case Some(true) => call
+      case _ => controllers.register.routes.NonUKPractitionerController.onPageLoad()
+  }
+
   //scalastyle:off cyclomatic.complexity
   override protected def routeMap(ua: UserAnswers): PartialFunction[Page, Call] = {
-    case BusinessUTRPage => CompanyNameController.onPageLoad(NormalMode)
-    case BusinessNamePage =>
-      ua.get(AreYouUKCompanyPage) match {
-        case Some(true) => ConfirmNameController.onPageLoad()
-        case _ => CompanyEnterRegisteredAddressController.onPageLoad(NormalMode)
-      }
 
-    case ConfirmNamePage => ua.get(ConfirmNamePage) match {
-        case Some(false) => TellHMRCController.onPageLoad()
-        case _ => ConfirmAddressController.onPageLoad()
-      }
-    case ConfirmAddressPage => ua.get(ConfirmAddressPage) match {
-        case None => TellHMRCController.onPageLoad()
-        case _ => CompanyUseSameAddressController.onPageLoad()
-      }
-    case CompanyUseSameAddressPage =>
-      (ua.get(AreYouUKCompanyPage), ua.get(CompanyUseSameAddressPage)) match {
-      case (_, Some(true)) => CompanyEmailController.onPageLoad(NormalMode)
-      case (Some(false), Some(false)) => CompanyContactAddressController.onPageLoad(NormalMode)
-      case _ => CompanyPostcodeController.onPageLoad(NormalMode)
-    }
-    case CompanyPostcodePage => CompanyAddressListController.onPageLoad(NormalMode)
-    case CompanyAddressListPage => CompanyEmailController.onPageLoad(NormalMode)
-    case CompanyAddressPage => CompanyEmailController.onPageLoad(NormalMode)
-    case CompanyRegisteredAddressPage =>
-      (ua.get(AreYouUKCompanyPage), ua.get(CompanyRegisteredAddressPage)) match {
-      case (Some(false), Some(addr)) if addr.country == "GB" => IsCompanyRegisteredInUkController.onPageLoad()
+    case BusinessUTRPage => nextPageOrNonUkRedirect(ua, CompanyNameController.onPageLoad(NormalMode))
+
+    case BusinessNamePage => nextPageOrNonUkRedirect(ua, ConfirmNameController.onPageLoad())
+
+    case ConfirmNamePage => nextPageOrNonUkRedirect(ua, ua.get(ConfirmNamePage) match {
+      case Some(false) => TellHMRCController.onPageLoad()
+      case _ => ConfirmAddressController.onPageLoad()
+    })
+
+    case ConfirmAddressPage => nextPageOrNonUkRedirect(ua, ua.get(ConfirmAddressPage) match {
+      case None => TellHMRCController.onPageLoad()
       case _ => CompanyUseSameAddressController.onPageLoad()
-    }
-    case IsCompanyRegisteredInUkPage =>
-      ua.get(IsCompanyRegisteredInUkPage) match {
+    })
+
+    case CompanyUseSameAddressPage => nextPageOrNonUkRedirect(ua, ua.get(CompanyUseSameAddressPage) match {
+      case Some(true) => CompanyEmailController.onPageLoad(NormalMode)
+      case Some(false) => CompanyContactAddressController.onPageLoad(NormalMode)
+      case _ => CompanyPostcodeController.onPageLoad(NormalMode)
+    })
+
+    case CompanyPostcodePage => nextPageOrNonUkRedirect(ua, CompanyAddressListController.onPageLoad(NormalMode))
+
+    case CompanyAddressListPage => nextPageOrNonUkRedirect(ua, CompanyEmailController.onPageLoad(NormalMode))
+
+    case CompanyAddressPage => nextPageOrNonUkRedirect(ua, CompanyEmailController.onPageLoad(NormalMode))
+
+    case CompanyRegisteredAddressPage => nextPageOrNonUkRedirect(ua, ua.get(CompanyRegisteredAddressPage) match {
+      case Some(addr) if addr.country == "GB" => IsCompanyRegisteredInUkController.onPageLoad()
+      case _ => CompanyUseSameAddressController.onPageLoad()
+    })
+
+    case IsCompanyRegisteredInUkPage => nextPageOrNonUkRedirect(ua, ua.get(IsCompanyRegisteredInUkPage) match {
         case Some(true) => controllers.routes.WhatTypeBusinessController.onPageLoad()
         case _ => CompanyEnterRegisteredAddressController.onPageLoad(NormalMode)
-      }
-    case CompanyEmailPage => CompanyPhoneController.onPageLoad(NormalMode)
-    case CompanyPhonePage => CheckYourAnswersController.onPageLoad()
-    case DeclarationPage => controllers.company.routes.ConfirmationController.onPageLoad()
-  }
-  //scalastyle:off cyclomatic.complexity
+    })
 
+    case CompanyEmailPage => nextPageOrNonUkRedirect(ua, CompanyPhoneController.onPageLoad(NormalMode))
+
+    case CompanyPhonePage => nextPageOrNonUkRedirect(ua, CheckYourAnswersController.onPageLoad())
+
+    case DeclarationPage => nextPageOrNonUkRedirect(ua, controllers.company.routes.ConfirmationController.onPageLoad())
+  }
+
+  //scalastyle:off cyclomatic.complexity
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {
     case BusinessNamePage => variationNavigator(userAnswers)
     case CompanyPostcodePage => CompanyAddressListController.onPageLoad(CheckMode)

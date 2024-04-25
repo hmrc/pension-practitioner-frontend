@@ -48,8 +48,10 @@ class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCo
     case BusinessDetailsNotFoundPage => controllers.routes.WhatTypeBusinessController.onPageLoad()
     case BusinessRegistrationTypePage =>
       ua.get(BusinessRegistrationTypePage) match {
-        case Some(BusinessRegistrationType.Company) => controllers.company.routes.CompanyNameController.onPageLoad(NormalMode)
-        case _ => controllers.partnership.routes.PartnershipNameController.onPageLoad(NormalMode)
+        case Some(BusinessRegistrationType.Company) =>
+          controllers.company.routes.CompanyNameController.onPageLoad(NormalMode)
+        case _ =>
+          controllers.partnership.routes.PartnershipNameController.onPageLoad(NormalMode)
       }
 
   }

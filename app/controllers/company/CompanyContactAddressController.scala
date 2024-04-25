@@ -21,7 +21,7 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import controllers.address.ManualAddressController
-import forms.address.AddressFormProvider
+import forms.address.UKAddressFormProvider
 import javax.inject.Inject
 import models.{Mode, Address}
 import navigators.CompoundNavigator
@@ -33,7 +33,6 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Call, AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.countryOptions.CountryOptions
 
 import scala.concurrent.ExecutionContext
 
@@ -44,8 +43,7 @@ class CompanyContactAddressController @Inject()(
   authenticate: AuthAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: AddressFormProvider,
-  countryOptions: CountryOptions,
+  formProvider: UKAddressFormProvider,
   val controllerComponents: MessagesControllerComponents,
   val config: FrontendAppConfig,
   val renderer: Renderer
@@ -59,7 +57,7 @@ class CompanyContactAddressController @Inject()(
 
   override protected def addressPage: QuestionPage[Address] = CompanyAddressPage
 
-  override protected val pageTitleEntityTypeMessageKey = Some("company")
+  override protected val pageTitleEntityTypeMessageKey: Option[String] = Some("company")
 
   override protected val submitRoute: Mode => Call = mode => routes.CompanyContactAddressController.onSubmit(mode)
 

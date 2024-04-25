@@ -30,7 +30,6 @@ POST        /confirm-name                                     controllers.compan
 GET         /confirm-address                                  controllers.company.ConfirmAddressController.onPageLoad()
 POST        /confirm-address                                  controllers.company.ConfirmAddressController.onSubmit()
 
-
 GET         /you-need-to-tell-hmrc                            controllers.company.TellHMRCController.onPageLoad()
 
 GET         /contact-details/contact-email                    controllers.company.CompanyEmailController.onPageLoad(mode: Mode = NormalMode)
