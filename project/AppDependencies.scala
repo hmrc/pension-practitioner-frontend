@@ -23,9 +23,9 @@ object AppDependencies {
     "org.pegdown"                 %  "pegdown"                 % "1.6.0",
     "org.scalacheck"              %% "scalacheck"              % "1.17.0",
     "org.jsoup"                   %  "jsoup"                   % "1.15.4",
-    "org.mockito"                 %% "mockito-scala"           % "1.17.29",
+    "org.mockito"                 %% "mockito-scala"           % "1.17.31",
     "io.github.wolfendale"        %% "scalacheck-gen-regexp"   % "1.1.0",
-    "com.vladsch.flexmark"        %  "flexmark-all"            % "0.64.6"
+    "com.vladsch.flexmark"        %  "flexmark-all"            % "0.64.8"
   ).map(_ % Test)
 
   def apply(): Seq[ModuleID] = compile ++ test
