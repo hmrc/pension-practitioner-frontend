@@ -21,7 +21,7 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import controllers.address.ManualAddressController
-import forms.address.AddressFormProvider
+import forms.address.UKAddressFormProvider
 import javax.inject.Inject
 import models.{Address, Mode}
 import navigators.CompoundNavigator
@@ -44,7 +44,7 @@ class PartnershipContactAddressController @Inject()(
   authenticate: AuthAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: AddressFormProvider,
+  formProvider: UKAddressFormProvider,
   countryOptions: CountryOptions,
   val controllerComponents: MessagesControllerComponents,
   val config: FrontendAppConfig,
@@ -59,7 +59,7 @@ class PartnershipContactAddressController @Inject()(
 
   override protected def addressPage: QuestionPage[Address] = PartnershipAddressPage
 
-  override protected val pageTitleEntityTypeMessageKey = Some("partnership")
+  override protected val pageTitleEntityTypeMessageKey: Option[String] = Some("partnership")
 
   override protected val submitRoute: Mode => Call = mode => routes.PartnershipContactAddressController.onSubmit(mode)
 

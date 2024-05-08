@@ -71,15 +71,15 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
   private def onPageLoadUrl: String = routes.PartnershipEnterRegisteredAddressController.onPageLoad(NormalMode).url
   private def submitUrl: String = routes.PartnershipEnterRegisteredAddressController.onSubmit(NormalMode).url
   private val dummyCall: Call = Call("GET", "/foo")
-  private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), None, "FR")
+  private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("ZZ1 1ZZ"), "GB")
 
   private val valuesValid: Map[String, Seq[String]] = Map(
     "line1" -> Seq("line1"),
     "line2" -> Seq("line2"),
     "line3" -> Seq("line3"),
     "line4" -> Seq("line4"),
-    "country" -> Seq("FR"),
-    "postcode" -> Seq("")
+    "country" -> Seq("GB"),
+    "postcode" -> Seq("ZZ1 1ZZ")
   )
 
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
@@ -97,8 +97,8 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-    when(countryOptions.options).thenReturn(Seq(InputOption("FR", "France")))
-    when(mockAppConfig.validCountryCodes).thenReturn(Seq("FR"))
+    when(countryOptions.options).thenReturn(Seq(InputOption("GB", "United Kingdom")))
+    when(mockAppConfig.validCountryCodes).thenReturn(Seq("GB"))
   }
 
   "Partnership Enter Registered Address Controller" must {
@@ -113,7 +113,6 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
       verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
 
       templateCaptor.getValue mustEqual templateToBeRendered
-
       jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
       (jsonCaptor.getValue \ "countries").asOpt[JsArray].isDefined mustBe true
       (jsonCaptor.getValue \ "postcodeEntry").asOpt[JsBoolean].isDefined mustBe false

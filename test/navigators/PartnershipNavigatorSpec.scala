@@ -17,8 +17,8 @@
 package navigators
 
 import controllers.partnership.routes._
+import controllers.register.routes._
 import data.SampleData
-import models.Address
 import models.{NormalMode, CheckMode, UserAnswers}
 import org.scalatest.prop.TableFor3
 import pages.partnership._
@@ -44,38 +44,32 @@ class PartnershipNavigatorSpec extends NavigatorBehaviour {
   private def uaIsPartnershipRegisteredInUkPage(v:Boolean): UserAnswers =
     SampleData.emptyUserAnswers.setOrException(IsPartnershipRegisteredInUkPage, v)
 
-  private def uaNotInUKButCountryGB: UserAnswers =
-    SampleData.emptyUserAnswers
-      .setOrException(AreYouUKCompanyPage, false)
-      .setOrException(PartnershipRegisteredAddressPage, Address("addr1", "addr2", None, None, None, "GB"))
-
   private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
 
   "NormalMode" must {
     def normalModeRoutes: TableFor3[Page, UserAnswers, Call] =
       Table(
         ("Id", "UserAnswers", "Next Page"),
-        row(BusinessUTRPage)(PartnershipNameController.onPageLoad(NormalMode)),
+        row(BusinessUTRPage)(PartnershipNameController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(true))),
         row(BusinessNamePage)(ConfirmNameController.onPageLoad(), Some(uaAreYouUKCompany(true))),
-        row(BusinessNamePage)(PartnershipEnterRegisteredAddressController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(false))),
-        row(ConfirmNamePage)(ConfirmAddressController.onPageLoad(), Some(uaConfirmName(true))),
-        row(ConfirmNamePage)(TellHMRCController.onPageLoad(), Some(uaConfirmName(false))),
-        row(ConfirmAddressPage)(TellHMRCController.onPageLoad()),
-        row(ConfirmAddressPage)(PartnershipUseSameAddressController.onPageLoad(), Some(uaConfirmAddressYes)),
+        row(BusinessNamePage)(NonUKPractitionerController.onPageLoad(), Some(uaAreYouUKCompany(false))),
+        row(ConfirmNamePage)(ConfirmAddressController.onPageLoad(), Some(uaConfirmName(true).setOrException(AreYouUKCompanyPage, true))),
+        row(ConfirmNamePage)(TellHMRCController.onPageLoad(), Some(uaConfirmName(false).setOrException(AreYouUKCompanyPage, true))),
+        row(ConfirmAddressPage)(NonUKPractitionerController.onPageLoad()),
+        row(ConfirmAddressPage)(PartnershipUseSameAddressController.onPageLoad(), Some(uaConfirmAddressYes.setOrException(AreYouUKCompanyPage, true))),
         row(PartnershipUseSameAddressPage)(PartnershipEmailController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=true, uk=true))),
-        row(PartnershipUseSameAddressPage)(PartnershipPostcodeController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=false, uk=true))),
-        row(PartnershipUseSameAddressPage)(PartnershipContactAddressController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=false, uk=false))),
-        row(PartnershipPostcodePage)(PartnershipAddressListController.onPageLoad(NormalMode)),
-        row(PartnershipAddressListPage)(PartnershipEmailController.onPageLoad(NormalMode)),
+        row(PartnershipUseSameAddressPage)(PartnershipContactAddressController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=false, uk=true))),
+        row(PartnershipUseSameAddressPage)(NonUKPractitionerController.onPageLoad(), Some(uaUseSameAddress(sameAddress=false, uk=false))),
+        row(PartnershipPostcodePage)(PartnershipAddressListController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(true))),
+        row(PartnershipAddressListPage)(PartnershipEmailController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(true))),
         row(PartnershipAddressPage)(PartnershipEmailController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(true))),
-        row(PartnershipEmailPage)(PartnershipPhoneController.onPageLoad(NormalMode)),
-        row(PartnershipPhonePage)(CheckYourAnswersController.onPageLoad()),
-        row(PartnershipRegisteredAddressPage)(PartnershipUseSameAddressController.onPageLoad()),
-        row(PartnershipRegisteredAddressPage)(IsPartnershipRegisteredInUkController.onPageLoad(), Some(uaNotInUKButCountryGB)),
-        row(IsPartnershipRegisteredInUkPage)(controllers.routes.WhatTypeBusinessController.onPageLoad(), Some(uaIsPartnershipRegisteredInUkPage(true))),
-        row(IsPartnershipRegisteredInUkPage)(PartnershipEnterRegisteredAddressController
-          .onPageLoad(NormalMode), Some(uaIsPartnershipRegisteredInUkPage(false))),
-        row(DeclarationPage)(controllers.partnership.routes.ConfirmationController.onPageLoad())
+        row(PartnershipEmailPage)(PartnershipPhoneController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(true))),
+        row(PartnershipPhonePage)(CheckYourAnswersController.onPageLoad(), Some(uaAreYouUKCompany(true))),
+        row(PartnershipRegisteredAddressPage)(PartnershipUseSameAddressController.onPageLoad(), Some(uaAreYouUKCompany(true))),
+        row(IsPartnershipRegisteredInUkPage)(controllers.routes.WhatTypeBusinessController.onPageLoad(),
+          Some(uaIsPartnershipRegisteredInUkPage(true).setOrException(AreYouUKCompanyPage, true))),
+        row(IsPartnershipRegisteredInUkPage)(NonUKPractitionerController.onPageLoad(), Some(uaIsPartnershipRegisteredInUkPage(false))),
+        row(DeclarationPage)(controllers.partnership.routes.ConfirmationController.onPageLoad(), Some(uaAreYouUKCompany(true)))
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)

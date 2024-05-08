@@ -22,7 +22,8 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import controllers.address.ManualAddressController
-import forms.address.RegisteredAddressFormProvider
+import forms.address.UKAddressFormProvider
+
 import javax.inject.Inject
 import models.Address
 import models.AddressConfiguration
@@ -32,7 +33,7 @@ import navigators.CompoundNavigator
 import pages.QuestionPage
 import pages.RegistrationInfoPage
 import pages.partnership.BusinessNamePage
-import pages.partnership.{PartnershipRegisteredAddressPage, PartnershipAddressListPage}
+import pages.partnership.{PartnershipAddressListPage, PartnershipRegisteredAddressPage}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.i18n.Messages
@@ -48,16 +49,16 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 class PartnershipEnterRegisteredAddressController @Inject()(override val messagesApi: MessagesApi,
-  val userAnswersCacheConnector: UserAnswersCacheConnector,
-  val navigator: CompoundNavigator,
-  authenticate: AuthAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: RegisteredAddressFormProvider,
-  val controllerComponents: MessagesControllerComponents,
-  val config: FrontendAppConfig,
-  val renderer: Renderer,
-  registrationConnector:RegistrationConnector
+                                                            val userAnswersCacheConnector: UserAnswersCacheConnector,
+                                                            val navigator: CompoundNavigator,
+                                                            authenticate: AuthAction,
+                                                            getData: DataRetrievalAction,
+                                                            requireData: DataRequiredAction,
+                                                            formProvider: UKAddressFormProvider,
+                                                            val controllerComponents: MessagesControllerComponents,
+                                                            val config: FrontendAppConfig,
+                                                            val renderer: Renderer,
+                                                            registrationConnector:RegistrationConnector
 )(implicit ec: ExecutionContext) extends ManualAddressController
   with Retrievals with I18nSupport with NunjucksSupport {
 
@@ -65,7 +66,7 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
 
   override protected def addressPage: QuestionPage[Address] = PartnershipRegisteredAddressPage
 
-  override protected val pageTitleEntityTypeMessageKey = Some("partnership")
+  override protected val pageTitleEntityTypeMessageKey: Option[String] = Some("partnership")
 
   override protected val submitRoute: Mode => Call = mode => routes.PartnershipEnterRegisteredAddressController.onSubmit(mode)
 

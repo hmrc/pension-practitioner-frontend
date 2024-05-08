@@ -17,6 +17,7 @@
 package navigators
 
 import controllers.company.routes._
+import controllers.register.routes._
 import data.SampleData
 import models.Address
 import models.CheckMode
@@ -57,26 +58,26 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
     def normalModeRoutes: TableFor3[Page, UserAnswers, Call] =
       Table(
         ("Id", "UserAnswers", "Next Page"),
-        row(BusinessUTRPage)(CompanyNameController.onPageLoad(NormalMode)),
+        row(BusinessUTRPage)(CompanyNameController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(true))),
         row(BusinessNamePage)(ConfirmNameController.onPageLoad(), Some(uaAreYouUKCompany(true))),
-        row(BusinessNamePage)(CompanyEnterRegisteredAddressController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(false))),
-        row(ConfirmNamePage)(ConfirmAddressController.onPageLoad(), Some(uaConfirmName(true))),
-        row(ConfirmNamePage)(TellHMRCController.onPageLoad(),Some(uaConfirmName(false))),
-        row(ConfirmAddressPage)(TellHMRCController.onPageLoad()),
-        row(ConfirmAddressPage)(CompanyUseSameAddressController.onPageLoad(), Some(uaConfirmAddressYes)),
+        row(BusinessNamePage)(NonUKPractitionerController.onPageLoad(), Some(uaAreYouUKCompany(false))),
+        row(ConfirmNamePage)(ConfirmAddressController.onPageLoad(), Some(uaConfirmName(true).setOrException(AreYouUKCompanyPage, true))),
+        row(ConfirmNamePage)(TellHMRCController.onPageLoad(),Some(uaConfirmName(false).setOrException(AreYouUKCompanyPage, true))),
+        row(ConfirmAddressPage)(TellHMRCController.onPageLoad(), Some(uaAreYouUKCompany(true))),
+        row(ConfirmAddressPage)(CompanyUseSameAddressController.onPageLoad(), Some(uaConfirmAddressYes.setOrException(AreYouUKCompanyPage, true))),
         row(CompanyUseSameAddressPage)(CompanyEmailController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=true, uk=true))),
-        row(CompanyUseSameAddressPage)(CompanyPostcodeController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=false, uk=true))),
-        row(CompanyUseSameAddressPage)(CompanyContactAddressController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=false, uk=false))),
-        row(CompanyPostcodePage)(CompanyAddressListController.onPageLoad(NormalMode)),
-        row(CompanyAddressListPage)(CompanyEmailController.onPageLoad(NormalMode)),
+        row(CompanyUseSameAddressPage)(CompanyContactAddressController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=false, uk=true))),
+        row(CompanyUseSameAddressPage)(NonUKPractitionerController.onPageLoad(), Some(uaUseSameAddress(sameAddress=false, uk=false))),
+        row(CompanyPostcodePage)(CompanyAddressListController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(true))),
+        row(CompanyAddressListPage)(CompanyEmailController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(true))),
         row(CompanyAddressPage)(CompanyEmailController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(true))),
-        row(CompanyEmailPage)(CompanyPhoneController.onPageLoad(NormalMode)),
-        row(CompanyPhonePage)(CheckYourAnswersController.onPageLoad()),
-        row(CompanyRegisteredAddressPage)(CompanyUseSameAddressController.onPageLoad()),
-        row(CompanyRegisteredAddressPage)(IsCompanyRegisteredInUkController.onPageLoad(), Some(uaNotInUKButCountryGB)),
-        row(IsCompanyRegisteredInUkPage)(controllers.routes.WhatTypeBusinessController.onPageLoad(), Some(uaIsCompanyRegisteredInUkPage(true))),
-        row(IsCompanyRegisteredInUkPage)(CompanyEnterRegisteredAddressController.onPageLoad(NormalMode), Some(uaIsCompanyRegisteredInUkPage(false))),
-        row(DeclarationPage)(controllers.company.routes.ConfirmationController.onPageLoad())
+        row(CompanyEmailPage)(CompanyPhoneController.onPageLoad(NormalMode), Some(uaAreYouUKCompany(true))),
+        row(CompanyPhonePage)(CheckYourAnswersController.onPageLoad(), Some(uaAreYouUKCompany(true))),
+        row(CompanyRegisteredAddressPage)(CompanyUseSameAddressController.onPageLoad(), Some(uaAreYouUKCompany(true))),
+        row(IsCompanyRegisteredInUkPage)(controllers.routes.WhatTypeBusinessController.onPageLoad(),
+          Some(uaIsCompanyRegisteredInUkPage(true).setOrException(AreYouUKCompanyPage, true))),
+        row(IsCompanyRegisteredInUkPage)(NonUKPractitionerController.onPageLoad(), Some(uaIsCompanyRegisteredInUkPage(false))),
+        row(DeclarationPage)(controllers.company.routes.ConfirmationController.onPageLoad(), Some(uaAreYouUKCompany(true)))
       )
 
     behave like navigatorWithRoutesForMode(NormalMode)(navigator, normalModeRoutes)

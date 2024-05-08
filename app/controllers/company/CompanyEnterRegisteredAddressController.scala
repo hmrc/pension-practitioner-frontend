@@ -23,13 +23,14 @@ import controllers.Retrievals
 import controllers.actions._
 import controllers.address.ManualAddressController
 import controllers.company.routes.IsCompanyRegisteredInUkController
-import forms.address.RegisteredAddressFormProvider
+import forms.address.UKAddressFormProvider
+
 import javax.inject.Inject
 import models.{Address, AddressConfiguration, Mode}
 import models.register.RegistrationLegalStatus
 import navigators.CompoundNavigator
 import pages.{QuestionPage, RegistrationInfoPage}
-import pages.company.{CompanyRegisteredAddressPage, CompanyAddressListPage, BusinessNamePage}
+import pages.company.{BusinessNamePage, CompanyAddressListPage, CompanyRegisteredAddressPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
@@ -39,16 +40,16 @@ import uk.gov.hmrc.viewmodels.NunjucksSupport
 import scala.concurrent.{ExecutionContext, Future}
 
 class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi: MessagesApi,
-  val userAnswersCacheConnector: UserAnswersCacheConnector,
-  val navigator: CompoundNavigator,
-  authenticate: AuthAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: RegisteredAddressFormProvider,
-  val controllerComponents: MessagesControllerComponents,
-  val config: FrontendAppConfig,
-  val renderer: Renderer,
-  registrationConnector:RegistrationConnector
+                                                        val userAnswersCacheConnector: UserAnswersCacheConnector,
+                                                        val navigator: CompoundNavigator,
+                                                        authenticate: AuthAction,
+                                                        getData: DataRetrievalAction,
+                                                        requireData: DataRequiredAction,
+                                                        formProvider: UKAddressFormProvider,
+                                                        val controllerComponents: MessagesControllerComponents,
+                                                        val config: FrontendAppConfig,
+                                                        val renderer: Renderer,
+                                                        registrationConnector:RegistrationConnector
 )(implicit ec: ExecutionContext) extends ManualAddressController
   with Retrievals with I18nSupport with NunjucksSupport {
 
@@ -56,7 +57,7 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
 
   override protected def addressPage: QuestionPage[Address] = CompanyRegisteredAddressPage
 
-  override protected val pageTitleEntityTypeMessageKey = Some("company")
+  override protected val pageTitleEntityTypeMessageKey: Option[String] = Some("company")
 
   override protected val submitRoute: Mode => Call = mode => routes.CompanyEnterRegisteredAddressController.onSubmit(mode)
 

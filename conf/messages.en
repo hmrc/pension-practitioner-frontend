@@ -221,6 +221,7 @@ error.address_line_4.invalid = The fourth line of the address contains invalid c
 error.country.required = Enter a country
 error.country.invalid = Enter a valid country
 error.country.invalid.eueea = Pension Scheme Practitioners must be resident in the UK, EU or EEA
+error.country.invalid.uk = The address must be based in the UK
 
 error.postcode.required = Enter the postcode
 error.postcode.length = The postcode cannot be more than 8 characters
