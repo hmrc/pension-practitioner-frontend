@@ -24,7 +24,7 @@ lazy val root = (project in file("."))
     update / evictionWarningOptions :=
       EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     Concat.groups := Seq(
-      "javascripts/application.js" -> group(Seq("lib/govuk-frontend/govuk/all.js", "lib/hmrc-frontend/hmrc/all.js",
+      "javascripts/application.js" -> group(Seq("lib/govuk-frontend/dist/govuk/all.bundle.js", "lib/hmrc-frontend/hmrc/all.js",
         "javascripts/psp.js"
       ))
     ),
