@@ -1,5 +1,5 @@
 # microservice specific routes
-
+->          /hmrc-frontend                                                                                   hmrcfrontend.Routes
 ->          /register/individual                            individual.Routes
 
 ->          /register/company                               company.Routes

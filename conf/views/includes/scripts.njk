@@ -1,1 +1,3 @@
-<script src="{{ routes.controllers.Assets.versioned("javascripts/application.min.js").url }}"></script>
+<script @CSPNonce.attr src="{{ routes.controllers.Assets.versioned("lib/govuk-frontend/govuk/all.js").url }}"></script>
+<script @CSPNonce.attr src="{{ routes.controllers.Assets.versioned("lib/hmrc-frontend/hmrc/all.js").url }}"></script>
+<script src="{{ routes.controllers.Assets.versioned("javascripts/psp.min.js").url }}"></script>

@@ -18,7 +18,7 @@ package models
 
 import play.api.data.Form
 import uk.gov.hmrc.viewmodels._
-import utils.{WithName, Enumerable}
+import utils.{Enumerable, WithName}
 
 sealed trait WhatTypeBusiness
 

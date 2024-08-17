@@ -17,7 +17,6 @@
 package controllers
 
 import audit.{AuditService, PSPStartEvent}
-import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import forms.WhatTypeBusinessFormProvider
@@ -30,7 +29,9 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import views.html.WhatTypeBusinessView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,12 +41,11 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
                                            navigator: CompoundNavigator,
                                            @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
                                            getData: DataRetrievalAction,
-                                           requireData: DataRequiredAction,
                                            formProvider: WhatTypeBusinessFormProvider,
                                            val controllerComponents: MessagesControllerComponents,
-                                           config: FrontendAppConfig,
                                            renderer: Renderer,
-                                           auditService: AuditService
+                                           auditService: AuditService,
+                                           whatTypeBusinessView: WhatTypeBusinessView
                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
 
   private val form = formProvider()
@@ -53,18 +53,27 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
   def onPageLoad(): Action[AnyContent] = (authenticate andThen getData).async {
     implicit request =>
 
-        val preparedForm = request.userAnswers.flatMap(_.get(WhatTypeBusinessPage)) match {
-          case None => form
-          case Some(value) => form.fill(value)
-        }
 
-        val json = Json.obj(
-          "form" -> preparedForm,
-          "submitUrl" -> routes.WhatTypeBusinessController.onSubmit().url,
-          "radios" -> WhatTypeBusiness.radios(preparedForm)
+      val preparedForm = request.userAnswers.flatMap(_.get(WhatTypeBusinessPage)) match {
+        case None => form
+        case Some(value) => form.fill(value)
+      }
+
+      val json = Json.obj(
+        "form" -> preparedForm,
+        "submitUrl" -> routes.WhatTypeBusinessController.onSubmit().url,
+        "radios" -> WhatTypeBusiness.radios(preparedForm)
+      )
+
+      val template = TwirlMigration.duoTemplate(
+        renderer.render("whatTypeBusiness.njk", json),
+        whatTypeBusinessView(
+          routes.WhatTypeBusinessController.onSubmit(),
+          preparedForm,
+          TwirlMigration.toTwirlRadios(WhatTypeBusiness.radios(preparedForm))
         )
-
-        renderer.render("whatTypeBusiness.njk", json).map(Ok(_))
+      )
+    template.map(Ok(_))
   }
 
   def onSubmit(): Action[AnyContent] = (authenticate andThen getData).async {
