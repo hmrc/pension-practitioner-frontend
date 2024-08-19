@@ -1,0 +1,93 @@
+@*
+ * Copyright 2024 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import config.FrontendAppConfig
+@import controllers.routes
+@import uk.gov.hmrc.hmrcfrontend.views.config.StandardBetaBanner
+@import views.html.helper.CSPNonce
+
+@this(
+    appConfig: FrontendAppConfig,
+    govukLayout: GovukLayout,
+    hmrcHead: HmrcHead,
+    hmrcTimeoutDialogHelper: HmrcTimeoutDialogHelper,
+    hmrcStandardFooter: HmrcStandardFooter,
+    hmrcStandardHeader: HmrcStandardHeader,
+    standardBetaBanner: StandardBetaBanner,
+    defaultMainContentLayout: TwoThirdsMainContent,
+    hmrcScripts: HmrcScripts,
+    govukBackLink: GovukBackLink,
+    hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper
+)
+
+@(
+    pageTitle: String,
+    timeoutEnabled: Boolean = true,
+    canSignOut: Boolean = true,
+    showBackLink: Boolean = true,
+    fullWidthLayout: Boolean = false
+)(mainContent: Html)(implicit request: Request[_], messages: Messages)
+
+@headScripts = {
+    @if(timeoutEnabled) {
+        @hmrcTimeoutDialogHelper(
+            signOutUrl = routes.SignOutController.signOut().url,
+            keepAliveUrl = Some(routes.SignOutController.keepAlive().url),
+            timeout = Some(900),
+            countdown = Some(120)
+        )
+    }
+}
+
+@beforeContentBlock = {
+    @if(showBackLink) {
+        @govukBackLink(BackLink(
+            attributes = Map("id" -> "back-link"), classes = "js-enabled", href = "javascript:history.back()", content = HtmlContent(messages("site.back"))
+        ))
+    }
+}
+
+@scripts = {
+    <script @CSPNonce.attr src='@controllers.routes.Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
+    <script @CSPNonce.attr src='@controllers.routes.Assets.versioned("lib/hmrc-frontend/hmrc/all.js")'></script>
+    <script @CSPNonce.attr src='@routes.Assets.versioned("javascripts/psp.js")'></script> @*Combined in build.sbt*@
+    <script @CSPNonce.attr>
+            window.GOVUKFrontend.initAll();
+            window.HMRCFrontend.initAll()
+    </script>
+}
+
+@mainContentWithGetHelp = {
+    @mainContent
+    <div class="govuk-!-margin-top-8">
+        @hmrcReportTechnicalIssueHelper()
+    </div>
+    <p style="font-size: 20px; color: red;"><b>DEV ONLY: TWIRL TEMPLATE</b></p>
+}
+@govukLayout(
+    pageTitle = Some(pageTitle + " - " + Messages("site.service_name")),
+    headBlock = Some(hmrcHead(headBlock = Some(headScripts))),
+    headerBlock = Some(hmrcStandardHeader(
+        serviceName = Some(messages("site.service_name")),
+        serviceUrl = Some(routes.IndexController.onPageLoad().url),
+        signOutUrl = if(canSignOut) Some(routes.SignOutController.signOut().url) else None,
+        phaseBanner = Some(standardBetaBanner(url = appConfig.betaFeedbackUnauthenticatedUrl))
+    )),
+    beforeContentBlock = Some(beforeContentBlock),
+    scriptsBlock = Some(scripts),
+    mainContentLayout = if(fullWidthLayout) None else Some(defaultMainContentLayout(_)),
+    footerBlock = Some(hmrcStandardFooter())
+)(mainContentWithGetHelp)
