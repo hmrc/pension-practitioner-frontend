@@ -2,7 +2,7 @@ import sbt._
 
 object AppDependencies {
   private val bootstrapVersion = "8.5.0"
-  //TODO: Update play-frontend-hmrc-play-30, bootstrap-frontend-play-30, govuk-frontend after migration to twirl. -Pavel Vjalcin
+  //TODO: Update play-frontend-hmrc-play-30, bootstrap-frontend-play-30, govuk-frontend after migration to twirl. -Pavel Vjalicin
   val compile = Seq(
     play.sbt.PlayImport.ws,
     "uk.gov.hmrc"                   %% "play-conditional-form-mapping-play-30"  % "2.0.0",
