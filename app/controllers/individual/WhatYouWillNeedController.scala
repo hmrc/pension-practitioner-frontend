@@ -17,6 +17,7 @@
 package controllers.individual
 
 import controllers.actions._
+
 import javax.inject.Inject
 import models.NormalMode
 import navigators.CompoundNavigator
@@ -26,7 +27,9 @@ import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import views.html.individual.WhatYouWillNeedView
 
 import scala.concurrent.ExecutionContext
 
@@ -37,14 +40,18 @@ class WhatYouWillNeedController @Inject()(
                                            requireData: DataRequiredAction,
                                            navigator: CompoundNavigator,
                                            val controllerComponents: MessagesControllerComponents,
-                                           renderer: Renderer
+                                           renderer: Renderer,
+                                           whatYouWillNeedView: WhatYouWillNeedView
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       val nextPage = navigator.nextPage(WhatYouWillNeedPage, NormalMode, request.userAnswers)
-      renderer.render(template = "individual/whatYouWillNeed.njk",
-        Json.obj(fields = "nextPage" -> nextPage.url)
-      ).map(Ok(_))
+      val template = TwirlMigration.duoTemplate(
+        renderer.render(template = "individual/whatYouWillNeed.njk",
+          Json.obj(fields = "nextPage" -> nextPage.url)),
+        whatYouWillNeedView(nextPage)
+      )
+      template.map(Ok(_))
   }
 }
