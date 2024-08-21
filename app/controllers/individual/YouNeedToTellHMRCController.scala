@@ -18,13 +18,16 @@ package controllers.individual
 
 import config.FrontendAppConfig
 import controllers.actions._
+
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithIV
+import views.html.individual.YouNeedToTellHMRCView
 
 import scala.concurrent.ExecutionContext
 
@@ -34,12 +37,19 @@ class YouNeedToTellHMRCController @Inject()(override val messagesApi: MessagesAp
                                             requireData: DataRequiredAction,
                                             val controllerComponents: MessagesControllerComponents,
                                             config: FrontendAppConfig,
-                                            renderer: Renderer
+                                            renderer: Renderer,
+                                            youNeedToTellHMRCView: YouNeedToTellHMRCView
                                            )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      renderer.render(template = "individual/youNeedToTellHMRC.njk",
-        Json.obj(fields = "changeOfDetailsGovUKLink" -> config.tellHMRCChangesUrl)).map(Ok(_))
+      val template = TwirlMigration.duoTemplate(
+        renderer.render(template = "individual/youNeedToTellHMRC.njk",
+          Json.obj(fields = "changeOfDetailsGovUKLink" -> config.tellHMRCChangesUrl)),
+        youNeedToTellHMRCView(
+          config.tellHMRCChangesUrl
+        )
+      )
+      template.map(Ok(_))
   }
 }
