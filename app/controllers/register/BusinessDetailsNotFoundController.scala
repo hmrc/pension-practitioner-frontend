@@ -55,26 +55,17 @@ class BusinessDetailsNotFoundController @Inject()(
         "enterDetailsAgainUrl" -> enterDetailsUrl,
         "yourPensionSchemesUrl" -> config.pspListSchemesUrl
       )
-//      renderer.render("register/businessDetailsNotFound.njk", json).map(Ok(_))
 
       val template = TwirlMigration.duoTemplate(
         renderer.render("register/businessDetailsNotFound.njk", json),
         businessDetailsNotFoundView(
-          config.companiesHouseFileChangesUrl
+          config.companiesHouseFileChangesUrl,
+          config.hmrcChangesMustReportUrl,
+          config.hmrcTaxHelplineUrl,
+          enterDetailsUrl
         )
       )
-//      val template = TwirlMigration.duoTemplate(
-//        renderer.render(
-//          "register/businessDetailsNotFound.njk", json
-//        ),
-//        businessDetailsNotFoundView(
-//          config.companiesHouseFileChangesUrl,
-//          config.hmrcChangesMustReportUrl,
-//          config.hmrcTaxHelplineUrl,
-//          enterDetailsUrl,
-//          config.pspListSchemesUrl
-//        )
-//      )
+
       template.map(Ok(_))
   }
 }
