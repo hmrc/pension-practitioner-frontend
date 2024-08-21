@@ -30,7 +30,9 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import views.html.register.BusinessRegistrationTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -44,7 +46,8 @@ class BusinessRegistrationTypeController @Inject()(override val messagesApi: Mes
                                       formProvider: BusinessRegistrationTypeFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
                                       config: FrontendAppConfig,
-                                      renderer: Renderer
+                                      renderer: Renderer,
+                                      businessRegistrationTypeView: BusinessRegistrationTypeView
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
 
   private val form = formProvider()
@@ -63,7 +66,17 @@ class BusinessRegistrationTypeController @Inject()(override val messagesApi: Mes
           "radios" -> BusinessRegistrationType.radios(preparedForm)
         )
 
-        renderer.render("register/businessRegistrationType.njk", json).map(Ok(_))
+      val template = TwirlMigration.duoTemplate(
+        renderer.render("register/businessRegistrationType.njk", json),
+        businessRegistrationTypeView(
+          routes.BusinessRegistrationTypeController.onSubmit(),
+          preparedForm,
+          TwirlMigration.toTwirlRadios(BusinessRegistrationType.radios(preparedForm))
+        )
+      )
+
+      template.map(Ok(_))
+//        renderer.render("register/businessRegistrationType.njk", json).map(Ok(_))
 
   }
 
