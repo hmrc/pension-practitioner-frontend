@@ -86,7 +86,17 @@ class AreYouUKResidentController @Inject()(override val messagesApi: MessagesApi
             "submitUrl" -> routes.AreYouUKResidentController.onSubmit(mode).url,
             "radios" -> Radios.yesNo(formWithErrors("value"))
           )
-          renderer.render("individual/areYouUKResident.njk", json).map(BadRequest(_))
+
+          val template = TwirlMigration.duoTemplate(
+            renderer.render("individual/areYouUKResident.njk", json),
+            areYouUKResidentView(
+              routes.AreYouUKResidentController.onSubmit(mode),
+              formWithErrors,
+              isCheckMode,
+              TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value")))
+            )
+          )
+          template.map(BadRequest(_))
         },
         value =>
           for {
