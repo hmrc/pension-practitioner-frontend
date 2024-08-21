@@ -31,9 +31,11 @@ import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import utils.TwirlMigration
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import views.html.partnership.IsPartnershipRegisteredInUkView
 
 class IsPartnershipRegisteredInUkController @Inject()(override val messagesApi: MessagesApi,
                                       userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -44,7 +46,8 @@ class IsPartnershipRegisteredInUkController @Inject()(override val messagesApi: 
                                       formProvider: IsPartnershipRegisteredInUkFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
                                       config: FrontendAppConfig,
-                                      renderer: Renderer
+                                      renderer: Renderer,
+                                      isPartnershipRegisteredInUkView: IsPartnershipRegisteredInUkView
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with
   I18nSupport with NunjucksSupport with Retrievals {
 
@@ -63,7 +66,17 @@ class IsPartnershipRegisteredInUkController @Inject()(override val messagesApi: 
         "radios" -> Radios.yesNo (preparedForm("value"))
       )
 
-    renderer.render ("partnership/isPartnershipRegisteredInUk.njk", json).map(Ok (_))
+      val template = TwirlMigration.duoTemplate(
+        renderer.render(
+          "partnership/isPartnershipRegisteredInUk.njk", json
+        ),
+        isPartnershipRegisteredInUkView(
+          routes.IsPartnershipRegisteredInUkController.onSubmit(),
+          preparedForm,
+          TwirlMigration.toTwirlRadios(Radios.yesNo (preparedForm("value")))
+        )
+      )
+    template.map(Ok(_))
   }
 
   def onSubmit(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
