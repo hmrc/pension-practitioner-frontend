@@ -234,14 +234,13 @@ class AuthenticatedAuthActionMustHaveNoEnrolmentWithIV @Inject()(override val au
                                                                  config: FrontendAppConfig,
                                                                  minimalConnector: MinimalConnector,
                                                                  parser: BodyParsers.Default,
-                                                                 sessionDataCacheConnector: SessionDataCacheConnector,
-                                                                 appConfig: FrontendAppConfig
+                                                                 sessionDataCacheConnector: SessionDataCacheConnector
                                                                 )(implicit executionContext: ExecutionContext) extends
   AuthenticatedAuthActionWithIV(authConnector, config, minimalConnector, parser, sessionDataCacheConnector)
   with AuthorisedFunctions {
 
   override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] = {
-    authenticatedRequest.user.alreadyEnrolledPspId.map(_ => Redirect(appConfig.returnToPspDashboardUrl))
+    authenticatedRequest.user.alreadyEnrolledPspId.map(_ => Redirect(config.returnToPspDashboardUrl))
   }
 }
 
@@ -249,8 +248,7 @@ class AuthenticatedAuthActionMustHaveEnrolmentWithNoIV @Inject()(override val au
                                                                  config: FrontendAppConfig,
                                                                  minimalConnector: MinimalConnector,
                                                                  parser: BodyParsers.Default,
-                                                                 sessionDataCacheConnector: SessionDataCacheConnector,
-                                                                 appConfig: FrontendAppConfig
+                                                                 sessionDataCacheConnector: SessionDataCacheConnector
                                                         )(implicit executionContext: ExecutionContext) extends
   AuthenticatedAuthAction(authConnector, config, minimalConnector, parser, sessionDataCacheConnector)
   with AuthorisedFunctions {
@@ -258,7 +256,7 @@ class AuthenticatedAuthActionMustHaveEnrolmentWithNoIV @Inject()(override val au
   override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] = {
     authenticatedRequest.user.alreadyEnrolledPspId match {
       case Some(_) => None
-      case _ => Some(Redirect(appConfig.returnToPspDashboardUrl))
+      case _ => Some(Redirect(config.youNeedToRegisterUrl))
     }
   }
 }
@@ -267,12 +265,11 @@ class AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV @Inject()(override val 
                                                                    config: FrontendAppConfig,
                                                                    minimalConnector: MinimalConnector,
                                                                    parser: BodyParsers.Default,
-                                                                   sessionDataCacheConnector: SessionDataCacheConnector,
-                                                                   appConfig: FrontendAppConfig
+                                                                   sessionDataCacheConnector: SessionDataCacheConnector
                                                                   )(implicit executionContext: ExecutionContext) extends
   AuthenticatedAuthAction(authConnector, config, minimalConnector, parser, sessionDataCacheConnector)
   with AuthorisedFunctions {
 
   override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] =
-    authenticatedRequest.user.alreadyEnrolledPspId.map(_ => Redirect(appConfig.returnToPspDashboardUrl))
+    authenticatedRequest.user.alreadyEnrolledPspId.map(_ => Redirect(config.returnToPspDashboardUrl))
 }
