@@ -1,0 +1,27 @@
+@import config.FrontendAppConfig
+
+@this(
+        layout: templates.Layout,
+        govukButton: GovukButton,
+        config: FrontendAppConfig
+)
+
+
+@()(implicit request: Request[_], messages: Messages)
+
+@layout(messages("alreadyRegistered.title")) {
+    <h1 class="govuk-heading-xl">
+        @messages("alreadyRegistered.title")
+    </h1>
+    <p class="govuk-body">@messages("alreadyRegistered.p1")</p>
+    <p>
+        @govukButton(
+            Button(
+                content = Text(messages("site.continueToPspDashboard")),
+                href = config.returnToPspDashboardUrl,
+                inputType = Some("submit")
+            )
+        )
+    </p>
+    <a class="govuk-link" href="@{config.govUkUrl}">@messages("site.exitToGovUk")</a>
+}
