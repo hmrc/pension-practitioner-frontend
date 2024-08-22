@@ -76,8 +76,6 @@ class BusinessRegistrationTypeController @Inject()(override val messagesApi: Mes
       )
 
       template.map(Ok(_))
-//        renderer.render("register/businessRegistrationType.njk", json).map(Ok(_))
-
   }
 
   def onSubmit: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
@@ -93,7 +91,16 @@ class BusinessRegistrationTypeController @Inject()(override val messagesApi: Mes
               "radios" -> BusinessRegistrationType.radios(formWithErrors)
             )
 
-            renderer.render("register/businessRegistrationType.njk", json).map(BadRequest(_))
+            val template = TwirlMigration.duoTemplate(
+              renderer.render("register/businessRegistrationType.njk", json),
+              businessRegistrationTypeView(
+                routes.BusinessRegistrationTypeController.onSubmit(),
+                formWithErrors,
+                TwirlMigration.toTwirlRadios(BusinessRegistrationType.radios(formWithErrors))
+              )
+            )
+
+            template.map(BadRequest(_))
           },
           value =>
             for {

@@ -91,7 +91,15 @@ class BusinessTypeController @Inject()(override val messagesApi: MessagesApi,
               "radios" -> BusinessType.radios(formWithErrors)
             )
 
-            renderer.render("register/businessType.njk", json).map(BadRequest(_))
+            val template = TwirlMigration.duoTemplate(
+              renderer.render("register/businessType.njk", json),
+              businessTypeView(
+                controllers.register.routes.BusinessTypeController.onSubmit(),
+                formWithErrors,
+                TwirlMigration.toTwirlRadios(BusinessType.radios(formWithErrors))
+              )
+            )
+            template.map(BadRequest(_))
           },
           value =>
             for {

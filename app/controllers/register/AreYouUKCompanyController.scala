@@ -88,7 +88,17 @@ class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
               "radios" -> Radios.yesNo(formWithErrors("value"))
             )
 
-            renderer.render("register/areYouUKCompany.njk", json).map(BadRequest(_))
+            val template = TwirlMigration.duoTemplate(
+              renderer.render(
+                "register/areYouUKCompany.njk", json
+              ),
+              areYouUkCompanyView(
+                routes.AreYouUKCompanyController.onSubmit(),
+                formWithErrors,
+                TwirlMigration.toTwirlRadios(Radios.yesNo (formWithErrors("value")))
+              )
+            )
+            template.map(BadRequest(_))
           },
           value =>
               for {

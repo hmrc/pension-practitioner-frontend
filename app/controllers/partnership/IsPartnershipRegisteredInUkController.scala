@@ -90,7 +90,17 @@ class IsPartnershipRegisteredInUkController @Inject()(override val messagesApi: 
             "radios" -> Radios.yesNo(formWithErrors("value"))
           )
 
-          renderer.render("partnership/isPartnershipRegisteredInUk.njk", json).map(BadRequest(_))
+          val template = TwirlMigration.duoTemplate(
+            renderer.render(
+              "partnership/isPartnershipRegisteredInUk.njk", json
+            ),
+            isPartnershipRegisteredInUkView(
+              routes.IsPartnershipRegisteredInUkController.onSubmit(),
+              formWithErrors,
+              TwirlMigration.toTwirlRadios(Radios.yesNo (formWithErrors("value")))
+            )
+          )
+          template.map(BadRequest(_))
         },
         value =>
           for {
