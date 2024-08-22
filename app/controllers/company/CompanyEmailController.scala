@@ -20,6 +20,7 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.{Retrievals, Variation}
 import controllers.actions._
 import forms.EmailFormProvider
+
 import javax.inject.Inject
 import models.Mode
 import models.requests.DataRequest
@@ -28,14 +29,16 @@ import pages.AddressChange
 import pages.company.{BusinessNamePage, CompanyEmailPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{Writes, Json, JsObject}
-import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
+import play.api.libs.json.{JsObject, Json, Writes}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import viewmodels.CommonViewModel
+import utils.TwirlMigration
+import viewmodels.{CommonViewModel, CommonViewModelTwirl}
+import views.html.EmailView
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
 class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
                                        userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -45,6 +48,7 @@ class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
                                        requireData: DataRequiredAction,
                                        formProvider: EmailFormProvider,
                                        val controllerComponents: MessagesControllerComponents,
+                                       emailView: EmailView,
                                        renderer: Renderer
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController
   with Retrievals with I18nSupport with NunjucksSupport with Variation {
@@ -56,8 +60,11 @@ class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
         val formFilled = request.userAnswers.get(CompanyEmailPage).fold(form)(form.fill)
-        getJson(mode, formFilled) { json =>
-          renderer.render("email.njk", json).map(Ok(_))
+        getModel(mode) { model =>
+          TwirlMigration.duoTemplate(
+            renderer.render("email.njk", getJson(formFilled, model.toNunjucks)),
+            emailView(model, formFilled)
+          ).map(BadRequest(_))
         }
     }
 
@@ -66,8 +73,11 @@ class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
       implicit request =>
         form.bindFromRequest().fold(
           formWithErrors =>
-            getJson(mode, formWithErrors) { json =>
-              renderer.render("email.njk", json).map(BadRequest(_))
+            getModel(mode) { model =>
+              TwirlMigration.duoTemplate(
+                renderer.render("email.njk", getJson(formWithErrors, model.toNunjucks)),
+                emailView(model, form)
+              ).map(BadRequest(_))
             },
           value =>
             for {
@@ -79,16 +89,23 @@ class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
 
     }
 
-  private def getJson(mode: Mode, form: Form[String])(block: JsObject => Future[Result])
-                     (implicit w: Writes[Form[String]], request: DataRequest[AnyContent]): Future[Result] =
-    BusinessNamePage.retrieve.map { companyName =>
-      val json = Json.obj(
-        "form" -> Json.toJsFieldJsValueWrapper(form)(w),
-        "viewmodel" -> CommonViewModel(
+  private def getModel(mode: Mode)(block: CommonViewModelTwirl => Future[Result])(implicit request: DataRequest[AnyContent]) = {
+    BusinessNamePage.retrieve match {
+      case Left(errorResult) => errorResult
+      case Right(companyName) => block(
+        CommonViewModelTwirl(
           "company",
           companyName,
-          routes.CompanyEmailController.onSubmit(mode).url)
+          routes.CompanyEmailController.onSubmit(mode)
+        )
       )
-      block(json)
     }
+  }
+
+  private def getJson(form: Form[String], model: CommonViewModel)
+                     (implicit w: Writes[Form[String]]): JsObject =
+    Json.obj(
+      "form" -> Json.toJsFieldJsValueWrapper(form)(w),
+      "viewmodel" -> model
+    )
 }

@@ -16,14 +16,9 @@
 
 package viewmodels
 
-import play.api.libs.json.{Json, OWrites}
-import play.api.mvc.Call
-
-case class CommonViewModel(entityType: String, entityName: String, submitUrl: String, enterManuallyUrl: Option[String] = None)
-case class CommonViewModelTwirl(entityType: String, entityName: String, submitUrl: Call, enterManuallyUrl: Option[String] = None) {
-  def toNunjucks: CommonViewModel = CommonViewModel(entityType, entityName, submitUrl.url, enterManuallyUrl)
-}
-
-object CommonViewModel {
-  implicit lazy val writes: OWrites[CommonViewModel] = Json.writes[CommonViewModel]
+package object govuk {
+  object all
+    extends ButtonFluency
+    with InputFluency
+    with RadiosFluency
 }

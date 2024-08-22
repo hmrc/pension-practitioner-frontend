@@ -26,7 +26,9 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import views.html.register.BusinessDetailsNotFound
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -39,7 +41,8 @@ class BusinessDetailsNotFoundController @Inject()(
                                                    navigator: CompoundNavigator,
                                                    config: FrontendAppConfig,
                                                    val controllerComponents: MessagesControllerComponents,
-                                                   renderer: Renderer
+                                                   renderer: Renderer,
+                                                   businessDetailsNotFoundView: BusinessDetailsNotFound
                                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
@@ -52,6 +55,17 @@ class BusinessDetailsNotFoundController @Inject()(
         "enterDetailsAgainUrl" -> enterDetailsUrl,
         "yourPensionSchemesUrl" -> config.pspListSchemesUrl
       )
-      renderer.render("register/businessDetailsNotFound.njk", json).map(Ok(_))
+
+      val template = TwirlMigration.duoTemplate(
+        renderer.render("register/businessDetailsNotFound.njk", json),
+        businessDetailsNotFoundView(
+          config.companiesHouseFileChangesUrl,
+          config.hmrcChangesMustReportUrl,
+          config.hmrcTaxHelplineUrl,
+          enterDetailsUrl
+        )
+      )
+
+      template.map(Ok(_))
   }
 }

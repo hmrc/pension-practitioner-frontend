@@ -25,7 +25,9 @@ import renderer.Renderer
 import services.IndividualCYAService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithIV
+import views.html.CheckYourAnswersView
 
 import scala.concurrent.ExecutionContext
 
@@ -36,7 +38,8 @@ class CheckYourAnswersController @Inject()(
                                             requireData: DataRequiredAction,
                                             val controllerComponents: MessagesControllerComponents,
                                             individualCYAService: IndividualCYAService,
-                                            renderer: Renderer
+                                            renderer: Renderer,
+                                            checkYourAnswersView: CheckYourAnswersView
                                           )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport
@@ -50,6 +53,16 @@ class CheckYourAnswersController @Inject()(
         "list" -> individualCYAService.individualCya(request.userAnswers)
       )
 
-      renderer.render("check-your-answers.njk", json).map(Ok(_))
+      def template = TwirlMigration.duoTemplate(
+        renderer.render("check-your-answers.njk", json),
+        checkYourAnswersView(
+          controllers.individual.routes.DeclarationController.onPageLoad(),
+          TwirlMigration.summaryListRow(
+            individualCYAService.individualCya(request.userAnswers)
+          )
+        )
+      )
+
+      template.map(Ok(_))
     }
 }

@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,18 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package viewmodels
+@this(
+        layout: templates.Layout
+)
 
-import play.api.libs.json.{Json, OWrites}
-import play.api.mvc.Call
 
-case class CommonViewModel(entityType: String, entityName: String, submitUrl: String, enterManuallyUrl: Option[String] = None)
-case class CommonViewModelTwirl(entityType: String, entityName: String, submitUrl: Call, enterManuallyUrl: Option[String] = None) {
-  def toNunjucks: CommonViewModel = CommonViewModel(entityType, entityName, submitUrl.url, enterManuallyUrl)
-}
+@(pageTitle: String, heading: String, message: Option[String])(implicit request: Request[_], messages: Messages)
 
-object CommonViewModel {
-  implicit lazy val writes: OWrites[CommonViewModel] = Json.writes[CommonViewModel]
+@layout(messages(pageTitle)) {
+    <h1 class="govuk-heading-xl">{{ messages(heading) }}</h1>
+
+    @if(message.isDefined) {
+        <p class="govuk-body">
+            @messages(message.get)
+        </p>
+    }
 }

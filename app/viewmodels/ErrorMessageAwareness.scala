@@ -16,14 +16,17 @@
 
 package viewmodels
 
-import play.api.libs.json.{Json, OWrites}
-import play.api.mvc.Call
+import play.api.data.Field
+import play.api.i18n.Messages
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
 
-case class CommonViewModel(entityType: String, entityName: String, submitUrl: String, enterManuallyUrl: Option[String] = None)
-case class CommonViewModelTwirl(entityType: String, entityName: String, submitUrl: Call, enterManuallyUrl: Option[String] = None) {
-  def toNunjucks: CommonViewModel = CommonViewModel(entityType, entityName, submitUrl.url, enterManuallyUrl)
-}
+trait ErrorMessageAwareness {
 
-object CommonViewModel {
-  implicit lazy val writes: OWrites[CommonViewModel] = Json.writes[CommonViewModel]
+  def errorMessage(field: Field)(implicit messages: Messages): Option[ErrorMessage] =
+    field.error
+      .map {
+        err =>
+          ErrorMessage(content = Text(messages(err.message, err.args: _*)))
+      }
 }

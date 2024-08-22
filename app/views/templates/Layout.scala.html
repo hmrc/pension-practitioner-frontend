@@ -38,7 +38,8 @@
     timeoutEnabled: Boolean = true,
     canSignOut: Boolean = true,
     showBackLink: Boolean = true,
-    fullWidthLayout: Boolean = false
+    fullWidthLayout: Boolean = false,
+    formHasErrors: Boolean = false
 )(mainContent: Html)(implicit request: Request[_], messages: Messages)
 
 @headScripts = {
@@ -77,12 +78,17 @@
     </div>
     <p style="font-size: 20px; color: red;"><b>DEV ONLY: TWIRL TEMPLATE</b></p>
 }
+
+@titlePrefix = @{if(formHasErrors) { messages("error.title.prefix") + " " } else { "" } }
+
+@_pageTitle = @{titlePrefix + pageTitle + " - " + Messages("site.service_name") + " - GOV.UK"}
+
 @govukLayout(
-    pageTitle = Some(pageTitle + " - " + Messages("site.service_name") + " - GOV.UK"),
+    pageTitle = Some(_pageTitle),
     headBlock = Some(hmrcHead(headBlock = Some(headScripts))),
     headerBlock = Some(hmrcStandardHeader(
         serviceName = Some(messages("site.service_name")),
-        serviceUrl = Some(routes.IndexController.onPageLoad().url),
+        serviceUrl = Some(routes.WhatTypeBusinessController.onPageLoad().url),
         signOutUrl = if(canSignOut) Some(routes.SignOutController.signOut().url) else None,
         phaseBanner = Some(standardBetaBanner(url = appConfig.betaFeedbackUnauthenticatedUrl))
     )),

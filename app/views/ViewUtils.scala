@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package viewmodels
+package views
 
-import play.api.libs.json.{Json, OWrites}
-import play.api.mvc.Call
+import org.apache.commons.lang3.StringUtils
+import play.api.i18n.Messages
 
-case class CommonViewModel(entityType: String, entityName: String, submitUrl: String, enterManuallyUrl: Option[String] = None)
-case class CommonViewModelTwirl(entityType: String, entityName: String, submitUrl: Call, enterManuallyUrl: Option[String] = None) {
-  def toNunjucks: CommonViewModel = CommonViewModel(entityType, entityName, submitUrl.url, enterManuallyUrl)
-}
-
-object CommonViewModel {
-  implicit lazy val writes: OWrites[CommonViewModel] = Json.writes[CommonViewModel]
+object ViewUtils {
+  def titleNoForm(title: String, section: Option[String] = None)(implicit messages: Messages): String =
+    s"${messages(title)} - ${section.fold(StringUtils.EMPTY)(messages(_) + " - ")}${messages("service.name")} - ${messages("site.govuk")}"
 }
