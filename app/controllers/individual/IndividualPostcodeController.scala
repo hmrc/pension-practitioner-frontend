@@ -21,21 +21,26 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import controllers.address.PostcodeController
+import forms.FormsHelper.formWithError
 import forms.address.PostcodeFormProvider
-import models.Mode
+import models.{Mode, TolerantAddress}
 import models.requests.DataRequest
 import navigators.CompoundNavigator
+import pages.QuestionPage
 import pages.individual.IndividualPostcodePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.TwirlMigration
 import utils.annotations.AuthWithIV
+import views.html.individual.PostcodeView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class IndividualPostcodeController @Inject()(override val messagesApi: MessagesApi,
                                              val userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -47,7 +52,8 @@ class IndividualPostcodeController @Inject()(override val messagesApi: MessagesA
                                              formProvider: PostcodeFormProvider,
                                              val addressLookupConnector: AddressLookupConnector,
                                              val controllerComponents: MessagesControllerComponents,
-                                             val renderer: Renderer
+                                             val renderer: Renderer,
+                                             postcodeView: PostcodeView
                                             )(implicit ec: ExecutionContext) extends PostcodeController
   with Retrievals with I18nSupport with NunjucksSupport {
 
@@ -61,12 +67,64 @@ class IndividualPostcodeController @Inject()(override val messagesApi: MessagesA
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      get(getFormToJson(mode))
+      get(getFormToJson(mode), mode)
+  }
+
+  private def get(json: Form[String] => JsObject, mode: Mode)
+         (implicit request: DataRequest[AnyContent], ec: ExecutionContext): Future[Result] = {
+    val template = TwirlMigration.duoTemplate(
+      renderer.render(viewTemplate, json(form)),
+      postcodeView(
+        routes.IndividualPostcodeController.onSubmit(mode),
+        routes.IndividualContactAddressController.onPageLoad(mode).url,
+        form
+      )
+    )
+    template.map(Ok(_))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      post(mode, getFormToJson(mode), IndividualPostcodePage, "error.postcode.noResults")
+      doSubmit(mode, getFormToJson(mode), IndividualPostcodePage, "error.postcode.noResults")
+  }
+
+  private def doSubmit(mode: Mode, formToJson: Form[String] => JsObject, postcodePage: QuestionPage[Seq[TolerantAddress]], errorMessage: String)
+          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+    form.bindFromRequest().fold(
+      formWithErrors =>
+        {
+        val template = TwirlMigration.duoTemplate(
+          renderer.render(viewTemplate, formToJson(formWithErrors)),
+          postcodeView(
+            routes.IndividualPostcodeController.onSubmit(mode),
+            routes.IndividualContactAddressController.onPageLoad(mode).url,
+            formWithErrors
+          )
+        )
+        template.map(BadRequest(_))
+        },
+      value =>
+        addressLookupConnector.addressLookupByPostCode(value).flatMap {
+          case Nil =>
+            val json = formToJson(formWithError(form, errorMessage))
+            val template = TwirlMigration.duoTemplate(
+              renderer.render(viewTemplate, json),
+              postcodeView(
+                routes.IndividualPostcodeController.onSubmit(mode),
+                routes.IndividualContactAddressController.onPageLoad(mode).url,
+                formWithError(form, errorMessage)
+              )
+            )
+            template.map(BadRequest(_))
+
+          case addresses =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(postcodePage, addresses))
+              _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+            } yield Redirect(navigator.nextPage(postcodePage, mode, updatedAnswers))
+        }
+
+    )
   }
 
   def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Form[String] => JsObject = {
