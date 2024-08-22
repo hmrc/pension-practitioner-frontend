@@ -28,7 +28,7 @@ import play.api.{Logger, PlayException}
 import play.twirl.api.Html
 import renderer.Renderer
 import utils.TwirlMigration
-import views.html.BadRequestView
+import views.html.{BadRequestView, InternalServerErrorView}
 import views.html.templates.ErrorTemplate
 
 import javax.inject.{Inject, Singleton}
@@ -41,6 +41,7 @@ class FrontendErrorHandler @Inject()(
                                       val messagesApi: MessagesApi,
                                       config: FrontendAppConfig,
                                       badRequestView: BadRequestView,
+                                      internalServerErrorView: InternalServerErrorView,
                                       errorTemplate: ErrorTemplate
                                     )(implicit ec: ExecutionContext) extends uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler with I18nSupport {
 
@@ -69,14 +70,18 @@ class FrontendErrorHandler @Inject()(
 
   override def onServerError(request: RequestHeader, exception: Throwable): Future[Result] = {
 
-    implicit val rh: RequestHeader = request
+    implicit def requestImplicit: Request[_] = Request(request, "")
 
     logError(request, exception)
     exception match {
       case ApplicationException(result, _) =>
         Future.successful(result)
       case _ =>
-        renderer.render("internalServerError.njk").map {
+        def template = TwirlMigration.duoTemplate(
+          renderer.render("internalServerError.njk"),
+          internalServerErrorView()
+        )
+        template.map {
           content =>
             InternalServerError(content).withHeaders(CACHE_CONTROL -> "no-cache")
         }

@@ -30,7 +30,9 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import views.html.ConfirmNameView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -43,7 +45,7 @@ class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
                                       requireData: DataRequiredAction,
                                       formProvider: ConfirmNameFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
-                                      config: FrontendAppConfig,
+                                      confirmNameView: ConfirmNameView,
                                       renderer: Renderer
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
 
@@ -65,7 +67,17 @@ class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
           "radios" -> Radios.yesNo(preparedForm("value"))
         )
 
-        renderer.render(template = "confirmName.njk", json).map(Ok(_))
+        def template = TwirlMigration.duoTemplate(
+          renderer.render(template = "confirmName.njk", json),
+          confirmNameView(
+            "partnership",
+            form,
+            routes.ConfirmNameController.onSubmit(),
+            pspName,
+            TwirlMigration.toTwirlRadios(Radios.yesNo(preparedForm("value"))))
+        )
+
+        template.map(Ok(_))
       }
   }
 
@@ -83,7 +95,17 @@ class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
               "radios" -> Radios.yesNo(formWithErrors("value"))
             )
 
-            renderer.render(template = "confirmName.njk", json).map(BadRequest(_))
+            def template = TwirlMigration.duoTemplate(
+              renderer.render(template = "confirmName.njk", json),
+              confirmNameView(
+                "partnership",
+                formWithErrors,
+                routes.ConfirmNameController.onSubmit(),
+                pspName,
+                TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value"))))
+            )
+
+            template.map(BadRequest(_))
           },
           value =>
             for {

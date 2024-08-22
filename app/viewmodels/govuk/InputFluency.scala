@@ -45,4 +45,10 @@ trait InputFluency {
         hint = hint
       )
   }
+
+  implicit class FluentInput(input: Input) {
+
+    def asEmail(): Input =
+      input.copy(inputType = "email", autocomplete = Some("email"), spellcheck = Some(false))
+  }
 }

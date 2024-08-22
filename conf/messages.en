@@ -52,10 +52,6 @@ phaseBanner.3 = will help us to improve it.
 checkYourAnswers.title = Check your answers
 checkYourAnswers.heading = Check your answers
 
-index.title = pension-practitioner-frontend
-index.heading = pension-practitioner-frontend
-index.guidance = Welcome to your new frontend. Please see the README file for a guide to getting started.
-
 session_expired.title = For your security, this service has been reset
 session_expired.heading = For your security, this service has been reset
 session_expired.guidance = The details you have given have been deleted because you did not continue the service for 15 minutes.
