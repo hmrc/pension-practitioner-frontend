@@ -15,18 +15,21 @@
  *@
 
 @this(
-        layout: templates.Layout
+        layout: templates.Layout,
+        govukButton: GovukButton
 )
 
+@(contactHmrcUrl: String)(implicit request: Request[_], messages: Messages)
 
-@(pageTitle: String, heading: String, message: Option[String])(implicit request: Request[_], messages: Messages)
+@layout(messages("cannotRegisterPractitioner.title")) {
 
-@layout(messages(pageTitle)) {
-    <h1 class="govuk-heading-xl">{{ messages(heading) }}</h1>
+    <h1 class="govuk-heading-xl">
+        @messages("cannotRegisterPractitioner.title")
+    </h1>
+    <p class="govuk-body">@messages("cannotRegisterPractitioner.p1")</p>
 
-    @if(message.isDefined) {
-        <p class="govuk-body">
-            @messages(message.get)
-        </p>
-    }
+    @govukButton(
+        ButtonViewModel(Text(messages("cannotRegisterPractitioner.head.link"))).asLink(contactHmrcUrl)
+    )
+
 }

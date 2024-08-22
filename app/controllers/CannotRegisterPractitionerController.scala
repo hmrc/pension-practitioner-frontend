@@ -22,6 +22,8 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.TwirlMigration
+import views.html.CannotRegisterPractitionerView
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -29,7 +31,8 @@ import scala.concurrent.ExecutionContext
 class CannotRegisterPractitionerController @Inject()(
                                         val controllerComponents: MessagesControllerComponents,
                                         renderer: Renderer,
-                                        config: FrontendAppConfig
+                                        config: FrontendAppConfig,
+                                        cannotRegisterPractitionerView: CannotRegisterPractitionerView
                                       )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
@@ -38,6 +41,12 @@ class CannotRegisterPractitionerController @Inject()(
     val json = Json.obj(
       "contactHmrcUrl" -> config.contactHmrcUrl
     )
-    renderer.render("cannotRegisterPractitioner.njk",json).map(Ok(_))
+
+    def template = TwirlMigration.duoTemplate(
+        renderer.render("cannotRegisterPractitioner.njk",json),
+        cannotRegisterPractitionerView(config.contactHmrcUrl)
+    )
+
+      template.map(Ok(_))
   }
 }

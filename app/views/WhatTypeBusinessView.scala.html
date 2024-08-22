@@ -33,19 +33,16 @@
   }
 
   @govukRadios(
-   Radios(
-    name = field.name,
-    fieldset = Some(
-     Fieldset(
-      legend = Some(Legend(
-       content = Text(messages("whatTypeBusiness.title")),
-       isPageHeading = true,
-       classes = "govuk-fieldset__legend--xl govuk-!-margin-bottom-8"
-      ))
-     ),
-    ),
-    items = radios,
-    errorMessage = field.error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args:_*))))
+   RadiosViewModel(
+    field,
+    radios,
+    Fieldset(
+     legend = Some(Legend(
+      content = Text(messages("whatTypeBusiness.title")),
+      isPageHeading = true,
+      classes = "govuk-fieldset__legend--xl govuk-!-margin-bottom-8"
+     ))
+    )
    )
   )
 

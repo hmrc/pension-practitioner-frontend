@@ -17,19 +17,23 @@
 package controllers
 
 import config.FrontendAppConfig
+
 import javax.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.TwirlMigration
+import views.html.AlreadyRegisteredView
 
 import scala.concurrent.ExecutionContext
 
 class AlreadyRegisteredController @Inject()(
                                         val controllerComponents: MessagesControllerComponents,
                                         renderer: Renderer,
-                                        config: FrontendAppConfig
+                                        config: FrontendAppConfig,
+                                        alreadyRegisteredView: AlreadyRegisteredView
                                       )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
@@ -40,6 +44,11 @@ class AlreadyRegisteredController @Inject()(
       "govUkUrl" -> config.govUkUrl
     )
 
-    renderer.render("alreadyRegistered.njk", json).map(Ok(_))
+    def template = TwirlMigration.duoTemplate(
+      renderer.render("alreadyRegistered.njk", json),
+      alreadyRegisteredView()
+    )
+
+    template.map(Ok(_))
   }
 }

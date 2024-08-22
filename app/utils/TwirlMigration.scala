@@ -20,8 +20,10 @@ import play.api.Logging
 import play.api.i18n.Messages
 import play.api.mvc.Request
 import play.twirl.api.Html
-import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.Aliases.{HtmlContent, Key, RadioItem, SummaryListRow, Value}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{Content, Text}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions}
+import uk.gov.hmrc.viewmodels
 
 import scala.concurrent.Future
 
@@ -41,5 +43,38 @@ object TwirlMigration extends Logging {
     nunjucksRadios.map(radio => {
       RadioItem(content = Text(radio.text.resolve), value = Some(radio.value))
     })
+  }
+
+  private def resolveContent(content: viewmodels.Content)(implicit messages: Messages): Content = {
+    content match {
+      case text: viewmodels.Text => Text(text.resolve)
+      case viewmodels.Html(value) => HtmlContent(value)
+    }
+  }
+
+  def summaryListRow(list: Seq[uk.gov.hmrc.viewmodels.SummaryList.Row])(implicit messages: Messages):Seq[SummaryListRow] = {
+    list.map { row =>
+      SummaryListRow(
+        Key(
+          resolveContent(row.key.content),
+          classes = row.key.classes.mkString(" ")
+        ),
+        Value(
+          resolveContent(row.value.content),
+          classes = row.value.classes.mkString(" "),
+        ),
+        actions = if(row.actions.isEmpty) None else Some(
+          Actions(
+            items = row.actions.map { action => ActionItem(
+              href = action.href,
+              content = resolveContent(action.content),
+              visuallyHiddenText = action.visuallyHiddenText.map(_.resolve),
+              classes = action.classes.mkString(" "),
+              attributes = action.attributes
+            )}
+          )
+        )
+      )
+    }
   }
 }
