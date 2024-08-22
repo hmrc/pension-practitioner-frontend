@@ -54,7 +54,8 @@ govukButton: GovukButton
     @govukButton(
         Button(
             content = Text(messages("site.save_and_continue")),
-            inputType = Some("submit")
+            inputType = Some("submit"),
+            preventDoubleClick = Some(true)
         )
     )
 

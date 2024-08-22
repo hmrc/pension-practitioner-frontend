@@ -45,5 +45,8 @@ trait ButtonFluency {
 
     def withAttribute(attribute: (String, String)): Button =
       button.copy(attributes = button.attributes + attribute)
+
+    def preventingDoubleClick(): Button =
+      button.copy(preventDoubleClick = Some(true))
   }
 }

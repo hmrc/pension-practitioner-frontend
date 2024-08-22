@@ -52,7 +52,8 @@
             <p class="govuk-body">@messages("businessDetailsNotFound.reason3.p1")</p>
 
             @govukButton(
-                ButtonViewModel(Text(messages("businessDetailsNotFound.enterAgain"))).withAttribute(("id", "submit")).asLink(enterDetailsUrl)
+                ButtonViewModel(Text(messages("businessDetailsNotFound.enterAgain")))
+                    .withAttribute(("id", "submit")).asLink(enterDetailsUrl).preventingDoubleClick()
             )
 
     </div>
