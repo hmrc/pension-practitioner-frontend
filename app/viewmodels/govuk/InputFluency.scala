@@ -45,7 +45,4 @@ trait InputFluency {
         hint = hint
       )
   }
-
-  implicit class FluentInput(input: Input) {
-  }
 }
