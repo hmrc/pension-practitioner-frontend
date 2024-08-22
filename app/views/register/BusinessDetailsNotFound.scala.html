@@ -22,8 +22,7 @@
 @(companiesHouseUrl: String, hmrcUrl: String, hmrcTaxHelplineUrl: String, enterDetailsUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(
-    pageTitle    = titleNoForm(messages("businessDetailsNotFound.title")),
-    showBackLink = false
+    pageTitle    = messages("businessDetailsNotFound.title")
 ) {
     <div class="govuk-grid-row">
 
