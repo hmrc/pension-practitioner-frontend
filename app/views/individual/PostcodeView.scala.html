@@ -56,10 +56,7 @@
         )
 
         @govukButton(
-            Button(
-                content = Text(messages("findAddress")),
-                inputType = Some("submit")
-            )
+            ButtonViewModel(Text(messages("findAddress"))).asFormSubmit
         )
 
     }

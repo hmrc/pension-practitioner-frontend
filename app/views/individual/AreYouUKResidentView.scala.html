@@ -60,10 +60,7 @@
   )
 
   @govukButton(
-   Button(
-    content = Text(messages("site.save_and_continue")),
-    inputType = Some("submit")
-   )
+    ButtonViewModel(Text(messages("site.save_and_continue"))).asFormSubmit
   )
 
  }

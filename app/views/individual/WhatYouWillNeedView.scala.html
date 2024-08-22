@@ -21,11 +21,10 @@
         govukButton: GovukButton
 )
 
-@(submitCall: Call)(implicit request: Request[_], messages: Messages)
+@(submitCallUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(messages("whatYouWillNeed.title")) {
 
-    @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
 
 
         <h1 class="govuk-heading-xl">@messages("whatYouWillNeed.heading")</h1>
@@ -46,10 +45,7 @@
         )
 
         @govukButton(
-            Button(
-                content = Text(messages("site.continue")),
-                inputType = Some("submit")
-            )
+            ButtonViewModel(Text(messages("site.continue"))).asLink(submitCallUrl)
         )
-    }
+
 }

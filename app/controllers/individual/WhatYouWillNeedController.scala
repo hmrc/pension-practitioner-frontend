@@ -50,7 +50,7 @@ class WhatYouWillNeedController @Inject()(
       val template = TwirlMigration.duoTemplate(
         renderer.render(template = "individual/whatYouWillNeed.njk",
           Json.obj(fields = "nextPage" -> nextPage.url)),
-        whatYouWillNeedView(nextPage)
+        whatYouWillNeedView(nextPage.url)
       )
       template.map(Ok(_))
   }
