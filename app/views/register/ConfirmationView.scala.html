@@ -1,0 +1,63 @@
+@*
+ * Copyright 2024 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import viewmodels.CommonViewModel
+
+@this(
+    layout: templates.Layout,
+    govukPanel: GovukPanel,
+    govukButton: GovukButton
+)
+
+@(pspId: String, email: String, viewmodel: CommonViewModel)(implicit request: Request[_], messages: Messages)
+
+@layout(
+    pageTitle = messages("confirmation.title"),
+    showBackLink = false
+) {
+    <div>
+        <div class="govuk-panel govuk-panel--confirmation">
+            <h1 class="govuk-panel__title">
+                @messages("confirmation.title", viewmodel.entityName)
+            </h1>
+            <div class="govuk-panel__body">
+                <p>@messages("confirmation.psp.id")</p>
+                <span class="heading-large govuk-!-font-weight-bold">@pspId</span>
+            </div>
+        </div>
+        <p class="govuk-body">
+            @messages("confirmation.email")
+            <span class="govuk-!-font-weight-bold">@email</span>.
+        </p>
+
+        <h2 class="govuk-heading-m">@messages("confirmation.list.header")</h2>
+
+        <div><ul class="govuk-list govuk-list--bullet">
+            <li>@messages("confirmation.list.item1")</li>
+            <li>@messages("confirmation.list.item2")</li>
+        </ul></div>
+
+        <p class="govuk-body">@messages("confirmation.list.text")</p>
+
+        <h2 class="govuk-heading-m">@messages("confirmation.print")</h2>
+
+        <p class="govuk-body"><a class="govuk-link print-this-page" href="#">@messages("confirmation.print.page.link.text")</a></p>
+
+        @govukButton(
+            ButtonViewModel(Text(messages("site.finish"))).withAttribute(("id", "submit")).asLink(viewmodel.submitUrl)
+        )
+    </div>
+}
