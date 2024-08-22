@@ -37,6 +37,7 @@ lazy val root = (project in file("."))
       "uk.gov.hmrc.hmrcfrontend.views.html.helpers._",
       "views.ViewUtils._",
       "viewmodels.govuk.all._",
+      "uk.gov.hmrc.hmrcfrontend.views.config._",
     ),
     uglifyCompressOptions := Seq("unused=false", "dead_code=false"),
     scalacOptions += "-Wconf:src=routes/.*:s",

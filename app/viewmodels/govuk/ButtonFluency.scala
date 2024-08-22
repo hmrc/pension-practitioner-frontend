@@ -16,8 +16,9 @@
 
 package viewmodels.govuk
 
+import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.button.Button
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Content
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{Content, Text}
 
 object button extends ButtonFluency
 
@@ -34,6 +35,12 @@ trait ButtonFluency {
 
   implicit class FluentButton(button: Button) {
 
+    def asFormSubmit: Button = {
+      button.copy(
+        inputType = Some("submit"),
+        preventDoubleClick = Some(true)
+      )
+    }
     def asLink(href: String): Button =
       button.copy(
         element = Some("a"),
