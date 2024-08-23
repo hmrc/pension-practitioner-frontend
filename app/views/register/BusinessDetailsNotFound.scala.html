@@ -26,30 +26,30 @@
 ) {
     <div>
 
-            <h1 class="govuk-heading-xl">
-                @messages("businessDetailsNotFound.heading")
-            </h1>
+        <h1 class="govuk-heading-xl">
+            @messages("businessDetailsNotFound.heading")
+        </h1>
 
-            <p class="govuk-body">@messages("businessDetailsNotFound.lede")</p>
+        <p class="govuk-body">@messages("businessDetailsNotFound.lede")</p>
 
-            <h2 class="govuk-heading-m">@messages("businessDetailsNotFound.reason1.h2")</h2>
+        <h2 class="govuk-heading-m">@messages("businessDetailsNotFound.reason1.h2")</h2>
 
-            <p class="govuk-body">@messages("businessDetailsNotFound.reason1.p1")</p>
+        <p class="govuk-body">@messages("businessDetailsNotFound.reason1.p1")</p>
 
-            <h2 class="govuk-heading-m">@messages("businessDetailsNotFound.reason2.h2")</h2>
+        <h2 class="govuk-heading-m">@messages("businessDetailsNotFound.reason2.h2")</h2>
 
-            <p class="govuk-body">@messages("businessDetailsNotFound.reason2.p1")
-                <a class="govuk-link" href="@hmrcUrl" >@messages("tellHMRC.companiesHouse")</a> @messages("site.and")
-                <a class="govuk-link" href="@hmrcTaxHelplineUrl" >@messages("tellHMRC.hmrc")</a>.
-            </p>
+        <p class="govuk-body">@messages("businessDetailsNotFound.reason2.p1")
+            <a class="govuk-link" href="@hmrcUrl" >@messages("tellHMRC.companiesHouse")</a> @messages("site.and")
+            <a class="govuk-link" href="@hmrcTaxHelplineUrl" >@messages("tellHMRC.hmrc")</a>.
+        </p>
 
-            <p class="govuk-body">@messages("businessDetailsNotFound.reason2.p2")
-                <a class="govuk-link" href="@companiesHouseUrl" >@messages("businessDetailsNotFound.reason2.contactTaxHelpline")</a>.
-            </p>
+        <p class="govuk-body">@messages("businessDetailsNotFound.reason2.p2")
+            <a class="govuk-link" href="@companiesHouseUrl" >@messages("businessDetailsNotFound.reason2.contactTaxHelpline")</a>.
+        </p>
 
-            <h2 class="govuk-heading-m">@messages("businessDetailsNotFound.reason3.h2")</h2>
+        <h2 class="govuk-heading-m">@messages("businessDetailsNotFound.reason3.h2")</h2>
 
-            <p class="govuk-body">@messages("businessDetailsNotFound.reason3.p1")</p>
+        <p class="govuk-body">@messages("businessDetailsNotFound.reason3.p1")</p>
 
             @govukButton(
                 ButtonViewModel(Text(messages("businessDetailsNotFound.enterAgain")))
