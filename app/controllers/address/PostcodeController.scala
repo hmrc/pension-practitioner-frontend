@@ -26,14 +26,16 @@ import navigators.CompoundNavigator
 import pages.QuestionPage
 import play.api.data.Form
 import play.api.i18n.Messages
-import play.api.libs.json.{JsArray, Json, JsObject}
-import play.api.mvc.{Result, AnyContent}
+import play.api.libs.json.{JsArray, JsObject, Json}
+import play.api.mvc.{AnyContent, Result}
 import renderer.Renderer
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import forms.FormsHelper.formWithError
+import play.twirl.api.Html
+import utils.TwirlMigration
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
 trait PostcodeController extends FrontendBaseController with Retrievals {
 
@@ -44,22 +46,43 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
   protected def addressLookupConnector: AddressLookupConnector
   protected def viewTemplate = "address/postcode.njk"
 
-  def get(json: Form[String] => JsObject)
+  def get(json: Form[String] => JsObject, twrilTemplate: Option[Html] = None)
          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
-
-    renderer.render(viewTemplate, json(form)).map(Ok(_))
+    twrilTemplate match {
+      case Some(template) =>
+        TwirlMigration.duoTemplate(
+          renderer.render(viewTemplate, json(form)),
+          template
+        ).map(Ok(_))
+      case None => renderer.render(viewTemplate, json(form)).map(Ok(_))
+    }
   }
 
-  def post(mode: Mode, formToJson: Form[String] => JsObject, postcodePage: QuestionPage[Seq[TolerantAddress]], errorMessage: String)
+  def post(mode: Mode, formToJson: Form[String] => JsObject, postcodePage: QuestionPage[Seq[TolerantAddress]],
+           errorMessage: String, twrilTemplate: Option[Html] = None)
           (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
     form.bindFromRequest().fold(
       formWithErrors =>
-        renderer.render(viewTemplate, formToJson(formWithErrors)).map(BadRequest(_)),
+        twrilTemplate match {
+          case Some(template) =>
+            TwirlMigration.duoTemplate(
+              renderer.render(viewTemplate, formToJson(formWithErrors)),
+              template
+            ).map(BadRequest(_))
+          case None => renderer.render(viewTemplate, formToJson(formWithErrors)).map(BadRequest(_))
+        },
       value =>
           addressLookupConnector.addressLookupByPostCode(value).flatMap {
             case Nil =>
               val json = formToJson(formWithError(form, errorMessage))
-                renderer.render(viewTemplate, json).map(BadRequest(_))
+              twrilTemplate match {
+                case Some(template) =>
+                  TwirlMigration.duoTemplate(
+                    renderer.render(viewTemplate, json),
+                    template
+                  ).map(BadRequest(_))
+                case None => renderer.render(viewTemplate, json).map(BadRequest(_))
+              }
 
             case addresses =>
               for {

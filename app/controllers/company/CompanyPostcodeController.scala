@@ -58,7 +58,8 @@ class CompanyPostcodeController @Inject()(override val messagesApi: MessagesApi,
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
-        getFormToJson(mode).retrieve.map(get)
+        //TODO: change to company twil template
+        getFormToJson(mode).retrieve.map(get(_, None))
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =

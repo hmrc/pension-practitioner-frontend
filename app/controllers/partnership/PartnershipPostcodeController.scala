@@ -58,7 +58,8 @@ class PartnershipPostcodeController @Inject()(override val messagesApi: Messages
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
-        getFormToJson(mode).retrieve.map(get)
+        //TODO: change to partnership twil template
+        getFormToJson(mode).retrieve.map(get(_, None))
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
