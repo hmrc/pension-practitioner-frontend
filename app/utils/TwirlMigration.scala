@@ -64,7 +64,7 @@ object TwirlMigration extends Logging {
         ),
         Value(
           resolveContent(row.value.content),
-          classes = row.value.classes.mkString(" "),
+          classes = row.value.classes.mkString(" ")
         ),
         actions = if(row.actions.isEmpty) None else Some(
           Actions(
