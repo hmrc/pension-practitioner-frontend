@@ -17,11 +17,9 @@
 package controllers.company
 
 import connectors.cache.UserAnswersCacheConnector
-import controllers.{Retrievals, Variation}
 import controllers.actions._
+import controllers.{Retrievals, Variation}
 import forms.EmailFormProvider
-
-import javax.inject.Inject
 import models.Mode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
@@ -29,15 +27,15 @@ import pages.AddressChange
 import pages.company.{BusinessNamePage, CompanyEmailPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, Json, Writes}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.TwirlMigration
-import viewmodels.{CommonViewModel, CommonViewModelTwirl}
+import viewmodels.CommonViewModelTwirl
 import views.html.EmailView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
@@ -62,7 +60,7 @@ class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
         val formFilled = request.userAnswers.get(CompanyEmailPage).fold(form)(form.fill)
         getModel(mode) { model =>
           TwirlMigration.duoTemplate(
-            renderer.render("email.njk", getJson(formFilled, model.toNunjucks)),
+            renderer.render("email.njk", TwirlMigration.nunjucksGetJson(formFilled, model.toNunjucks)),
             emailView(model, formFilled)
           ).map(BadRequest(_))
         }
@@ -75,7 +73,7 @@ class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
           formWithErrors =>
             getModel(mode) { model =>
               TwirlMigration.duoTemplate(
-                renderer.render("email.njk", getJson(formWithErrors, model.toNunjucks)),
+                renderer.render("email.njk", TwirlMigration.nunjucksGetJson(formWithErrors, model.toNunjucks)),
                 emailView(model, form)
               ).map(BadRequest(_))
             },
@@ -101,11 +99,4 @@ class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
       )
     }
   }
-
-  private def getJson(form: Form[String], model: CommonViewModel)
-                     (implicit w: Writes[Form[String]]): JsObject =
-    Json.obj(
-      "form" -> Json.toJsFieldJsValueWrapper(form)(w),
-      "viewmodel" -> model
-    )
 }

@@ -43,12 +43,12 @@ class PartnershipNavigator @Inject()(val dataCacheConnector: UserAnswersCacheCon
     case BusinessNamePage => nextPageOrNonUkRedirect(ua, ConfirmNameController.onPageLoad())
 
     case ConfirmNamePage => nextPageOrNonUkRedirect(ua, ua.get(ConfirmNamePage) match {
-      case Some(false) => TellHMRCController.onPageLoad()
+      case Some(false) => controllers.routes.TellHMRCController.onPageLoad("partnership")
       case _ => ConfirmAddressController.onPageLoad()
     })
 
     case ConfirmAddressPage => nextPageOrNonUkRedirect(ua, ua.get(ConfirmAddressPage) match {
-      case None => TellHMRCController.onPageLoad()
+      case None => controllers.routes.TellHMRCController.onPageLoad("partnership")
       case _ => PartnershipUseSameAddressController.onPageLoad()
     })
 

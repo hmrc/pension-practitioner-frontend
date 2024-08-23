@@ -46,6 +46,6 @@ class DeregisterNavigator @Inject()(config: FrontendAppConfig) extends Navigator
   }
 
   override protected def editRouteMap(userAnswers: UserAnswers): PartialFunction[Page, Call] = {
-    case ConfirmDeregistrationPage => controllers.routes.IndexController.onPageLoad()
+    case ConfirmDeregistrationPage => throw new RuntimeException("Not implemented")
   }
 }

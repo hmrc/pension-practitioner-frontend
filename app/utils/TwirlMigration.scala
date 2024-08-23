@@ -17,13 +17,16 @@
 package utils
 
 import play.api.Logging
+import play.api.data.Form
 import play.api.i18n.Messages
+import play.api.libs.json.{JsObject, Json, Writes}
 import play.api.mvc.Request
 import play.twirl.api.Html
 import uk.gov.hmrc.govukfrontend.views.Aliases.{HtmlContent, Key, RadioItem, SummaryListRow, Value}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{Content, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions}
-import uk.gov.hmrc.viewmodels
+import uk.gov.hmrc
+import viewmodels.CommonViewModel
 
 import scala.concurrent.Future
 
@@ -45,10 +48,10 @@ object TwirlMigration extends Logging {
     })
   }
 
-  private def resolveContent(content: viewmodels.Content)(implicit messages: Messages): Content = {
+  private def resolveContent(content: hmrc.viewmodels.Content)(implicit messages: Messages): Content = {
     content match {
-      case text: viewmodels.Text => Text(text.resolve)
-      case viewmodels.Html(value) => HtmlContent(value)
+      case text: hmrc.viewmodels.Text => Text(text.resolve)
+      case hmrc.viewmodels.Html(value) => HtmlContent(value)
     }
   }
 
@@ -76,5 +79,13 @@ object TwirlMigration extends Logging {
         )
       )
     }
+  }
+
+  def nunjucksGetJson(form: Form[String], model: CommonViewModel)
+                     (implicit w: Writes[Form[String]]): JsObject = {
+    Json.obj(
+      "form" -> Json.toJsFieldJsValueWrapper(form)(w),
+      "viewmodel" -> model
+    )
   }
 }

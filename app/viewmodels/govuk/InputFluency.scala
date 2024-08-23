@@ -33,7 +33,8 @@ trait InputFluency {
                field: Field,
                label: Label,
                classes: String = "",
-               hint: Option[Hint] = None
+               hint: Option[Hint] = None,
+               inputType: String = "text"
              )(implicit messages: Messages): Input =
       Input(
         id           = field.id,
@@ -42,7 +43,8 @@ trait InputFluency {
         label        = label,
         errorMessage = errorMessage(field),
         classes = classes,
-        hint = hint
+        hint = hint,
+        inputType = inputType
       )
   }
 

@@ -30,11 +30,11 @@
 
 
 
-@layout(messages("email.title", messages(viewModel.entityType)), formHasErrors = form.hasErrors) {
+@layout(messages("phone.title", messages(viewModel.entityType)), formHasErrors = form.hasErrors) {
 
-    <h1 class="govuk-heading-xl">@messages("email.title", viewModel.entityName)</h1>
+    <h1 class="govuk-heading-xl">@messages("phone.title", viewModel.entityName)</h1>
 
-    <p class="govuk-body">@messages("email.hint", viewModel.entityName)</p>
+    <p class="govuk-body">@messages("phone.hint", viewModel.entityName)</p>
 
     @formHelper(action = viewModel.submitUrl, Symbol("autoComplete") -> "off") {
 
@@ -46,11 +46,13 @@
             InputViewModel(
                 field = form("value"),
                 label = Label(
-                    content = Text(messages("email.title", viewModel.entityName)),
+                    content = Text(messages("phone.title", viewModel.entityName)),
+                    isPageHeading = false,
                     classes = "govuk-fieldset__legend--s govuk-visually-hidden"
                 ),
-                classes = "govuk-!-width-three-quarters"
-            ).asEmail()
+                classes = "govuk-input--width-20",
+                inputType = "tel"
+            )
         )
 
         @govukButton(

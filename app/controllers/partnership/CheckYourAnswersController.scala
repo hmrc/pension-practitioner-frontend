@@ -17,10 +17,7 @@
 package controllers.partnership
 
 import com.google.inject.Inject
-import config.FrontendAppConfig
-import connectors.cache.UserAnswersCacheConnector
 import controllers.actions.{AuthAction, DataRequiredAction, DataRetrievalAction}
-import navigators.CompoundNavigator
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -34,8 +31,7 @@ import views.html.CheckYourAnswersView
 
 import scala.concurrent.ExecutionContext
 
-class CheckYourAnswersController @Inject()(config: FrontendAppConfig,
-                                           override val messagesApi: MessagesApi,
+class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi,
                                            @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
                                            getData: DataRetrievalAction,
                                            requireData: DataRequiredAction,

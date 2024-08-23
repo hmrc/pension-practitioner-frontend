@@ -16,7 +16,6 @@
 
 package controllers.company
 
-import config.FrontendAppConfig
 import connectors.RegistrationConnector
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals

@@ -29,8 +29,10 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import services.PspDetailsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveEnrolmentWithNoIV
 import utils.countryOptions.CountryOptions
+import views.html.UpdateContactAddressView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,7 +43,8 @@ class UpdateContactAddressController @Inject()(
                                                 @AuthMustHaveEnrolmentWithNoIV authenticate: AuthAction,
                                                 getData: DataRetrievalAction,
                                                 countryOptions: CountryOptions,
-                                                pspDetailsService: PspDetailsService
+                                                pspDetailsService: PspDetailsService,
+                                                updateContactAddressView: UpdateContactAddressView
                                               )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
@@ -55,7 +58,11 @@ class UpdateContactAddressController @Inject()(
               "continueUrl" -> url,
               "address" -> address.lines(countryOptions)
             )
-            renderer.render("updateContactAddress.njk", json).map(Ok(_))
+            val template = TwirlMigration.duoTemplate(
+              renderer.render("updateContactAddress.njk", json),
+              updateContactAddressView(address.lines(countryOptions), url)
+            )
+            template.map(Ok(_))
           case None =>
             Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
         }

@@ -16,9 +16,8 @@
 
 package viewmodels.govuk
 
-import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.button.Button
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{Content, Text}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Content
 
 object button extends ButtonFluency
 

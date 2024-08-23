@@ -16,14 +16,11 @@
 
 package controllers.partnership
 
-import config.FrontendAppConfig
 import connectors.RegistrationConnector
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import forms.ConfirmAddressFormProvider
-
-import javax.inject.Inject
 import models.register.RegistrationLegalStatus.Partnership
 import models.register.{BusinessType, Organisation}
 import models.requests.DataRequest
@@ -43,6 +40,7 @@ import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
 import views.html.ConfirmAddressView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,

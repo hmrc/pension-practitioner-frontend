@@ -18,18 +18,17 @@ package handlers
 
 import config.FrontendAppConfig
 import play.api.http.HeaderNames.CACHE_CONTROL
-import play.api.http.HttpErrorHandler
 import play.api.http.Status._
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.Results._
-import play.api.mvc.{Request, RequestHeader, Result, Results}
+import play.api.mvc.{Request, RequestHeader, Result}
 import play.api.{Logger, PlayException}
 import play.twirl.api.Html
 import renderer.Renderer
 import utils.TwirlMigration
-import views.html.{BadRequestView, InternalServerErrorView}
 import views.html.templates.ErrorTemplate
+import views.html.{BadRequestView, InternalServerErrorView, NotFoundView}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -42,7 +41,8 @@ class FrontendErrorHandler @Inject()(
                                       config: FrontendAppConfig,
                                       badRequestView: BadRequestView,
                                       internalServerErrorView: InternalServerErrorView,
-                                      errorTemplate: ErrorTemplate
+                                      errorTemplate: ErrorTemplate,
+                                      notFoundView: NotFoundView
                                     )(implicit ec: ExecutionContext) extends uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler with I18nSupport {
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html = {
@@ -64,7 +64,12 @@ class FrontendErrorHandler @Inject()(
         val json = Json.obj(
           "yourPensionSchemesUrl" -> config.pspListSchemesUrl
         )
-        renderer.render("notFound.njk", json).map(NotFound(_))
+        val template = TwirlMigration.duoTemplate(
+          renderer.render("notFound.njk", json),
+          notFoundView(config.pspListSchemesUrl)
+        )
+        template.map(NotFound(_))
+      case _ => super.onClientError(request, statusCode, message)
     }
   }
 
