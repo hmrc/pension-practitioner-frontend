@@ -30,7 +30,9 @@ import play.twirl.api.Html
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithIV
+import views.html.individual.ConfirmationView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -40,7 +42,8 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
-                                       renderer: Renderer
+                                       renderer: Renderer,
+                                       confirmationView: ConfirmationView
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController
                                         with Retrievals with I18nSupport with NunjucksSupport {
 
@@ -48,13 +51,22 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
     implicit request =>
       (PspIdPage and IndividualEmailPage).retrieve.map {
         case pspId ~ email =>
+
           val json: JsObject = Json.obj(
             "panelHtml" -> confirmationPanelText(pspId).toString(),
             "email" -> email,
             "submitUrl" -> controllers.routes.SignOutController.signOut().url
           )
         userAnswersCacheConnector.removeAll.flatMap { _ =>
-          renderer.render("individual/confirmation.njk", json).map(Ok(_))
+          val template = TwirlMigration.duoTemplate(
+            renderer.render("individual/confirmation.njk", json),
+            confirmationView(
+              pspId,
+              email,
+              controllers.routes.SignOutController.signOut().url
+            )
+          )
+          template.map(Ok(_))
         }
         case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
       }
