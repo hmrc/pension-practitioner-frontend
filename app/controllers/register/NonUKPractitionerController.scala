@@ -23,7 +23,9 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import views.html.register.NonUKPractitionerView
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -33,12 +35,18 @@ class NonUKPractitionerController @Inject()(
                                              @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
                                              getData: DataRetrievalAction,
                                              val controllerComponents: MessagesControllerComponents,
-                                             renderer: Renderer
+                                             renderer: Renderer,
+                                             nonUKPractitionerView: NonUKPractitionerView
                                            )(implicit ec: ExecutionContext) extends FrontendBaseController
   with I18nSupport with Retrievals {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData).async {
     implicit request =>
-      renderer.render(template = "register/nonUKPractitioner.njk", Json.obj()).map(Ok(_))
+      val template = TwirlMigration.duoTemplate(
+        renderer.render("register/nonUKPractitioner.njk", Json.obj()),
+        nonUKPractitionerView()
+      )
+
+      template.map(Ok(_))
   }
 }
