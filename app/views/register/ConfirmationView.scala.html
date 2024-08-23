@@ -25,7 +25,7 @@
 @(pspId: String, email: String, viewmodel: CommonViewModel)(implicit request: Request[_], messages: Messages)
 
 @layout(
-    pageTitle = messages("confirmation.title"),
+    pageTitle = messages("confirmation.title", messages(viewmodel.entityType)),
     showBackLink = false
 ) {
     <div>
