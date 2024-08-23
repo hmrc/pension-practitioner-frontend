@@ -22,8 +22,7 @@
 @(companiesHouseUrl: String, hmrcUrl: String, hmrcTaxHelplineUrl: String, enterDetailsUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(
-    pageTitle    = titleNoForm(messages("businessDetailsNotFound.title")),
-    showBackLink = false
+    pageTitle    = messages("businessDetailsNotFound.title")
 ) {
     <div class="govuk-grid-row">
 
@@ -53,7 +52,8 @@
             <p class="govuk-body">@messages("businessDetailsNotFound.reason3.p1")</p>
 
             @govukButton(
-                ButtonViewModel(Text(messages("businessDetailsNotFound.enterAgain"))).withAttribute(("id", "submit")).asLink(enterDetailsUrl)
+                ButtonViewModel(Text(messages("businessDetailsNotFound.enterAgain")))
+                    .withAttribute(("id", "submit")).asLink(enterDetailsUrl).asFormSubmit
             )
 
     </div>
