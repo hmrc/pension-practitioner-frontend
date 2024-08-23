@@ -41,17 +41,14 @@
         </p>
 
         @govukInput(
-            Input(
-                id = field.id,
-                name = field.name,
-                value = field.value,
+            InputViewModel(
+                field = field,
                 classes = "govuk-input--width-10",
                 label = Label(
                     isPageHeading = false,
                     classes = "govuk-fieldset__legend--s govuk-visually-hidden",
                     content = Text(messages("postcode.label"))
-                ),
-                errorMessage = field.error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args:_*))))
+                )
             )
         )
 

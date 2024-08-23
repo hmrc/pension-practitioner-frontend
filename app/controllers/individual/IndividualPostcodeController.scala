@@ -49,7 +49,7 @@ class IndividualPostcodeController @Inject()(override val messagesApi: MessagesA
                                              val addressLookupConnector: AddressLookupConnector,
                                              val controllerComponents: MessagesControllerComponents,
                                              val renderer: Renderer,
-                                             postCodeview: PostcodeView
+                                             postCodeView: PostcodeView
                                             )(implicit ec: ExecutionContext) extends PostcodeController
   with Retrievals with I18nSupport with NunjucksSupport {
 
@@ -63,7 +63,7 @@ class IndividualPostcodeController @Inject()(override val messagesApi: MessagesA
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      get(getFormToJson(mode), Some(postCodeview(
+      get(getFormToJson(mode), Some(postCodeView(
         routes.IndividualPostcodeController.onSubmit(mode),
         routes.IndividualContactAddressController.onPageLoad(mode).url,
         form
@@ -73,12 +73,12 @@ class IndividualPostcodeController @Inject()(override val messagesApi: MessagesA
 
   def onSubmit(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      val twrilTemplate = Some(postCodeview(
+      val twirlTemplate = Some(postCodeView(
         routes.IndividualPostcodeController.onSubmit(mode),
         routes.IndividualContactAddressController.onPageLoad(mode).url,
-        form
+        _
       ))
-      post(mode, getFormToJson(mode), IndividualPostcodePage, "error.postcode.noResults", twrilTemplate)
+      post(mode, getFormToJson(mode), IndividualPostcodePage, "error.postcode.noResults", twirlTemplate)
   }
 
   def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Form[String] => JsObject = {

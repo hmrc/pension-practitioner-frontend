@@ -46,9 +46,9 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
   protected def addressLookupConnector: AddressLookupConnector
   protected def viewTemplate = "address/postcode.njk"
 
-  def get(json: Form[String] => JsObject, twrilTemplate: Option[Html] = None)
+  def get(json: Form[String] => JsObject, twirlTemplate: Option[Html] = None)
          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
-    twrilTemplate match {
+    twirlTemplate match {
       case Some(template) =>
         TwirlMigration.duoTemplate(
           renderer.render(viewTemplate, json(form)),
@@ -59,27 +59,28 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
   }
 
   def post(mode: Mode, formToJson: Form[String] => JsObject, postcodePage: QuestionPage[Seq[TolerantAddress]],
-           errorMessage: String, twrilTemplate: Option[Html] = None)
+           errorMessage: String, formToTwirlTemplate: Option[Form[String] => Html] = None)
           (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
     form.bindFromRequest().fold(
       formWithErrors =>
-        twrilTemplate match {
-          case Some(template) =>
+        formToTwirlTemplate match {
+          case Some(formToTemplate) =>
             TwirlMigration.duoTemplate(
               renderer.render(viewTemplate, formToJson(formWithErrors)),
-              template
+              formToTemplate(formWithErrors)
             ).map(BadRequest(_))
           case None => renderer.render(viewTemplate, formToJson(formWithErrors)).map(BadRequest(_))
         },
       value =>
           addressLookupConnector.addressLookupByPostCode(value).flatMap {
             case Nil =>
-              val json = formToJson(formWithError(form, errorMessage))
-              twrilTemplate match {
-                case Some(template) =>
+              val formWithErrors = formWithError(form, errorMessage)
+              val json = formToJson(formWithErrors)
+              formToTwirlTemplate match {
+                case Some(formToTemplate) =>
                   TwirlMigration.duoTemplate(
                     renderer.render(viewTemplate, json),
-                    template
+                    formToTemplate(formWithErrors)
                   ).map(BadRequest(_))
                 case None => renderer.render(viewTemplate, json).map(BadRequest(_))
               }
