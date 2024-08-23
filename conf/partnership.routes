@@ -12,8 +12,6 @@ POST        /confirm-name                                     controllers.partne
 GET         /confirm-address                                  controllers.partnership.ConfirmAddressController.onPageLoad()
 POST        /confirm-address                                  controllers.partnership.ConfirmAddressController.onSubmit()
 
-GET         /you-need-to-tell-hmrc                            controllers.partnership.TellHMRCController.onPageLoad()
-
 GET         /can-hmrc-use-this-address                        controllers.partnership.PartnershipUseSameAddressController.onPageLoad()
 POST        /can-hmrc-use-this-address                        controllers.partnership.PartnershipUseSameAddressController.onSubmit()
 

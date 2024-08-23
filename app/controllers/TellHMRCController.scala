@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.company
+package controllers
 
 import config.FrontendAppConfig
 import controllers.actions._
@@ -23,7 +23,9 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import views.html.TellHMRCView
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -35,16 +37,22 @@ class TellHMRCController @Inject()(
     requireData: DataRequiredAction,
   config: FrontendAppConfig,
     val controllerComponents: MessagesControllerComponents,
-    renderer: Renderer
+    renderer: Renderer,
+    tellHMRCView: TellHMRCView
 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
+  def onPageLoad(entityType: String): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       val json = Json.obj(
-        "entityType" -> "company",
+        "entityType" -> entityType,
         "companiesHouseUrl" -> config.companiesHouseFileChangesUrl,
         "hmrcUrl" -> config.hmrcChangesMustReportUrl
       )
-      renderer.render("tellHMRC.njk", json).map(Ok(_))
+
+      val template = TwirlMigration.duoTemplate(
+        renderer.render("tellHMRC.njk", json),
+        tellHMRCView(entityType, config.companiesHouseFileChangesUrl, config.hmrcChangesMustReportUrl)
+      )
+      template.map(Ok(_))
   }
 }

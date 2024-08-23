@@ -7,6 +7,9 @@
 ->          /register/partnership                           partnership.Routes
 ->          /remove-psp                                     deregister.Routes
 
+GET         /register/:entityType/you-need-to-tell-hmrc     controllers.TellHMRCController.onPageLoad(entityType: String)
+
+
 GET         /                                               controllers.LoginController.onPageLoad()
 
 GET         /sign-out                                       controllers.SignOutController.signOut()

@@ -17,25 +17,26 @@
 package controllers.partnership
 
 import connectors.cache.UserAnswersCacheConnector
-import controllers.{Retrievals, Variation}
 import controllers.actions._
+import controllers.{Retrievals, Variation}
 import forms.EmailFormProvider
-import javax.inject.Inject
 import models.Mode
 import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.AddressChange
-import pages.partnership.{PartnershipEmailPage, BusinessNamePage}
+import pages.partnership.{BusinessNamePage, PartnershipEmailPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{Writes, Json, JsObject}
-import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import viewmodels.CommonViewModel
+import utils.TwirlMigration
+import viewmodels.CommonViewModelTwirl
+import views.html.EmailView
 
-import scala.concurrent.{Future, ExecutionContext}
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class PartnershipEmailController @Inject()(override val messagesApi: MessagesApi,
                                            userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -45,7 +46,8 @@ class PartnershipEmailController @Inject()(override val messagesApi: MessagesApi
                                            requireData: DataRequiredAction,
                                            formProvider: EmailFormProvider,
                                            val controllerComponents: MessagesControllerComponents,
-                                           renderer: Renderer
+                                           renderer: Renderer,
+                                           emailView: EmailView
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController
   with Retrievals with I18nSupport with NunjucksSupport with Variation {
 
@@ -56,8 +58,12 @@ class PartnershipEmailController @Inject()(override val messagesApi: MessagesApi
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
         val formFilled = request.userAnswers.get(PartnershipEmailPage).fold(form)(form.fill)
-        getJson(mode, formFilled) { json =>
-          renderer.render("email.njk", json).map(Ok(_))
+        getModel(mode) { model =>
+          val template = TwirlMigration.duoTemplate(
+            renderer.render("email.njk", TwirlMigration.nunjucksGetJson(formFilled, model.toNunjucks)),
+            emailView(model, formFilled)
+          )
+          template.map(Ok(_))
         }
     }
 
@@ -66,8 +72,12 @@ class PartnershipEmailController @Inject()(override val messagesApi: MessagesApi
       implicit request =>
         form.bindFromRequest().fold(
           formWithErrors =>
-            getJson(mode, formWithErrors) { json =>
-              renderer.render("email.njk", json).map(BadRequest(_))
+            getModel(mode) { model =>
+              val template = TwirlMigration.duoTemplate(
+                renderer.render("email.njk", TwirlMigration.nunjucksGetJson(formWithErrors, model.toNunjucks)),
+                emailView(model, formWithErrors)
+              )
+              template.map(BadRequest(_))
             },
           value =>
             for {
@@ -79,16 +89,16 @@ class PartnershipEmailController @Inject()(override val messagesApi: MessagesApi
 
     }
 
-  private def getJson(mode: Mode, form: Form[String])(block: JsObject => Future[Result])
-                     (implicit w: Writes[Form[String]], request: DataRequest[AnyContent]): Future[Result] =
-    BusinessNamePage.retrieve.map { partnershipName =>
-      val json = Json.obj(
-        "form" -> Json.toJsFieldJsValueWrapper(form)(w),
-        "viewmodel" -> CommonViewModel(
+  private def getModel(mode: Mode)(block: CommonViewModelTwirl => Future[Result])(implicit request: DataRequest[AnyContent]) = {
+    BusinessNamePage.retrieve match {
+      case Left(errorResult) => errorResult
+      case Right(partnershipName) => block(
+        CommonViewModelTwirl(
           "partnership",
           partnershipName,
-          routes.PartnershipEmailController.onSubmit(mode).url)
+          routes.PartnershipEmailController.onSubmit(mode)
+        )
       )
-      block(json)
     }
+  }
 }
