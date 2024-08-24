@@ -22,18 +22,20 @@ import controllers.{Retrievals, Variation}
 import models.requests.DataRequest
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import models.AddressConfiguration.AddressConfiguration
-import models.{Mode, Address, AddressConfiguration, TolerantAddress}
+import models.{Address, AddressConfiguration, Country, Mode, TolerantAddress}
 import navigators.CompoundNavigator
 import pages.{AddressChange, QuestionPage}
 import pages.company.CompanyAddressPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages}
-import play.api.libs.json.{JsArray, Json, JsObject}
-import play.api.mvc.{Call, Result, AnyContent}
+import play.api.libs.json.{JsArray, JsObject, Json}
+import play.api.mvc.{AnyContent, Call, Result}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.TwirlMigration
+import views.html.address.ManualAddressView
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
 trait ManualAddressController
     extends FrontendBaseController
@@ -84,6 +86,38 @@ trait ManualAddressController
     renderer.render(viewTemplate, json(mode, name, preparedForm, addressLocation)).map(Ok(_))
   }
 
+
+  protected def getCompanyAddress(mode: Mode,
+                    name: Option[String],
+                    selectedAddress: QuestionPage[TolerantAddress],
+                    addressLocation: AddressConfiguration,
+                    manualAddressView: ManualAddressView)(
+                     implicit request: DataRequest[AnyContent],
+                     ec: ExecutionContext
+                   ): Future[Result] = {
+    val preparedForm = request.userAnswers.get(addressPage) match {
+      case None => request.userAnswers.get(selectedAddress) match {
+        case Some(value) => form.fill(value.toPrepopAddress)
+        case None => form
+      }
+      case Some(value) => form.fill(value)
+    }
+    //renderer.render(viewTemplate, json(mode, name, preparedForm, addressLocation)).map(Ok(_))
+    val jsonValue: JsObject =  json(mode, name, preparedForm, addressLocation)
+    val template = TwirlMigration.duoTemplate(
+      renderer.render(viewTemplate, jsonValue),
+      manualAddressView(
+        (jsonValue \ "pageTitle").asOpt[String].getOrElse(""),
+        (jsonValue \ "h1").asOpt[String].getOrElse(""),
+        (jsonValue \ "postcodeEntry").asOpt[Boolean].getOrElse(false),
+        (jsonValue \ "postcodeFirst").asOpt[Boolean].getOrElse(false),
+        (jsonValue \ "countries").asOpt[Array[models.Country]].getOrElse(Array.empty[models.Country]),
+        submitRoute(mode),
+        preparedForm)
+    )
+    template.map(Ok(_))
+  }
+
   protected def post(mode: Mode,
                      name: Option[String],
                      addressLocation: AddressConfiguration)(
@@ -104,6 +138,42 @@ trait ManualAddressController
           } yield {
             Redirect(navigator.nextPage(addressPage, mode, answersWithChangeFlag))
         }
+      )
+  }
+
+  protected def postForCompany(mode: Mode,
+                     name: Option[String],
+                     addressLocation: AddressConfiguration,
+                      manualAddressView: ManualAddressView)(
+                      implicit request: DataRequest[AnyContent],
+                      ec: ExecutionContext
+                    ): Future[Result] = {
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => {
+          val jsonValue: JsObject =  json(mode, name, formWithErrors, addressLocation)
+          val template = TwirlMigration.duoTemplate(
+            renderer.render(viewTemplate, jsonValue),
+            manualAddressView((jsonValue \ "pageTitle").asOpt[String].getOrElse(""),
+              (jsonValue \ "h1").asOpt[String].getOrElse(""),
+              (jsonValue \ "postcodeEntry").asOpt[Boolean].getOrElse(false),
+              (jsonValue \ "postcodeFirst").asOpt[Boolean].getOrElse(false),
+              (jsonValue \ "countries").asOpt[Array[models.Country]].getOrElse(Array.empty[models.Country]),
+              submitRoute(mode),
+              formWithErrors
+          )
+          )
+          template.map(Ok(_))
+        },
+        value =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(addressPage, value))
+            answersWithChangeFlag <- Future.fromTry(setChangeFlag(updatedAnswers, AddressChange))
+            _ <- userAnswersCacheConnector.save(answersWithChangeFlag.data)
+          } yield {
+            Redirect(navigator.nextPage(addressPage, mode, answersWithChangeFlag))
+          }
       )
   }
 
