@@ -14,6 +14,7 @@
  * limitations under the License.
  *@
 
+@import cats.syntax.eq._
 @this(
         layout: templates.Layout,
         formHelper: FormWithCSRF,
@@ -112,8 +113,8 @@
                     SelectItem(
                         value = Some(c.value),
                         text = c.text,
-                        selected = c.text == "United Kingdom"
-                    )
+                        selected = Some(c.value) == form.data.get("country")
+        )
                 },
                 classes = "autocomplete",
                 label = Label(
