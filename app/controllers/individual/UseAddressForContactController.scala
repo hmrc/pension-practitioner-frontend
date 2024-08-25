@@ -16,7 +16,6 @@
 
 package controllers.individual
 
-import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
@@ -31,12 +30,15 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.twirl.api.Html
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModel
+import views.html.address.UseAddressForContactView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -48,9 +50,9 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
                                                requireData: DataRequiredAction,
                                                formProvider: UseAddressForContactFormProvider,
                                                val controllerComponents: MessagesControllerComponents,
-                                               config: FrontendAppConfig,
                                                countryOptions: CountryOptions,
-                                               renderer: Renderer
+                                               renderer: Renderer,
+                                               useAddressForContactView: UseAddressForContactView
                                               )(implicit ec: ExecutionContext) extends FrontendBaseController
   with I18nSupport with NunjucksSupport with Retrievals {
 
@@ -63,7 +65,18 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
         case Some(true) =>
           val preparedForm = request.userAnswers.get(UseAddressForContactPage).fold(form)(form.fill)
           getJson(preparedForm) { json =>
-            renderer.render("address/useAddressForContact.njk", json).map(Ok(_))
+                  val template = TwirlMigration.duoTemplate(
+                  renderer.render("address/useAddressForContact.njk", json),
+                  useAddressForContactView(
+                    routes.UseAddressForContactController.onSubmit(),
+                    preparedForm,
+                    TwirlMigration.toTwirlRadios(Radios.yesNo(preparedForm("value"))),
+                    (json \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
+                    (json \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
+                    (json  \ "address").asOpt[Seq[String]].getOrElse(Seq.empty[String])
+                  )
+                )
+                template.map(Ok(_))
           }
         case _ => Future.successful(
           Redirect(controllers.individual.routes.AreYouUKResidentController.onPageLoad(mode))
@@ -76,7 +89,18 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
       form.bindFromRequest().fold(
         formWithErrors => {
           getJson(formWithErrors) { json =>
-            renderer.render("address/useAddressForContact.njk", json).map(BadRequest(_))
+            val template = TwirlMigration.duoTemplate(
+              renderer.render("address/useAddressForContact.njk", json),
+              useAddressForContactView(
+                routes.UseAddressForContactController.onSubmit(),
+                formWithErrors,
+                TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value"))),
+                (json \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
+                (json \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
+                (json  \ "address").asOpt[Seq[String]].getOrElse(Seq.empty[String])
+              )
+            )
+            template.map(Ok(_))
           }
         },
         value => {
