@@ -22,7 +22,7 @@
 
 @(submitCall: Call)(implicit request: Request[_], messages: Messages)
 
-@layout(messages("declaration.title"), formHasErrors = form.hasErrors) {
+@layout(messages("declaration.title")) {
     @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
         <div>
 
