@@ -32,6 +32,7 @@ import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.annotations.AuthWithIV
+import views.html.address.ManualAddressView
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -47,7 +48,8 @@ class IndividualContactAddressController @Inject()(
                                                     formProvider: AddressFormProvider,
                                                     val controllerComponents: MessagesControllerComponents,
                                                     val config: FrontendAppConfig,
-                                                    val renderer: Renderer
+                                                    val renderer: Renderer,
+                                                    manualAddressView: ManualAddressView
                                                   )(implicit ec: ExecutionContext)
   extends ManualAddressController
     with Retrievals
@@ -66,14 +68,14 @@ class IndividualContactAddressController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
       AreYouUKResidentPage.retrieve.map { areYouUKResident =>
-        get(mode, None, IndividualAddressListPage, addressConfigurationForPostcodeAndCountry(areYouUKResident))
+        get(mode, None, IndividualAddressListPage, addressConfigurationForPostcodeAndCountry(areYouUKResident), manualAddressView)
       }
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
       AreYouUKResidentPage.retrieve.map { areYouUKResident =>
-        post(mode, None, addressConfigurationForPostcodeAndCountry(areYouUKResident))
+        post(mode, None, addressConfigurationForPostcodeAndCountry(areYouUKResident), manualAddressView)
       }
     }
 }

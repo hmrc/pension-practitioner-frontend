@@ -66,7 +66,7 @@ class CompanyContactAddressController @Inject()(
     (authenticate andThen getData andThen requireData).async { implicit request =>
       (AreYouUKCompanyPage and BusinessNamePage).retrieve.map {
         case areYouUKCompany ~ companyName =>
-          getCompanyAddress(mode, Some(companyName), CompanyAddressListPage, addressConfigurationForPostcodeAndCountry(areYouUKCompany), manualAddressView)
+          get(mode, Some(companyName), CompanyAddressListPage, addressConfigurationForPostcodeAndCountry(areYouUKCompany), manualAddressView)
       }
     }
 
@@ -74,7 +74,7 @@ class CompanyContactAddressController @Inject()(
     (authenticate andThen getData andThen requireData).async { implicit request =>
       (AreYouUKCompanyPage and BusinessNamePage).retrieve.map {
         case areYouUKCompany ~ companyName =>
-          postForCompany(mode, Some(companyName), addressConfigurationForPostcodeAndCountry(areYouUKCompany), manualAddressView)
+          post(mode, Some(companyName), addressConfigurationForPostcodeAndCountry(areYouUKCompany), manualAddressView)
       }
     }
 }
