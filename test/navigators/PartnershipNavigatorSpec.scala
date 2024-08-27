@@ -54,7 +54,7 @@ class PartnershipNavigatorSpec extends NavigatorBehaviour {
         row(BusinessNamePage)(ConfirmNameController.onPageLoad(), Some(uaAreYouUKCompany(true))),
         row(BusinessNamePage)(NonUKPractitionerController.onPageLoad(), Some(uaAreYouUKCompany(false))),
         row(ConfirmNamePage)(ConfirmAddressController.onPageLoad(), Some(uaConfirmName(true).setOrException(AreYouUKCompanyPage, true))),
-        row(ConfirmNamePage)(TellHMRCController.onPageLoad(), Some(uaConfirmName(false).setOrException(AreYouUKCompanyPage, true))),
+        row(ConfirmNamePage)(controllers.routes.TellHMRCController.onPageLoad("partnership"), Some(uaConfirmName(false).setOrException(AreYouUKCompanyPage, true))),
         row(ConfirmAddressPage)(NonUKPractitionerController.onPageLoad()),
         row(ConfirmAddressPage)(PartnershipUseSameAddressController.onPageLoad(), Some(uaConfirmAddressYes.setOrException(AreYouUKCompanyPage, true))),
         row(PartnershipUseSameAddressPage)(PartnershipEmailController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=true, uk=true))),

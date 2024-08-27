@@ -62,7 +62,7 @@ class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
           TwirlMigration.duoTemplate(
             renderer.render("email.njk", TwirlMigration.nunjucksGetJson(formFilled, model.toNunjucks)),
             emailView(model, formFilled)
-          ).map(BadRequest(_))
+          ).map(Ok(_))
         }
     }
 

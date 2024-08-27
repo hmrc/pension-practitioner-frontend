@@ -47,11 +47,6 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
   private def uaIsCompanyRegisteredInUkPage(v:Boolean): UserAnswers =
     SampleData.emptyUserAnswers.setOrException(IsCompanyRegisteredInUkPage, v)
 
-  private def uaNotInUKButCountryGB: UserAnswers =
-    SampleData.emptyUserAnswers
-      .setOrException(AreYouUKCompanyPage, false)
-    .setOrException(CompanyRegisteredAddressPage, Address("addr1", "addr2", None, None, None, "GB"))
-
   private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
 
   "NormalMode" must {
@@ -62,8 +57,8 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
         row(BusinessNamePage)(ConfirmNameController.onPageLoad(), Some(uaAreYouUKCompany(true))),
         row(BusinessNamePage)(NonUKPractitionerController.onPageLoad(), Some(uaAreYouUKCompany(false))),
         row(ConfirmNamePage)(ConfirmAddressController.onPageLoad(), Some(uaConfirmName(true).setOrException(AreYouUKCompanyPage, true))),
-        row(ConfirmNamePage)(TellHMRCController.onPageLoad(),Some(uaConfirmName(false).setOrException(AreYouUKCompanyPage, true))),
-        row(ConfirmAddressPage)(TellHMRCController.onPageLoad(), Some(uaAreYouUKCompany(true))),
+        row(ConfirmNamePage)(controllers.routes.TellHMRCController.onPageLoad("company"),Some(uaConfirmName(false).setOrException(AreYouUKCompanyPage, true))),
+        row(ConfirmAddressPage)(controllers.routes.TellHMRCController.onPageLoad("company"), Some(uaAreYouUKCompany(true))),
         row(ConfirmAddressPage)(CompanyUseSameAddressController.onPageLoad(), Some(uaConfirmAddressYes.setOrException(AreYouUKCompanyPage, true))),
         row(CompanyUseSameAddressPage)(CompanyEmailController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=true, uk=true))),
         row(CompanyUseSameAddressPage)(CompanyContactAddressController.onPageLoad(NormalMode), Some(uaUseSameAddress(sameAddress=false, uk=true))),

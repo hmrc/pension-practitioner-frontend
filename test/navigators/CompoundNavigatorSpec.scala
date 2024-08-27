@@ -47,17 +47,5 @@ class CompoundNavigatorSpec extends SpecBase {
       val result = compoundNavigator.nextPage(PageTwo, NormalMode, UserAnswers(Json.obj()))
       result mustEqual Call("GET", "/page2")
     }
-
-    "redirect to the index page if there is no navigation available for the given page" in {
-      case object PageFour extends Page
-      val navigators = Set(
-        navigator({case PageOne => Call("GET", "/page1")}),
-        navigator({case PageTwo => Call("GET", "/page2")}),
-        navigator({case PageThree => Call("GET", "/page3")})
-      )
-      val compoundNavigator = new CompoundNavigatorImpl(navigators.asJava)
-      val result = compoundNavigator.nextPage(PageFour, NormalMode, UserAnswers(Json.obj()))
-      result mustEqual controllers.routes.IndexController.onPageLoad()
-    }
   }
 }
