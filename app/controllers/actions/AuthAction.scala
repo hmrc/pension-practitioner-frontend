@@ -240,7 +240,7 @@ class AuthenticatedAuthActionMustHaveNoEnrolmentWithIV @Inject()(override val au
   with AuthorisedFunctions {
 
   override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] = {
-    authenticatedRequest.user.alreadyEnrolledPspId.map(_ => Redirect(controllers.routes.AlreadyRegisteredController.onPageLoad()))
+    authenticatedRequest.user.alreadyEnrolledPspId.map(_ => Redirect(config.returnToPspDashboardUrl))
   }
 }
 
@@ -271,5 +271,5 @@ class AuthenticatedAuthActionMustHaveNoEnrolmentWithNoIV @Inject()(override val 
   with AuthorisedFunctions {
 
   override protected def checkAuthenticatedRequest[A](authenticatedRequest: AuthenticatedRequest[A]): Option[Result] =
-    authenticatedRequest.user.alreadyEnrolledPspId.map(_ => Redirect(controllers.routes.AlreadyRegisteredController.onPageLoad()))
+    authenticatedRequest.user.alreadyEnrolledPspId.map(_ => Redirect(config.returnToPspDashboardUrl))
 }

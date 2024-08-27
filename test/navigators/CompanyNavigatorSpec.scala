@@ -47,11 +47,6 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
   private def uaIsCompanyRegisteredInUkPage(v:Boolean): UserAnswers =
     SampleData.emptyUserAnswers.setOrException(IsCompanyRegisteredInUkPage, v)
 
-  private def uaNotInUKButCountryGB: UserAnswers =
-    SampleData.emptyUserAnswers
-      .setOrException(AreYouUKCompanyPage, false)
-    .setOrException(CompanyRegisteredAddressPage, Address("addr1", "addr2", None, None, None, "GB"))
-
   private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
 
   "NormalMode" must {
