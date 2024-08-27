@@ -30,7 +30,9 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import views.html.register.BusinessRegistrationTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -44,7 +46,8 @@ class BusinessRegistrationTypeController @Inject()(override val messagesApi: Mes
                                       formProvider: BusinessRegistrationTypeFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
                                       config: FrontendAppConfig,
-                                      renderer: Renderer
+                                      renderer: Renderer,
+                                      businessRegistrationTypeView: BusinessRegistrationTypeView
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
 
   private val form = formProvider()
@@ -63,8 +66,16 @@ class BusinessRegistrationTypeController @Inject()(override val messagesApi: Mes
           "radios" -> BusinessRegistrationType.radios(preparedForm)
         )
 
-        renderer.render("register/businessRegistrationType.njk", json).map(Ok(_))
+      val template = TwirlMigration.duoTemplate(
+        renderer.render("register/businessRegistrationType.njk", json),
+        businessRegistrationTypeView(
+          routes.BusinessRegistrationTypeController.onSubmit(),
+          preparedForm,
+          TwirlMigration.toTwirlRadios(BusinessRegistrationType.radios(preparedForm))
+        )
+      )
 
+      template.map(Ok(_))
   }
 
   def onSubmit: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
@@ -80,7 +91,16 @@ class BusinessRegistrationTypeController @Inject()(override val messagesApi: Mes
               "radios" -> BusinessRegistrationType.radios(formWithErrors)
             )
 
-            renderer.render("register/businessRegistrationType.njk", json).map(BadRequest(_))
+            val template = TwirlMigration.duoTemplate(
+              renderer.render("register/businessRegistrationType.njk", json),
+              businessRegistrationTypeView(
+                routes.BusinessRegistrationTypeController.onSubmit(),
+                formWithErrors,
+                TwirlMigration.toTwirlRadios(BusinessRegistrationType.radios(formWithErrors))
+              )
+            )
+
+            template.map(BadRequest(_))
           },
           value =>
             for {

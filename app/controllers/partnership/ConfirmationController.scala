@@ -19,19 +19,22 @@ package controllers.partnership
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
+
 import javax.inject.Inject
 import pages.PspIdPage
-import pages.partnership.{PartnershipEmailPage, BusinessNamePage}
+import pages.partnership.{BusinessNamePage, PartnershipEmailPage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{Json, JsObject}
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.TwirlMigration
 import viewmodels.CommonViewModel
+import views.html.register.ConfirmationView
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
 class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
                                        userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -39,7 +42,8 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
-                                       renderer: Renderer
+                                       renderer: Renderer,
+                                       confirmationView: ConfirmationView
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController
                                         with Retrievals with I18nSupport with NunjucksSupport {
 
@@ -47,15 +51,26 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
     implicit request =>
       (BusinessNamePage and PartnershipEmailPage and PspIdPage).retrieve.map {
         case name ~ email ~ pspid =>
-        val json: JsObject = Json.obj(
+          val commonViewModel = CommonViewModel("partnership.capitalised", name, controllers.routes.SignOutController.signOut().url)
+
+          val json: JsObject = Json.obj(
           "panelHtml" -> confirmationPanelText(pspid).toString(),
           "email" -> email,
-          "viewmodel" -> CommonViewModel("partnership.capitalised", name, controllers.routes.SignOutController.signOut().url)
-        )
+          "viewmodel" -> commonViewModel
+          )
 
-        userAnswersCacheConnector.removeAll.flatMap { _ =>
-          renderer.render("register/confirmation.njk", json).map(Ok(_))
-        }
+          userAnswersCacheConnector.removeAll.flatMap { _ =>
+            val template = TwirlMigration.duoTemplate(
+              renderer.render("register/confirmation.njk", json),
+              confirmationView(
+                pspid,
+                email,
+                commonViewModel
+              )
+            )
+
+            template.map(Ok(_))
+          }
         case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
       }
   }

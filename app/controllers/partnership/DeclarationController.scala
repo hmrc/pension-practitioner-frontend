@@ -36,8 +36,9 @@ import uk.gov.hmrc.http.HttpErrorFunctions.{is4xx, is5xx}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.KnownFactsRetrieval
+import utils.{KnownFactsRetrieval, TwirlMigration}
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import views.html.register.DeclarationView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -55,7 +56,8 @@ class DeclarationController @Inject()(
                                        emailConnector: EmailConnector,
                                        knownFactsRetrieval: KnownFactsRetrieval,
                                        enrolment: EnrolmentConnector,
-                                       config: FrontendAppConfig
+                                       config: FrontendAppConfig,
+                                       declarationView: DeclarationView
                                      )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with Retrievals
@@ -64,12 +66,14 @@ class DeclarationController @Inject()(
 
   def onPageLoad: Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
-      renderer
-        .render(
-          "register/declaration.njk",
-          Json.obj("submitUrl" -> routes.DeclarationController.onSubmit().url)
-        )
-        .map(Ok(_))
+      val submitUrl = routes.DeclarationController.onSubmit().url
+      val json = Json.obj("submitUrl" -> submitUrl)
+      val template = TwirlMigration.duoTemplate(
+        renderer.render("register/declaration.njk", json),
+        declarationView(routes.DeclarationController.onSubmit())
+      )
+
+      template.map(Ok(_))
     }
 
   def onSubmit: Action[AnyContent] =
