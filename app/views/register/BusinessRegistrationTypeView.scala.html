@@ -28,7 +28,7 @@ govukButton: GovukButton
 
 @field = @{form("value")}
 
-@layout(messages("businessRegistrationType.title")) {
+@layout(messages("businessRegistrationType.title"), formHasErrors = form.hasErrors) {
     @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
@@ -54,7 +54,8 @@ govukButton: GovukButton
     @govukButton(
         Button(
             content = Text(messages("site.save_and_continue")),
-            inputType = Some("submit")
+            inputType = Some("submit"),
+            preventDoubleClick = Some(true)
         )
     )
 
