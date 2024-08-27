@@ -26,7 +26,7 @@
 
 @field = @{form("value")}
 
-@layout(messages("isPartnershipRegisteredInUk.title")) {
+@layout(messages("isPartnershipRegisteredInUk.title"), formHasErrors = form.hasErrors) {
     @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))

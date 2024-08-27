@@ -22,12 +22,12 @@ import models.requests.UserType.UserType
 import play.api.mvc._
 import uk.gov.hmrc.domain.Nino
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 case class FakeAuthAction @Inject()(bodyParsers: PlayBodyParsers) extends AuthAction {
   private val defaultUserType: UserType = UserType.Organisation
   private val defaultPspId: String = "test psp id"
-  implicit val executionContext =
+  implicit val executionContext: ExecutionContext =
     scala.concurrent.ExecutionContext.Implicits.global
   override def invokeBlock[A](
     request: Request[A],
@@ -45,7 +45,7 @@ case class FakeAuthAction @Inject()(bodyParsers: PlayBodyParsers) extends AuthAc
 
 case class FakeAuthActionNoEnrolment @Inject()(bodyParsers: PlayBodyParsers) extends AuthAction {
   private val defaultUserType: UserType = UserType.Organisation
-  implicit val executionContext =
+  implicit val executionContext: ExecutionContext =
     scala.concurrent.ExecutionContext.Implicits.global
   override def invokeBlock[A](
     request: Request[A],

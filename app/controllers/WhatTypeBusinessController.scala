@@ -53,7 +53,6 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
   def onPageLoad(): Action[AnyContent] = (authenticate andThen getData).async {
     implicit request =>
 
-
       val preparedForm = request.userAnswers.flatMap(_.get(WhatTypeBusinessPage)) match {
         case None => form
         case Some(value) => form.fill(value)

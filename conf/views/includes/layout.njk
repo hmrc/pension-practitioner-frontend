@@ -36,9 +36,9 @@
 
 {% block header %}
     {{ hmrcHeader({
-        homepageUrl: "/pension-practioner-frontend",
+        homepageUrl: routes.controllers.WhatTypeBusinessController.onPageLoad().url,
         serviceName: messages("site.service_name"),
-        serviceUrl: "/pension-practioner-frontend",
+        serviceUrl: routes.controllers.WhatTypeBusinessController.onPageLoad().url,
         containerClasses: "govuk-width-container",
         assetsPath: "/assets",
         signOutHref: routes.controllers.SignOutController.signOut(srn, startDate).url
