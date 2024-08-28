@@ -23,6 +23,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import services.PspDetailsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveEnrolmentWithNoIV
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -31,14 +32,26 @@ class ViewDetailsController @Inject()(@AuthMustHaveEnrolmentWithNoIV authenticat
                                       getData: DataRetrievalAction,
                                       pspDetailsService: PspDetailsService,
                                       renderer: Renderer,
-                                      val controllerComponents: MessagesControllerComponents
+                                      val controllerComponents: MessagesControllerComponents,
+                                      viewDetailsView: views.html.amend.ViewDetailsView
                                     )(implicit val executionContext: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData).async {
     implicit request =>
       request.user.alreadyEnrolledPspId.map { pspId =>
-          pspDetailsService.getJson(request.userAnswers, pspId).flatMap { json =>
-            renderer.render("amend/viewDetails.njk", json).map(Ok(_))
+          pspDetailsService.getData(request.userAnswers, pspId).flatMap { data =>
+            val template = TwirlMigration.duoTemplate(
+              renderer.render("amend/viewDetails.njk", data.toJson),
+              viewDetailsView(
+                data.pageTitle,
+                data.heading,
+                TwirlMigration.summaryListRow(data.list),
+                data.displayContinueButton,
+                data.nextPage,
+                data.returnLinkAndUrl
+              )
+            )
+            template.map(Ok(_))
         }
       }.getOrElse(
         Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))

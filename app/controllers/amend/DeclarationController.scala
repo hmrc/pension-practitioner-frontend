@@ -34,6 +34,7 @@ import uk.gov.hmrc.http.HttpErrorFunctions.is5xx
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveEnrolmentWithNoIV
 
 import javax.inject.Inject
@@ -51,7 +52,8 @@ class DeclarationController @Inject()(
                                        emailConnector: EmailConnector,
                                        auditService: AuditService,
                                        pspDetailsService: PspDetailsService,
-                                       config: FrontendAppConfig
+                                       config: FrontendAppConfig,
+                                       declarationView: views.html.amend.DeclarationView
                                      )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with Retrievals
@@ -64,7 +66,11 @@ class DeclarationController @Inject()(
 
         if (pspDetailsService.amendmentsExist(request.userAnswers)) {
           val json: JsObject = Json.obj("submitUrl" -> routes.DeclarationController.onSubmit().url)
-          renderer.render("amend/declaration.njk", json).map(Ok(_))
+          val template = TwirlMigration.duoTemplate(
+            renderer.render("amend/declaration.njk", json),
+            declarationView(routes.DeclarationController.onSubmit())
+          )
+          template.map(Ok(_))
         } else {
           Future.successful(Redirect(routes.ViewDetailsController.onPageLoad()))
         }
