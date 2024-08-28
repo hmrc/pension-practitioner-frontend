@@ -1,0 +1,50 @@
+@*
+ * Copyright 2024 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@this(
+        layout: templates.Layout,
+        formHelper: FormWithCSRF,
+        govukErrorSummary: GovukErrorSummary,
+        govukInput: GovukInput,
+        govukButton: GovukButton
+)
+
+@(submitCall: Call, form: Form[java.time.LocalDate], returnUrl: String, applicationDate: String, viewmodel: uk.gov.hmrc.viewmodels.DateInput.ViewModel)(implicit request: Request[_], messages: Messages)
+
+@field = @{form("value")}
+
+@layout(messages("deregistrationDate.individual.title")) {
+
+    @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
+        }
+
+        <h1 class="govuk-heading-xl">@messages("deregistrationDate.individual.title")</h1>
+
+        <p class="govuk-body">@messages("deregistrationDate.individual.p1", applicationDate)</p>
+
+
+
+        @govukButton(
+            ButtonViewModel(Text(messages("findAddress"))).asFormSubmit
+        )
+
+    <p class="govuk-body"><a href="@returnUrl" class="govuk-link">@messages("site.return_to_overview")</a></p>
+
+
+    }
+}

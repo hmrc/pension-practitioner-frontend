@@ -22,6 +22,7 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import forms.deregister.ConfirmDeregistrationFormProvider
+
 import javax.inject.Inject
 import models.{NormalMode, UserAnswers}
 import navigators.CompoundNavigator
@@ -29,13 +30,15 @@ import pages.{PspEmailPage, PspNamePage}
 import pages.deregister.ConfirmDeregistrationPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveEnrolmentWithNoIV
+import views.html.deregister.individual.ConfirmDeregistrationView
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
 class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
                                                 override val messagesApi: MessagesApi,
@@ -48,7 +51,8 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
                                                 val controllerComponents: MessagesControllerComponents,
                                                 deregistrationConnector: DeregistrationConnector,
                                                 minimalConnector: MinimalConnector,
-                                                renderer: Renderer
+                                                renderer: Renderer,
+                                                confirmDeregistrationView: ConfirmDeregistrationView
                                                )(implicit ec: ExecutionContext) extends FrontendBaseController
                                                 with I18nSupport with NunjucksSupport with Retrievals {
 
@@ -72,7 +76,13 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
                     val updatedAnswers = UserAnswers()
                       .setOrException(PspNamePage, name)
                       .setOrException(PspEmailPage, email)
-                    renderer.render("deregister/individual/confirmDeregistration.njk", json)
+                    TwirlMigration.duoTemplate(
+                      renderer.render("deregister/individual/confirmDeregistration.njk", json),
+                      confirmDeregistrationView(routes.ConfirmDeregistrationController.onSubmit(),
+                        form,
+                        TwirlMigration.toTwirlRadios(Radios.yesNo(form("value"))),
+                        config.returnToPspDashboardUrl)
+                    )
                       .flatMap( view => userAnswersCacheConnector.save(updatedAnswers.data).map( _ => Ok(view)))
                   case _ => sessionExpired
                 }
@@ -94,7 +104,13 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
               "submitUrl" -> routes.ConfirmDeregistrationController.onSubmit().url,
               "radios" -> Radios.yesNo(formWithErrors("value"))
             )
-            renderer.render("deregister/individual/confirmDeregistration.njk", json).map(BadRequest(_))
+            TwirlMigration.duoTemplate(
+              renderer.render("deregister/individual/confirmDeregistration.njk", json),
+              confirmDeregistrationView(routes.ConfirmDeregistrationController.onSubmit(),
+                formWithErrors,
+                TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value"))),
+                config.returnToPspDashboardUrl)
+            ).map(Ok(_))
           },
           value =>
             for {

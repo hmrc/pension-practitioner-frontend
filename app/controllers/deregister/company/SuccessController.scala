@@ -26,6 +26,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.TwirlMigration
+import views.html.deregister.company.SuccessView
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -36,7 +38,8 @@ class SuccessController @Inject()(override val messagesApi: MessagesApi,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
-                                       renderer: Renderer
+                                       renderer: Renderer,
+                                       successView: SuccessView
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController
   with Retrievals with I18nSupport with NunjucksSupport {
 
@@ -48,7 +51,13 @@ class SuccessController @Inject()(override val messagesApi: MessagesApi,
             "submitUrl" -> controllers.routes.SignOutController.signOut().url
           )
           userAnswersCacheConnector.removeAll.flatMap { _ =>
-            renderer.render("deregister/company/success.njk", json).map(Ok(_))
+            TwirlMigration.duoTemplate(
+              renderer.render("deregister/company/success.njk", json),
+              successView(
+                name,
+                controllers.routes.SignOutController.signOut().url
+              )
+            ).map(Ok(_))
           }
       }
   }
