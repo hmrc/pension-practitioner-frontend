@@ -22,11 +22,12 @@ import controllers.Retrievals
 import controllers.actions._
 import controllers.address.ManualAddressController
 import forms.address.UKAddressFormProvider
+
 import javax.inject.Inject
 import models.{Address, Mode}
 import navigators.CompoundNavigator
 import pages.QuestionPage
-import pages.partnership.{BusinessNamePage, PartnershipAddressPage, PartnershipAddressListPage}
+import pages.partnership.{BusinessNamePage, PartnershipAddressListPage, PartnershipAddressPage}
 import pages.register.AreYouUKCompanyPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -34,6 +35,7 @@ import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.countryOptions.CountryOptions
+import views.html.address.ManualAddressView
 
 import scala.concurrent.ExecutionContext
 
@@ -48,7 +50,8 @@ class PartnershipContactAddressController @Inject()(
   countryOptions: CountryOptions,
   val controllerComponents: MessagesControllerComponents,
   val config: FrontendAppConfig,
-  val renderer: Renderer
+  val renderer: Renderer,
+  manualAddressView: ManualAddressView
 )(implicit ec: ExecutionContext)
   extends ManualAddressController
     with Retrievals
@@ -67,7 +70,7 @@ class PartnershipContactAddressController @Inject()(
     (authenticate andThen getData andThen requireData).async { implicit request =>
       (AreYouUKCompanyPage and BusinessNamePage).retrieve.map {
         case areYouUKCompany ~ companyName =>
-          get(mode, Some(companyName), PartnershipAddressListPage, addressConfigurationForPostcodeAndCountry(areYouUKCompany))
+          get(mode, Some(companyName), PartnershipAddressListPage, addressConfigurationForPostcodeAndCountry(areYouUKCompany), manualAddressView)
       }
     }
 
@@ -75,7 +78,7 @@ class PartnershipContactAddressController @Inject()(
     (authenticate andThen getData andThen requireData).async { implicit request =>
       (AreYouUKCompanyPage and BusinessNamePage).retrieve.map {
         case areYouUKCompany ~ partnershipName =>
-          post(mode, Some(partnershipName), addressConfigurationForPostcodeAndCountry(areYouUKCompany))
+          post(mode, Some(partnershipName), addressConfigurationForPostcodeAndCountry(areYouUKCompany), manualAddressView)
       }
     }
 }

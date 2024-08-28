@@ -44,6 +44,7 @@ import play.api.mvc.Call
 import play.api.mvc.MessagesControllerComponents
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import views.html.address.ManualAddressView
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -58,7 +59,8 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
                                                             val controllerComponents: MessagesControllerComponents,
                                                             val config: FrontendAppConfig,
                                                             val renderer: Renderer,
-                                                            registrationConnector:RegistrationConnector
+                                                            registrationConnector:RegistrationConnector,
+                                                            manualAddressView: ManualAddressView
 )(implicit ec: ExecutionContext) extends ManualAddressController
   with Retrievals with I18nSupport with NunjucksSupport {
 
@@ -73,7 +75,7 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
       BusinessNamePage.retrieve.map { companyName =>
-        get(mode, Some(companyName), PartnershipAddressListPage, AddressConfiguration.CountryOnly)
+        get(mode, Some(companyName), PartnershipAddressListPage, AddressConfiguration.CountryOnly, manualAddressView)
       }
     }
 

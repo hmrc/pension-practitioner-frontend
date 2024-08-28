@@ -19,25 +19,29 @@ package controllers.company
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
+import controllers.company.routes
 import forms.address.UseAddressForContactFormProvider
+
 import javax.inject.Inject
 import models.requests.DataRequest
-import models.{NormalMode, TolerantAddress, Address, UserAnswers}
+import models.{Address, NormalMode, TolerantAddress, UserAnswers}
 import navigators.CompoundNavigator
-import pages.company.{CompanyRegisteredAddressPage, CompanyUseSameAddressPage, CompanyAddressPage}
-import pages.partnership.{ConfirmAddressPage, BusinessNamePage}
+import pages.company.{CompanyAddressPage, CompanyRegisteredAddressPage, CompanyUseSameAddressPage}
+import pages.partnership.{BusinessNamePage, ConfirmAddressPage}
 import pages.register.AreYouUKCompanyPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{Json, JsObject}
-import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModel
+import views.html.address.UseAddressForContactView
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 class CompanyUseSameAddressController @Inject()(override val messagesApi: MessagesApi,
@@ -49,7 +53,8 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
                                                 formProvider: UseAddressForContactFormProvider,
                                                 val controllerComponents: MessagesControllerComponents,
                                                 countryOptions: CountryOptions,
-                                                renderer: Renderer
+                                                renderer: Renderer,
+                                                useAddressForContactView: UseAddressForContactView
                                                )(implicit ec: ExecutionContext) extends FrontendBaseController
   with I18nSupport with NunjucksSupport with Retrievals {
 
@@ -60,7 +65,18 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
     implicit request =>
       val preparedForm = request.userAnswers.get(CompanyUseSameAddressPage).fold(form)(form.fill)
       getJson(preparedForm) { json =>
-        renderer.render("address/useAddressForContact.njk", json).map(Ok(_))
+        val template = TwirlMigration.duoTemplate(
+          renderer.render("address/useAddressForContact.njk", json),
+          useAddressForContactView(
+            routes.CompanyUseSameAddressController.onSubmit(),
+            preparedForm,
+            TwirlMigration.toTwirlRadios(Radios.yesNo(preparedForm("value"))),
+            (json \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
+            (json \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
+            (json  \ "address").asOpt[Seq[String]].getOrElse(Seq.empty[String])
+          )
+        )
+        template.map(Ok(_))
       }
   }
 
@@ -69,7 +85,18 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
         form.bindFromRequest().fold(
           formWithErrors => {
             getJson(formWithErrors) { json =>
-              renderer.render("address/useAddressForContact.njk", json).map(BadRequest(_))
+              val template = TwirlMigration.duoTemplate(
+                renderer.render("address/useAddressForContact.njk", json),
+                useAddressForContactView(
+                  routes.CompanyUseSameAddressController.onSubmit(),
+                  formWithErrors,
+                  TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value"))),
+                  (json \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
+                  (json \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
+                  (json  \ "address").asOpt[Seq[String]].getOrElse(Seq.empty[String])
+                )
+              )
+              template.map(Ok(_))
             }
           },
           value => {
