@@ -19,19 +19,24 @@ package controllers.address
 import connectors.cache.UserAnswersCacheConnector
 import controllers.{Retrievals, Variation}
 import models.requests.DataRequest
-import models.{Mode, TolerantAddress, Address}
+import models.{Address, Mode, TolerantAddress}
 import navigators.CompoundNavigator
 import pages.{AddressChange, QuestionPage}
 import play.api.data.Form
 import play.api.i18n.Messages
-import play.api.libs.json.{Json, JsObject}
-import play.api.mvc.{Result, Call, AnyContent}
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.{AnyContent, Call, Result}
+import play.twirl.api.Html
 import renderer.Renderer
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
+import views.html.address.AddressListView
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
 trait AddressListController extends FrontendBaseController with Retrievals with Variation {
 
@@ -41,8 +46,28 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
   protected def form(implicit messages: Messages): Form[Int]
   protected def viewTemplate = "address/addressList.njk"
 
-  def get(json: Form[Int] => JsObject)(implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] =
-          renderer.render(viewTemplate, json(form)).map(Ok(_))
+  def get(json: Form[Int] => JsObject, addressListview: Option[AddressListView] = None)(implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
+    val jsonValue: JsObject = json(form)
+    addressListview match {
+      case None => renderer.render(viewTemplate, jsonValue).map(Ok(_))
+      case Some(view) => renderer.render(viewTemplate, jsonValue).map(Ok(_))
+    }
+  }
+
+  def getV2(json: Form[Int] => JsObject, onSubmitCall: Call, manualUrl: String, addressListView: AddressListView)
+           (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
+    val jsonValue: JsObject = json(form)
+
+    TwirlMigration.duoTemplate(
+      renderer.render(viewTemplate, jsonValue),
+      addressListView(onSubmitCall,
+        form,
+        twirlAddressRadios(jsonValue),
+        (jsonValue \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
+        (jsonValue \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
+        manualUrl)
+    ).map(Ok(_))
+  }
 
   def post(mode: Mode, json: Form[Int] => JsObject, pages: AddressPages, manualUrlCall:Call)
           (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
@@ -74,12 +99,62 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
         )
   }
 
+  def postV2(mode: Mode, json: Form[Int] => JsObject, pages: AddressPages, manualUrlCall:Call, onSubmitCall: Call, manualUrl: String, addressListView: AddressListView)
+          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
+    form.bindFromRequest().fold(
+      formWithErrors => {
+        val jsonObject: JsObject = json(formWithErrors)
+        val view = addressListView(onSubmitCall,
+          formWithErrors,
+          twirlAddressRadios(jsonObject),
+          (jsonObject \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
+          (jsonObject \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
+          manualUrl)
+
+        TwirlMigration.duoTemplate(renderer.render(viewTemplate, json(formWithErrors)),
+          view).map(Ok(_))
+
+      },
+      value =>
+        pages.postcodePage.retrieve.map { addresses =>
+          val address = addresses(value).copy(countryOpt = Some("GB"))
+          address.toAddress match {
+            case Some(addr) =>
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(pages.addressPage,
+                  addr))
+                answersWithChangeFlag <- Future.fromTry(setChangeFlag(updatedAnswers, AddressChange))
+                _ <- userAnswersCacheConnector.save(answersWithChangeFlag.data)
+              } yield Redirect(navigator.nextPage(pages.addressListPage, mode, answersWithChangeFlag))
+            case None =>
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(pages.addressListPage,
+                  address)
+                )
+                _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+              } yield {
+                Redirect(manualUrlCall)
+              }
+          }
+        }
+    )
+  }
+
   def transformAddressesForTemplate(addresses:Seq[TolerantAddress], countryOptions: CountryOptions):Seq[JsObject] = {
     for ((row, i) <- addresses.zipWithIndex) yield {
       Json.obj(
         "value" -> i,
         "text" -> row.print(countryOptions)
       )
+    }
+  }
+
+  def twirlAddressRadios(jsonObject: JsObject): Seq[RadioItem] = {
+    (jsonObject \ "addresses").asOpt[Seq[JsObject]] match{
+      case Some(x) => x.map{json =>
+        RadioItem(content = Text((json \ "text").asOpt[String].getOrElse("")), value = (json \ "value").asOpt[String])
+      }
+      case _ => Seq.empty
     }
   }
 
