@@ -14,6 +14,8 @@
  * limitations under the License.
  *@
 
+@import viewmodels.CommonViewModelTwirl
+
 @this(
         layout: templates.Layout,
         formHelper: FormWithCSRF,
@@ -22,21 +24,21 @@
         govukButton: GovukButton
 )
 
-@(submitCall: Call, form: Form[Int], radios: Seq[RadioItem], entityType: String, entityName: String, enterManuallyUrl: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[Int], radios: Seq[RadioItem], model: CommonViewModelTwirl)(implicit request: Request[_], messages: Messages)
 
 
-@layout(messages("addressList.title", messages(entityType)), formHasErrors = form.hasErrors) {
-    @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
+@layout(messages("addressList.title", messages(model.entityType)), formHasErrors = form.hasErrors) {
+    @formHelper(action = model.submitUrl, Symbol("autoComplete") -> "off") {
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
         }
 
         <h1 class="govuk-heading-xl">
-        @messages("addressList.title", entityName)
+        @messages("addressList.title", model.entityName)
         </h1>
 
         <p class="govuk-body">
-            @Messages("addressList.select") <a href="@enterManuallyUrl" class="govuk-link">@Messages("address.linkText.enterManually")</a>.
+            @Messages("addressList.select") <a href="@model.enterManuallyUrl" class="govuk-link">@Messages("address.linkText.enterManually")</a>.
         </p>
 
         @govukRadios(
@@ -45,7 +47,7 @@
                 radios,
                 Fieldset(
                     legend = Some(Legend(
-                        content = Text(messages("addressList.h1", entityName)),
+                        content = Text(messages("addressList.h1", model.entityName)),
                         isPageHeading = false,
                         classes = "govuk-fieldset__legend--xl govuk-visually-hidden"
                     ))

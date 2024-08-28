@@ -34,6 +34,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
+import viewmodels.CommonViewModelTwirl
 import views.html.address.AddressListView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -46,73 +47,45 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
   protected def form(implicit messages: Messages): Form[Int]
   protected def viewTemplate = "address/addressList.njk"
 
-  def get(json: Form[Int] => JsObject, addressListview: Option[AddressListView] = None)(implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
+  def get(json: Form[Int] => JsObject, onSubmitCall: Call, manualUrl: String, twirlView: (CommonViewModelTwirl, Seq[RadioItem]) => Html)
+         (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
     val jsonValue: JsObject = json(form)
-    addressListview match {
-      case None => renderer.render(viewTemplate, jsonValue).map(Ok(_))
-      case Some(view) => renderer.render(viewTemplate, jsonValue).map(Ok(_))
-    }
-  }
 
-  def getV2(json: Form[Int] => JsObject, onSubmitCall: Call, manualUrl: String, addressListView: AddressListView)
-           (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
-    val jsonValue: JsObject = json(form)
+    val model = CommonViewModelTwirl(
+      entityType = (jsonValue \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
+      entityName = (jsonValue \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
+      submitUrl = onSubmitCall,
+      enterManuallyUrl = Some(manualUrl))
 
     TwirlMigration.duoTemplate(
       renderer.render(viewTemplate, jsonValue),
-      addressListView(onSubmitCall,
-        form,
-        twirlAddressRadios(jsonValue),
-        (jsonValue \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
-        (jsonValue \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
-        manualUrl)
+      twirlView(model, twirlAddressRadios(jsonValue))
     ).map(Ok(_))
   }
 
-  def post(mode: Mode, json: Form[Int] => JsObject, pages: AddressPages, manualUrlCall:Call)
-          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
-        form.bindFromRequest().fold(
-          formWithErrors =>
-            renderer.render(viewTemplate, json(formWithErrors)).map(BadRequest(_)),
-          value =>
-            pages.postcodePage.retrieve.map { addresses =>
-              val address = addresses(value).copy(countryOpt = Some("GB"))
-              address.toAddress match {
-                case Some(addr) =>
-                for {
-                  updatedAnswers <- Future.fromTry(request.userAnswers.set(pages.addressPage,
-                    addr))
-                  answersWithChangeFlag <- Future.fromTry(setChangeFlag(updatedAnswers, AddressChange))
-                  _ <- userAnswersCacheConnector.save(answersWithChangeFlag.data)
-                } yield Redirect(navigator.nextPage(pages.addressListPage, mode, answersWithChangeFlag))
-              case None =>
-                for {
-                  updatedAnswers <- Future.fromTry(request.userAnswers.set(pages.addressListPage,
-                      address)
-                    )
-                  _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-                } yield {
-                  Redirect(manualUrlCall)
-                }
-              }
-            }
-        )
-  }
-
-  def postV2(mode: Mode, json: Form[Int] => JsObject, pages: AddressPages, manualUrlCall:Call, onSubmitCall: Call, manualUrl: String, addressListView: AddressListView)
+  def post(mode: Mode,
+           json: Form[Int] => JsObject,
+           pages: AddressPages,
+           manualUrlCall:Call,
+           onSubmitCall: Call,
+           twirlView: (CommonViewModelTwirl, Seq[RadioItem]) => Html)
           (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
     form.bindFromRequest().fold(
       formWithErrors => {
         val jsonObject: JsObject = json(formWithErrors)
-        val view = addressListView(onSubmitCall,
-          formWithErrors,
-          twirlAddressRadios(jsonObject),
-          (jsonObject \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
-          (jsonObject \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
-          manualUrl)
 
-        TwirlMigration.duoTemplate(renderer.render(viewTemplate, json(formWithErrors)),
-          view).map(Ok(_))
+        val model = CommonViewModelTwirl(
+          entityType = (jsonObject \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
+          entityName = (jsonObject \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
+          submitUrl = onSubmitCall,
+          enterManuallyUrl = Some(manualUrlCall.url))
+
+        val radios = twirlAddressRadios(jsonObject)
+
+        TwirlMigration.duoTemplate(
+          renderer.render(viewTemplate, json(formWithErrors)),
+          twirlView(model, radios)
+        ).map(Ok(_))
 
       },
       value =>

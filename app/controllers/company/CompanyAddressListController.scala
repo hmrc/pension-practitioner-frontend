@@ -29,11 +29,12 @@ import pages.company.{BusinessNamePage, CompanyAddressListPage, CompanyAddressPa
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request}
 import renderer.Renderer
+import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.countryOptions.CountryOptions
-import viewmodels.CommonViewModel
+import viewmodels.{CommonViewModel, CommonViewModelTwirl}
 import views.html.address.AddressListView
 
 import scala.concurrent.ExecutionContext
@@ -59,20 +60,23 @@ class CompanyAddressListController @Inject()(override val messagesApi: MessagesA
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
-        getFormToJson(mode).retrieve.map(x => getV2(x,
-          routes.CompanyAddressListController.onSubmit(mode),
-          routes.CompanyContactAddressController.onPageLoad(mode).url,
-          addressListView))
+        getFormToJson(mode).retrieve.map(x =>
+          get(
+            x,
+            routes.CompanyAddressListController.onSubmit(mode),
+            routes.CompanyContactAddressController.onPageLoad(mode).url,
+            (model: CommonViewModelTwirl, radios: Seq[RadioItem]) => addressListView(form, radios, model)
+          )
+        )
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
         val addressPages: AddressPages = AddressPages(CompanyPostcodePage, CompanyAddressListPage, CompanyAddressPage)
-        getFormToJson(mode).retrieve.map(postV2(mode, _, addressPages, manualUrlCall = routes.CompanyContactAddressController.onPageLoad(mode),
+        getFormToJson(mode).retrieve.map(post(mode, _, addressPages, manualUrlCall = routes.CompanyContactAddressController.onPageLoad(mode),
           routes.CompanyAddressListController.onSubmit(mode),
-          routes.CompanyContactAddressController.onPageLoad(mode).url,
-          addressListView
+          (model: CommonViewModelTwirl, radios: Seq[RadioItem]) => addressListView(form, radios, model)
         ))
     }
 

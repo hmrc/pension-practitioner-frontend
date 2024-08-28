@@ -31,9 +31,10 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
+import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.countryOptions.CountryOptions
-import viewmodels.CommonViewModel
+import viewmodels.{CommonViewModel, CommonViewModelTwirl}
 import views.html.address.AddressListView
 
 import scala.concurrent.ExecutionContext
@@ -59,20 +60,27 @@ class PartnershipAddressListController @Inject()(override val messagesApi: Messa
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
-        getFormToJson(mode).retrieve.map(x => getV2(x,
+        getFormToJson(mode).retrieve.map(x => get(x,
           routes.PartnershipAddressListController.onSubmit(mode),
           routes.PartnershipContactAddressController.onPageLoad(mode).url,
-          addressListView))
+          (model: CommonViewModelTwirl, radios: Seq[RadioItem]) => addressListView(form, radios, model)(implicitly, implicitly))
+      )
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
         val addressPages: AddressPages = AddressPages(PartnershipPostcodePage, PartnershipAddressListPage, PartnershipAddressPage)
-        getFormToJson(mode).retrieve.map(postV2(mode, _, addressPages, manualUrlCall = routes.PartnershipContactAddressController.onPageLoad(mode),
-          routes.PartnershipAddressListController.onSubmit(mode),
-          routes.PartnershipContactAddressController.onPageLoad(mode).url,
-          addressListView))
+        getFormToJson(mode).retrieve.map(
+          post(
+            mode,
+            _,
+            addressPages,
+            manualUrlCall = routes.PartnershipContactAddressController.onPageLoad(mode),
+            routes.PartnershipAddressListController.onSubmit(mode),
+            (model: CommonViewModelTwirl, radios: Seq[RadioItem]) => addressListView(form, radios, model)(implicitly, implicitly)
+          )
+        )
     }
 
   def getFormToJson(mode: Mode): Retrieval[Form[Int] => JsObject] =

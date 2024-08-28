@@ -29,10 +29,10 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
+import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.countryOptions.CountryOptions
-import viewmodels.CommonViewModel
-import views.html.address.AddressListView
+import viewmodels.{CommonViewModel, CommonViewModelTwirl}
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -47,7 +47,7 @@ class IndividualAddressListController @Inject()(override val messagesApi: Messag
                                                 val controllerComponents: MessagesControllerComponents,
                                                 countryOptions: CountryOptions,
                                                 val renderer: Renderer,
-                                                addressListView: AddressListView
+                                                addressListView: views.html.individual.AddressListView
                                                )(implicit ec: ExecutionContext) extends AddressListController
   with Retrievals with I18nSupport with NunjucksSupport {
 
@@ -61,9 +61,9 @@ class IndividualAddressListController @Inject()(override val messagesApi: Messag
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
         getFormToJson(mode).retrieve.map(
-          getV2(_,routes.IndividualAddressListController.onSubmit(mode),
+          get(_,routes.IndividualAddressListController.onSubmit(mode),
             routes.IndividualContactAddressController.onSubmit(mode).url,
-            addressListView)
+            (model: CommonViewModelTwirl, radios: Seq[RadioItem]) => addressListView(model, form, radios)(implicitly, implicitly))
         )
     }
 
@@ -72,11 +72,12 @@ class IndividualAddressListController @Inject()(override val messagesApi: Messag
       implicit request =>
         val addressPages: AddressPages = AddressPages(IndividualPostcodePage, IndividualAddressListPage, IndividualManualAddressPage)
         getFormToJson(mode).retrieve.map(
-          postV2(mode, _,
+          post(mode, _,
             addressPages,
             manualUrlCall = routes.IndividualContactAddressController.onPageLoad(mode),
             routes.IndividualAddressListController.onSubmit(mode),
-            routes.IndividualContactAddressController.onSubmit(mode).url, addressListView))
+            (model: CommonViewModelTwirl, radios: Seq[RadioItem]) => addressListView(model, form, radios)(implicitly, implicitly))
+        )
 }
 
   private def getFormToJson(mode: Mode): Retrieval[Form[Int] => JsObject] =
