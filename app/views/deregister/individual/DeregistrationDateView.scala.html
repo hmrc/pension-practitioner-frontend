@@ -19,12 +19,12 @@
         formHelper: FormWithCSRF,
         govukErrorSummary: GovukErrorSummary,
         govukInput: GovukInput,
+        govukDateInput: GovukDateInput,
         govukButton: GovukButton
 )
 
 @(submitCall: Call, form: Form[java.time.LocalDate], returnUrl: String, applicationDate: String, viewmodel: uk.gov.hmrc.viewmodels.DateInput.ViewModel)(implicit request: Request[_], messages: Messages)
 
-@field = @{form("value")}
 
 @layout(messages("deregistrationDate.individual.title")) {
 
@@ -37,10 +37,16 @@
 
         <p class="govuk-body">@messages("deregistrationDate.individual.p1", applicationDate)</p>
 
-
+        @govukDateInput(
+            DateViewModel(
+            field  = form("deregistrationDate"),
+            legend = Legend()
+            )
+        .withHint(HintViewModel(Text(messages("site.date.example"))))
+        )
 
         @govukButton(
-            ButtonViewModel(Text(messages("findAddress"))).asFormSubmit
+            ButtonViewModel(Text(messages("site.save_and_continue"))).asFormSubmit
         )
 
     <p class="govuk-body"><a href="@returnUrl" class="govuk-link">@messages("site.return_to_overview")</a></p>

@@ -19,6 +19,7 @@
         formHelper: FormWithCSRF,
         govukErrorSummary: GovukErrorSummary,
         govukInput: GovukInput,
+        govukDateInput: GovukDateInput,
         govukButton: GovukButton
 )
 
@@ -37,21 +38,16 @@
 
         <p class="govuk-body">@messages("deregistrationDate.company.p1", pspName, applicationDate)</p>
 
-        @govukInput(
-            InputViewModel(
-                field = field,
-                classes = "govuk-input--width-10",
-                label = Label(
-                    isPageHeading = false,
-                    classes = "govuk-fieldset__legend--s govuk-visually-hidden",
-                    content = Text(messages("deregistrationDate.company.heading", pspName))
-                ),
-                hint = Some(new Hint(content = Text(messages("site.date.example"))))
-            )
+
+        @govukDateInput(
+            DateViewModel(
+            field  = form("deregistrationDate"),
+            legend = Legend())
+        .withHint(HintViewModel(Text(messages("site.date.example"))))
         )
 
         @govukButton(
-            ButtonViewModel(Text(messages("findAddress"))).asFormSubmit
+            ButtonViewModel(Text(messages("site.save_and_continue"))).asFormSubmit
         )
 
     <p class="govuk-body"><a href="@returnUrl" class="govuk-link">@messages("site.return_to", pspName)</a></p>
