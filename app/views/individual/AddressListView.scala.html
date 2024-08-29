@@ -36,11 +36,10 @@
 
         <h1 class="govuk-heading-xl">@messages("addressList.h1", viewModel.entityName)</h1>
 
-        @if(viewModel.enterManuallyUrl.isDefined) {
-            <p class="govuk-body">
-                @govukButton(ButtonViewModel(Text(messages("address.linkText.enterManually"))).asLink(viewModel.enterManuallyUrl.get))
-            </p>
-        }
+        <p class="govuk-body">
+            @messages("addressList.select")
+            <a href="@viewModel.enterManuallyUrl" class="govuk-link">@messages("address.linkText.enterManually")</a>.
+        </p>
 
         @govukRadios(
             RadiosViewModel(
