@@ -32,7 +32,5 @@
         @messages("pageNotFound404.p2")
     </p>
 
-    @govukButton(
-        ButtonViewModel(Text(messages("site.view_schemes"))).asLink(yourPensionSchemesUrl)
-    )
+    <a href="@yourPensionSchemesUrl" class="govuk-link">@messages("site.view_schemes")</a>
 }

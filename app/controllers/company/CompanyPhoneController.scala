@@ -64,7 +64,7 @@ class CompanyPhoneController @Inject()(override val messagesApi: MessagesApi,
             phoneView(model, formFilled)
           )
 
-          template.map(BadRequest(_))
+          template.map(Ok(_))
         }
     }
 

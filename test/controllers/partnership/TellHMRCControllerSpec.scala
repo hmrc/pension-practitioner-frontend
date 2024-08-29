@@ -40,7 +40,7 @@ class TellHMRCControllerSpec extends ControllerSpecBase with MockitoSugar with J
         .thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(SampleData.emptyUserAnswers)).build()
-      val request = FakeRequest(GET, controllers.partnership.routes.TellHMRCController.onPageLoad().url)
+      val request = FakeRequest(GET, controllers.routes.TellHMRCController.onPageLoad("partnership").url)
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
       val hmrcUrl = "url1"
