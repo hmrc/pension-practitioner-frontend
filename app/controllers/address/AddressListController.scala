@@ -35,6 +35,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModelTwirl
+import views.html.address.AddressListView
 
 import scala.concurrent.{ExecutionContext, Future}
 
