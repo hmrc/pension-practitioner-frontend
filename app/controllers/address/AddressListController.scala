@@ -124,7 +124,7 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
   def twirlAddressRadios(jsonObject: JsObject): Seq[RadioItem] = {
     (jsonObject \ "addresses").asOpt[Seq[JsObject]] match{
       case Some(x) => x.map{json =>
-        RadioItem(content = Text((json \ "text").asOpt[String].getOrElse("")), value = (json \ "value").asOpt[String])
+        RadioItem(content = Text((json \ "text").asOpt[String].getOrElse("")), value = (json \ "value").asOpt[Int].map(_.toString))
       }
       case _ => Seq.empty
     }
