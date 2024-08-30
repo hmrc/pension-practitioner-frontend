@@ -119,7 +119,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
                   getDateString(date),
                   DateInput.localDate(formWithErrors("deregistrationDate"))
                 )
-              ).map(Ok(_))
+              ).map(BadRequest(_))
             },
             value =>
 

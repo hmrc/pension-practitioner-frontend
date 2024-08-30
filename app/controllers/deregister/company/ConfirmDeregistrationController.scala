@@ -118,7 +118,7 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
                 TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value"))),
                 name,
                 config.returnToPspDashboardUrl)
-            ).map(Ok(_))
+            ).map(BadRequest(_))
           },
           value =>
             for {
