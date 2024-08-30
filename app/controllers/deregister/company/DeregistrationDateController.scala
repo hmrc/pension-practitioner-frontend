@@ -88,7 +88,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
               preparedForm,
               config.returnToPspDashboardUrl,
               getDateString(date),
-              DateInput.localDate(preparedForm("deregistrationDate")),
+              DateInput.localDate(preparedForm("deregistrationDate"))
               )
           ).map(Ok(_))
         }
@@ -117,7 +117,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
                   formWithErrors,
                   config.returnToPspDashboardUrl,
                   getDateString(date),
-                  DateInput.localDate(formWithErrors("deregistrationDate")),
+                  DateInput.localDate(formWithErrors("deregistrationDate"))
                 )
               ).map(Ok(_))
             },
