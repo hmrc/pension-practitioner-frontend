@@ -75,7 +75,7 @@ class CompanyAddressListController @Inject()(override val messagesApi: MessagesA
         val addressPages: AddressPages = AddressPages(CompanyPostcodePage, CompanyAddressListPage, CompanyAddressPage)
         getFormToJson(mode).retrieve.map(post(mode, _, addressPages, manualUrlCall = routes.CompanyContactAddressController.onPageLoad(mode),
           routes.CompanyAddressListController.onSubmit(mode),
-          (model: CommonViewModelTwirl, radios: Seq[RadioItem]) => addressListView(form, radios, model)
+          (model: CommonViewModelTwirl, radios: Seq[RadioItem], formWithErrors: Form[Int]) => addressListView(formWithErrors, radios, model)
         ))
     }
 

@@ -76,7 +76,7 @@ class IndividualAddressListController @Inject()(override val messagesApi: Messag
             addressPages,
             manualUrlCall = routes.IndividualContactAddressController.onPageLoad(mode),
             routes.IndividualAddressListController.onSubmit(mode),
-            (model: CommonViewModelTwirl, radios: Seq[RadioItem]) => addressListView(model, form, radios)(implicitly, implicitly))
+            (model: CommonViewModelTwirl, radios: Seq[RadioItem], formWithErrors: Form[Int]) => addressListView(model, formWithErrors, radios)(implicitly, implicitly))
         )
 }
 

@@ -67,7 +67,7 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
            pages: AddressPages,
            manualUrlCall:Call,
            onSubmitCall: Call,
-           twirlView: (CommonViewModelTwirl, Seq[RadioItem]) => Html)
+           twirlView: (CommonViewModelTwirl, Seq[RadioItem], Form[Int]) => Html)
           (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
     form.bindFromRequest().fold(
       formWithErrors => {
@@ -83,7 +83,7 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
 
         TwirlMigration.duoTemplate(
           renderer.render(viewTemplate, json(formWithErrors)),
-          twirlView(model, radios)
+          twirlView(model, radios, formWithErrors)
         ).map(Ok(_))
 
       },

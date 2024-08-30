@@ -78,7 +78,7 @@ class PartnershipAddressListController @Inject()(override val messagesApi: Messa
             addressPages,
             manualUrlCall = routes.PartnershipContactAddressController.onPageLoad(mode),
             routes.PartnershipAddressListController.onSubmit(mode),
-            (model: CommonViewModelTwirl, radios: Seq[RadioItem]) => addressListView(form, radios, model)(implicitly, implicitly)
+            (model: CommonViewModelTwirl, radios: Seq[RadioItem], formWithErrors: Form[Int]) => addressListView(formWithErrors, radios, model)(implicitly, implicitly)
           )
         )
     }
