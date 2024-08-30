@@ -28,7 +28,7 @@ import models.SubscriptionType.Variation
 import models.register.RegistrationCustomerType.{NonUK, UK}
 import models.register.RegistrationLegalStatus._
 import models.register.{RegistrationDetails, RegistrationIdType}
-import models.{CheckMode, UserAnswers}
+import models.{CheckMode, PspDetailsData, UserAnswers}
 import pages.company.{CompanyAddressPage, CompanyEmailPage, CompanyPhonePage}
 import pages.individual._
 import pages.partnership._
@@ -74,39 +74,6 @@ class PspDetailsService @Inject()(
     }
   }
 
-  private case class PspDetailsDataJsonObject(
-                                       pageTitle: String,
-                                       heading: String,
-                                       list: Seq[Row],
-                                       returnLink: Option[String],
-                                       returnUrl: Option[String],
-                                       displayContinueButton: Boolean,
-                                       nextPage: String
-                                     )
-
-
-  case class PspDetailsData(
-                           pageTitle: String,
-                           heading: String,
-                           list: Seq[Row],
-                           returnLinkAndUrl: Option[(String, String)],
-                           displayContinueButton: Boolean,
-                           nextPage: String
-                           ) {
-    def toJson(implicit messages: Messages): JsObject = {
-      implicit val rowWrites: OWrites[Row] = Row.writes
-      implicit val pspJsonFormat: OWrites[PspDetailsDataJsonObject] = Json.writes[PspDetailsDataJsonObject]
-      Json.toJson(PspDetailsDataJsonObject(
-        pageTitle,
-        heading,
-        list,
-        returnLinkAndUrl.map(_._1),
-        returnLinkAndUrl.map(_._2),
-        displayContinueButton,
-        nextPage
-      )).as[JsObject]
-    }
-  }
   def getData(userAnswers: Option[UserAnswers], pspId: String)
              (implicit messages: Messages, hc: HeaderCarrier, ec: ExecutionContext): Future[PspDetailsData] =
     getUserAnswers(userAnswers, pspId).flatMap {

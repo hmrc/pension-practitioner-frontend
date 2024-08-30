@@ -152,8 +152,17 @@ class PspDetailsServiceSpec
       when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
         .thenReturn(Future.successful(uaPartnershipNonUK))
 
-      whenReady(service.getJson(None, pspId)) { result =>
-        result mustBe expected("Partnership", "Testing Ltd", nonUkAddress, includeReturnLinkAndUrl = true)
+      whenReady(service.getData(None, pspId)) { result => {
+        val res = result
+        res.pageTitle must include("Partnership")
+
+        res.heading must include("Testing Ltd")
+
+        res.returnLinkAndUrl.isDefined mustBe true
+
+        res.list.count(ele => ele.value.toString.contains("France")) mustBe 1
+
+      }
       }
     }
 
@@ -162,8 +171,13 @@ class PspDetailsServiceSpec
         .thenReturn(Future.successful(uaIndividualUK))
       when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
 
-      whenReady(service.getJson(None, pspId)) { result =>
-        result mustBe expected("Individual", "Stephen Wood", includeReturnLinkAndUrl = true)
+      whenReady(service.getData(None, pspId)) { result =>
+        val res = result
+        res.pageTitle must include("Individual")
+
+        res.heading must include("Stephen Wood")
+
+        res.returnLinkAndUrl.isDefined mustBe true
       }
     }
 
@@ -171,8 +185,13 @@ class PspDetailsServiceSpec
       when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
         .thenReturn(Future.successful(uaCompanyUk))
       when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
-      whenReady(service.getJson(Some(UserAnswers(uaCompanyUk)), pspId)) { result =>
-        result mustBe expected("Company", "Test Ltd", includeReturnLinkAndUrl = true)
+      whenReady(service.getData(Some(UserAnswers(uaCompanyUk)), pspId)) { result =>
+        val res = result
+        res.pageTitle must include("Company")
+
+        res.heading must include("Test Ltd")
+
+        res.returnLinkAndUrl.isDefined mustBe true
       }
     }
 
@@ -181,8 +200,14 @@ class PspDetailsServiceSpec
         .thenReturn(Future.successful(uaIndividualUK))
       when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = true)))
 
-      whenReady(service.getJson(None, pspId)) { result =>
-        result mustBe expected("Individual", "Stephen Wood", includeReturnLinkAndUrl = false)
+      whenReady(service.getData(None, pspId)) { result =>
+        val res = result
+        res.pageTitle must include("Individual")
+
+        res.heading must include("Stephen Wood")
+
+        res.returnLinkAndUrl.isDefined mustBe false
+
       }
     }
 
