@@ -23,7 +23,7 @@ govukPanel: GovukPanel
 
 @(submitUrl: String)(implicit request: Request[_], messages: Messages)
 
-@layout(messages("deregistrationSuccess.individual.title")) {
+@layout(messages("deregistrationSuccess.individual.title"), showBackLink = false) {
 
     @govukPanel(
         Panel(
