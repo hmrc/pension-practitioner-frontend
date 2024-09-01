@@ -100,7 +100,7 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
                 (json  \ "address").asOpt[Seq[String]].getOrElse(Seq.empty[String])
               )
             )
-            template.map(Ok(_))
+            template.map(BadRequest(_))
           }
         },
         value => {

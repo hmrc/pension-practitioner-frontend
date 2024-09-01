@@ -84,7 +84,7 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
         TwirlMigration.duoTemplate(
           renderer.render(viewTemplate, json(formWithErrors)),
           twirlView(model, radios, formWithErrors)
-        ).map(Ok(_))
+        ).map(BadRequest(_))
 
       },
       value =>

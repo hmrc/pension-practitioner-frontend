@@ -96,7 +96,7 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
                   (json  \ "address").asOpt[Seq[String]].getOrElse(Seq.empty[String])
                 )
               )
-              template.map(Ok(_))
+              template.map(BadRequest(_))
             }
           },
           value => {

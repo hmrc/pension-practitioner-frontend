@@ -122,7 +122,7 @@ trait ManualAddressController
               formWithErrors
           )
           )
-          template.map(Ok(_))
+          template.map(BadRequest(_))
         },
         value =>
           for {

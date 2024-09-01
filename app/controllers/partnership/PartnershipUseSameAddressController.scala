@@ -109,7 +109,7 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
                 (json  \ "address").asOpt[Seq[String]].getOrElse(Seq.empty[String])
               )
             )
-            template.map(Ok(_))
+            template.map(BadRequest(_))
           }
         },
         value => {

@@ -93,7 +93,7 @@ class IsCompanyRegisteredInUkController @Inject()(override val messagesApi: Mess
               TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value")))
             )
           )
-          template.map(Ok(_))
+          template.map(BadRequest(_))
         },
         value =>
           for {
