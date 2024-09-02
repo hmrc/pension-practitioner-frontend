@@ -45,7 +45,8 @@ class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
                                       formProvider: ConfirmNameFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
                                       confirmNameView: ConfirmNameView,
-                                      renderer: Renderer
+                                      renderer: Renderer,
+                                      twirlMigration: TwirlMigration
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
 
   private val form = formProvider("confirmName.partnership.error.required")
@@ -66,7 +67,7 @@ class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
           "radios" -> Radios.yesNo(preparedForm("value"))
         )
 
-        def template = TwirlMigration.duoTemplate(
+        def template = twirlMigration.duoTemplate(
           renderer.render(template = "confirmName.njk", json),
           confirmNameView(
             "partnership",
@@ -94,7 +95,7 @@ class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
               "radios" -> Radios.yesNo(formWithErrors("value"))
             )
 
-            def template = TwirlMigration.duoTemplate(
+            def template = twirlMigration.duoTemplate(
               renderer.render(template = "confirmName.njk", json),
               confirmNameView(
                 "partnership",

@@ -47,7 +47,8 @@ class PartnershipEmailController @Inject()(override val messagesApi: MessagesApi
                                            formProvider: EmailFormProvider,
                                            val controllerComponents: MessagesControllerComponents,
                                            renderer: Renderer,
-                                           emailView: EmailView
+                                           emailView: EmailView,
+                                           twirlMigration: TwirlMigration
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController
   with Retrievals with I18nSupport with NunjucksSupport with Variation {
 
@@ -59,7 +60,7 @@ class PartnershipEmailController @Inject()(override val messagesApi: MessagesApi
       implicit request =>
         val formFilled = request.userAnswers.get(PartnershipEmailPage).fold(form)(form.fill)
         getModel(mode) { model =>
-          val template = TwirlMigration.duoTemplate(
+          val template = twirlMigration.duoTemplate(
             renderer.render("email.njk", TwirlMigration.nunjucksGetJson(formFilled, model.toNunjucks)),
             emailView(model, formFilled)
           )
@@ -73,7 +74,7 @@ class PartnershipEmailController @Inject()(override val messagesApi: MessagesApi
         form.bindFromRequest().fold(
           formWithErrors =>
             getModel(mode) { model =>
-              val template = TwirlMigration.duoTemplate(
+              val template = twirlMigration.duoTemplate(
                 renderer.render("email.njk", TwirlMigration.nunjucksGetJson(formWithErrors, model.toNunjucks)),
                 emailView(model, formWithErrors)
               )

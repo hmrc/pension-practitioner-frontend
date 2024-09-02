@@ -36,6 +36,7 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.TwirlMigration
 import views.html.address.ManualAddressView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -51,7 +52,8 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
                                                         val config: FrontendAppConfig,
                                                         val renderer: Renderer,
                                                         registrationConnector:RegistrationConnector,
-                                                        manualAddressView: ManualAddressView
+                                                        manualAddressView: ManualAddressView,
+                                                        val twirlMigration: TwirlMigration
 )(implicit ec: ExecutionContext) extends ManualAddressController
   with Retrievals with I18nSupport with NunjucksSupport {
 

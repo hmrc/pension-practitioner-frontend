@@ -33,14 +33,15 @@ class ViewDetailsController @Inject()(@AuthMustHaveEnrolmentWithNoIV authenticat
                                       pspDetailsService: PspDetailsService,
                                       renderer: Renderer,
                                       val controllerComponents: MessagesControllerComponents,
-                                      viewDetailsView: views.html.amend.ViewDetailsView
+                                      viewDetailsView: views.html.amend.ViewDetailsView,
+                                      twirlMigration: TwirlMigration
                                     )(implicit val executionContext: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData).async {
     implicit request =>
       request.user.alreadyEnrolledPspId.map { pspId =>
           pspDetailsService.getData(request.userAnswers, pspId).flatMap { data =>
-            val template = TwirlMigration.duoTemplate(
+            val template = twirlMigration.duoTemplate(
               renderer.render("amend/viewDetails.njk", data.toJson),
               viewDetailsView(
                 data.pageTitle,

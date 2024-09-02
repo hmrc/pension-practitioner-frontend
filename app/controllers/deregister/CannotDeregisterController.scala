@@ -32,12 +32,13 @@ import scala.concurrent.ExecutionContext
 class CannotDeregisterController @Inject()(config: FrontendAppConfig,
                                            val controllerComponents: MessagesControllerComponents,
                                            renderer: Renderer,
-                                           cannotDeregisterView: CannotDeregisterView
+                                           cannotDeregisterView: CannotDeregisterView,
+                                           twirlMigration: TwirlMigration
                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = Action.async { implicit request =>
     val json = Json.obj("returnUrl" -> config.pspListSchemesUrl)
-    TwirlMigration.duoTemplate(
+    twirlMigration.duoTemplate(
       renderer.render("deregister/cannotDeregister.njk", json),
       cannotDeregisterView(
         config.pspListSchemesUrl

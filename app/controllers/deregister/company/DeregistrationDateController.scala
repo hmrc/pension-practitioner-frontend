@@ -61,7 +61,8 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
                                              renderer: Renderer,
                                              emailConnector: EmailConnector,
                                              auditService: AuditService,
-                                             deregistrationDateView: DeregistrationDateView
+                                             deregistrationDateView: DeregistrationDateView,
+                                             twirlMigration: TwirlMigration
                                             )(implicit ec: ExecutionContext)
   extends FrontendBaseController with Retrievals with I18nSupport with NunjucksSupport {
 
@@ -81,7 +82,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
             "applicationDate" -> getDateString(date),
             "returnUrl" -> config.returnToPspDashboardUrl
           )
-          TwirlMigration.duoTemplate(
+          twirlMigration.duoTemplate(
             renderer.render("deregister/company/deregistrationDate.njk", json),
             deregistrationDateView(routes.DeregistrationDateController.onSubmit(),
               name,
@@ -110,7 +111,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
                 "applicationDate" -> getDateString(date)
               )
 
-              TwirlMigration.duoTemplate(
+              twirlMigration.duoTemplate(
                 renderer.render("deregister/company/deregistrationDate.njk", json),
                 deregistrationDateView(routes.DeregistrationDateController.onSubmit(),
                   pspName,

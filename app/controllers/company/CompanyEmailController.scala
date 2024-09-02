@@ -47,7 +47,8 @@ class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
                                        formProvider: EmailFormProvider,
                                        val controllerComponents: MessagesControllerComponents,
                                        emailView: EmailView,
-                                       renderer: Renderer
+                                       renderer: Renderer,
+                                       twirlMigration: TwirlMigration
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController
   with Retrievals with I18nSupport with NunjucksSupport with Variation {
 
@@ -59,7 +60,7 @@ class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
       implicit request =>
         val formFilled = request.userAnswers.get(CompanyEmailPage).fold(form)(form.fill)
         getModel(mode) { model =>
-          TwirlMigration.duoTemplate(
+          twirlMigration.duoTemplate(
             renderer.render("email.njk", TwirlMigration.nunjucksGetJson(formFilled, model.toNunjucks)),
             emailView(model, formFilled)
           ).map(Ok(_))
@@ -72,7 +73,7 @@ class CompanyEmailController @Inject()(override val messagesApi: MessagesApi,
         form.bindFromRequest().fold(
           formWithErrors =>
             getModel(mode) { model =>
-              TwirlMigration.duoTemplate(
+              twirlMigration.duoTemplate(
                 renderer.render("email.njk", TwirlMigration.nunjucksGetJson(formWithErrors, model.toNunjucks)),
                 emailView(model, formWithErrors)
               ).map(BadRequest(_))

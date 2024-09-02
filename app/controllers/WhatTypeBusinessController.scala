@@ -45,7 +45,8 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
                                            val controllerComponents: MessagesControllerComponents,
                                            renderer: Renderer,
                                            auditService: AuditService,
-                                           whatTypeBusinessView: WhatTypeBusinessView
+                                           whatTypeBusinessView: WhatTypeBusinessView,
+                                           twirlMigration: TwirlMigration
                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
 
   private val form = formProvider()
@@ -64,7 +65,7 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
         "radios" -> WhatTypeBusiness.radios(preparedForm)
       )
 
-      val template = TwirlMigration.duoTemplate(
+      val template = twirlMigration.duoTemplate(
         renderer.render("whatTypeBusiness.njk", json),
         whatTypeBusinessView(
           routes.WhatTypeBusinessController.onSubmit(),

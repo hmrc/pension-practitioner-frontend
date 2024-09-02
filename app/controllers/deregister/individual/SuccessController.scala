@@ -38,7 +38,8 @@ class SuccessController @Inject()(override val messagesApi: MessagesApi,
                                   requireData: DataRequiredAction,
                                   val controllerComponents: MessagesControllerComponents,
                                   renderer: Renderer,
-                                  successView: SuccessView
+                                  successView: SuccessView,
+                                  twirlMigration: TwirlMigration
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController
   with Retrievals with I18nSupport with NunjucksSupport {
 
@@ -48,7 +49,7 @@ class SuccessController @Inject()(override val messagesApi: MessagesApi,
             "submitUrl" -> controllers.routes.SignOutController.signOut().url
           )
           userAnswersCacheConnector.removeAll.flatMap { _ =>
-            TwirlMigration.duoTemplate(
+            twirlMigration.duoTemplate(
               renderer.render("deregister/individual/success.njk", json),
               successView(
                 controllers.routes.SignOutController.signOut().url

@@ -20,8 +20,6 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import forms.address.UseAddressForContactFormProvider
-
-import javax.inject.Inject
 import models.requests.DataRequest
 import models.{Address, Mode, NormalMode, TolerantAddress}
 import navigators.CompoundNavigator
@@ -30,7 +28,6 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import play.twirl.api.Html
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
@@ -40,6 +37,7 @@ import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModel
 import views.html.address.UseAddressForContactView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class UseAddressForContactController @Inject()(override val messagesApi: MessagesApi,
@@ -52,7 +50,8 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
                                                val controllerComponents: MessagesControllerComponents,
                                                countryOptions: CountryOptions,
                                                renderer: Renderer,
-                                               useAddressForContactView: UseAddressForContactView
+                                               useAddressForContactView: UseAddressForContactView,
+                                               twirlMigration: TwirlMigration
                                               )(implicit ec: ExecutionContext) extends FrontendBaseController
   with I18nSupport with NunjucksSupport with Retrievals {
 
@@ -65,7 +64,7 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
         case Some(true) =>
           val preparedForm = request.userAnswers.get(UseAddressForContactPage).fold(form)(form.fill)
           getJson(preparedForm) { json =>
-                  val template = TwirlMigration.duoTemplate(
+                  val template = twirlMigration.duoTemplate(
                   renderer.render("address/useAddressForContact.njk", json),
                   useAddressForContactView(
                     routes.UseAddressForContactController.onSubmit(),
@@ -89,7 +88,7 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
       form.bindFromRequest().fold(
         formWithErrors => {
           getJson(formWithErrors) { json =>
-            val template = TwirlMigration.duoTemplate(
+            val template = twirlMigration.duoTemplate(
               renderer.render("address/useAddressForContact.njk", json),
               useAddressForContactView(
                 routes.UseAddressForContactController.onSubmit(),

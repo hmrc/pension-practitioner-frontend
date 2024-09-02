@@ -54,7 +54,8 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
                                                 val controllerComponents: MessagesControllerComponents,
                                                 countryOptions: CountryOptions,
                                                 renderer: Renderer,
-                                                useAddressForContactView: UseAddressForContactView
+                                                useAddressForContactView: UseAddressForContactView,
+                                                twirlMigration: TwirlMigration
                                                )(implicit ec: ExecutionContext) extends FrontendBaseController
   with I18nSupport with NunjucksSupport with Retrievals {
 
@@ -65,7 +66,7 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
     implicit request =>
       val preparedForm = request.userAnswers.get(CompanyUseSameAddressPage).fold(form)(form.fill)
       getJson(preparedForm) { json =>
-        val template = TwirlMigration.duoTemplate(
+        val template = twirlMigration.duoTemplate(
           renderer.render("address/useAddressForContact.njk", json),
           useAddressForContactView(
             routes.CompanyUseSameAddressController.onSubmit(),
@@ -85,7 +86,7 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
         form.bindFromRequest().fold(
           formWithErrors => {
             getJson(formWithErrors) { json =>
-              val template = TwirlMigration.duoTemplate(
+              val template = twirlMigration.duoTemplate(
                 renderer.render("address/useAddressForContact.njk", json),
                 useAddressForContactView(
                   routes.CompanyUseSameAddressController.onSubmit(),

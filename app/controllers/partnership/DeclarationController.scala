@@ -57,7 +57,8 @@ class DeclarationController @Inject()(
                                        knownFactsRetrieval: KnownFactsRetrieval,
                                        enrolment: EnrolmentConnector,
                                        config: FrontendAppConfig,
-                                       declarationView: DeclarationView
+                                       declarationView: DeclarationView,
+                                       twirlMigration: TwirlMigration
                                      )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with Retrievals
@@ -68,7 +69,7 @@ class DeclarationController @Inject()(
     (authenticate andThen getData andThen requireData).async { implicit request =>
       val submitUrl = routes.DeclarationController.onSubmit().url
       val json = Json.obj("submitUrl" -> submitUrl)
-      val template = TwirlMigration.duoTemplate(
+      val template = twirlMigration.duoTemplate(
         renderer.render("register/declaration.njk", json),
         declarationView(routes.DeclarationController.onSubmit())
       )

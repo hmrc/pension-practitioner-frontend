@@ -46,11 +46,13 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
   protected def addressLookupConnector: AddressLookupConnector
   protected def viewTemplate = "address/postcode.njk"
 
+  protected def twirlMigration: TwirlMigration
+
   def get(json: Form[String] => JsObject, twirlTemplate: Option[Html] = None)
          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
     twirlTemplate match {
       case Some(template) =>
-        TwirlMigration.duoTemplate(
+        twirlMigration.duoTemplate(
           renderer.render(viewTemplate, json(form)),
           template
         ).map(Ok(_))
@@ -65,7 +67,7 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
       formWithErrors =>
         formToTwirlTemplate match {
           case Some(formToTemplate) =>
-            TwirlMigration.duoTemplate(
+            twirlMigration.duoTemplate(
               renderer.render(viewTemplate, formToJson(formWithErrors)),
               formToTemplate(formWithErrors)
             ).map(BadRequest(_))
@@ -78,7 +80,7 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
               val json = formToJson(formWithErrors)
               formToTwirlTemplate match {
                 case Some(formToTemplate) =>
-                  TwirlMigration.duoTemplate(
+                  twirlMigration.duoTemplate(
                     renderer.render(viewTemplate, json),
                     formToTemplate(formWithErrors)
                   ).map(BadRequest(_))

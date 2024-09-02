@@ -50,7 +50,8 @@ class PartnershipNameController @Inject()(override val messagesApi: MessagesApi,
                                           val controllerComponents: MessagesControllerComponents,
                                           config: FrontendAppConfig,
                                           renderer: Renderer,
-                                          businessNameView: BusinessNameView
+                                          businessNameView: BusinessNameView,
+                                          twirlMigration: TwirlMigration
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController
                                         with I18nSupport with NunjucksSupport with Variation {
 
@@ -76,7 +77,7 @@ class PartnershipNameController @Inject()(override val messagesApi: MessagesApi,
           "entityName" -> "partnership"
         ) ++ extraJson
 
-        val template = TwirlMigration.duoTemplate(
+        val template = twirlMigration.duoTemplate(
           renderer.render("businessName.njk", json),
           businessNameView("partnership", preparedForm, routes.PartnershipNameController.onSubmit(mode), hint)
         )
@@ -95,7 +96,7 @@ class PartnershipNameController @Inject()(override val messagesApi: MessagesApi,
               "entityName" -> "partnership"
             )
 
-            val template = TwirlMigration.duoTemplate(
+            val template = twirlMigration.duoTemplate(
               renderer.render("businessName.njk", json),
               businessNameView("partnership", formWithErrors, routes.PartnershipNameController.onSubmit(mode), None)
             )

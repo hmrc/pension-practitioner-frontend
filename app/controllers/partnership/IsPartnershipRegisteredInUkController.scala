@@ -47,7 +47,8 @@ class IsPartnershipRegisteredInUkController @Inject()(override val messagesApi: 
                                       val controllerComponents: MessagesControllerComponents,
                                       config: FrontendAppConfig,
                                       renderer: Renderer,
-                                      isPartnershipRegisteredInUkView: IsPartnershipRegisteredInUkView
+                                      isPartnershipRegisteredInUkView: IsPartnershipRegisteredInUkView,
+                                      twirlMigration: TwirlMigration
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with
   I18nSupport with NunjucksSupport with Retrievals {
 
@@ -66,7 +67,7 @@ class IsPartnershipRegisteredInUkController @Inject()(override val messagesApi: 
         "radios" -> Radios.yesNo (preparedForm("value"))
       )
 
-      val template = TwirlMigration.duoTemplate(
+      val template = twirlMigration.duoTemplate(
         renderer.render(
           "partnership/isPartnershipRegisteredInUk.njk", json
         ),
@@ -90,7 +91,7 @@ class IsPartnershipRegisteredInUkController @Inject()(override val messagesApi: 
             "radios" -> Radios.yesNo(formWithErrors("value"))
           )
 
-          val template = TwirlMigration.duoTemplate(
+          val template = twirlMigration.duoTemplate(
             renderer.render(
               "partnership/isPartnershipRegisteredInUk.njk", json
             ),

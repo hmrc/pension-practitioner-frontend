@@ -38,7 +38,8 @@ class TellHMRCController @Inject()(
   config: FrontendAppConfig,
     val controllerComponents: MessagesControllerComponents,
     renderer: Renderer,
-    tellHMRCView: TellHMRCView
+    tellHMRCView: TellHMRCView,
+    twirlMigration: TwirlMigration
 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(entityType: String): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
@@ -49,7 +50,7 @@ class TellHMRCController @Inject()(
         "hmrcUrl" -> config.hmrcChangesMustReportUrl
       )
 
-      val template = TwirlMigration.duoTemplate(
+      val template = twirlMigration.duoTemplate(
         renderer.render("tellHMRC.njk", json),
         tellHMRCView(entityType, config.companiesHouseFileChangesUrl, config.hmrcChangesMustReportUrl)
       )

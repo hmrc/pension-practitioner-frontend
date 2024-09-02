@@ -54,7 +54,8 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
                                          val controllerComponents: MessagesControllerComponents,
                                          countryOptions: CountryOptions,
                                          confirmAddressView: ConfirmAddressView,
-                                         renderer: Renderer
+                                         renderer: Renderer,
+                                         twirlMigration: TwirlMigration
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
 
   private val form = formProvider("confirmAddress.partnership.error.required")
@@ -93,7 +94,7 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
               "submitUrl" -> routes.ConfirmAddressController.onSubmit().url,
               "radios" -> Radios.yesNo(form("value")))
 
-            def template = TwirlMigration.duoTemplate(
+            def template = twirlMigration.duoTemplate(
               renderer.render("confirmAddress.njk", json),
               confirmAddressView("partnership",
                 form,
@@ -130,7 +131,7 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
                   "radios" -> Radios.yesNo(formWithErrors("value"))
                 )
 
-                def template = TwirlMigration.duoTemplate(
+                def template = twirlMigration.duoTemplate(
                   renderer.render("confirmAddress.njk", json),
                   confirmAddressView("partnership",
                     formWithErrors,

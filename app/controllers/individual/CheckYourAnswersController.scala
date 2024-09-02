@@ -39,7 +39,8 @@ class CheckYourAnswersController @Inject()(
                                             val controllerComponents: MessagesControllerComponents,
                                             individualCYAService: IndividualCYAService,
                                             renderer: Renderer,
-                                            checkYourAnswersView: CheckYourAnswersView
+                                            checkYourAnswersView: CheckYourAnswersView,
+                                            twirlMigration: TwirlMigration
                                           )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport
@@ -53,7 +54,7 @@ class CheckYourAnswersController @Inject()(
         "list" -> individualCYAService.individualCya(request.userAnswers)
       )
 
-      def template = TwirlMigration.duoTemplate(
+      def template = twirlMigration.duoTemplate(
         renderer.render("check-your-answers.njk", json),
         checkYourAnswersView(
           controllers.individual.routes.DeclarationController.onPageLoad(),

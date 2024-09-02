@@ -37,7 +37,8 @@ class YourActionWasNotProcessedController @Inject()(appConfig: FrontendAppConfig
                                                      getData: DataRetrievalAction,
                                                      pspDetailsService: PspDetailsService,
                                                      renderer: Renderer,
-                                                    yourActionWasNotProcessedView: YourActionWasNotProcessedView
+                                                    yourActionWasNotProcessedView: YourActionWasNotProcessedView,
+                                                    twirlMigration: TwirlMigration
                                                    )(implicit val executionContext: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
@@ -53,7 +54,7 @@ class YourActionWasNotProcessedController @Inject()(appConfig: FrontendAppConfig
         } else {
           Json.obj()
         }
-        val template = TwirlMigration.duoTemplate(
+        val template = twirlMigration.duoTemplate(
           renderer.render("yourActionWasNotProcessed.njk", json),
           yourActionWasNotProcessedView(
             appConfig.returnToPspDashboardUrl,

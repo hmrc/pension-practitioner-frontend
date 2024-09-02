@@ -33,7 +33,8 @@ class NeedAnOrganisationAccountController @Inject()(
                                                val controllerComponents: MessagesControllerComponents,
                                                renderer: Renderer,
                                                config: FrontendAppConfig,
-                                               needAnOrganisationAccountView: NeedAnOrganisationAccountView
+                                               needAnOrganisationAccountView: NeedAnOrganisationAccountView,
+                                               twirlMigration: TwirlMigration
                                              )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
@@ -45,7 +46,7 @@ class NeedAnOrganisationAccountController @Inject()(
       "govUkUrl" -> config.govUkUrl
     )
 
-    val template = TwirlMigration.duoTemplate(
+    val template = twirlMigration.duoTemplate(
       renderer.render("needAnOrganisationAccount.njk", json),
       needAnOrganisationAccountView(config.govUkUrl, config.registerAsPensionAdministratorUrl, config.createGovGatewayUrl)
     )

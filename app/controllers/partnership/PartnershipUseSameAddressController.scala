@@ -68,7 +68,8 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
   val controllerComponents: MessagesControllerComponents,
   countryOptions: CountryOptions,
   renderer: Renderer,
-  useAddressForContactView: UseAddressForContactView
+  useAddressForContactView: UseAddressForContactView,
+  twirlMigration: TwirlMigration
 )(implicit ec: ExecutionContext) extends FrontendBaseController
   with I18nSupport with NunjucksSupport with Retrievals {
 
@@ -79,7 +80,7 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
     implicit request =>
       val preparedForm = request.userAnswers.get(PartnershipUseSameAddressPage).fold(form)(form.fill)
       getJson(preparedForm) { json =>
-        val template = TwirlMigration.duoTemplate(
+        val template = twirlMigration.duoTemplate(
           renderer.render("address/useAddressForContact.njk", json),
           useAddressForContactView(
             routes.PartnershipUseSameAddressController.onSubmit(),
@@ -98,7 +99,7 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
       form.bindFromRequest().fold(
         formWithErrors => {
           getJson(formWithErrors) { json =>
-            val template = TwirlMigration.duoTemplate(
+            val template = twirlMigration.duoTemplate(
               renderer.render("address/useAddressForContact.njk", json),
               useAddressForContactView(
                 routes.PartnershipUseSameAddressController.onSubmit(),

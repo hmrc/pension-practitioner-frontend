@@ -36,15 +36,16 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import views.html.company.IsCompanyRegisteredInUkView
 class IsCompanyRegisteredInUkController @Inject()(override val messagesApi: MessagesApi,
-                                      userAnswersCacheConnector: UserAnswersCacheConnector,
-                                      navigator: CompoundNavigator,
-                                      @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
-                                      getData: DataRetrievalAction,
-                                      requireData: DataRequiredAction,
-                                      formProvider: IsCompanyRegisteredInUkFormProvider,
-                                      val controllerComponents: MessagesControllerComponents,
-                                      renderer: Renderer,
-                                      isCompanyRegisteredInUkView: IsCompanyRegisteredInUkView
+                                                  userAnswersCacheConnector: UserAnswersCacheConnector,
+                                                  navigator: CompoundNavigator,
+                                                  @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
+                                                  getData: DataRetrievalAction,
+                                                  requireData: DataRequiredAction,
+                                                  formProvider: IsCompanyRegisteredInUkFormProvider,
+                                                  val controllerComponents: MessagesControllerComponents,
+                                                  renderer: Renderer,
+                                                  isCompanyRegisteredInUkView: IsCompanyRegisteredInUkView,
+                                                  twirlMigration: TwirlMigration
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with
   I18nSupport with NunjucksSupport with Retrievals {
 
@@ -63,7 +64,7 @@ class IsCompanyRegisteredInUkController @Inject()(override val messagesApi: Mess
         "radios" -> Radios.yesNo (preparedForm("value"))
       )
 
-      val template = TwirlMigration.duoTemplate(
+      val template = twirlMigration.duoTemplate(
         renderer.render("company/isCompanyRegisteredInUk.njk", json),
         isCompanyRegisteredInUkView(
           routes.IsCompanyRegisteredInUkController.onSubmit(),
@@ -85,7 +86,7 @@ class IsCompanyRegisteredInUkController @Inject()(override val messagesApi: Mess
             "radios" -> Radios.yesNo(formWithErrors("value"))
           )
 
-          val template = TwirlMigration.duoTemplate(
+          val template = twirlMigration.duoTemplate(
             renderer.render("company/isCompanyRegisteredInUk.njk", json),
             isCompanyRegisteredInUkView(
               routes.IsCompanyRegisteredInUkController.onSubmit(),

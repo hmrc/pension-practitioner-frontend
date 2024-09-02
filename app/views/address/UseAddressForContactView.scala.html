@@ -24,7 +24,6 @@
 
 @(submitCall: Call, form: Form[Boolean], radios: Seq[RadioItem], entityType: String, entityName: String, address: Seq[String])(implicit request: Request[_], messages: Messages)
 
-@field = @{form("value")}
 @layout(messages("useAddressForContact.title", messages(entityType)), formHasErrors = form.hasErrors) {
     @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
         @if(form.errors.nonEmpty) {

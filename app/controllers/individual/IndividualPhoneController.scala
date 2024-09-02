@@ -48,7 +48,8 @@ class IndividualPhoneController @Inject()(override val messagesApi: MessagesApi,
                                           formProvider: PhoneFormProvider,
                                           val controllerComponents: MessagesControllerComponents,
                                           renderer: Renderer,
-                                          phoneView: PhoneView
+                                          phoneView: PhoneView,
+                                          twirlMigration: TwirlMigration
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController
   with Retrievals with I18nSupport with NunjucksSupport with Variation {
 
@@ -59,7 +60,7 @@ class IndividualPhoneController @Inject()(override val messagesApi: MessagesApi,
           case Some(true) =>
             val formFilled = request.userAnswers.get(IndividualPhonePage).fold(form)(form.fill)
             getJson(mode, formFilled) { json =>
-              val template = TwirlMigration.duoTemplate(
+              val template = twirlMigration.duoTemplate(
                 renderer.render(template = "individual/phone.njk", json),
                 phoneView(
                   routes.IndividualPhoneController.onSubmit(mode),
@@ -80,7 +81,7 @@ class IndividualPhoneController @Inject()(override val messagesApi: MessagesApi,
         form.bindFromRequest().fold(
           formWithErrors =>
             getJson(mode, formWithErrors) { json =>
-              val template = TwirlMigration.duoTemplate(
+              val template = twirlMigration.duoTemplate(
                 renderer.render("individual/phone.njk", json),
                 phoneView(
                   routes.IndividualPhoneController.onSubmit(mode),

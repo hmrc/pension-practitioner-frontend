@@ -40,7 +40,8 @@ class OutsideEuEeaController @Inject()(
                                            val controllerComponents: MessagesControllerComponents,
                                            countryOptions: CountryOptions,
                                            renderer: Renderer,
-                                           outsideEuEeaView: OutsideEuEeaView
+                                           outsideEuEeaView: OutsideEuEeaView,
+                                           twirlMigration: TwirlMigration
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController
                                            with I18nSupport with Retrievals {
 
@@ -48,7 +49,7 @@ class OutsideEuEeaController @Inject()(
     implicit request =>
       IndividualAddressPage.retrieve.map { address =>
         val json = Json.obj("country" -> countryOptions.getCountryNameFromCode(address))
-        val template = TwirlMigration.duoTemplate(
+        val template = twirlMigration.duoTemplate(
           renderer.render(template = "individual/outsideEuEea.njk", json),
           outsideEuEeaView(countryOptions.getCountryNameFromCode(address))
         )

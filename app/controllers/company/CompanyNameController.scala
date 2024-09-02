@@ -16,13 +16,10 @@
 
 package controllers.company
 
-import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Variation
 import controllers.actions._
 import forms.BusinessNameFormProvider
-
-import javax.inject.Inject
 import models.Mode
 import navigators.CompoundNavigator
 import pages.NameChange
@@ -37,6 +34,7 @@ import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.TwirlMigration
 import views.html.BusinessNameView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
@@ -47,9 +45,9 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
                                       requireData: DataRequiredAction,
                                       formProvider: BusinessNameFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
-                                      config: FrontendAppConfig,
                                       renderer: Renderer,
-                                      businessNameView: BusinessNameView
+                                      businessNameView: BusinessNameView,
+                                      twirlMigration: TwirlMigration
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController
                                       with I18nSupport with NunjucksSupport with Variation {
 
@@ -75,7 +73,7 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
           "entityName" -> "company"
         ) ++ extraJson
 
-        val template = TwirlMigration.duoTemplate(
+        val template = twirlMigration.duoTemplate(
           renderer.render("businessName.njk", json),
           businessNameView("company", preparedForm, routes.CompanyNameController.onSubmit(mode), hint)
         )
@@ -94,7 +92,7 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
               "entityName" -> "company"
             )
 
-            val template = TwirlMigration.duoTemplate(
+            val template = twirlMigration.duoTemplate(
               renderer.render("businessName.njk", json),
               businessNameView("company", formWithErrors, routes.CompanyNameController.onSubmit(mode), None)
             )

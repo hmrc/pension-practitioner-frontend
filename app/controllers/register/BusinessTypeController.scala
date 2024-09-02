@@ -16,7 +16,6 @@
 
 package controllers.register
 
-import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import forms.register.BusinessTypeFormProvider
@@ -38,16 +37,16 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class BusinessTypeController @Inject()(override val messagesApi: MessagesApi,
-                                      userAnswersCacheConnector: UserAnswersCacheConnector,
-                                      navigator: CompoundNavigator,
-                                      @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
-                                      getData: DataRetrievalAction,
-                                      requireData: DataRequiredAction,
-                                      formProvider: BusinessTypeFormProvider,
-                                      val controllerComponents: MessagesControllerComponents,
-                                      config: FrontendAppConfig,
-                                      renderer: Renderer,
-                                      businessTypeView: BusinessTypeView
+                                       userAnswersCacheConnector: UserAnswersCacheConnector,
+                                       navigator: CompoundNavigator,
+                                       @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
+                                       getData: DataRetrievalAction,
+                                       requireData: DataRequiredAction,
+                                       formProvider: BusinessTypeFormProvider,
+                                       val controllerComponents: MessagesControllerComponents,
+                                       renderer: Renderer,
+                                       businessTypeView: BusinessTypeView,
+                                       twirlMigration: TwirlMigration
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
 
   private val form = formProvider()
@@ -67,7 +66,7 @@ class BusinessTypeController @Inject()(override val messagesApi: MessagesApi,
           "radios" -> BusinessType.radios(preparedForm)
         )
 
-        val template = TwirlMigration.duoTemplate(
+        val template = twirlMigration.duoTemplate(
           renderer.render("register/businessType.njk", json),
           businessTypeView(
             controllers.register.routes.BusinessTypeController.onSubmit(),
@@ -91,7 +90,7 @@ class BusinessTypeController @Inject()(override val messagesApi: MessagesApi,
               "radios" -> BusinessType.radios(formWithErrors)
             )
 
-            val template = TwirlMigration.duoTemplate(
+            val template = twirlMigration.duoTemplate(
               renderer.render("register/businessType.njk", json),
               businessTypeView(
                 controllers.register.routes.BusinessTypeController.onSubmit(),

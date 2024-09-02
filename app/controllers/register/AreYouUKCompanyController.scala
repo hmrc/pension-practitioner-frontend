@@ -16,7 +16,6 @@
 
 package controllers.register
 
-import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import forms.register.AreYouUKCompanyFormProvider
@@ -44,9 +43,9 @@ class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
                                       requireData: DataRequiredAction,
                                       formProvider: AreYouUKCompanyFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
-                                      config: FrontendAppConfig,
                                       renderer: Renderer,
-                                      areYouUkCompanyView: AreYouUkCompany
+                                      areYouUkCompanyView: AreYouUkCompany,
+                                      twirlMigration: TwirlMigration
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
 
   private val form = formProvider()
@@ -64,7 +63,7 @@ class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
           "radios" -> Radios.yesNo (preparedForm("value"))
         )
 
-      val template = TwirlMigration.duoTemplate(
+      val template = twirlMigration.duoTemplate(
         renderer.render(
           "register/areYouUKCompany.njk", json
         ),
@@ -88,7 +87,7 @@ class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
               "radios" -> Radios.yesNo(formWithErrors("value"))
             )
 
-            val template = TwirlMigration.duoTemplate(
+            val template = twirlMigration.duoTemplate(
               renderer.render(
                 "register/areYouUKCompany.njk", json
               ),

@@ -33,6 +33,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
 import viewmodels.{CommonViewModel, CommonViewModelTwirl}
 import views.html.address.AddressListView
@@ -49,7 +50,8 @@ class PartnershipAddressListController @Inject()(override val messagesApi: Messa
                                                  val controllerComponents: MessagesControllerComponents,
                                                  countryOptions: CountryOptions,
                                                  val renderer: Renderer,
-                                                 addressListView: AddressListView
+                                                 addressListView: AddressListView,
+                                                 val twirlMigration: TwirlMigration
                                          )(implicit ec: ExecutionContext) extends AddressListController
                                           with Retrievals with I18nSupport with NunjucksSupport {
 
