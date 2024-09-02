@@ -19,7 +19,9 @@ package controllers.partnership
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
+import controllers.partnership.routes
 import forms.address.UseAddressForContactFormProvider
+
 import javax.inject.Inject
 import models.requests.DataRequest
 import models.Address
@@ -47,8 +49,10 @@ import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import uk.gov.hmrc.viewmodels.Radios
+import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModel
+import views.html.address.UseAddressForContactView
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -63,7 +67,8 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
   formProvider: UseAddressForContactFormProvider,
   val controllerComponents: MessagesControllerComponents,
   countryOptions: CountryOptions,
-  renderer: Renderer
+  renderer: Renderer,
+  useAddressForContactView: UseAddressForContactView
 )(implicit ec: ExecutionContext) extends FrontendBaseController
   with I18nSupport with NunjucksSupport with Retrievals {
 
@@ -74,8 +79,18 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
     implicit request =>
       val preparedForm = request.userAnswers.get(PartnershipUseSameAddressPage).fold(form)(form.fill)
       getJson(preparedForm) { json =>
-        renderer.render("address/useAddressForContact.njk", json).map(Ok(_))
-      }
+        val template = TwirlMigration.duoTemplate(
+          renderer.render("address/useAddressForContact.njk", json),
+          useAddressForContactView(
+            routes.PartnershipUseSameAddressController.onSubmit(),
+            preparedForm,
+            TwirlMigration.toTwirlRadios(Radios.yesNo(preparedForm("value"))),
+            (json \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
+            (json \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
+            (json  \ "address").asOpt[Seq[String]].getOrElse(Seq.empty[String])
+          )
+        )
+        template.map(Ok(_))      }
   }
 
   def onSubmit: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
@@ -83,7 +98,18 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
       form.bindFromRequest().fold(
         formWithErrors => {
           getJson(formWithErrors) { json =>
-            renderer.render("address/useAddressForContact.njk", json).map(BadRequest(_))
+            val template = TwirlMigration.duoTemplate(
+              renderer.render("address/useAddressForContact.njk", json),
+              useAddressForContactView(
+                routes.PartnershipUseSameAddressController.onSubmit(),
+                formWithErrors,
+                TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value"))),
+                (json \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
+                (json \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
+                (json  \ "address").asOpt[Seq[String]].getOrElse(Seq.empty[String])
+              )
+            )
+            template.map(BadRequest(_))
           }
         },
         value => {

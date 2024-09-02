@@ -79,6 +79,7 @@ class IndividualPostcodeControllerSpec extends ControllerSpecBase with MockitoSu
 
   "IndividualPostcode Controller" must {
     "return OK and the correct view for a GET" in {
+      when(mockAppConfig.betaFeedbackUnauthenticatedUrl).thenReturn("betaFeedbackUnauthenticatedUrl")
       val templateCaptor = ArgumentCaptor.forClass(classOf[String])
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 

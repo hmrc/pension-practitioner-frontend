@@ -16,7 +16,6 @@
 
 package controllers.company
 
-import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
@@ -30,11 +29,12 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-
+import views.html.company.IsCompanyRegisteredInUkView
 class IsCompanyRegisteredInUkController @Inject()(override val messagesApi: MessagesApi,
                                       userAnswersCacheConnector: UserAnswersCacheConnector,
                                       navigator: CompoundNavigator,
@@ -43,8 +43,8 @@ class IsCompanyRegisteredInUkController @Inject()(override val messagesApi: Mess
                                       requireData: DataRequiredAction,
                                       formProvider: IsCompanyRegisteredInUkFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
-                                      config: FrontendAppConfig,
-                                      renderer: Renderer
+                                      renderer: Renderer,
+                                      isCompanyRegisteredInUkView: IsCompanyRegisteredInUkView
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with
   I18nSupport with NunjucksSupport with Retrievals {
 
@@ -63,7 +63,15 @@ class IsCompanyRegisteredInUkController @Inject()(override val messagesApi: Mess
         "radios" -> Radios.yesNo (preparedForm("value"))
       )
 
-    renderer.render ("company/isCompanyRegisteredInUk.njk", json).map(Ok (_))
+      val template = TwirlMigration.duoTemplate(
+        renderer.render("company/isCompanyRegisteredInUk.njk", json),
+        isCompanyRegisteredInUkView(
+          routes.IsCompanyRegisteredInUkController.onSubmit(),
+          preparedForm,
+          TwirlMigration.toTwirlRadios(Radios.yesNo(preparedForm("value")))
+        )
+      )
+      template.map(Ok(_))
   }
 
   def onSubmit(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
@@ -77,7 +85,15 @@ class IsCompanyRegisteredInUkController @Inject()(override val messagesApi: Mess
             "radios" -> Radios.yesNo(formWithErrors("value"))
           )
 
-          renderer.render("company/isCompanyRegisteredInUk.njk", json).map(BadRequest(_))
+          val template = TwirlMigration.duoTemplate(
+            renderer.render("company/isCompanyRegisteredInUk.njk", json),
+            isCompanyRegisteredInUkView(
+              routes.IsCompanyRegisteredInUkController.onSubmit(),
+              formWithErrors,
+              TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value")))
+            )
+          )
+          template.map(BadRequest(_))
         },
         value =>
           for {

@@ -33,7 +33,7 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Call, AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-
+import views.html.address.ManualAddressView
 import scala.concurrent.ExecutionContext
 
 class CompanyContactAddressController @Inject()(
@@ -46,7 +46,8 @@ class CompanyContactAddressController @Inject()(
   formProvider: UKAddressFormProvider,
   val controllerComponents: MessagesControllerComponents,
   val config: FrontendAppConfig,
-  val renderer: Renderer
+  val renderer: Renderer,
+  manualAddressView: ManualAddressView
 )(implicit ec: ExecutionContext)
     extends ManualAddressController
     with Retrievals
@@ -65,7 +66,7 @@ class CompanyContactAddressController @Inject()(
     (authenticate andThen getData andThen requireData).async { implicit request =>
       (AreYouUKCompanyPage and BusinessNamePage).retrieve.map {
         case areYouUKCompany ~ companyName =>
-          get(mode, Some(companyName), CompanyAddressListPage, addressConfigurationForPostcodeAndCountry(areYouUKCompany))
+          get(mode, Some(companyName), CompanyAddressListPage, addressConfigurationForPostcodeAndCountry(areYouUKCompany), manualAddressView)
       }
     }
 
@@ -73,7 +74,7 @@ class CompanyContactAddressController @Inject()(
     (authenticate andThen getData andThen requireData).async { implicit request =>
       (AreYouUKCompanyPage and BusinessNamePage).retrieve.map {
         case areYouUKCompany ~ companyName =>
-          post(mode, Some(companyName), addressConfigurationForPostcodeAndCountry(areYouUKCompany))
+          post(mode, Some(companyName), addressConfigurationForPostcodeAndCountry(areYouUKCompany), manualAddressView)
       }
     }
 }

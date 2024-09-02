@@ -18,15 +18,18 @@ package controllers.individual
 
 import controllers.Retrievals
 import controllers.actions._
+
 import javax.inject.Inject
 import pages.individual.IndividualAddressPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import utils.countryOptions.CountryOptions
+import views.html.individual.OutsideEuEeaView
 
 import scala.concurrent.ExecutionContext
 
@@ -36,7 +39,8 @@ class OutsideEuEeaController @Inject()(
                                            requireData: DataRequiredAction,
                                            val controllerComponents: MessagesControllerComponents,
                                            countryOptions: CountryOptions,
-                                           renderer: Renderer
+                                           renderer: Renderer,
+                                           outsideEuEeaView: OutsideEuEeaView
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController
                                            with I18nSupport with Retrievals {
 
@@ -44,7 +48,11 @@ class OutsideEuEeaController @Inject()(
     implicit request =>
       IndividualAddressPage.retrieve.map { address =>
         val json = Json.obj("country" -> countryOptions.getCountryNameFromCode(address))
-      renderer.render(template = "individual/outsideEuEea.njk", json).map(Ok(_))
+        val template = TwirlMigration.duoTemplate(
+          renderer.render(template = "individual/outsideEuEea.njk", json),
+          outsideEuEeaView(countryOptions.getCountryNameFromCode(address))
+        )
+      template.map(Ok(_))
     }
   }
 }

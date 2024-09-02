@@ -21,18 +21,21 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import controllers.address.PostcodeController
+import controllers.partnership.routes
 import forms.address.PostcodeFormProvider
+
 import javax.inject.Inject
 import models.Mode
 import navigators.CompoundNavigator
-import pages.partnership.{PartnershipPostcodePage, BusinessNamePage}
+import pages.partnership.{BusinessNamePage, PartnershipPostcodePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{Json, JsObject}
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import viewmodels.CommonViewModel
+import views.html.address.PostcodeView
 
 import scala.concurrent.ExecutionContext
 
@@ -45,7 +48,8 @@ class PartnershipPostcodeController @Inject()(override val messagesApi: Messages
                                               formProvider: PostcodeFormProvider,
                                               val addressLookupConnector: AddressLookupConnector,
                                               val controllerComponents: MessagesControllerComponents,
-                                              val renderer: Renderer
+                                              val renderer: Renderer,
+                                              postCodeView: PostcodeView
                                          )(implicit ec: ExecutionContext) extends PostcodeController
                                           with Retrievals with I18nSupport with NunjucksSupport {
 
@@ -58,15 +62,32 @@ class PartnershipPostcodeController @Inject()(override val messagesApi: Messages
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
-        getFormToJson(mode).retrieve.map(get)
+        getFormToJson(mode).retrieve.map{ formFunction =>
+          val  jsObject: JsObject = formFunction(form)
+          get(formFunction,   Some(postCodeView(
+          routes.PartnershipPostcodeController.onSubmit(mode),
+            routes.PartnershipContactAddressController.onPageLoad(mode).url,
+          "partnership",
+           (jsObject \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
+          form
+        )))}
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
-        getFormToJson(mode).retrieve.map(
-          post(mode, _, PartnershipPostcodePage, "error.postcode.noResults")
-        )
+
+        getFormToJson(mode).retrieve.map{formFunction =>
+          val  jsObject: JsObject = formFunction(form)
+          val twirlTemplate = Some(postCodeView(
+            routes.PartnershipPostcodeController.onSubmit(mode),
+            routes.PartnershipContactAddressController.onPageLoad(mode).url,
+            "partnersihp",
+             (jsObject \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
+            _
+          ))
+          post(mode, formFunction, PartnershipPostcodePage, "error.postcode.noResults", twirlTemplate)
+        }
     }
 
   def getFormToJson(mode: Mode): Retrieval[Form[String] => JsObject] =

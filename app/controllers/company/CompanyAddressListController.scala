@@ -21,19 +21,21 @@ import controllers.Retrievals
 import controllers.actions._
 import controllers.address.{AddressListController, AddressPages}
 import forms.address.AddressListFormProvider
-import javax.inject.Inject
 import models.Mode
 import navigators.CompoundNavigator
-import pages.company.{CompanyPostcodePage, CompanyAddressPage, BusinessNamePage, CompanyAddressListPage}
+import pages.company.{BusinessNamePage, CompanyAddressListPage, CompanyAddressPage, CompanyPostcodePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{Json, JsObject}
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
+import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.countryOptions.CountryOptions
-import viewmodels.CommonViewModel
+import viewmodels.{CommonViewModel, CommonViewModelTwirl}
+import views.html.address.AddressListView
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class CompanyAddressListController @Inject()(override val messagesApi: MessagesApi,
@@ -45,7 +47,8 @@ class CompanyAddressListController @Inject()(override val messagesApi: MessagesA
                                              formProvider: AddressListFormProvider,
                                              val controllerComponents: MessagesControllerComponents,
                                              countryOptions: CountryOptions,
-                                             val renderer: Renderer
+                                             val renderer: Renderer,
+                                             addressListView: AddressListView
                                          )(implicit ec: ExecutionContext) extends AddressListController
                                           with Retrievals with I18nSupport with NunjucksSupport {
 
@@ -56,14 +59,24 @@ class CompanyAddressListController @Inject()(override val messagesApi: MessagesA
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
-        getFormToJson(mode).retrieve.map(get)
+        getFormToJson(mode).retrieve.map(x =>
+          get(
+            x,
+            routes.CompanyAddressListController.onSubmit(mode),
+            routes.CompanyContactAddressController.onPageLoad(mode).url,
+            (model: CommonViewModelTwirl, radios: Seq[RadioItem]) => addressListView(form, radios, model)
+          )
+        )
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
         val addressPages: AddressPages = AddressPages(CompanyPostcodePage, CompanyAddressListPage, CompanyAddressPage)
-        getFormToJson(mode).retrieve.map(post(mode, _, addressPages, manualUrlCall = routes.CompanyContactAddressController.onPageLoad(mode)))
+        getFormToJson(mode).retrieve.map(post(mode, _, addressPages, manualUrlCall = routes.CompanyContactAddressController.onPageLoad(mode),
+          routes.CompanyAddressListController.onSubmit(mode),
+          (model: CommonViewModelTwirl, radios: Seq[RadioItem], formWithErrors: Form[Int]) => addressListView(formWithErrors, radios, model)
+        ))
     }
 
   def getFormToJson(mode: Mode): Retrieval[Form[Int] => JsObject] =

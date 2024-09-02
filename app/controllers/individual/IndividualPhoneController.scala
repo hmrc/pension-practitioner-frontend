@@ -32,7 +32,9 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.TwirlMigration
 import utils.annotations.AuthWithIV
+import views.html.individual.PhoneView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,7 +47,8 @@ class IndividualPhoneController @Inject()(override val messagesApi: MessagesApi,
                                           requireData: DataRequiredAction,
                                           formProvider: PhoneFormProvider,
                                           val controllerComponents: MessagesControllerComponents,
-                                          renderer: Renderer
+                                          renderer: Renderer,
+                                          phoneView: PhoneView
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController
   with Retrievals with I18nSupport with NunjucksSupport with Variation {
 
@@ -56,7 +59,14 @@ class IndividualPhoneController @Inject()(override val messagesApi: MessagesApi,
           case Some(true) =>
             val formFilled = request.userAnswers.get(IndividualPhonePage).fold(form)(form.fill)
             getJson(mode, formFilled) { json =>
-              renderer.render(template = "individual/phone.njk", json).map(Ok(_))
+              val template = TwirlMigration.duoTemplate(
+                renderer.render(template = "individual/phone.njk", json),
+                phoneView(
+                  routes.IndividualPhoneController.onSubmit(mode),
+                  formFilled
+                )
+              )
+              template.map(Ok(_))
             }
           case _ => Future.successful(
             Redirect(controllers.individual.routes.AreYouUKResidentController.onPageLoad(mode))
@@ -70,7 +80,14 @@ class IndividualPhoneController @Inject()(override val messagesApi: MessagesApi,
         form.bindFromRequest().fold(
           formWithErrors =>
             getJson(mode, formWithErrors) { json =>
-              renderer.render("individual/phone.njk", json).map(BadRequest(_))
+              val template = TwirlMigration.duoTemplate(
+                renderer.render("individual/phone.njk", json),
+                phoneView(
+                  routes.IndividualPhoneController.onSubmit(mode),
+                  formWithErrors
+                )
+              )
+              template.map(BadRequest(_))
             },
           value =>
             for {

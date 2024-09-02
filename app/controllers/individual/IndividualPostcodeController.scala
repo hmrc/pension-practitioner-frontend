@@ -33,6 +33,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.annotations.AuthWithIV
+import views.html.individual.PostcodeView
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -47,7 +48,8 @@ class IndividualPostcodeController @Inject()(override val messagesApi: MessagesA
                                              formProvider: PostcodeFormProvider,
                                              val addressLookupConnector: AddressLookupConnector,
                                              val controllerComponents: MessagesControllerComponents,
-                                             val renderer: Renderer
+                                             val renderer: Renderer,
+                                             postCodeView: PostcodeView
                                             )(implicit ec: ExecutionContext) extends PostcodeController
   with Retrievals with I18nSupport with NunjucksSupport {
 
@@ -61,12 +63,22 @@ class IndividualPostcodeController @Inject()(override val messagesApi: MessagesA
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      get(getFormToJson(mode))
+      get(getFormToJson(mode), Some(postCodeView(
+        routes.IndividualPostcodeController.onSubmit(mode),
+        routes.IndividualContactAddressController.onPageLoad(mode).url,
+        form
+      )))
   }
+
 
   def onSubmit(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      post(mode, getFormToJson(mode), IndividualPostcodePage, "error.postcode.noResults")
+      val twirlTemplate = Some(postCodeView(
+        routes.IndividualPostcodeController.onSubmit(mode),
+        routes.IndividualContactAddressController.onPageLoad(mode).url,
+        _
+      ))
+      post(mode, getFormToJson(mode), IndividualPostcodePage, "error.postcode.noResults", twirlTemplate)
   }
 
   def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Form[String] => JsObject = {

@@ -1,0 +1,63 @@
+@*
+ * Copyright 2024 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import viewmodels.CommonViewModelTwirl
+
+@this(
+        layout: templates.Layout,
+        formHelper: FormWithCSRF,
+        govukErrorSummary: GovukErrorSummary,
+        govukRadios: GovukRadios,
+        govukButton: GovukButton
+)
+
+@(form: Form[Int], radios: Seq[RadioItem], model: CommonViewModelTwirl)(implicit request: Request[_], messages: Messages)
+
+
+@layout(messages("addressList.title", messages(model.entityType)), formHasErrors = form.hasErrors) {
+    @formHelper(action = model.submitUrl, Symbol("autoComplete") -> "off") {
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
+        }
+
+        <h1 class="govuk-heading-xl">
+        @messages("addressList.title", model.entityName)
+        </h1>
+
+        <p class="govuk-body">
+            @Messages("addressList.select") <a href="@model.enterManuallyUrl" class="govuk-link">@Messages("address.linkText.enterManually")</a>.
+        </p>
+
+        @govukRadios(
+            RadiosViewModel(
+                form("value"),
+                radios,
+                Fieldset(
+                    legend = Some(Legend(
+                        content = Text(messages("addressList.h1", model.entityName)),
+                        isPageHeading = false,
+                        classes = "govuk-fieldset__legend--xl govuk-visually-hidden"
+                    ))
+                ),
+                classes = "govuk-radios--inline"
+            )
+        )
+
+        @govukButton(
+            ButtonViewModel(Text(messages("site.save_and_continue"))).asFormSubmit
+        )
+    }
+}

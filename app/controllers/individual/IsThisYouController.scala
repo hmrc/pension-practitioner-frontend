@@ -16,7 +16,6 @@
 
 package controllers.individual
 
-import config.FrontendAppConfig
 import connectors.RegistrationConnector
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
@@ -37,8 +36,10 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import utils.countryOptions.CountryOptions
+import views.html.individual.IsThisYouView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -52,8 +53,8 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
                                     registrationConnector: RegistrationConnector,
                                     countryOptions: CountryOptions,
                                     val controllerComponents: MessagesControllerComponents,
-                                    config: FrontendAppConfig,
-                                    renderer: Renderer
+                                    renderer: Renderer,
+                                    isThisYouView: IsThisYouView
                                    )(implicit val executionContext: ExecutionContext
                                    ) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
 
@@ -75,7 +76,18 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
         case Some(nino) =>
           (ua.get(IndividualDetailsPage), ua.get(IndividualAddressPage), ua.get(RegistrationInfoPage)) match {
             case (Some(individual), Some(address), Some(info)) if info.idType.contains(Nino) && info.idNumber.contains(nino.value) =>
-              renderer.render(template = "individual/isThisYou.njk", json ++ jsonWithNameAndAddress(individual, address)).map(Ok(_))
+              val template = TwirlMigration.duoTemplate(
+                renderer.render(template = "individual/isThisYou.njk",
+                  json ++ jsonWithNameAndAddress(individual, address)),
+                isThisYouView(
+                  routes.IsThisYouController.onSubmit(mode),
+                  preparedForm,
+                  TwirlMigration.toTwirlRadios(Radios.yesNo(preparedForm("value"))),
+                  individual.fullName,
+                  address.lines(countryOptions)
+                )
+              )
+              template.map(Ok(_))
             case _ =>
               registrationConnector.registerWithIdIndividual(nino).flatMap { registration =>
                 Future.fromTry(ua.set(IndividualDetailsPage, registration.response.individual).flatMap(
@@ -83,8 +95,18 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
                   _.set(RegistrationInfoPage, registration.info)
                 )).flatMap { uaWithRegInfo =>
                   userAnswersCacheConnector.save(uaWithRegInfo.data).flatMap { _ =>
-                    renderer.render(template = "individual/isThisYou.njk", json ++
-                      jsonWithNameAndAddress(registration.response.individual, registration.response.address.toPrepopAddress)).map(Ok(_))
+                    val template = TwirlMigration.duoTemplate(
+                      renderer.render(template = "individual/isThisYou.njk",
+                        json ++ jsonWithNameAndAddress(registration.response.individual, registration.response.address.toPrepopAddress)),
+                      isThisYouView(
+                        routes.IsThisYouController.onSubmit(mode),
+                        preparedForm,
+                        TwirlMigration.toTwirlRadios(Radios.yesNo(preparedForm("value"))),
+                        registration.response.individual.fullName,
+                        registration.response.address.toPrepopAddress.lines(countryOptions)
+                      )
+                    )
+                    template.map(Ok(_))
                   }
                 }
               }
@@ -96,7 +118,7 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
   def onSubmit(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       form.bindFromRequest().fold(
-        (formWithErrors: Form[_]) => {
+        formWithErrors => {
           val json = Json.obj(
             "form" -> formWithErrors,
             "submitUrl" -> routes.IsThisYouController.onSubmit(mode).url,
@@ -104,7 +126,17 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
           )
           (IndividualDetailsPage and IndividualAddressPage).retrieve.map {
             case individual ~ address =>
-              renderer.render("individual/isThisYou.njk", json ++ jsonWithNameAndAddress(individual, address)).map(BadRequest(_))
+              val template = TwirlMigration.duoTemplate(
+                renderer.render("individual/isThisYou.njk", json ++ jsonWithNameAndAddress(individual, address)),
+                isThisYouView(
+                  routes.IsThisYouController.onSubmit(mode),
+                  formWithErrors,
+                  TwirlMigration.toTwirlRadios(Radios.yesNo(form("value"))),
+                  individual.fullName,
+                  address.lines(countryOptions)
+                )
+              )
+              template.map(BadRequest(_))
             case _ =>
               Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
           }

@@ -16,7 +16,6 @@
 
 package controllers.individual
 
-import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import forms.individual.AreYouUKResidentFormProvider
@@ -30,7 +29,9 @@ import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import views.html.individual.AreYouUKResidentView
 
 import scala.concurrent.{Future, ExecutionContext}
 
@@ -42,8 +43,8 @@ class AreYouUKResidentController @Inject()(override val messagesApi: MessagesApi
                                            requireData: DataRequiredAction,
                                            formProvider: AreYouUKResidentFormProvider,
                                            val controllerComponents: MessagesControllerComponents,
-                                           config: FrontendAppConfig,
-                                           renderer: Renderer
+                                           renderer: Renderer,
+                                           areYouUKResidentView : AreYouUKResidentView
                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
 
   private val form = formProvider()
@@ -62,7 +63,16 @@ class AreYouUKResidentController @Inject()(override val messagesApi: MessagesApi
         "radios" -> Radios.yesNo(preparedForm("value"))
       )
 
-      renderer.render("individual/areYouUKResident.njk", json).map(Ok(_))
+      val template = TwirlMigration.duoTemplate(
+        renderer.render("individual/areYouUKResident.njk", json),
+        areYouUKResidentView(
+          routes.AreYouUKResidentController.onSubmit(mode),
+          preparedForm,
+          isCheckMode,
+          TwirlMigration.toTwirlRadios(Radios.yesNo(preparedForm("value")))
+        )
+      )
+      template.map(Ok(_))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
@@ -76,7 +86,17 @@ class AreYouUKResidentController @Inject()(override val messagesApi: MessagesApi
             "submitUrl" -> routes.AreYouUKResidentController.onSubmit(mode).url,
             "radios" -> Radios.yesNo(formWithErrors("value"))
           )
-          renderer.render("individual/areYouUKResident.njk", json).map(BadRequest(_))
+
+          val template = TwirlMigration.duoTemplate(
+            renderer.render("individual/areYouUKResident.njk", json),
+            areYouUKResidentView(
+              routes.AreYouUKResidentController.onSubmit(mode),
+              formWithErrors,
+              isCheckMode,
+              TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value")))
+            )
+          )
+          template.map(BadRequest(_))
         },
         value =>
           for {
