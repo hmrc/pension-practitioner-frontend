@@ -40,6 +40,8 @@ import renderer.Renderer
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{DateInput, NunjucksSupport}
+import utils.TwirlMigration
+import views.html.deregister.individual.DeregistrationDateView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -57,7 +59,8 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
                                              val controllerComponents: MessagesControllerComponents,
                                              renderer: Renderer,
                                              emailConnector: EmailConnector,
-                                             auditService: AuditService
+                                             auditService: AuditService,
+                                             deregistrationDateView: DeregistrationDateView
                                                )(implicit ec: ExecutionContext)
   extends FrontendBaseController with Retrievals with I18nSupport with NunjucksSupport {
 
@@ -74,7 +77,14 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
           "applicationDate" -> getDateString(date),
           "returnUrl" -> config.returnToPspDashboardUrl
         )
-        renderer.render("deregister/individual/deregistrationDate.njk", json).map(Ok(_))
+        TwirlMigration.duoTemplate(
+          renderer.render("deregister/individual/deregistrationDate.njk", json),
+          deregistrationDateView(routes.DeregistrationDateController.onSubmit(),
+            preparedForm,
+            config.returnToPspDashboardUrl,
+            getDateString(date),
+            DateInput.localDate(preparedForm("deregistrationDate")))
+        ).map(Ok(_))
       }
   }
 
@@ -93,7 +103,14 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
                 "applicationDate" -> getDateString(date)
               )
 
-              renderer.render("deregister/individual/deregistrationDate.njk", json).map(BadRequest(_))
+              TwirlMigration.duoTemplate(
+                renderer.render("deregister/individual/deregistrationDate.njk", json),
+                deregistrationDateView(routes.DeregistrationDateController.onSubmit(),
+                  formWithErrors,
+                  config.returnToPspDashboardUrl,
+                  getDateString(date),
+                  DateInput.localDate(formWithErrors("deregistrationDate")))
+              ).map(BadRequest(_))
             },
             value =>
               for {

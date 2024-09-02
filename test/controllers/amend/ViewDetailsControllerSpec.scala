@@ -18,7 +18,7 @@ package controllers.amend
 
 import controllers.base.ControllerSpecBase
 import matchers.JsonMatchers
-import models.UserAnswers
+import models.{PspDetailsData, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
@@ -45,17 +45,17 @@ class ViewDetailsControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
 
   val json: JsObject = Json.obj(
-    "title" -> "title",
+    "pageTitle" -> "title",
     "heading" -> "heading",
-    "list" -> "list",
-    "nextPage" -> routes.DeclarationController.onPageLoad().url
+    "nextPage" -> "/pension-scheme-practitioner/declare"
   )
 
   private def onPageLoadUrl: String = routes.ViewDetailsController.onPageLoad().url
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    when(pspDetailsService.getJson(any(), any())(any(), any(), any())).thenReturn(Future.successful(json))
+    when(pspDetailsService.getData(any(), any())(any(), any(), any())).thenReturn(Future.successful
+    (PspDetailsData("title", "heading", Seq(), None, false, routes.DeclarationController.onPageLoad().url)))
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
   }
 

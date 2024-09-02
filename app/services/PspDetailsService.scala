@@ -28,14 +28,14 @@ import models.SubscriptionType.Variation
 import models.register.RegistrationCustomerType.{NonUK, UK}
 import models.register.RegistrationLegalStatus._
 import models.register.{RegistrationDetails, RegistrationIdType}
-import models.{CheckMode, UserAnswers}
+import models.{CheckMode, PspDetailsData, UserAnswers}
 import pages.company.{CompanyAddressPage, CompanyEmailPage, CompanyPhonePage}
 import pages.individual._
 import pages.partnership._
 import pages.register._
 import pages.{PspIdPage, RegistrationDetailsPage, SubscriptionTypePage, UnchangedPspDetailsPage, company => comp}
 import play.api.i18n.Messages
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.{JsObject, JsValue, Json, OWrites}
 import play.api.mvc.Call
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.viewmodels.SummaryList.{Action, Key, Row, Value}
@@ -57,56 +57,64 @@ class PspDetailsService @Inject()(
 
   private def returnUrlAndLink(name: Option[String], rlsFlag: Boolean)
                               (implicit messages: Messages): JsObject = {
-    if (rlsFlag) {
-      Json.obj()
-    } else {
-      Json.obj(
-        "returnUrl" -> appConfig.returnToPspDashboardUrl,
-        "returnLink" -> name.fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name))
-      )
+    returnUrlAndLinkData(name, rlsFlag) match {
+      case Some((returnUrl, returnLink)) =>
+        Json.obj(
+          "returnUrl" -> returnUrl,
+          "returnLink" -> returnLink
+        )
+      case None => Json.obj()
     }
   }
 
-  def getJson(userAnswers: Option[UserAnswers], pspId: String)
-             (implicit messages: Messages, hc: HeaderCarrier, ec: ExecutionContext): Future[JsObject] =
+  private def returnUrlAndLinkData(name: Option[String], rlsFlag: Boolean)
+                              (implicit messages: Messages) = {
+    if(rlsFlag) None else {
+      Some(appConfig.returnToPspDashboardUrl -> name.fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name)))
+    }
+  }
+
+  def getData(userAnswers: Option[UserAnswers], pspId: String)
+             (implicit messages: Messages, hc: HeaderCarrier, ec: ExecutionContext): Future[PspDetailsData] =
     getUserAnswers(userAnswers, pspId).flatMap {
       ua =>
         ua.get(RegistrationDetailsPage).map {
           regInfo =>
             minimalConnector.getMinimalPspDetails(pspId).map {
               minDetails =>
-                val (json, name) = regInfo.legalStatus match {
+                val pspDetailsData = (name: Option[String]) => PspDetailsData(
+                  _,
+                  _,
+                  _,
+                  returnUrlAndLinkData(name, minDetails.rlsFlag),
+                  displayContinueButton = amendmentsExist(ua),
+                  nextPage = routes.DeclarationController.onPageLoad().url
+                )
+                regInfo.legalStatus match {
                   case Individual =>
                     val title: String = individualMessage("viewDetails.title").resolve
-                    val json = Json.obj(
-                      "pageTitle" -> title,
-                      "heading" -> ua.get(IndividualDetailsPage).fold(title)(name => heading(name.fullName)),
-                      "list" -> individualDetails(ua, pspId)
+                    pspDetailsData(ua.get(IndividualDetailsPage).map(_.fullName))(
+                      title,
+                      ua.get(IndividualDetailsPage).fold(title)(name => heading(name.fullName)),
+                      individualDetails(ua, pspId)
                     )
-                    (json, ua.get(IndividualDetailsPage).map(_.fullName))
                   case LimitedCompany =>
                     val title: String = companyMessage("viewDetails.title").resolve
-                    val json = Json.obj(
-                      "pageTitle" -> title,
-                      "heading" -> ua.get(comp.BusinessNamePage).fold(title)(name => heading(name)),
-                      "list" -> companyDetails(ua, pspId)
+                    pspDetailsData(ua.get(BusinessNamePage))(
+                      title,
+                      ua.get(comp.BusinessNamePage).fold(title)(name => heading(name)),
+                      companyDetails(ua, pspId)
                     )
-                    (json, ua.get(BusinessNamePage))
                   case Partnership =>
                     val title: String = partnershipMessage("viewDetails.title").resolve
-                    val json = Json.obj(
-                      "pageTitle" -> title,
-                      "heading" -> ua.get(BusinessNamePage).fold(title)(name => heading(name)),
-                      "list" -> partnershipDetails(ua, pspId)
+                    pspDetailsData(ua.get(BusinessNamePage))(
+                      title,
+                      ua.get(BusinessNamePage).fold(title)(name => heading(name)),
+                      partnershipDetails(ua, pspId)
                     )
-                    (json, ua.get(BusinessNamePage))
                 }
-
-                json ++ returnUrlAndLink(name, minDetails.rlsFlag) ++ Json.obj(
-                  "displayContinueButton" -> amendmentsExist(ua),
-                "nextPage" -> routes.DeclarationController.onPageLoad().url)
             }
-        }.getOrElse(Future.successful(Json.obj()))
+        }.getOrElse(throw new RuntimeException("registration detail user answers not available"))
     }
 
   def getUserAnswers(userAnswers: Option[UserAnswers], pspId: String)

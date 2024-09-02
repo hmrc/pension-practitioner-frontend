@@ -17,22 +17,31 @@
 package controllers.deregister
 
 import config.FrontendAppConfig
+
 import javax.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.TwirlMigration
+import views.html.deregister.CannotDeregisterView
 
 import scala.concurrent.ExecutionContext
 
 class CannotDeregisterController @Inject()(config: FrontendAppConfig,
                                            val controllerComponents: MessagesControllerComponents,
-                                           renderer: Renderer
+                                           renderer: Renderer,
+                                           cannotDeregisterView: CannotDeregisterView
                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = Action.async { implicit request =>
     val json = Json.obj("returnUrl" -> config.pspListSchemesUrl)
-    renderer.render("deregister/cannotDeregister.njk", json).map(Ok(_))
+    TwirlMigration.duoTemplate(
+      renderer.render("deregister/cannotDeregister.njk", json),
+      cannotDeregisterView(
+        config.pspListSchemesUrl
+      )
+    ).map(Ok(_))
   }
 }

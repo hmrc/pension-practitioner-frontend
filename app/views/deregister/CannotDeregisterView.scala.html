@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,15 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package viewmodels
+@this(
+layout: templates.Layout,
+formHelper: FormWithCSRF,
+govukErrorSummary: GovukErrorSummary,
+govukPanel: GovukPanel
+)
 
-package object govuk {
-  object all
-    extends ButtonFluency
-    with InputFluency
-    with RadiosFluency
-    with DateFluency
-    with HintFluency
+@(returnUrl: String)(implicit request: Request[_], messages: Messages)
+
+@layout(messages("cannotDeregister.title")) {
+
+    <h1 class="govuk-heading-xl">@messages("cannotDeregister.title")</h1>
+
+    <p class="govuk-body">@messages("cannotDeregister.p1")</p>
+
+    <a href="@returnUrl" class="govuk-link">@messages("site.view_schemes")</a><
+
 }

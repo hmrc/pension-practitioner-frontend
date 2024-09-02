@@ -19,42 +19,38 @@
         formHelper: FormWithCSRF,
         govukErrorSummary: GovukErrorSummary,
         govukInput: GovukInput,
+        govukDateInput: GovukDateInput,
         govukButton: GovukButton
 )
 
-@(submitCall: Call, enterManuallyUrl: String, entityType: String, entityName: String, form: Form[String])(implicit request: Request[_], messages: Messages)
+@(submitCall: Call, form: Form[java.time.LocalDate], returnUrl: String, applicationDate: String, viewmodel: uk.gov.hmrc.viewmodels.DateInput.ViewModel)(implicit request: Request[_], messages: Messages)
 
-@field = @{form("value")}
 
-@layout(messages("postcode.title", entityType), formHasErrors = form.hasErrors) {
+@layout(messages("deregistrationDate.individual.title"), formHasErrors = form.hasErrors) {
 
     @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
         }
 
-        <h1 class="govuk-heading-xl">@messages("postcode.title", entityName)</h1>
+        <h1 class="govuk-heading-xl">@messages("deregistrationDate.individual.title")</h1>
 
-        <p class="govuk-body">
-            @messages("postcode.youCan")
-            <a href="@enterManuallyUrl" class="govuk-link">@messages("address.linkText.enterManually")</a>.
-        </p>
+        <p class="govuk-body">@messages("deregistrationDate.individual.p1", applicationDate)</p>
 
-        @govukInput(
-            InputViewModel(
-                field = field,
-                classes = "govuk-input--width-10",
-                label = Label(
-                    isPageHeading = false,
-                    classes = "govuk-fieldset__legend--s govuk-visually-hidden",
-                    content = Text(messages("postcode.label"))
-                )
+        @govukDateInput(
+            DateViewModel(
+            field  = form("deregistrationDate"),
+            legend = Legend()
             )
+        .withHint(HintViewModel(Text(messages("site.date.example"))))
         )
 
         @govukButton(
-            ButtonViewModel(Text(messages("findAddress"))).asFormSubmit
+            ButtonViewModel(Text(messages("site.save_and_continue"))).asFormSubmit
         )
+
+    <p class="govuk-body"><a href="@returnUrl" class="govuk-link">@messages("site.return_to_overview")</a></p>
+
 
     }
 }

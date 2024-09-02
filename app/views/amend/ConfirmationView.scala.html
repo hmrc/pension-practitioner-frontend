@@ -14,26 +14,25 @@
  * limitations under the License.
  *@
 
-@import viewmodels.CommonViewModel
-
 @this(
     layout: templates.Layout,
     govukPanel: GovukPanel,
     govukButton: GovukButton
 )
 
-@(pspId: String, email: String, viewmodel: CommonViewModel)(implicit request: Request[_], messages: Messages)
+@(email: String, panelHtml: String, submitUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(
-    pageTitle = messages("amendConfirmation.title", messages(viewmodel.entityType)),
+    pageTitle = messages("amendConfirmation.title"),
     showBackLink = false
 ) {
     <div>
-        <div class="govuk-panel govuk-panel--confirmation">
-            <h1 class="govuk-panel__title">
-                @messages("amendConfirmation.title", viewmodel.entityName)
-            </h1>
-        </div>
+        @govukPanel(
+            Panel(
+                title = Text(messages("amendConfirmation.title")),
+                content = HtmlContent(panelHtml)
+            )
+        )
 
         <p class="govuk-body">
             @messages("confirmation.email")
@@ -45,7 +44,7 @@
         <p class="govuk-body"><a class="govuk-link print-this-page" href="#">@messages("confirmation.print.page.link.text")</a></p>
 
         @govukButton(
-            ButtonViewModel(Text(messages("amendConfirmation.return"))).withAttribute(("id", "submit")).asLink(viewmodel.submitUrl)
+            ButtonViewModel(Text(messages("amendConfirmation.return"))).withAttribute(("id", "submit")).asLink(submitUrl)
         )
     </div>
 }

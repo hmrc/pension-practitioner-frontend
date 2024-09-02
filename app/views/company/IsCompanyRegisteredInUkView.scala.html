@@ -25,7 +25,7 @@
 @(submitCall: Call, form: Form[Boolean], radios: Seq[RadioItem])(implicit request: Request[_], messages: Messages)
 
 @field = @{form("value")}
-@layout(messages("isCompanyRegisteredInUk.title")) {
+@layout(messages("isCompanyRegisteredInUk.title"), formHasErrors = form.hasErrors) {
     @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
@@ -55,10 +55,7 @@
         )
 
         @govukButton(
-            Button(
-                content = Text(messages("site.save_and_continue")),
-                inputType = Some("submit")
-            )
+            ButtonViewModel(Text(messages("site.save_and_continue"))).asFormSubmit
         )
 
     }

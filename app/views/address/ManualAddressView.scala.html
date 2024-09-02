@@ -28,7 +28,7 @@
 @(pageTitle: String, H1: String, postcodeEntry: Boolean, postcodeFirst: Boolean, countries: Array[models.Country], submitUrl: Call, form: Form[_])(implicit request: Request[_], messages: Messages)
 
 
-@layout(pageTitle, formHasErrors = form.hasErrors) {
+@layout(pageTitle, formHasErrors = form.hasErrors, includeAutoLocation = true) {
     @formHelper(action = submitUrl, Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
