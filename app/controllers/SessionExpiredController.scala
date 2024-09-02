@@ -21,17 +21,24 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.TwirlMigration
+import views.html.SessionExpiredView
 
 import scala.concurrent.ExecutionContext
 
 class SessionExpiredController @Inject()(
     val controllerComponents: MessagesControllerComponents,
-    renderer: Renderer
+    renderer: Renderer,
+    sessionExpiredView: SessionExpiredView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = Action.async { implicit request =>
-    renderer.render("session-expired.njk").map(Ok(_))
+    val template = TwirlMigration.duoTemplate(
+      renderer.render("session-expired.njk"),
+      sessionExpiredView()
+    )
+    template.map(Ok(_))
   }
 }

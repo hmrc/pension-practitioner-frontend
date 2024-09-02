@@ -16,24 +16,26 @@
 
 package controllers
 
-import config.FrontendAppConfig
-import javax.inject.Inject
 import play.api.i18n.I18nSupport
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.TwirlMigration
+import views.html.AssistantNoAccessView
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class AssistantNoAccessController @Inject()(
                                         val controllerComponents: MessagesControllerComponents,
                                         renderer: Renderer,
-                                        config: FrontendAppConfig
+                                        assistantNoAccessView: AssistantNoAccessView
                                       )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = Action.async { implicit request =>
-    renderer.render("assistantNoAccess.njk").map(Ok(_))
+    def template = TwirlMigration.duoTemplate(renderer.render("assistantNoAccess.njk"), assistantNoAccessView())
+    template.map(Ok(_))
   }
 }

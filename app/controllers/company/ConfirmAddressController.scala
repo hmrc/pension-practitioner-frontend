@@ -16,7 +16,6 @@
 
 package controllers.company
 
-import config.FrontendAppConfig
 import connectors.RegistrationConnector
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
@@ -37,7 +36,9 @@ import renderer.Renderer
 import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
+import views.html.ConfirmAddressView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -53,7 +54,7 @@ class ConfirmAddressController @Inject()(
                                           formProvider: ConfirmAddressFormProvider,
                                           val controllerComponents: MessagesControllerComponents,
                                           countryOptions: CountryOptions,
-                                          config: FrontendAppConfig,
+                                          confirmAddressView: ConfirmAddressView,
                                           renderer: Renderer
                                         )(implicit ec: ExecutionContext)
   extends FrontendBaseController
@@ -104,7 +105,18 @@ class ConfirmAddressController @Inject()(
                 "submitUrl" -> routes.ConfirmAddressController.onSubmit().url,
                 "radios" -> Radios.yesNo(form("value")))
 
-              renderer.render("confirmAddress.njk", json).map(Ok(_))
+              def template = TwirlMigration.duoTemplate(
+                renderer.render("confirmAddress.njk", json),
+                confirmAddressView("company",
+                  form,
+                  routes.ConfirmAddressController.onSubmit(),
+                  pspName,
+                  reg.response.address.lines(countryOptions),
+                  TwirlMigration.toTwirlRadios(Radios.yesNo(form("value")))
+                )
+              )
+
+              template.map(Ok(_))
             }
           } recoverWith {
             case _: NotFoundException =>
@@ -132,7 +144,18 @@ class ConfirmAddressController @Inject()(
                   "radios" -> Radios.yesNo(formWithErrors("value"))
                 )
 
-                renderer.render("confirmAddress.njk", json).map(BadRequest(_))
+                def template = TwirlMigration.duoTemplate(
+                  renderer.render("confirmAddress.njk", json),
+                  confirmAddressView("company",
+                    formWithErrors,
+                    routes.ConfirmAddressController.onSubmit(),
+                    pspName,
+                    addr.lines(countryOptions),
+                    TwirlMigration.toTwirlRadios(Radios.yesNo(form("value")))
+                  )
+                )
+
+                template.map(BadRequest(_))
 
               case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
             }

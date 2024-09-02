@@ -17,19 +17,23 @@
 package controllers
 
 import config.FrontendAppConfig
+
 import javax.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.TwirlMigration
+import views.html.AgentCannotRegisterView
 
 import scala.concurrent.ExecutionContext
 
 class AgentCannotRegisterController @Inject()(
                                         val controllerComponents: MessagesControllerComponents,
                                         renderer: Renderer,
-                                        config: FrontendAppConfig
+                                        config: FrontendAppConfig,
+                                        agentCannotRegisterView: AgentCannotRegisterView
                                       )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
@@ -39,6 +43,11 @@ class AgentCannotRegisterController @Inject()(
       "govUkUrl" -> config.govUkUrl
     )
 
-    renderer.render("agentCannotRegister.njk", json).map(Ok(_))
+    def template = TwirlMigration.duoTemplate(
+      renderer.render("agentCannotRegister.njk", json),
+      agentCannotRegisterView()
+    )
+
+    template.map(Ok(_))
   }
 }

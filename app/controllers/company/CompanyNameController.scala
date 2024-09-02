@@ -21,6 +21,7 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.Variation
 import controllers.actions._
 import forms.BusinessNameFormProvider
+
 import javax.inject.Inject
 import models.Mode
 import navigators.CompoundNavigator
@@ -33,6 +34,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.TwirlMigration
+import views.html.BusinessNameView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -45,7 +48,8 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
                                       formProvider: BusinessNameFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
                                       config: FrontendAppConfig,
-                                      renderer: Renderer
+                                      renderer: Renderer,
+                                      businessNameView: BusinessNameView
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController
                                       with I18nSupport with NunjucksSupport with Variation {
 
@@ -58,10 +62,12 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
           case Some(value) => form.fill(value)
         }
 
-        val extraJson = request.userAnswers.get(AreYouUKCompanyPage) match {
-          case Some(true) => Json.obj("hintMessageKey" -> "businessName.hint")
-          case _ => Json.obj()
+        val hint = request.userAnswers.get(AreYouUKCompanyPage) match {
+          case Some(true) => Some("businessName.hint")
+          case _ => None
         }
+
+        val extraJson = hint.map { hint => Json.obj("hintMessageKey" -> hint)}.getOrElse(Json.obj())
 
         val json = Json.obj(
           "form" -> preparedForm,
@@ -69,7 +75,12 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
           "entityName" -> "company"
         ) ++ extraJson
 
-        renderer.render("businessName.njk", json).map(Ok(_))
+        val template = TwirlMigration.duoTemplate(
+          renderer.render("businessName.njk", json),
+          businessNameView("company", preparedForm, routes.CompanyNameController.onSubmit(mode), hint)
+        )
+
+        template.map(Ok(_))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
@@ -83,7 +94,12 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
               "entityName" -> "company"
             )
 
-            renderer.render("businessName.njk", json).map(BadRequest(_))
+            val template = TwirlMigration.duoTemplate(
+              renderer.render("businessName.njk", json),
+              businessNameView("company", formWithErrors, routes.CompanyNameController.onSubmit(mode), None)
+            )
+
+            template.map(BadRequest(_))
           },
           value =>
             for {

@@ -19,4 +19,6 @@ package viewmodels
 package object govuk {
   object all
     extends ButtonFluency
+    with InputFluency
+    with RadiosFluency
 }

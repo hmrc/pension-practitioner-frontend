@@ -78,8 +78,13 @@
     </div>
     <p style="font-size: 20px; color: red;"><b>DEV ONLY: TWIRL TEMPLATE</b></p>
 }
+
+@titlePrefix = @{if(formHasErrors) { messages("error.title.prefix") + " " } else { "" } }
+
+@_pageTitle = @{titlePrefix + pageTitle + " - " + Messages("site.service_name") + " - GOV.UK"}
+
 @govukLayout(
-    pageTitle = Some(pageTitle + " - " + Messages("site.service_name") + " - GOV.UK"),
+    pageTitle = Some(_pageTitle),
     headBlock = Some(hmrcHead(headBlock = Some(headScripts))),
     headerBlock = Some(hmrcStandardHeader(
         serviceName = Some(messages("site.service_name")),

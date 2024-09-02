@@ -17,10 +17,7 @@
 package controllers.partnership
 
 import com.google.inject.Inject
-import config.FrontendAppConfig
-import connectors.cache.UserAnswersCacheConnector
 import controllers.actions.{AuthAction, DataRequiredAction, DataRetrievalAction}
-import navigators.CompoundNavigator
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -28,19 +25,19 @@ import renderer.Renderer
 import services.PartnershipCYAService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import views.html.CheckYourAnswersView
 
 import scala.concurrent.ExecutionContext
 
-class CheckYourAnswersController @Inject()(config: FrontendAppConfig,
-                                           override val messagesApi: MessagesApi,
+class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi,
                                            @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
                                            getData: DataRetrievalAction,
                                            requireData: DataRequiredAction,
-                                           userAnswersCacheConnector: UserAnswersCacheConnector,
-                                           navigator: CompoundNavigator,
                                            val controllerComponents: MessagesControllerComponents,
                                            partnershipCYAService: PartnershipCYAService,
+                                           checkYourAnswersView: CheckYourAnswersView,
                                            renderer: Renderer)(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -48,12 +45,19 @@ class CheckYourAnswersController @Inject()(config: FrontendAppConfig,
 
   def onPageLoad: Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
-
       val json = Json.obj(
         "redirectUrl" -> controllers.partnership.routes.DeclarationController.onPageLoad().url,
         "list" -> partnershipCYAService.partnershipCya(request.userAnswers)
-    )
+      )
 
-        renderer.render("check-your-answers.njk", json).map(Ok(_))
-      }
+      def template = TwirlMigration.duoTemplate(
+        renderer.render("check-your-answers.njk", json),
+        checkYourAnswersView(
+          controllers.partnership.routes.DeclarationController.onPageLoad(),
+          TwirlMigration.summaryListRow(partnershipCYAService.partnershipCya(request.userAnswers))
+        )
+      )
+
+      template.map(Ok(_))
+    }
 }

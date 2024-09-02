@@ -16,31 +16,32 @@
 
 package controllers.partnership
 
-import config.FrontendAppConfig
 import connectors.RegistrationConnector
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import forms.ConfirmAddressFormProvider
-import javax.inject.Inject
 import models.register.RegistrationLegalStatus.Partnership
 import models.register.{BusinessType, Organisation}
 import models.requests.DataRequest
 import models.{NormalMode, TolerantAddress, UserAnswers}
 import navigators.CompoundNavigator
 import pages.RegistrationInfoPage
-import pages.partnership.{ConfirmAddressPage, BusinessUTRPage, BusinessNamePage}
+import pages.partnership.{BusinessNamePage, BusinessUTRPage, ConfirmAddressPage}
 import pages.register.BusinessTypePage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.{Json, JsObject}
-import play.api.mvc.{Result, AnyContent, MessagesControllerComponents, Action}
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import renderer.Renderer
 import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
+import views.html.ConfirmAddressView
 
-import scala.concurrent.{Future, ExecutionContext}
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
                                          userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -52,7 +53,7 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
                                          formProvider: ConfirmAddressFormProvider,
                                          val controllerComponents: MessagesControllerComponents,
                                          countryOptions: CountryOptions,
-                                         config: FrontendAppConfig,
+                                         confirmAddressView: ConfirmAddressView,
                                          renderer: Renderer
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
 
@@ -92,7 +93,18 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
               "submitUrl" -> routes.ConfirmAddressController.onSubmit().url,
               "radios" -> Radios.yesNo(form("value")))
 
-            renderer.render("confirmAddress.njk", json).map(Ok(_))
+            def template = TwirlMigration.duoTemplate(
+              renderer.render("confirmAddress.njk", json),
+              confirmAddressView("partnership",
+                form,
+                routes.ConfirmAddressController.onSubmit(),
+                pspName,
+                reg.response.address.lines(countryOptions),
+                TwirlMigration.toTwirlRadios(Radios.yesNo(form("value")))
+              )
+            )
+
+            template.map(Ok(_))
           }
         } recoverWith {
          case _: NotFoundException =>
@@ -118,7 +130,18 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
                   "radios" -> Radios.yesNo(formWithErrors("value"))
                 )
 
-                renderer.render("confirmAddress.njk", json).map(BadRequest(_))
+                def template = TwirlMigration.duoTemplate(
+                  renderer.render("confirmAddress.njk", json),
+                  confirmAddressView("partnership",
+                    formWithErrors,
+                    routes.ConfirmAddressController.onSubmit(),
+                    pspName,
+                    addr.lines(countryOptions),
+                    TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value")))
+                  )
+                )
+
+                template.map(BadRequest(_))
 
               case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
             }

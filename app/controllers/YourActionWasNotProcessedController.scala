@@ -24,6 +24,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import services.PspDetailsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.TwirlMigration
+import views.html.YourActionWasNotProcessedView
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -34,7 +36,8 @@ class YourActionWasNotProcessedController @Inject()(appConfig: FrontendAppConfig
                                                      authenticate: AuthAction,
                                                      getData: DataRetrievalAction,
                                                      pspDetailsService: PspDetailsService,
-                                                     renderer: Renderer
+                                                     renderer: Renderer,
+                                                    yourActionWasNotProcessedView: YourActionWasNotProcessedView
                                                    )(implicit val executionContext: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
@@ -50,7 +53,13 @@ class YourActionWasNotProcessedController @Inject()(appConfig: FrontendAppConfig
         } else {
           Json.obj()
         }
-        
-        renderer.render("yourActionWasNotProcessed.njk", json).map(Ok(_))
+        val template = TwirlMigration.duoTemplate(
+          renderer.render("yourActionWasNotProcessed.njk", json),
+          yourActionWasNotProcessedView(
+            appConfig.returnToPspDashboardUrl,
+            if(request.user.alreadyEnrolledPspId.nonEmpty && pspName.nonEmpty) Some(pspName.get) else None
+          )
+        )
+        template.map(Ok(_))
     }
 }

@@ -13,3 +13,8 @@
 ->         /                          prod.Routes
 
 GET        /test-only/twirl/:state              controllers.testonly.TwirlController.trigger(state: String)
+GET        /test-only/bad-request              controllers.testonly.ErrorHandlingController.clientBadRequest
+GET        /test-only/not-found              controllers.testonly.ErrorHandlingController.clientNotFound
+GET        /test-only/client/:status              controllers.testonly.ErrorHandlingController.clientOther(status: Int)
+GET        /test-only/server-error-app              controllers.testonly.ErrorHandlingController.serverAppError
+GET        /test-only/server-error              controllers.testonly.ErrorHandlingController.serverError

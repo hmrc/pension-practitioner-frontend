@@ -18,9 +18,7 @@ package controllers.company
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import connectors.cache.UserAnswersCacheConnector
 import controllers.actions.{AuthAction, DataRequiredAction, DataRetrievalAction}
-import navigators.CompoundNavigator
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -28,7 +26,9 @@ import renderer.Renderer
 import services.CompanyCYAService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import views.html.CheckYourAnswersView
 
 import scala.concurrent.ExecutionContext
 
@@ -37,11 +37,10 @@ class CheckYourAnswersController @Inject()(config: FrontendAppConfig,
                                            @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
                                            getData: DataRetrievalAction,
                                            requireData: DataRequiredAction,
-                                           userAnswersCacheConnector: UserAnswersCacheConnector,
-                                           navigator: CompoundNavigator,
                                            val controllerComponents: MessagesControllerComponents,
                                            companyCYAService: CompanyCYAService,
-                                           renderer: Renderer)(implicit ec: ExecutionContext)
+                                           renderer: Renderer,
+                                           checkYourAnswersView: CheckYourAnswersView)(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
     with NunjucksSupport {
@@ -54,6 +53,16 @@ class CheckYourAnswersController @Inject()(config: FrontendAppConfig,
         "list" -> companyCYAService.companyCya(request.userAnswers)
     )
 
-        renderer.render("check-your-answers.njk", json).map(Ok(_))
+      def template = TwirlMigration.duoTemplate(
+        renderer.render("check-your-answers.njk", json),
+        checkYourAnswersView(
+          controllers.company.routes.DeclarationController.onPageLoad(),
+          TwirlMigration.summaryListRow(
+            companyCYAService.companyCya(request.userAnswers)
+          )
+        )
+      )
+
+      template.map(Ok(_))
       }
 }
