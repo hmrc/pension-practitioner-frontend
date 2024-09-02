@@ -27,7 +27,7 @@
 
 @field = @{form("value")}
 
-@layout(messages("deregistrationDate.company.title")) {
+@layout(messages("deregistrationDate.company.title") , formHasErrors = form.hasErrors) {
 
     @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
         @if(form.errors.nonEmpty) {

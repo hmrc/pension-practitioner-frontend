@@ -26,7 +26,7 @@
 @(submitCall: Call, form: Form[java.time.LocalDate], returnUrl: String, applicationDate: String, viewmodel: uk.gov.hmrc.viewmodels.DateInput.ViewModel)(implicit request: Request[_], messages: Messages)
 
 
-@layout(messages("deregistrationDate.individual.title")) {
+@layout(messages("deregistrationDate.individual.title"), formHasErrors = form.hasErrors) {
 
     @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
         @if(form.errors.nonEmpty) {

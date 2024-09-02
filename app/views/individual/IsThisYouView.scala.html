@@ -27,7 +27,7 @@
 
 @field = @{form("value")}
 
-@layout(messages("isThisYou.title")) {
+@layout(messages("isThisYou.title"), formHasErrors = form.hasErrors) {
 
  @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
    @if(form.errors.nonEmpty) {
