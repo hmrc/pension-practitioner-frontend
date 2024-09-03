@@ -19,10 +19,7 @@ package navigators
 import controllers.company.routes._
 import controllers.register.routes._
 import data.SampleData
-import models.Address
-import models.CheckMode
-import models.NormalMode
-import models.UserAnswers
+import models.{CheckMode, NormalMode, UserAnswers}
 import org.scalatest.prop.TableFor3
 import pages.Page
 import pages.company._

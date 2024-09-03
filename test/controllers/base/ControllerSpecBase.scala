@@ -24,7 +24,7 @@ import models.UserAnswers
 import models.requests.DataRequest
 import navigators.CompoundNavigator
 import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfterEach
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.HeaderNames
 import play.api.inject.bind
@@ -38,7 +38,7 @@ import utils.annotations.{AuthMustHaveEnrolmentWithNoIV, AuthMustHaveNoEnrolment
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
-trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with MockitoSugar {
+trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with BeforeAndAfterAll with MockitoSugar {
 
   val FakeActionFilter: ActionFilter[DataRequest] = new ActionFilter[DataRequest] {
     override protected def executionContext: ExecutionContext = global
@@ -46,7 +46,11 @@ trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with MockitoSu
     override protected def filter[A](request: DataRequest[A]): Future[Option[Result]] = Future.successful(None)
   }
 
+
+
   override def beforeEach(): Unit = {
+    reset(mockAppConfig)
+    when(mockAppConfig.betaFeedbackUnauthenticatedUrl).thenReturn("testUrl")
     reset(mockRenderer)
     reset(mockUserAnswersCacheConnector)
     reset(mockCompoundNavigator)

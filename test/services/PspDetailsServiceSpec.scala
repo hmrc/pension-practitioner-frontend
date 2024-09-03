@@ -45,8 +45,6 @@ class PspDetailsServiceSpec
     with BeforeAndAfterEach
     with ScalaFutures {
 
-  import PspDetailsServiceSpec._
-
   private def minPsp(rlsFlag: Boolean) = MinimalPSP("a@a.a", Some("name"), None, rlsFlag = rlsFlag, deceasedFlag = false)
 
   private val pspId: String = "psp-id"
