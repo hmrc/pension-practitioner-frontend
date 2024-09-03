@@ -46,7 +46,7 @@ class YourActionWasNotProcessedControllerSpec extends ControllerSpecBase with Mo
 
       status(result) mustEqual OK
 
-      val view = app.injector.instanceOf[YourActionWasNotProcessedView].apply("testUrl", None)(request, messages)
+      val view = application.injector.instanceOf[YourActionWasNotProcessedView].apply("testUrl", None)(request, messages)
 
       compareResultAndView(result, view)
 

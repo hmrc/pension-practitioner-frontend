@@ -86,8 +86,16 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
               "submitUrl" -> routes.WhatTypeBusinessController.onSubmit().url,
               "radios" -> WhatTypeBusiness.radios(formWithErrors)
             )
+            val template = twirlMigration.duoTemplate(
+              renderer.render("whatTypeBusiness.njk", json),
+              whatTypeBusinessView(
+                routes.WhatTypeBusinessController.onSubmit(),
+                formWithErrors,
+                TwirlMigration.toTwirlRadios(WhatTypeBusiness.radios(formWithErrors))
+              )
+            )
 
-            renderer.render("whatTypeBusiness.njk", json).map(BadRequest(_))
+            template.map(BadRequest(_))
           },
           value => {
             val ua = request.userAnswers.getOrElse(UserAnswers())

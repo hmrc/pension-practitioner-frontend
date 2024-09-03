@@ -34,7 +34,6 @@ import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.TwirlMigration
 import views.html.WhatTypeBusinessView
@@ -78,7 +77,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
       status(result) mustEqual OK
 
-      val view = app.injector.instanceOf[WhatTypeBusinessView].apply(whatTypeBusinessSubmitRoute,
+      val view = application.injector.instanceOf[WhatTypeBusinessView].apply(whatTypeBusinessSubmitRoute,
         form,
         TwirlMigration.toTwirlRadios(WhatTypeBusiness.radios(form)))(request, messages)
 
@@ -99,7 +98,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
       val filledForm = form.bind(Map("value" -> WhatTypeBusiness.values.head.toString))
 
-      val view = app.injector.instanceOf[WhatTypeBusinessView].apply(whatTypeBusinessSubmitRoute,
+      val view = application.injector.instanceOf[WhatTypeBusinessView].apply(whatTypeBusinessSubmitRoute,
         filledForm,
         TwirlMigration.toTwirlRadios(WhatTypeBusiness.radios(filledForm)))(request, messages)
 
@@ -136,7 +135,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
       status(result) mustEqual BAD_REQUEST
 
-      val view = app.injector.instanceOf[WhatTypeBusinessView].apply(whatTypeBusinessRoute,
+      val view = application.injector.instanceOf[WhatTypeBusinessView].apply(whatTypeBusinessSubmitRoute,
         boundForm,
         TwirlMigration.toTwirlRadios(WhatTypeBusiness.radios(boundForm)))(request, messages)
 
