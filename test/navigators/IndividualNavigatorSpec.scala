@@ -24,7 +24,7 @@ import play.api.mvc.Call
 
 class IndividualNavigatorSpec extends NavigatorBehaviour {
 
-  private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
+  private val navigator: CompoundNavigator = app.injector.instanceOf[CompoundNavigator]
   private def address(country: String): Address = Address("line1", "line2", None, None, None, country)
 
   private def uaIsThisYou(flag: Boolean): UserAnswers = UserAnswers().setOrException(IsThisYouPage, flag)

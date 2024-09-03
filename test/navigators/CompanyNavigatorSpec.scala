@@ -44,7 +44,7 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
   private def uaIsCompanyRegisteredInUkPage(v:Boolean): UserAnswers =
     SampleData.emptyUserAnswers.setOrException(IsCompanyRegisteredInUkPage, v)
 
-  private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
+  private val navigator: CompoundNavigator = app.injector.instanceOf[CompoundNavigator]
 
   "NormalMode" must {
     def normalModeRoutes: TableFor3[Page, UserAnswers, Call] =

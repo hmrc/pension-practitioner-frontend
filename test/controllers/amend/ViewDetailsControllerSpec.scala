@@ -57,7 +57,7 @@ class ViewDetailsControllerSpec extends ControllerSpecBase with MockitoSugar wit
       val result = route(app, req).value
 
       status(result) mustEqual OK
-      val view = injector.instanceOf[views.html.amend.ViewDetailsView].apply(
+      val view = app.injector.instanceOf[views.html.amend.ViewDetailsView].apply(
         "title",
         "heading",
         Seq(),

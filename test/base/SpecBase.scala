@@ -19,15 +19,12 @@ package base
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice._
 import play.api.i18n.{Messages, MessagesApi}
-import play.api.inject.Injector
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.HeaderCarrier
 
 trait SpecBase extends PlaySpec with GuiceOneAppPerSuite {
 
   protected implicit val hc: HeaderCarrier = HeaderCarrier()
-  protected def injector: Injector = app.injector
-
-  protected implicit def messages: Messages = injector.instanceOf[MessagesApi].preferred(FakeRequest("", ""))
+  protected implicit def messages: Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest("", ""))
 
 }

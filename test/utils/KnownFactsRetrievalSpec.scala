@@ -17,9 +17,9 @@
 package utils
 
 import base.SpecBase
-import models.register.{RegistrationIdType, RegistrationCustomerType, RegistrationInfo, RegistrationLegalStatus}
-import models.requests.{DataRequest, UserType, PSPUser}
-import models.{KnownFacts, KnownFact, Address, UserAnswers}
+import models.register.{RegistrationCustomerType, RegistrationIdType, RegistrationInfo, RegistrationLegalStatus}
+import models.requests.{DataRequest, PSPUser, UserType}
+import models.{Address, KnownFact, KnownFacts, UserAnswers}
 import pages.RegistrationInfoPage
 import pages.company.CompanyRegisteredAddressPage
 import play.api.libs.json.Json
@@ -35,7 +35,7 @@ class KnownFactsRetrievalSpec extends SpecBase {
   private val sapNumber = "test-sap-number"
   private val nonUk = "test-non-uk"
 
-  private lazy val generator = injector.instanceOf[KnownFactsRetrieval]
+  private lazy val generator = app.injector.instanceOf[KnownFactsRetrieval]
 
   "retrieve" must {
 

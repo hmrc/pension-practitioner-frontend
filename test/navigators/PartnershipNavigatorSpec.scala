@@ -44,7 +44,7 @@ class PartnershipNavigatorSpec extends NavigatorBehaviour {
   private def uaIsPartnershipRegisteredInUkPage(v:Boolean): UserAnswers =
     SampleData.emptyUserAnswers.setOrException(IsPartnershipRegisteredInUkPage, v)
 
-  private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
+  private val navigator: CompoundNavigator = app.injector.instanceOf[CompoundNavigator]
 
   "NormalMode" must {
     def normalModeRoutes: TableFor3[Page, UserAnswers, Call] =

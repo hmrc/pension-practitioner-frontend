@@ -68,7 +68,7 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
       val result = route(app, req).value
 
       status(result) mustEqual OK
-      val view = injector.instanceOf[views.html.amend.ConfirmationView].apply(
+      val view = app.injector.instanceOf[views.html.amend.ConfirmationView].apply(
         email,
         Html(s"""<p>${{ messages("confirmation.psp.id") }}</p>
                 |<span class="heading-large govuk-!-font-weight-bold">$pspId</span>""".stripMargin).toString(),

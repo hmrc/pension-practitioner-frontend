@@ -40,7 +40,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
-trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with BeforeAndAfterAll with MockitoSugar with ControllerBehaviour {
+trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with BeforeAndAfterAll with MockitoSugar {
 
   val FakeActionFilter: ActionFilter[DataRequest] = new ActionFilter[DataRequest] {
     override protected def executionContext: ExecutionContext = global

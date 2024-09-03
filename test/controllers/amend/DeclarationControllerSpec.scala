@@ -82,7 +82,7 @@ class DeclarationControllerSpec
 
       status(result) mustEqual OK
 
-      val view = injector.instanceOf[views.html.amend.DeclarationView].apply(controllers.amend.routes.DeclarationController.onSubmit())(req, messages)
+      val view = app.injector.instanceOf[views.html.amend.DeclarationView].apply(controllers.amend.routes.DeclarationController.onSubmit())(req, messages)
 
       compareResultAndView(result, view)
     }
