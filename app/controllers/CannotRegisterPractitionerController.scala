@@ -45,7 +45,7 @@ class CannotRegisterPractitionerController @Inject()(
 
     def template = twirlMigration.duoTemplate(
         renderer.render("cannotRegisterPractitioner.njk",json),
-        cannotRegisterPractitionerView(config.contactHmrcUrl)
+        cannotRegisterPractitionerView()
     )
 
       template.map(Ok(_))

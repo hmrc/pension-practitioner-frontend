@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *@
+@import config.FrontendAppConfig
 
 @this(
         layout: templates.Layout,
-        govukButton: GovukButton
+        govukButton: GovukButton,
+        frontendAppConfig: FrontendAppConfig
 )
 
-@(contactHmrcUrl: String)(implicit request: Request[_], messages: Messages)
+
+@()(implicit request: Request[_], messages: Messages)
 
 @layout(messages("cannotRegisterPractitioner.title")) {
 
@@ -29,7 +32,7 @@
     <p class="govuk-body">@messages("cannotRegisterPractitioner.p1")</p>
 
     @govukButton(
-        ButtonViewModel(Text(messages("cannotRegisterPractitioner.head.link"))).asLink(contactHmrcUrl)
+        ButtonViewModel(Text(messages("cannotRegisterPractitioner.head.link"))).asLink(frontendAppConfig.contactHmrcUrl)
     )
 
 }
