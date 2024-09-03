@@ -18,15 +18,13 @@ package controllers.amend
 
 import controllers.base.ControllerSpecBase
 import matchers.JsonMatchers
-import models.{PspDetailsData, UserAnswers}
-import org.mockito.ArgumentCaptor
+import models.PspDetailsData
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.libs.json.{JsObject, Json}
 import play.api.test.Helpers.{route, status, _}
 import play.twirl.api.Html
 import services.PspDetailsService
@@ -39,16 +37,8 @@ class ViewDetailsControllerSpec extends ControllerSpecBase with MockitoSugar wit
   private val extraModules: Seq[GuiceableModule] = Seq(
     bind[PspDetailsService].toInstance(pspDetailsService)
   )
-  private def application(userAnswers:Option[UserAnswers]): Application =
-    applicationBuilder(userAnswers = userAnswers, extraModules = extraModules).build()
-  private val templateToBeRendered = "amend/viewDetails.njk"
-
-
-  val json: JsObject = Json.obj(
-    "pageTitle" -> "title",
-    "heading" -> "heading",
-    "nextPage" -> "/pension-scheme-practitioner/declare"
-  )
+  override lazy val app: Application =
+    applicationBuilder(userAnswers = None, extraModules = extraModules).build()
 
   private def onPageLoadUrl: String = routes.ViewDetailsController.onPageLoad().url
 
@@ -61,17 +51,21 @@ class ViewDetailsControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   "ViewDetails Controller" must {
     "return OK and the correct view for a GET" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
-      val result = route(application(None), httpGETRequest(onPageLoadUrl)).value
+      val req = httpGETRequest(onPageLoadUrl)
+
+      val result = route(app, req).value
 
       status(result) mustEqual OK
+      val view = injector.instanceOf[views.html.amend.ViewDetailsView].apply(
+        "title",
+        "heading",
+        Seq(),
+        false,
+        routes.DeclarationController.onPageLoad().url,
+        None)(req, messages)
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(json)
+      compareResultAndView(result, view)
     }
   }
 }

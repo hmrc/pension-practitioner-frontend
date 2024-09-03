@@ -61,7 +61,7 @@ class PspDetailsServiceSpec
     reset(mockAppConfig)
     reset(mockMinimalConnector)
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
-    when(mockAppConfig.returnToPspDashboardUrl).thenReturn(frontendAppConfig.returnToPspDashboardUrl)
+    when(mockAppConfig.returnToPspDashboardUrl).thenReturn("testUrlPspDashboard")
   }
 
   "amendmentsExist" must {

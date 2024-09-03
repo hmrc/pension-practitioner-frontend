@@ -21,7 +21,6 @@ import controllers.base.ControllerSpecBase
 import matchers.JsonMatchers
 import models.UserAnswers
 import models.WhatTypeBusiness.Companyorpartnership
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
@@ -29,7 +28,6 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.company.CompanyEmailPage
 import pages.{PspIdPage, WhatTypeBusinessPage}
 import play.api.Application
-import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Results.Ok
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -42,9 +40,8 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
 
-  private val application: Application =
+  override lazy val app: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
-  private val templateToBeRendered = "amend/confirmation.njk"
   private val pspId = "1234567890"
   private val email = "a@a.c"
 
@@ -54,42 +51,37 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
     .setOrException(PspIdPage, pspId)
 
   private def onPageLoadUrl: String = routes.ConfirmationController.onPageLoad().url
-  private def submitUrl: String = frontendAppConfig.returnToPspDashboardUrl
-
-  private val jsonToPassToTemplate: JsObject =
-    Json.obj("submitUrl" -> submitUrl,
-      "email" -> email,
-    "panelHtml" -> Html(s"""<p>${{ messages("confirmation.psp.id") }}</p>
-                           |<span class="heading-large govuk-!-font-weight-bold">$pspId</span>""".stripMargin).toString()
-    )
+  private def submitUrl: String = "testUrl2"
 
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockAppConfig.returnToPspDashboardUrl).thenReturn(submitUrl)
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
   }
 
   "Confirmation Controller" must {
     "return OK and the correct view for a GET" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
       when(mockUserAnswersCacheConnector.removeAll(any(), any())).thenReturn(Future.successful(Ok))
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+
+      val req = httpGETRequest(onPageLoadUrl)
+      val result = route(app, req).value
 
       status(result) mustEqual OK
+      val view = injector.instanceOf[views.html.amend.ConfirmationView].apply(
+        email,
+        Html(s"""<p>${{ messages("confirmation.psp.id") }}</p>
+                |<span class="heading-large govuk-!-font-weight-bold">$pspId</span>""".stripMargin).toString(),
+        submitUrl
+      )(req, messages)
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate)
+      compareResultAndView(result, view)
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual SEE_OTHER
 

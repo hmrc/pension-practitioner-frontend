@@ -21,11 +21,11 @@ import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import data.SampleData
 import matchers.JsonMatchers
-import models.{JourneyType, UserAnswers}
 import models.register.RegistrationLegalStatus
-import org.mockito.{ArgumentCaptor, ArgumentMatchers}
+import models.{JourneyType, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.{BusinessNamePage, CompanyEmailPage}
@@ -34,7 +34,6 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import services.PspDetailsService
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 
@@ -53,14 +52,13 @@ class DeclarationControllerSpec
   private val mockEmailConnector: EmailConnector = mock[EmailConnector]
   private val mockPspDetailsService: PspDetailsService = mock[PspDetailsService]
   private val partnershipName = "Acme Ltd"
-  private val application: Application =
+  override lazy val app: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction,
       Seq(
         bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
         bind[EmailConnector].toInstance(mockEmailConnector),
         bind[PspDetailsService].to(mockPspDetailsService)
       )).build()
-  private val templateToBeRendered = "amend/declaration.njk"
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq("true"))
   private val email = "a@a.c"
 
@@ -71,28 +69,28 @@ class DeclarationControllerSpec
   override def beforeEach(): Unit = {
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
   }
 
   "Declaration Controller" must {
+
     "return OK and the correct view for a GET" in {
       when(mockPspDetailsService.amendmentsExist(any())).thenReturn(true)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val req = httpGETRequest(onPageLoadUrl)
+
+      val result = route(app, req).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = injector.instanceOf[views.html.amend.DeclarationView].apply(controllers.amend.routes.DeclarationController.onSubmit())(req, messages)
 
-      templateCaptor.getValue mustEqual templateToBeRendered
+      compareResultAndView(result, view)
     }
 
     "redirect to ViewDetails page if no amendments have been made" in {
       when(mockPspDetailsService.amendmentsExist(any())).thenReturn(false)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
       status(result) mustEqual SEE_OTHER
     }
 
@@ -127,7 +125,7 @@ class DeclarationControllerSpec
       when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())

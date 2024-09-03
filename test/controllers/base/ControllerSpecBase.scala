@@ -24,21 +24,23 @@ import models.UserAnswers
 import models.requests.DataRequest
 import navigators.CompoundNavigator
 import org.mockito.Mockito._
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
+import org.scalatest.{Assertion, BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.HeaderNames
 import play.api.inject.bind
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import play.api.mvc.{ActionFilter, AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
-import play.api.test.Helpers.{GET, POST}
 import play.api.test.{FakeHeaders, FakeRequest}
+import play.api.test.Helpers.{GET, POST}
+import play.twirl.api.Html
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import utils.annotations.{AuthMustHaveEnrolmentWithNoIV, AuthMustHaveNoEnrolmentWithIV, AuthMustHaveNoEnrolmentWithNoIV, AuthWithIV}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
-trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with BeforeAndAfterAll with MockitoSugar {
+trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with BeforeAndAfterAll with MockitoSugar with ControllerBehaviour {
 
   val FakeActionFilter: ActionFilter[DataRequest] = new ActionFilter[DataRequest] {
     override protected def executionContext: ExecutionContext = global
@@ -109,6 +111,19 @@ trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with BeforeAnd
         ): _*
       )
 
+  protected def compareResultAndView(
+                                      result: Future[Result],
+                                      view: Html
+                                    ): Assertion = {
+    org.scalatest.Assertions.assert(
+      play.api.test.Helpers.contentAsString(result)(1.seconds).removeAllNonces() == view.toString()
+    )
+  }
+
+  implicit class StringOps(s: String) {
+    def removeAllNonces(): String = s.replaceAll("""nonce="[^"]*"""", "")
+  }
+
   protected def httpGETRequest(path: String): FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, path)
 
   protected def httpPOSTRequest(path: String, values: Map[String, Seq[String]]): FakeRequest[AnyContentAsFormUrlEncoded] =
@@ -118,4 +133,5 @@ trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with BeforeAnd
         uri = path,
         headers = FakeHeaders(Seq(HeaderNames.HOST -> "localhost")),
         body = AnyContentAsFormUrlEncoded(values))
+
 }
