@@ -36,6 +36,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.TwirlMigration
 import views.html.WhatTypeBusinessView
 
 import scala.concurrent.Future
@@ -44,8 +45,8 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
   private def onwardRoute = Call("GET", "/foo")
 
-  private def whatTypeBusinessRoute: String = routes.WhatTypeBusinessController.onPageLoad()
-  private def whatTypeBusinessSubmitRoute: String = routes.WhatTypeBusinessController.onSubmit()
+  private def whatTypeBusinessRoute: Call = routes.WhatTypeBusinessController.onPageLoad()
+  private def whatTypeBusinessSubmitRoute: Call = routes.WhatTypeBusinessController.onSubmit()
 
   private val formProvider = new WhatTypeBusinessFormProvider()
   private val form = formProvider()
@@ -71,13 +72,15 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
   "WhatTypeBusiness Controller" must {
     "return OK and the correct view for a GET" in {
       val application = buildApp(userAnswers = Some(userAnswersWithCompanyName))
-      val request = FakeRequest(GET, whatTypeBusinessRoute)
+      val request = FakeRequest(GET, whatTypeBusinessRoute.url)
 
       val result = route(application, request).value
 
       status(result) mustEqual OK
 
-      val view = app.injector.instanceOf[WhatTypeBusinessView].apply(whatTypeBusinessSubmitRoute, form, WhatTypeBusiness.radios(form))(request, messages)
+      val view = app.injector.instanceOf[WhatTypeBusinessView].apply(whatTypeBusinessSubmitRoute,
+        form,
+        TwirlMigration.toTwirlRadios(WhatTypeBusiness.radios(form)))(request, messages)
 
       compareResultAndView(result, view)
 
@@ -88,7 +91,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
       val application = buildApp(userAnswers = Some(answers))
 
-      val request = FakeRequest(GET, whatTypeBusinessRoute)
+      val request = FakeRequest(GET, whatTypeBusinessRoute.url)
 
       val result = route(application, request).value
 
@@ -96,7 +99,9 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
       val filledForm = form.bind(Map("value" -> WhatTypeBusiness.values.head.toString))
 
-      val view = app.injector.instanceOf[WhatTypeBusinessView].apply(whatTypeBusinessSubmitRoute, filledForm, WhatTypeBusiness.radios(filledForm))(request, messages)
+      val view = app.injector.instanceOf[WhatTypeBusinessView].apply(whatTypeBusinessSubmitRoute,
+        filledForm,
+        TwirlMigration.toTwirlRadios(WhatTypeBusiness.radios(filledForm)))(request, messages)
 
       compareResultAndView(result, view)
 
@@ -111,7 +116,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
       val application = buildApp(userAnswers = Some(userAnswersWithCompanyName.setOrException(PspIdPage, pspId)))
 
-      val request = FakeRequest(POST, whatTypeBusinessRoute).withFormUrlEncodedBody(("value", WhatTypeBusiness.values.head.toString))
+      val request = FakeRequest(POST, whatTypeBusinessRoute.url).withFormUrlEncodedBody(("value", WhatTypeBusiness.values.head.toString))
 
       val result = route(application, request).value
 
@@ -124,14 +129,16 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSuga
 
     "return a Bad Request and errors when invalid data is submitted" in {
       val application = buildApp(userAnswers = Some(userAnswersWithCompanyName))
-      val request = FakeRequest(POST, whatTypeBusinessRoute).withFormUrlEncodedBody(("value", "invalid value"))
+      val request = FakeRequest(POST, whatTypeBusinessRoute.url).withFormUrlEncodedBody(("value", "invalid value"))
       val boundForm = form.bind(Map("value" -> "invalid value"))
 
       val result = route(application, request).value
 
       status(result) mustEqual BAD_REQUEST
 
-      val view = app.injector.instanceOf[WhatTypeBusinessView].apply(whatTypeBusinessRoute, boundForm, WhatTypeBusiness.radios(boundForm))(request, messages)
+      val view = app.injector.instanceOf[WhatTypeBusinessView].apply(whatTypeBusinessRoute,
+        boundForm,
+        TwirlMigration.toTwirlRadios(WhatTypeBusiness.radios(boundForm)))(request, messages)
 
       compareResultAndView(result, view)
 

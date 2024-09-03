@@ -53,6 +53,7 @@ trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with BeforeAnd
   override def beforeEach(): Unit = {
     reset(mockAppConfig)
     when(mockAppConfig.betaFeedbackUnauthenticatedUrl).thenReturn("testUrl")
+    when(mockAppConfig.contactHmrcUrl).thenReturn("testContactHmrcUrl")
     reset(mockRenderer)
     reset(mockUserAnswersCacheConnector)
     reset(mockCompoundNavigator)
