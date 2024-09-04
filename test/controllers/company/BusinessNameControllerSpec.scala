@@ -21,19 +21,19 @@ import data.SampleData._
 import forms.BusinessNameFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.BusinessNamePage
 import play.api.data.Form
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import views.html.BusinessNameView
 
 import scala.concurrent.Future
 
@@ -56,23 +56,19 @@ class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar wi
       val application = applicationBuilder(userAnswers = Some(UserAnswers()))
         .build()
       val request = FakeRequest(GET, companyNameRoute)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[BusinessNameView].apply(
+        "company",
+        form,
+        routes.CompanyNameController.onSubmit(NormalMode),
+        None
+      )(request, messages)
 
-      val expectedJson = Json.obj(
-        "form" -> form,
-        "submitUrl" -> companyNameSubmitRoute
-      )
-
-      templateCaptor.getValue mustEqual "businessName.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
-
+      compareResultAndView(result, view)
 
       application.stop()
     }
@@ -86,24 +82,21 @@ class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar wi
         )
         .build()
       val request = FakeRequest(GET, companyNameRoute)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
       val filledForm = form.bind(Map("value" -> "answer"))
 
-      val expectedJson = Json.obj(
-        "form" -> filledForm,
-        "submitUrl" -> companyNameSubmitRoute
-      )
+      val view = application.injector.instanceOf[BusinessNameView].apply(
+        "company",
+        filledForm,
+        routes.CompanyNameController.onSubmit(NormalMode),
+        None
+      )(request, messages)
 
-      templateCaptor.getValue mustEqual "businessName.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      compareResultAndView(result, view)
 
       application.stop()
     }
@@ -139,22 +132,19 @@ class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar wi
         .build()
       val request = FakeRequest(POST, companyNameRoute).withFormUrlEncodedBody(("value", ""))
       val boundForm = form.bind(Map("value" -> ""))
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual BAD_REQUEST
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[BusinessNameView].apply(
+        "company",
+        boundForm,
+        routes.CompanyNameController.onSubmit(NormalMode),
+        None
+      )(request, messages)
 
-      val expectedJson = Json.obj(
-        "form" -> boundForm,
-        "submitUrl" -> companyNameSubmitRoute
-      )
-
-      templateCaptor.getValue mustEqual "businessName.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      compareResultAndView(result, view)
 
       application.stop()
     }

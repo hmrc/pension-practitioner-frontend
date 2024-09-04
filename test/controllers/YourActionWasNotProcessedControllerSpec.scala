@@ -29,8 +29,6 @@ import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.YourActionWasNotProcessedView
 
-import scala.concurrent.Future
-
 class YourActionWasNotProcessedControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
   with JsonMatchers with OptionValues with TryValues {
 

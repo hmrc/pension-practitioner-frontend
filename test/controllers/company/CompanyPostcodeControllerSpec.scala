@@ -29,14 +29,14 @@ import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.{BusinessNamePage, CompanyPostcodePage}
 import play.api.Application
-import play.api.data.Form
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import viewmodels.CommonViewModel
+import views.html.address.PostcodeView
 
 import scala.concurrent.Future
 
@@ -51,7 +51,6 @@ class CompanyPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar
       mutableFakeDataRetrievalAction,
       extraModules = Seq(bind[AddressLookupConnector].toInstance(mockAddressLookupConnector))
     ).build()
-  private val templateToBeRendered = "address/postcode.njk"
   private val form = new PostcodeFormProvider()(
     messages("postcode.error.required", messages("company")),
     messages("postcode.error.invalid", messages("company")))
@@ -69,9 +68,6 @@ class CompanyPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar
 
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
 
-  private val jsonToPassToTemplate: Form[String] => JsObject =
-    form => Json.obj("form" -> form, "viewmodel" -> CommonViewModel("company", companyName, submitUrl, Some(enterManuallyUrl.url)))
-
   override def beforeEach(): Unit = {
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
@@ -82,17 +78,20 @@ class CompanyPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar
   "CompanyPostcode Controller" must {
     "return OK and the correct view for a GET" in {
       when(mockAppConfig.betaFeedbackUnauthenticatedUrl).thenReturn("betaFeedbackUnauthenticatedUrl")
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-
+      val request = FakeRequest(GET, onPageLoadUrl)
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[PostcodeView].apply(
+        routes.CompanyPostcodeController.onSubmit(NormalMode),
+        routes.CompanyContactAddressController.onPageLoad(NormalMode).url,
+        "company",
+        companyName,
+        form
+      )(request, messages)
 
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
+      compareResultAndView(result, view)
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {

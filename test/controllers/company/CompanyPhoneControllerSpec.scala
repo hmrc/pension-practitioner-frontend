@@ -28,13 +28,14 @@ import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.{BusinessNamePage, CompanyPhonePage}
 import play.api.Application
-import play.api.data.Form
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import viewmodels.CommonViewModel
+import viewmodels.CommonViewModelTwirl
+import views.html.PhoneView
 
 import scala.concurrent.Future
 
@@ -45,7 +46,6 @@ class CompanyPhoneControllerSpec extends ControllerSpecBase with MockitoSugar wi
   private val companyName: String = "Company name"
   private val application: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
-  private val templateToBeRendered = "phone.njk"
   private val form = new PhoneFormProvider()(messages("phone.error.required", messages("company")))
   private val phone = "11111111"
   private val dummyCall: Call = Call("GET", "/foo")
@@ -59,8 +59,7 @@ class CompanyPhoneControllerSpec extends ControllerSpecBase with MockitoSugar wi
 
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
 
-  private val jsonToPassToTemplate: Form[String] => JsObject =
-    form => Json.obj("form" -> form, "viewmodel" -> CommonViewModel("company", companyName, submitUrl))
+  private val request = FakeRequest(GET, onPageLoadUrl)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -71,35 +70,34 @@ class CompanyPhoneControllerSpec extends ControllerSpecBase with MockitoSugar wi
 
   "CompanyPhone Controller" must {
     "return OK and the correct view for a GET" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[PhoneView].apply(
+        CommonViewModelTwirl("company", companyName, routes.CompanyPhoneController.onSubmit(NormalMode)),
+        form
+      )(request, messages)
 
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
+      compareResultAndView(result, view)
     }
 
     "populate the view correctly on a GET when the question has previously been answered" in {
       val prepopUA: UserAnswers = userAnswers.set(CompanyPhonePage, phone).toOption.value
       mutableFakeDataRetrievalAction.setDataToReturn(Some(prepopUA))
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
       val filledForm = form.bind(Map("value" -> phone))
 
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(filledForm))
+      val view = application.injector.instanceOf[PhoneView].apply(
+        CommonViewModelTwirl("company", companyName, routes.CompanyPhoneController.onSubmit(NormalMode)),
+        filledForm
+      )(request, messages)
+
+      compareResultAndView(result, view)
     }
 
 

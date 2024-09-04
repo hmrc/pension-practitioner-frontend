@@ -32,9 +32,11 @@ import play.api.Application
 import play.api.data.Form
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import views.html.BusinessNameView
 
 import scala.concurrent.Future
 
@@ -45,7 +47,6 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
   private val companyName: String = "Company name"
   private val application: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
-  private val templateToBeRendered = "businessName.njk"
   private val form = new BusinessNameFormProvider()(messages("required", messages("invalid"), messages("length")))
   private val name = "abc"
   private val dummyCall: Call = Call("GET", "/foo")
@@ -59,12 +60,7 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
 
-  private val jsonToPassToTemplate: Form[String] => JsObject =
-    form => Json.obj(
-    "form" -> form,
-    "submitUrl" -> routes.CompanyNameController.onSubmit(NormalMode).url,
-    "entityName" -> "company"
-    )
+  private val request = FakeRequest(GET, onPageLoadUrl)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -75,23 +71,21 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   "Company Name Controller" must {
     "return OK and the correct view for a GET" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[BusinessNameView].apply(
+        "company",
+        form,
+        routes.CompanyNameController.onSubmit(NormalMode),
+        None
+      )(request, messages)
 
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
+      compareResultAndView(result, view)
     }
 
     "return OK and the correct view for a GET where in UK, including hint message key" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-
       val userAnswers: UserAnswers = UserAnswers()
           .setOrException(AreYouUKCompanyPage, true)
       mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
@@ -100,31 +94,34 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[BusinessNameView].apply(
+        "company",
+        form,
+        routes.CompanyNameController.onSubmit(NormalMode),
+        Some("businessName.hint")
+      )(request, messages)
 
-      templateCaptor.getValue mustEqual templateToBeRendered
-      val expectedJson = jsonToPassToTemplate
-        .apply(form) ++ Json.obj("hintMessageKey" -> "businessName.hint")
-
-      jsonCaptor.getValue must containJson(expectedJson)
+      compareResultAndView(result, view)
     }
 
     "populate the view correctly on a GET when the question has previously been answered" in {
       val prepopUA: UserAnswers = userAnswers.set(BusinessNamePage, name).toOption.value
       mutableFakeDataRetrievalAction.setDataToReturn(Some(prepopUA))
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
       val filledForm = form.bind(Map("value" -> name))
 
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(filledForm))
+      val view = application.injector.instanceOf[BusinessNameView].apply(
+        "company",
+        filledForm,
+        routes.CompanyNameController.onSubmit(NormalMode),
+        None
+      )(request, messages)
+
+      compareResultAndView(result, view)
     }
 
 

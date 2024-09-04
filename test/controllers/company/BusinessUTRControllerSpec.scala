@@ -22,6 +22,7 @@ import forms.BusinessUTRFormProvider
 import matchers.JsonMatchers
 import models.UserAnswers
 import models.register.BusinessType
+import models.register.BusinessType.LimitedCompany
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
@@ -35,6 +36,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import views.html.BusinessUTRView
 
 import scala.concurrent.Future
 
@@ -54,30 +56,22 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
   "BusinessUTR Controller" must {
 
     "return OK and the correct view for a GET" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-
       val application = applicationBuilder(userAnswers = Some(UserAnswers().setOrException(BusinessTypePage, businessType)))
         .overrides(
         )
         .build()
       val request = FakeRequest(GET, businessUTRRoute)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[BusinessUTRView].apply(
+        "limited company",
+        form,
+        routes.BusinessUTRController.onSubmit())(request, messages)
 
-      val expectedJson = Json.obj(
-        "form" -> form,
-        "submitUrl" -> businessUTRSubmitRoute,
-        "businessType" -> s"whatTypeBusiness.$businessType"
-      )
-
-      templateCaptor.getValue mustEqual "businessUTR.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      compareResultAndView(result, view)
 
       application.stop()
     }
@@ -92,25 +86,19 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
         )
         .build()
       val request = FakeRequest(GET, businessUTRRoute)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
       val filledForm = form.bind(Map("value" -> validUTR))
 
-      val expectedJson = Json.obj(
-        "form" -> filledForm,
-        "submitUrl" -> businessUTRSubmitRoute,
-        "businessType" -> s"whatTypeBusiness.$businessType"
-      )
+      val view = application.injector.instanceOf[BusinessUTRView].apply(
+        "limited company",
+        filledForm,
+        routes.BusinessUTRController.onSubmit())(request, messages)
 
-      templateCaptor.getValue mustEqual "businessUTR.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      compareResultAndView(result, view)
 
       application.stop()
     }
@@ -146,23 +134,17 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
         .build()
       val request = FakeRequest(POST, businessUTRRoute).withFormUrlEncodedBody(("value", ""))
       val boundForm = form.bind(Map("value" -> ""))
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual BAD_REQUEST
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[BusinessUTRView].apply(
+        "limited company",
+        boundForm,
+        routes.BusinessUTRController.onSubmit())(request, messages)
 
-      val expectedJson = Json.obj(
-        "form" -> boundForm,
-        "submitUrl" -> businessUTRSubmitRoute,
-        "businessType" -> s"whatTypeBusiness.$businessType"
-      )
-
-      templateCaptor.getValue mustEqual "businessUTR.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      compareResultAndView(result, view)
 
       application.stop()
     }

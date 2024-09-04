@@ -20,7 +20,7 @@ import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import forms.address.AddressListFormProvider
 import matchers.JsonMatchers
-import models.{NormalMode, TolerantAddress, UserAnswers, Address}
+import models.{Address, NormalMode, TolerantAddress, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
@@ -28,15 +28,18 @@ import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.{BusinessNamePage, CompanyAddressListPage, CompanyAddressPage, CompanyPostcodePage}
 import play.api.Application
-import play.api.data.Form
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.countryOptions.CountryOptions
-import viewmodels.CommonViewModel
+import viewmodels.CommonViewModelTwirl
+import views.html.address.AddressListView
 
 import scala.concurrent.Future
 
@@ -51,7 +54,6 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
       mutableFakeDataRetrievalAction,
       extraModules = Seq(bind[CountryOptions].toInstance(countryOptions))
     ).build()
-  private val templateToBeRendered = "address/addressList.njk"
   private val form = new AddressListFormProvider()(messages("addressList.error.invalid", messages("company")))
   private val tolerantAddress = TolerantAddress(Some("addr1"), Some("addr2"), Some("addr3"), Some("addr4"), Some("postcode"), Some("GB"))
 
@@ -94,13 +96,14 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
 
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
 
-  private val jsonToPassToTemplate: Form[Int] => JsObject =
-    form => Json.obj(
-        "form" -> form,
-      "addresses" -> Json.arr(Json.obj("value" -> 0,"text" ->"addr1, addr2, addr3, addr4, postcode, United Kingdom"),
-        Json.obj("value" -> 1, "text" -> "Address 2 Line 1, Address 2 Line 4, 123, United Kingdom"),
-        Json.obj("value" -> 2,"text" -> "Address 1 Line 1, A1 1PC, United Kingdom")),
-      "viewmodel" -> CommonViewModel("company", companyName, submitUrl, Some(enterManuallyUrl.url)))
+  private val radioItems = Seq(
+    RadioItem(Text("addr1, addr2, addr3, addr4, postcode, United Kingdom"), value = Some("0")),
+    RadioItem(Text("Address 2 Line 1, Address 2 Line 4, 123, United Kingdom"), value = Some("1")),
+    RadioItem(Text("Address 1 Line 1, A1 1PC, United Kingdom"), value = Some("2"))
+  )
+
+  private val commonViewModelTwirl = CommonViewModelTwirl(
+    "company", companyName, routes.CompanyAddressListController.onSubmit(NormalMode), Some(enterManuallyUrl.url))
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -112,19 +115,17 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
     when(countryOptions.getCountryNameFromCode(eqTo(incompleteFixableAddresses))).thenReturn(Some("United Kingdom"))
   }
 
+  private val request = FakeRequest(GET, onPageLoadUrl)
+
   "CompanyAddressList Controller" must {
     "return OK and the correct view for a GET" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[AddressListView].apply(form, radioItems, commonViewModelTwirl)(request, messages)
 
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
+      compareResultAndView(result, view)
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {

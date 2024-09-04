@@ -30,14 +30,19 @@ import pages.company.{BusinessNamePage, CompanyUseSameAddressPage, ConfirmAddres
 import pages.register.AreYouUKCompanyPage
 import play.api.Application
 import play.api.data.Form
+import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
+import uk.gov.hmrc.govukfrontend.views.html.components
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
 import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModel
+import views.html.address.UseAddressForContactView
 
 import scala.concurrent.Future
 
@@ -50,7 +55,6 @@ class CompanyUseSameAddressControllerSpec extends ControllerSpecBase with Mockit
   private val application: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction,
       extraModules = Seq(bind[CountryOptions].toInstance(countryOptions))).build()
-  private val templateToBeRendered = "address/useAddressForContact.njk"
   private val form = new UseAddressForContactFormProvider()(messages("useAddressForContact.error.required", messages("company")))
 
   private val address: TolerantAddress = TolerantAddress(Some("addr1"), Some("addr2"), Some("addr3"), Some("addr4"), Some("postcode"), Some("UK"))
@@ -68,12 +72,6 @@ class CompanyUseSameAddressControllerSpec extends ControllerSpecBase with Mockit
 
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
 
-  private val jsonToPassToTemplate: Form[Boolean] => JsObject =
-    form => Json.obj("form" -> form,
-      "viewmodel" -> CommonViewModel("company", companyName, submitUrl),
-      "radios" -> Radios.yesNo(form("value")),
-      "address" -> address.lines(countryOptions))
-
   override def beforeEach(): Unit = {
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
@@ -82,37 +80,52 @@ class CompanyUseSameAddressControllerSpec extends ControllerSpecBase with Mockit
     when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
   }
 
+  val request = FakeRequest(GET, onPageLoadUrl)
+
   "CompanyUseSameAddress Controller" must {
     "return OK and the correct view for a GET" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[UseAddressForContactView].apply(
+        routes.CompanyUseSameAddressController.onSubmit(),
+        form,
+        Seq(
+          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true")),
+          components.RadioItem(content = Text(Messages("site.no")), value = Some("false"))
+        ),
+        "company",
+        companyName,
+        Seq("addr1", "addr2", "addr3", "addr4", "postcode", "United Kingdom")
+      )(request, messages)
 
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
+      compareResultAndView(result, view)
     }
 
     "populate the view correctly on a GET when the question has previously been answered" in {
       val prepopUA: UserAnswers = userAnswers.set(CompanyUseSameAddressPage, true).toOption.value
       mutableFakeDataRetrievalAction.setDataToReturn(Some(prepopUA))
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
       val filledForm = form.fill(true)
 
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(filledForm))
+      val view = application.injector.instanceOf[UseAddressForContactView].apply(
+        routes.CompanyUseSameAddressController.onSubmit(),
+        filledForm,
+        Seq(
+          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true")),
+          components.RadioItem(content = Text(Messages("site.no")), value = Some("false"))
+        ),
+        "company",
+        companyName,
+        Seq("addr1", "addr2", "addr3", "addr4", "postcode", "United Kingdom")
+      )(request, messages)
+
+      compareResultAndView(result, view)
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {

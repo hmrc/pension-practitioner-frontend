@@ -20,26 +20,24 @@ import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import matchers.JsonMatchers
 import models.UserAnswers
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
 import org.mockito.Mockito.when
 import org.scalatest.OptionValues
 import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
+import play.api.i18n.Messages
 import play.api.inject.bind
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import services.CompanyCYAService
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import uk.gov.hmrc.viewmodels.SummaryList.Key
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, SummaryListRow, Value}
+import uk.gov.hmrc.viewmodels.{NunjucksSupport, SummaryList}
 import uk.gov.hmrc.viewmodels.SummaryList.Row
-import uk.gov.hmrc.viewmodels.SummaryList.Value
 import uk.gov.hmrc.viewmodels.Text.Literal
+import views.html.CheckYourAnswersView
 
 import scala.concurrent.Future
 
@@ -56,14 +54,11 @@ class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSuga
   private val templateToBeRendered = "check-your-answers.njk"
 
   private def onPageLoadUrl: String = routes.CheckYourAnswersController.onPageLoad().url
-  private def redirectUrl: String = controllers.company.routes.DeclarationController.onPageLoad().url
 
   private val list: Seq[Row] = Seq(Row(
-    key = Key(msg"cya.companyName", classes = Seq("govuk-!-width-one-half")),
-    value = Value(Literal(companyName), classes = Seq("govuk-!-width-one-third"))
+    key = SummaryList.Key(msg"cya.companyName", classes = Seq("govuk-!-width-one-half")),
+    value = SummaryList.Value(Literal(companyName), classes = Seq("govuk-!-width-one-third"))
   ))
-
-  private val jsonToPassToTemplate: JsObject = Json.obj("list" -> list, "redirectUrl" -> redirectUrl)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -73,19 +68,22 @@ class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSuga
 
   "CheckYourAnswers Controller" must {
     "return OK and the correct view for a GET" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-
+      val request = FakeRequest(GET, onPageLoadUrl)
       when(companyCYAService.companyCya(any())(any())).thenReturn(list)
 
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[CheckYourAnswersView].apply(
+        controllers.company.routes.DeclarationController.onPageLoad(),
+        Seq(
+          SummaryListRow(key = Key(Text(Messages("cya.companyName")), classes = "govuk-!-width-one-half"),
+            value = Value(HtmlContent(companyName), classes = "govuk-!-width-one-third"))
+        )
+      )(request, messages)
 
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate)
+      compareResultAndView(result, view)
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {

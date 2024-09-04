@@ -35,11 +35,13 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.KnownFactsRetrieval
+import views.html.register.DeclarationView
 
 import scala.concurrent.Future
 
@@ -63,7 +65,6 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
         bind[KnownFactsRetrieval].toInstance(knownFactsRetrieval)
       )).build()
 
-  private val templateToBeRendered = "register/declaration.njk"
   private val dummyCall: Call = Call("GET", "/foo")
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq("true"))
   private val knownFacts = Some(KnownFacts(
@@ -82,16 +83,14 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   "Declaration Controller" must {
     "return OK and the correct view for a GET" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-
+      val request = FakeRequest(GET, onPageLoadUrl)
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[DeclarationView].apply(routes.DeclarationController.onSubmit())(request, messages)
 
-      templateCaptor.getValue mustEqual templateToBeRendered
+      compareResultAndView(result, view)
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {

@@ -20,34 +20,25 @@ import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import forms.address.AddressFormProvider
 import matchers.JsonMatchers
-import models.Address
-import models.NormalMode
-import models.UserAnswers
+import models.{Address, Country, NormalMode, UserAnswers}
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.when
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers
-import org.scalatest.OptionValues
-import org.scalatest.TryValues
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.company.BusinessNamePage
-import pages.company.CompanyAddressPage
+import pages.company.{BusinessNamePage, CompanyAddressPage}
 import pages.register.AreYouUKCompanyPage
 import play.api.Application
-import play.api.data.Form
 import play.api.inject.bind
-import play.api.libs.json.JsArray
-import play.api.libs.json.JsBoolean
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.InputOption
 import utils.countryOptions.CountryOptions
+import views.html.address.ManualAddressView
 
 import scala.concurrent.Future
 
@@ -64,7 +55,6 @@ class CompanyContactAddressControllerSpec extends ControllerSpecBase with Mockit
       mutableFakeDataRetrievalAction,
       extraModules = Seq(bind[CountryOptions].toInstance(countryOptions))
     ).build()
-  private val templateToBeRendered = "address/manualAddress.njk"
   private val form = new AddressFormProvider(countryOptions)()
 
   val userAnswers: UserAnswers = UserAnswers().set(BusinessNamePage, companyName).toOption.value
@@ -86,14 +76,6 @@ class CompanyContactAddressControllerSpec extends ControllerSpecBase with Mockit
 
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
 
-  private val jsonToPassToTemplate: Form[Address] => JsObject =
-    form => Json.obj(
-      "submitUrl" -> submitUrl,
-      "form" -> form,
-      "pageTitle" -> messages("address.title", messages("company")),
-      "h1" -> messages("address.title", companyName)
-    )
-
   override def beforeEach(): Unit = {
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
@@ -105,20 +87,23 @@ class CompanyContactAddressControllerSpec extends ControllerSpecBase with Mockit
 
   "CompanyAddress Controller" must {
     "return OK and the correct view for a GET with countries and postcode" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+      val request = FakeRequest(GET, onPageLoadUrl)
 
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[ManualAddressView].apply(
+        messages("address.title", messages("company")),
+        messages("address.title", companyName),
+        postcodeEntry = true,
+        postcodeFirst = true,
+        Array(Country("", ""), Country("GB", "United Kingdom")),
+        routes.CompanyContactAddressController.onSubmit(NormalMode),
+        form
+      )(request, messages)
 
-      templateCaptor.getValue mustEqual templateToBeRendered
-
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
-      (jsonCaptor.getValue \ "countries").asOpt[JsArray].isDefined mustBe true
-      (jsonCaptor.getValue \ "postcodeEntry").asOpt[JsBoolean].isDefined mustBe true
+      compareResultAndView(result, view)
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {
