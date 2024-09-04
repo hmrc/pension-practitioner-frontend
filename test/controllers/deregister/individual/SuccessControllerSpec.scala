@@ -16,64 +16,72 @@
 
 package controllers.deregister.individual
 
+import connectors.cache.UserAnswersCacheConnector
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import matchers.JsonMatchers
 import models.UserAnswers
-import org.mockito.ArgumentCaptor
+import models.WhatTypeBusiness.{Companyorpartnership, Yourselfasindividual}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import play.api.mvc.Results.Ok
+import org.mockito.Mockito.when
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
+import pages.company.CompanyEmailPage
+import pages.{PspIdPage, WhatTypeBusinessPage}
 import play.api.Application
-import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.Results.Ok
+import play.api.i18n.{Messages, MessagesApi}
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
+import play.api.test.Helpers.contentAsString
+import views.html.deregister.individual.SuccessView
+import play.api.inject.bind
 
 import scala.concurrent.Future
 
-class SuccessControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class SuccessControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
-  private val application: Application =
+  override lazy val app: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
-  private val templateToBeRendered = "deregister/individual/success.njk"
 
+  private val pspId = "1234567890"
+  private val email = "a@a.c"
   val userAnswers: UserAnswers = UserAnswers()
+    .setOrException(WhatTypeBusinessPage, Yourselfasindividual)
+    .setOrException(CompanyEmailPage, email)
+    .setOrException(PspIdPage, pspId)
 
   private def onPageLoadUrl: String = routes.SuccessController.onPageLoad().url
   private def submitUrl: String = controllers.routes.SignOutController.signOut().url
-
-  private val jsonToPassToTemplate: JsObject = Json.obj("submitUrl" -> submitUrl)
+  implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
+    when(mockAppConfig.returnToPspDashboardUrl).thenReturn(submitUrl)
   }
 
   "Success Controller" must {
     "return OK and the correct view for a GET" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
       when(mockUserAnswersCacheConnector.removeAll(any(), any())).thenReturn(Future.successful(Ok))
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate)
+      val view = app.injector.instanceOf[SuccessView]
+      val fakeRequest = FakeRequest(GET, onPageLoadUrl)
+      val messagesApi = app.injector.instanceOf[MessagesApi]
+      val messages: Messages = messagesApi.preferred(fakeRequest)
+      contentAsString(result).removeAllNonces() mustEqual view(submitUrl)(fakeRequest, messages).toString
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual SEE_OTHER
 
