@@ -29,7 +29,6 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.company.{BusinessNamePage, CompanyUseSameAddressPage, ConfirmAddressPage}
 import pages.register.AreYouUKCompanyPage
 import play.api.Application
-import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
@@ -39,9 +38,8 @@ import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.govukfrontend.views.html.components
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.countryOptions.CountryOptions
-import viewmodels.CommonViewModel
 import views.html.address.UseAddressForContactView
 
 import scala.concurrent.Future
@@ -65,7 +63,9 @@ class CompanyUseSameAddressControllerSpec extends ControllerSpecBase with Mockit
     .setOrException(AreYouUKCompanyPage, true)
 
   private def onPageLoadUrl: String = routes.CompanyUseSameAddressController.onPageLoad().url
-  private def submitUrl: String = routes.CompanyUseSameAddressController.onSubmit().url
+  private def submitCall: Call = routes.CompanyUseSameAddressController.onSubmit()
+  private def submitUrl: String = submitCall.url
+
   private val dummyCall: Call = Call("GET", "/foo")
 
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq("true"))
@@ -89,7 +89,7 @@ class CompanyUseSameAddressControllerSpec extends ControllerSpecBase with Mockit
       status(result) mustEqual OK
 
       val view = application.injector.instanceOf[UseAddressForContactView].apply(
-        routes.CompanyUseSameAddressController.onSubmit(),
+        submitCall,
         form,
         Seq(
           components.RadioItem(content = Text(Messages("site.yes")), value = Some("true")),
@@ -114,7 +114,7 @@ class CompanyUseSameAddressControllerSpec extends ControllerSpecBase with Mockit
       val filledForm = form.fill(true)
 
       val view = application.injector.instanceOf[UseAddressForContactView].apply(
-        routes.CompanyUseSameAddressController.onSubmit(),
+        submitCall,
         filledForm,
         Seq(
           components.RadioItem(content = Text(Messages("site.yes")), value = Some("true")),

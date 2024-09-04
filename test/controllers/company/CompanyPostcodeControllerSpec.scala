@@ -61,8 +61,9 @@ class CompanyPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar
   val userAnswers: UserAnswers = UserAnswers().set(BusinessNamePage, companyName).toOption.value
 
   private def onPageLoadUrl: String = routes.CompanyPostcodeController.onPageLoad(NormalMode).url
-  private def enterManuallyUrl: Call = routes.CompanyContactAddressController.onPageLoad(NormalMode)
-  private def submitUrl: String = routes.CompanyPostcodeController.onSubmit(NormalMode).url
+  private def enterManuallyCall: Call = routes.CompanyContactAddressController.onPageLoad(NormalMode)
+  private def submitCall: Call = routes.CompanyPostcodeController.onSubmit(NormalMode)
+  private def submitUrl: String = submitCall.url
 
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq(postcode))
 
@@ -84,8 +85,8 @@ class CompanyPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar
       status(result) mustEqual OK
 
       val view = application.injector.instanceOf[PostcodeView].apply(
-        routes.CompanyPostcodeController.onSubmit(NormalMode),
-        routes.CompanyContactAddressController.onPageLoad(NormalMode).url,
+        submitCall,
+        enterManuallyCall.url,
         "company",
         companyName,
         form
@@ -110,7 +111,7 @@ class CompanyPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar
           BusinessNamePage.toString -> companyName,
           CompanyPostcodePage.toString -> seqAddresses)
 
-      when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(CompanyPostcodePage), any(), any())).thenReturn(enterManuallyUrl)
+      when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(CompanyPostcodePage), any(), any())).thenReturn(enterManuallyCall)
       when(mockAddressLookupConnector.addressLookupByPostCode(any())(any(), any())).thenReturn(Future.successful(seqAddresses))
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
@@ -119,7 +120,7 @@ class CompanyPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
       jsonCaptor.getValue must containJson(expectedJson)
-      redirectLocation(result) mustBe Some(enterManuallyUrl.url)
+      redirectLocation(result) mustBe Some(enterManuallyCall.url)
 
     }
 

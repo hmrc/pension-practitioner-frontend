@@ -51,8 +51,6 @@ class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSuga
     applicationBuilderMutableRetrievalAction(
       mutableFakeDataRetrievalAction,
       extraModules = Seq(bind[CompanyCYAService].toInstance(companyCYAService))).build()
-  private val templateToBeRendered = "check-your-answers.njk"
-
   private def onPageLoadUrl: String = routes.CheckYourAnswersController.onPageLoad().url
 
   private val list: Seq[Row] = Seq(Row(

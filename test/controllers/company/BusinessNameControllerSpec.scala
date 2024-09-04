@@ -44,7 +44,7 @@ class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar wi
   val form: Form[String] = formProvider()
 
   private def companyNameRoute = routes.CompanyNameController.onPageLoad(NormalMode).url
-  private def companyNameSubmitRoute = routes.CompanyNameController.onSubmit(NormalMode).url
+  private def companyNameSubmitCall = routes.CompanyNameController.onSubmit(NormalMode)
 
   val answers: UserAnswers = userAnswersWithCompanyName.set(BusinessNamePage, "answer").success.value
 
@@ -64,7 +64,7 @@ class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar wi
       val view = application.injector.instanceOf[BusinessNameView].apply(
         "company",
         form,
-        routes.CompanyNameController.onSubmit(NormalMode),
+        companyNameSubmitCall,
         None
       )(request, messages)
 
@@ -92,7 +92,7 @@ class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar wi
       val view = application.injector.instanceOf[BusinessNameView].apply(
         "company",
         filledForm,
-        routes.CompanyNameController.onSubmit(NormalMode),
+        companyNameSubmitCall,
         None
       )(request, messages)
 
@@ -140,7 +140,7 @@ class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar wi
       val view = application.injector.instanceOf[BusinessNameView].apply(
         "company",
         boundForm,
-        routes.CompanyNameController.onSubmit(NormalMode),
+        companyNameSubmitCall,
         None
       )(request, messages)
 

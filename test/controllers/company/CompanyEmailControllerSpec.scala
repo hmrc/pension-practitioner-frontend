@@ -53,14 +53,15 @@ class CompanyEmailControllerSpec extends ControllerSpecBase with MockitoSugar wi
   val userAnswers: UserAnswers = UserAnswers().set(BusinessNamePage, companyName).toOption.value
 
   private def onPageLoadUrl: String = routes.CompanyEmailController.onPageLoad(NormalMode).url
-  private def submitUrl: String = routes.CompanyEmailController.onSubmit(NormalMode).url
+  private def submitCall: Call = routes.CompanyEmailController.onSubmit(NormalMode)
+  private def submitUrl: String = submitCall.url
 
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq(email))
 
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
 
   private val sampleCommonViewModelTwirl = CommonViewModelTwirl(
-    "company", companyName, routes.CompanyEmailController.onSubmit(NormalMode))
+    "company", companyName, submitCall)
 
   override def beforeEach(): Unit = {
     super.beforeEach()

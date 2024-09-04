@@ -22,15 +22,13 @@ import forms.BusinessUTRFormProvider
 import matchers.JsonMatchers
 import models.UserAnswers
 import models.register.BusinessType
-import models.register.BusinessType.LimitedCompany
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.BusinessUTRPage
 import pages.register.BusinessTypePage
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -49,7 +47,10 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
   private val validUTR = "1234567890"
 
   private def businessUTRRoute = routes.BusinessUTRController.onPageLoad().url
-  private def businessUTRSubmitRoute = routes.BusinessUTRController.onSubmit().url
+
+  private def businessUTRSubmitCall = routes.BusinessUTRController.onSubmit()
+
+  private def businessUTRSubmitRoute = businessUTRSubmitCall.url
 
   private val businessType = BusinessType.LimitedCompany
 
@@ -69,7 +70,8 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
       val view = application.injector.instanceOf[BusinessUTRView].apply(
         "limited company",
         form,
-        routes.BusinessUTRController.onSubmit())(request, messages)
+        businessUTRSubmitCall
+      )(request, messages)
 
       compareResultAndView(result, view)
 
@@ -96,7 +98,8 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
       val view = application.injector.instanceOf[BusinessUTRView].apply(
         "limited company",
         filledForm,
-        routes.BusinessUTRController.onSubmit())(request, messages)
+        businessUTRSubmitCall
+      )(request, messages)
 
       compareResultAndView(result, view)
 
@@ -142,7 +145,8 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
       val view = application.injector.instanceOf[BusinessUTRView].apply(
         "limited company",
         boundForm,
-        routes.BusinessUTRController.onSubmit())(request, messages)
+        businessUTRSubmitCall
+      )(request, messages)
 
       compareResultAndView(result, view)
 

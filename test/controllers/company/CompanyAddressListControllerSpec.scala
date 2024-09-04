@@ -88,7 +88,8 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
 
   private def onPageLoadUrl: String = routes.CompanyAddressListController.onPageLoad(NormalMode).url
   private def enterManuallyUrl: Call = routes.CompanyContactAddressController.onPageLoad(NormalMode)
-  private def submitUrl: String = routes.CompanyAddressListController.onSubmit(NormalMode).url
+  private def submitCall: Call = routes.CompanyAddressListController.onSubmit(NormalMode)
+  private def submitUrl: String = submitCall.url
 
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq("0"))
   private val valuesValid1: Map[String, Seq[String]] = Map("value" -> Seq("1"))
@@ -103,7 +104,7 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
   )
 
   private val commonViewModelTwirl = CommonViewModelTwirl(
-    "company", companyName, routes.CompanyAddressListController.onSubmit(NormalMode), Some(enterManuallyUrl.url))
+    "company", companyName, submitCall, Some(enterManuallyUrl.url))
 
   override def beforeEach(): Unit = {
     super.beforeEach()

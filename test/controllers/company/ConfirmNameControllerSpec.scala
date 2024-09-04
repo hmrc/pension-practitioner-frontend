@@ -47,7 +47,8 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
   private val form = formProvider()
 
   private def confirmNameRoute = routes.ConfirmNameController.onPageLoad().url
-  private def confirmNameSubmitRoute = routes.ConfirmNameController.onSubmit().url
+  private def confirmNameSubmitCall = routes.ConfirmNameController.onSubmit()
+  private def confirmNameSubmitRoute = confirmNameSubmitCall.url
 
   private val answers: UserAnswers = userAnswersWithCompanyName.set(ConfirmNamePage, true).success.value
 
@@ -67,7 +68,7 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
       val view = application.injector.instanceOf[ConfirmNameView].apply(
         "company",
         form,
-        routes.ConfirmNameController.onSubmit(),
+        confirmNameSubmitCall,
         pspName,
         Seq(
           components.RadioItem(content = Text(Messages("site.yes")), value = Some("true")),
@@ -98,7 +99,7 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
       val view = application.injector.instanceOf[ConfirmNameView].apply(
         "company",
         filledForm,
-        routes.ConfirmNameController.onSubmit(),
+        confirmNameSubmitCall,
         pspName,
         Seq(
           components.RadioItem(content = Text(Messages("site.yes")), value = Some("true"), checked = false),
@@ -151,7 +152,7 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
       val view = application.injector.instanceOf[ConfirmNameView].apply(
         "company",
         boundForm,
-        routes.ConfirmNameController.onSubmit(),
+        confirmNameSubmitCall,
         pspName,
         Seq(
           components.RadioItem(content = Text(Messages("site.yes")), value = Some("true")),

@@ -68,7 +68,8 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
     .setOrException(AreYouUKCompanyPage, true)
 
   private def onPageLoadUrl: String = routes.CompanyEnterRegisteredAddressController.onPageLoad(NormalMode).url
-  private def submitUrl: String = routes.CompanyEnterRegisteredAddressController.onSubmit(NormalMode).url
+  private def submitCall: Call = routes.CompanyEnterRegisteredAddressController.onSubmit(NormalMode)
+  private def submitUrl: String = submitCall.url
   private val dummyCall: Call = Call("GET", "/foo")
   private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("ZZ1 1ZZ"), "GB")
 
@@ -106,7 +107,7 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
         postcodeEntry = false,
         postcodeFirst = false,
         Array(Country("", ""), Country("GB", "United Kingdom")),
-        routes.CompanyEnterRegisteredAddressController.onSubmit(NormalMode),
+        submitCall,
         form
       )(request, messages)
 

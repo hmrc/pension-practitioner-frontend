@@ -48,7 +48,8 @@ class IsCompanyRegisteredInUkControllerSpec extends ControllerSpecBase with Mock
   val form = formProvider()
 
   def isCompanyRegisteredInUkRoute = routes.IsCompanyRegisteredInUkController.onPageLoad().url
-  def isCompanyRegisteredInUkSubmitRoute = routes.IsCompanyRegisteredInUkController.onSubmit().url
+  def isCompanyRegisteredInUkSubmitCall = routes.IsCompanyRegisteredInUkController.onSubmit()
+  def isCompanyRegisteredInUkSubmitRoute = isCompanyRegisteredInUkSubmitCall.url
 
   val answers: UserAnswers = SampleData.userAnswersWithCompanyName.set(IsCompanyRegisteredInUkPage, true).success.value
 
@@ -68,7 +69,7 @@ class IsCompanyRegisteredInUkControllerSpec extends ControllerSpecBase with Mock
       status(result) mustEqual OK
 
       val view = application.injector.instanceOf[IsCompanyRegisteredInUkView].apply(
-        routes.IsCompanyRegisteredInUkController.onSubmit(),
+        isCompanyRegisteredInUkSubmitCall,
         form,
         Seq(
           components.RadioItem(content = Text(Messages("site.yes")), value = Some("true")),
@@ -96,7 +97,7 @@ class IsCompanyRegisteredInUkControllerSpec extends ControllerSpecBase with Mock
       val filledForm = form.bind(Map("value" -> "true"))
 
       val view = application.injector.instanceOf[IsCompanyRegisteredInUkView].apply(
-        routes.IsCompanyRegisteredInUkController.onSubmit(),
+        isCompanyRegisteredInUkSubmitCall,
         filledForm,
         Seq(
           components.RadioItem(content = Text(Messages("site.yes")), value = Some("true")),
@@ -147,7 +148,7 @@ class IsCompanyRegisteredInUkControllerSpec extends ControllerSpecBase with Mock
       status(result) mustEqual BAD_REQUEST
 
       val view = application.injector.instanceOf[IsCompanyRegisteredInUkView].apply(
-        routes.IsCompanyRegisteredInUkController.onSubmit(),
+        isCompanyRegisteredInUkSubmitCall,
         boundForm,
         Seq(
           components.RadioItem(content = Text(Messages("site.yes")), value = Some("true")),

@@ -53,7 +53,8 @@ class CompanyPhoneControllerSpec extends ControllerSpecBase with MockitoSugar wi
   val userAnswers: UserAnswers = UserAnswers().set(BusinessNamePage, companyName).toOption.value
 
   private def onPageLoadUrl: String = routes.CompanyPhoneController.onPageLoad(NormalMode).url
-  private def submitUrl: String = routes.CompanyPhoneController.onSubmit(NormalMode).url
+  private def submitCall: Call = routes.CompanyPhoneController.onSubmit(NormalMode)
+  private def submitUrl: String = submitCall.url
 
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq(phone))
 
@@ -75,7 +76,7 @@ class CompanyPhoneControllerSpec extends ControllerSpecBase with MockitoSugar wi
       status(result) mustEqual OK
 
       val view = application.injector.instanceOf[PhoneView].apply(
-        CommonViewModelTwirl("company", companyName, routes.CompanyPhoneController.onSubmit(NormalMode)),
+        CommonViewModelTwirl("company", companyName, submitCall),
         form
       )(request, messages)
 
@@ -93,7 +94,7 @@ class CompanyPhoneControllerSpec extends ControllerSpecBase with MockitoSugar wi
       val filledForm = form.bind(Map("value" -> phone))
 
       val view = application.injector.instanceOf[PhoneView].apply(
-        CommonViewModelTwirl("company", companyName, routes.CompanyPhoneController.onSubmit(NormalMode)),
+        CommonViewModelTwirl("company", companyName, submitCall),
         filledForm
       )(request, messages)
 

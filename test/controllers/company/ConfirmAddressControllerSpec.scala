@@ -56,7 +56,8 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
 
   private def confirmAddressRoute = routes.ConfirmAddressController.onPageLoad().url
 
-  private def confirmAddressSubmitRoute = routes.ConfirmAddressController.onSubmit().url
+  private def confirmAddressSubmitCall: Call = routes.ConfirmAddressController.onSubmit()
+  private def confirmAddressSubmitRoute = confirmAddressSubmitCall.url
 
   private val organisation = Organisation(pspName, BusinessType.LimitedCompany)
   private val organisationRegistration = OrganisationRegistration(
@@ -114,7 +115,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
       val view = application.injector.instanceOf[ConfirmAddressView].apply(
         "the company",
         form,
-        routes.ConfirmAddressController.onSubmit(),
+        confirmAddressSubmitCall,
         "test-company",
         Seq("addr1", "addr2", "", "GB"),
         Seq(
@@ -171,7 +172,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
       val view = application.injector.instanceOf[ConfirmAddressView].apply(
         "the company",
         boundForm,
-        routes.ConfirmAddressController.onSubmit(),
+        confirmAddressSubmitCall,
         "test-company",
         Seq("addr1", "addr2", "", "GB"),
         Seq(

@@ -61,7 +61,8 @@ class CompanyContactAddressControllerSpec extends ControllerSpecBase with Mockit
     .setOrException(AreYouUKCompanyPage, true)
 
   private def onPageLoadUrl: String = routes.CompanyContactAddressController.onPageLoad(NormalMode).url
-  private def submitUrl: String = routes.CompanyContactAddressController.onSubmit(NormalMode).url
+  private def submitCall: Call = routes.CompanyContactAddressController.onSubmit(NormalMode)
+  private def submitUrl: String = submitCall.url
   private val dummyCall: Call = Call("GET", "/foo")
   private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("ZZ1 1ZZ"), "GB")
 
@@ -99,7 +100,7 @@ class CompanyContactAddressControllerSpec extends ControllerSpecBase with Mockit
         postcodeEntry = true,
         postcodeFirst = true,
         Array(Country("", ""), Country("GB", "United Kingdom")),
-        routes.CompanyContactAddressController.onSubmit(NormalMode),
+        submitCall,
         form
       )(request, messages)
 

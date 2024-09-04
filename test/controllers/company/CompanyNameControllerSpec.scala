@@ -21,15 +21,14 @@ import controllers.base.ControllerSpecBase
 import forms.BusinessNameFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
-import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.BusinessNamePage
 import pages.register.AreYouUKCompanyPage
 import play.api.Application
-import play.api.data.Form
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -54,7 +53,8 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
   val userAnswers: UserAnswers = UserAnswers()
 
   private def onPageLoadUrl: String = routes.CompanyNameController.onPageLoad(NormalMode).url
-  private def submitUrl: String = routes.CompanyNameController.onSubmit(NormalMode).url
+  private def submitCall: Call = routes.CompanyNameController.onSubmit(NormalMode)
+  private def submitUrl: String = submitCall.url
 
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq(name))
 
@@ -78,7 +78,7 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
       val view = application.injector.instanceOf[BusinessNameView].apply(
         "company",
         form,
-        routes.CompanyNameController.onSubmit(NormalMode),
+        submitCall,
         None
       )(request, messages)
 
@@ -97,7 +97,7 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
       val view = application.injector.instanceOf[BusinessNameView].apply(
         "company",
         form,
-        routes.CompanyNameController.onSubmit(NormalMode),
+        submitCall,
         Some("businessName.hint")
       )(request, messages)
 
@@ -117,7 +117,7 @@ class CompanyNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
       val view = application.injector.instanceOf[BusinessNameView].apply(
         "company",
         filledForm,
-        routes.CompanyNameController.onSubmit(NormalMode),
+        submitCall,
         None
       )(request, messages)
 
