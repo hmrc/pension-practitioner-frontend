@@ -25,42 +25,38 @@ import matchers.JsonMatchers
 import models.{JourneyType, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.mockito.{ArgumentCaptor, ArgumentMatchers}
+import org.mockito.ArgumentMatchers
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.deregister.DeregistrationDatePage
 import pages.{PspEmailPage, PspNamePage}
 import play.api.Application
-import play.api.data.Form
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import play.api.mvc.Call
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.viewmodels.{DateInput, NunjucksSupport}
+import uk.gov.hmrc.viewmodels.DateInput
 
 import java.time.LocalDate
 import scala.concurrent.Future
 
-class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val minDate: LocalDate = LocalDate.of(2020,2, 1)
-  private val templateToBeRendered = "deregister/individual/deregistrationDate.njk"
   private val form = new DeregistrationDateFormProvider()("individual", minDate)
   private val dummyCall: Call = Call("GET", "/foo")
   private val mockDeregistrationConnector = mock[DeregistrationConnector]
   private val mockEnrolmentConnector = mock[EnrolmentConnector]
   private val mockEmailConnector: EmailConnector = mock[EmailConnector]
   private val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
-
   private val mockAuditService = mock[AuditService]
 
   private val email = "a@a.c"
-
   private val name = "name"
 
   private val ua: UserAnswers = UserAnswers()
@@ -84,18 +80,12 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
     "amountTaxDue" -> Seq("33.44")
   )
 
-  private val jsonToPassToTemplate: Form[LocalDate] => JsObject =
-    form => Json.obj(
-      "form" -> form,
-      "submitUrl" -> routes.DeregistrationDateController.onSubmit().url,
-      "date" -> DateInput.localDate(form("deregistrationDate"))
-    )
-  def extraModules: Seq[GuiceableModule] = Seq(
+  private def extraModules: Seq[GuiceableModule] = Seq(
     bind[DeregistrationConnector].toInstance(mockDeregistrationConnector),
     bind[EnrolmentConnector].toInstance(mockEnrolmentConnector),
     bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
     bind[EmailConnector].toInstance(mockEmailConnector),
-    bind[AuditService].toInstance(mockAuditService)
+    bind[AuditService].toInstance(mockAuditService),
   )
 
   private val application: Application =
@@ -112,42 +102,49 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
     when(mockDeregistrationConnector.deregister(any(), any())(any(), any()))
       .thenReturn(Future.successful(HttpResponse(OK, "")))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
     doNothing().when(mockAuditService).sendEvent(any())(any(), any())
   }
 
   "DeregistrationDate Controller" must {
     "return OK and the correct view for a GET" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+      val request = FakeRequest(GET, onPageLoadUrl)
 
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[views.html.deregister.individual.DeregistrationDateView]
+      val expectedView = view(
+        routes.DeregistrationDateController.onSubmit(),
+        form,
+        mockAppConfig.returnToPspDashboardUrl,
+        "1 February 2020",
+        DateInput.localDate(form("deregistrationDate"))
+      )(request, messages).toString
 
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
+      contentAsString(result).removeAllNonces() mustEqual expectedView
     }
 
     "populate the view correctly on a GET when the question has previously been answered" in {
       val prepopUA: UserAnswers = UserAnswers().set(DeregistrationDatePage, LocalDate.now).toOption.value
       mutableFakeDataRetrievalAction.setDataToReturn(Some(prepopUA))
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+      val request = FakeRequest(GET, onPageLoadUrl)
 
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[views.html.deregister.individual.DeregistrationDateView]
+      val expectedView = view(
+        routes.DeregistrationDateController.onSubmit(),
+        form.fill(LocalDate.now()),
+        mockAppConfig.returnToPspDashboardUrl,
+        "1 February 2020",
+        DateInput.localDate(form("deregistrationDate"))
+      )(request, messages).toString
 
-
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate(form.fill(LocalDate.now())))
+      contentAsString(result).removeAllNonces() mustEqual expectedView
     }
-
 
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
@@ -174,14 +171,13 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       when(mockEmailConnector.sendEmail(any(), any(), any(), any(), any(),any())(any(),any()))
         .thenReturn(Future.successful(EmailSent))
       when(mockAppConfig.emailPspDeregistrationTemplateId).thenReturn(templateId)
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+
       val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
-      verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
+      verify(mockUserAnswersCacheConnector, times(1)).save(any())(any(), any())
       verify(mockEmailConnector, times(1))
         .sendEmail(any(), ArgumentMatchers.eq(pspId), ArgumentMatchers.eq(JourneyType.PSP_DEREGISTRATION), ArgumentMatchers.eq(email), ArgumentMatchers.eq(templateId), any())(any(), any())
-      jsonCaptor.getValue must containJson(expectedJson)
       redirectLocation(result) mustBe Some(dummyCall.url)
       verify(mockAuditService, times(1))
         .sendEvent(ArgumentMatchers.eq(PSPDeregistrationEmail(pspId, email)))(any(), any())

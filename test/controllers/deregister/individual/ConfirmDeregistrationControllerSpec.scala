@@ -20,7 +20,6 @@ import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import connectors.{DeregistrationConnector, MinimalConnector}
 import controllers.actions.{AuthAction, FakeAuthAction, MutableFakeDataRetrievalAction}
-import controllers.deregister.individual.routes
 import controllers.base.ControllerSpecBase
 import forms.deregister.ConfirmDeregistrationFormProvider
 import handlers.FrontendErrorHandler
@@ -39,11 +38,9 @@ import play.api.libs.json.Json
 import play.api.mvc.{Call, Request, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import utils.annotations.AuthMustHaveEnrolmentWithNoIV
-import utils.TwirlMigration
 
 import scala.concurrent.Future
 
@@ -59,7 +56,6 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
   private val pspName = "test-psp"
   private val mockMinimalConnector = mock[MinimalConnector]
   private val mockDeregistrationConnector = mock[DeregistrationConnector]
-  private val mockTwirlMigration = mock[TwirlMigration]
   private val mockFrontendErrorHandler = mock[FrontendErrorHandler]
   private val minPsp = MinimalPSP("a@a.a", Some(pspName), None, rlsFlag = false, deceasedFlag = false)
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
@@ -77,7 +73,6 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
     bind[FrontendAppConfig].toInstance(mockAppConfig),
     bind[UserAnswersCacheConnector].toInstance(mockUserAnswersCacheConnector),
     bind[CompoundNavigator].toInstance(mockCompoundNavigator),
-    bind[TwirlMigration].toInstance(mockTwirlMigration),
     bind[FrontendErrorHandler].toInstance(mockFrontendErrorHandler)
   )
 
@@ -87,16 +82,16 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
     when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp))
     when(mockDeregistrationConnector.canDeRegister(any())(any(), any())).thenReturn(Future.successful(true))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
-    when(mockTwirlMigration.duoTemplate(any(), any())).thenReturn(Future.successful(Html("")))
     when(mockFrontendErrorHandler.onClientError(any(), any(), any())).thenReturn(Future.successful(Results.BadRequest))
   }
 
   "ConfirmDeregistrationController" must {
+
     "return OK and the correct view for a GET" in {
+      mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
+      val request = FakeRequest(GET, getRoute)
       val result = route(app, request).value
-
       status(result) mustEqual OK
-
       val view = app.injector.instanceOf[views.html.deregister.individual.ConfirmDeregistrationView]
       val expectedView = view(
         postRoute,
@@ -105,24 +100,55 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
           RadioItem(
             content = Text("Yes"),
             value = Some("true"),
-            checked = form("value").value.contains("true")
+            checked = form("value").value.contains("true"),
+            id = Some("value")
           ),
           RadioItem(
             content = Text("No"),
             value = Some("false"),
-            checked = form("value").value.contains("false")
+            checked = form("value").value.contains("false"),
+            id = Some("value-no")
           )
         ),
         mockAppConfig.returnToPspDashboardUrl
       )(request, messages).toString
 
-      verify(mockTwirlMigration, times(1)).duoTemplate(any(), any())
-      contentAsString(result) mustEqual expectedView
+      contentAsString(result).removeAllNonces() mustEqual expectedView
     }
 
-    "return BAD_REQUEST and the correct view for a GET" in {
+    "return a Bad Request and errors when invalid data is submitted" in {
+
+      val request = FakeRequest(POST, routes.ConfirmDeregistrationController.onSubmit().url).withFormUrlEncodedBody(("value", ""))
+      val boundForm = form.bind(Map("value" -> ""))
+
       val result = route(app, request).value
+
       status(result) mustEqual BAD_REQUEST
+
+      val view = app.injector.instanceOf[views.html.deregister.individual.ConfirmDeregistrationView]
+
+      val expectedView = view(
+        routes.ConfirmDeregistrationController.onSubmit(),
+        boundForm,
+        Seq(
+          uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+            content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("Yes"),
+            value = Some("true"),
+            checked = boundForm("value").value.contains("true"),
+            id = Some("value")
+          ),
+          uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+            content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("No"),
+            value = Some("false"),
+            checked = boundForm("value").value.contains("false"),
+            id = Some("value-no")
+          )
+        ),
+        ""
+      )(request, messages).toString
+
+      contentAsString(result).removeAllNonces() mustEqual expectedView
     }
+
   }
 }
