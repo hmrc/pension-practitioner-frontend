@@ -28,13 +28,14 @@ import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.partnership.{BusinessNamePage, PartnershipEmailPage}
 import play.api.Application
-import play.api.data.Form
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import viewmodels.CommonViewModel
+import viewmodels.CommonViewModelTwirl
+import views.html.EmailView
 
 import scala.concurrent.Future
 
@@ -45,7 +46,7 @@ class PartnershipEmailControllerSpec extends ControllerSpecBase with MockitoSuga
   private val partnershipName: String = "Partnership name"
   private val application: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
-  private val templateToBeRendered = "email.njk"
+
   private val form = new EmailFormProvider()(messages("email.error.required", messages("partnership")))
   private val email = "xyz@gmail.com"
   private val dummyCall: Call = Call("GET", "/foo")
@@ -53,14 +54,17 @@ class PartnershipEmailControllerSpec extends ControllerSpecBase with MockitoSuga
   val userAnswers: UserAnswers = UserAnswers().set(BusinessNamePage, partnershipName).toOption.value
 
   private def onPageLoadUrl: String = routes.PartnershipEmailController.onPageLoad(NormalMode).url
-  private def submitUrl: String = routes.PartnershipEmailController.onSubmit(NormalMode).url
+  private def submitCall: Call = routes.PartnershipEmailController.onSubmit(NormalMode)
+  private def submitUrl: String = submitCall.url
 
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq(email))
 
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
 
-  private val jsonToPassToTemplate: Form[String] => JsObject =
-    form => Json.obj("form" -> form, "viewmodel" -> CommonViewModel("partnership", partnershipName, submitUrl))
+  private val sampleCommonViewModelTwirl = CommonViewModelTwirl(
+    "partnership", partnershipName, submitCall)
+
+  private val request = FakeRequest(GET, onPageLoadUrl)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -71,35 +75,28 @@ class PartnershipEmailControllerSpec extends ControllerSpecBase with MockitoSuga
 
   "PartnershipEmail Controller" must {
     "return OK and the correct view for a GET" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
-
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
+      val view = application.injector.instanceOf[EmailView].apply(sampleCommonViewModelTwirl, form)(request, messages)
+      compareResultAndView(result, view)
     }
 
     "populate the view correctly on a GET when the question has previously been answered" in {
       val prepopUA: UserAnswers = userAnswers.set(PartnershipEmailPage, email).toOption.value
       mutableFakeDataRetrievalAction.setDataToReturn(Some(prepopUA))
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
       val filledForm = form.bind(Map("value" -> email))
 
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(filledForm))
+      val view = application.injector.instanceOf[EmailView]
+        .apply(sampleCommonViewModelTwirl, filledForm)(request, messages)
+
+      compareResultAndView(result, view)
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {
