@@ -47,7 +47,6 @@ import scala.concurrent.Future
 class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
-  private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val minDate: LocalDate = LocalDate.of(2020, 2, 1)
   private val form = new DeregistrationDateFormProvider()("company", minDate)
   private val dummyCall: Call = Call("GET", "/foo")
@@ -91,7 +90,9 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
     bind[AuditService].toInstance(mockAuditService)
   )
 
-  override lazy val app: Application =
+  private lazy val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
+
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction, extraModules).build()
 
   override def beforeEach(): Unit = {
