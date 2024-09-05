@@ -17,6 +17,7 @@
 package controllers.register
 
 import controllers.base.ControllerSpecBase
+import data.SampleData._
 import forms.register.BusinessRegistrationTypeFormProvider
 import matchers.JsonMatchers
 import models.UserAnswers
@@ -24,18 +25,15 @@ import models.register.BusinessRegistrationType
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.OptionValues
-import org.scalatest.TryValues
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.register.BusinessRegistrationTypePage
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import data.SampleData._
-import play.api.test.FakeRequest
 
 import scala.concurrent.Future
 

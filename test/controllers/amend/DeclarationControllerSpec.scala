@@ -26,8 +26,6 @@ import models.{JourneyType, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
-import org.scalatest.{OptionValues, TryValues}
-import org.scalatestplus.mockito.MockitoSugar
 import pages.company.{BusinessNamePage, CompanyEmailPage}
 import pages.{PspIdPage, RegistrationInfoPage}
 import play.api.Application
@@ -35,24 +33,18 @@ import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.Helpers._
 import services.PspDetailsService
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 
 import scala.concurrent.Future
 
 class DeclarationControllerSpec
-  extends ControllerSpecBase
-    with MockitoSugar
-    with NunjucksSupport
-    with JsonMatchers
-    with OptionValues
-    with TryValues {
+  extends ControllerSpecBase with JsonMatchers {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
   private val mockEmailConnector: EmailConnector = mock[EmailConnector]
   private val mockPspDetailsService: PspDetailsService = mock[PspDetailsService]
   private val partnershipName = "Acme Ltd"
-  override lazy val app: Application =
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction,
       Seq(
         bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),

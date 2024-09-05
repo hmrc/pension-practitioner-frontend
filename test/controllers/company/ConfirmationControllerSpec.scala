@@ -26,17 +26,17 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{PspIdPage, WhatTypeBusinessPage}
 import pages.company.{BusinessNamePage, CompanyEmailPage}
+import pages.{PspIdPage, WhatTypeBusinessPage}
 import play.api.Application
 import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.Results.Ok
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import viewmodels.CommonViewModel
 
 import scala.concurrent.Future
-import play.api.mvc.Results.Ok
 
 class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
   with JsonMatchers with OptionValues with TryValues {

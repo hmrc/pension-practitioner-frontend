@@ -18,29 +18,24 @@ package controllers.amend
 
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
-import matchers.JsonMatchers
 import models.UserAnswers
 import models.WhatTypeBusiness.Companyorpartnership
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.{OptionValues, TryValues}
-import org.scalatestplus.mockito.MockitoSugar
 import pages.company.CompanyEmailPage
 import pages.{PspIdPage, WhatTypeBusinessPage}
 import play.api.Application
 import play.api.mvc.Results.Ok
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 
 import scala.concurrent.Future
 
-class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
-  with JsonMatchers with OptionValues with TryValues {
+class ConfirmationControllerSpec extends ControllerSpecBase {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
 
-  override lazy val app: Application =
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
   private val pspId = "1234567890"
   private val email = "a@a.c"
