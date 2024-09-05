@@ -17,11 +17,9 @@
 package controllers.amend
 
 import controllers.base.ControllerSpecBase
-import matchers.JsonMatchers
 import models.PspDetailsData
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -31,13 +29,13 @@ import services.PspDetailsService
 
 import scala.concurrent.Future
 
-class ViewDetailsControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers {
+class ViewDetailsControllerSpec extends ControllerSpecBase {
 
   private val pspDetailsService = mock[PspDetailsService]
   private val extraModules: Seq[GuiceableModule] = Seq(
     bind[PspDetailsService].toInstance(pspDetailsService)
   )
-  override lazy val app: Application =
+  override def fakeApplication(): Application =
     applicationBuilder(userAnswers = None, extraModules = extraModules).build()
 
   private def onPageLoadUrl: String = routes.ViewDetailsController.onPageLoad().url

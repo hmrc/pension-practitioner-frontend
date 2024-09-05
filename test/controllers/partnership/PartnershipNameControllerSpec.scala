@@ -21,19 +21,16 @@ import controllers.base.ControllerSpecBase
 import forms.BusinessNameFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers
-import org.scalatest.OptionValues
-import org.scalatest.TryValues
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.partnership.BusinessNamePage
 import pages.register.AreYouUKCompanyPage
 import play.api.Application
 import play.api.data.Form
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html

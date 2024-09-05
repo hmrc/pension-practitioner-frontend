@@ -22,14 +22,13 @@ import data.SampleData._
 import models.{CheckMode, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
+import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.JsObject
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import services.PspDetailsHelper._
 import services.PspDetailsService
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
@@ -38,10 +37,12 @@ import views.html.UpdateContactAddressView
 
 import scala.concurrent.Future
 
-class UpdateContactAddressControllerSpec extends ControllerSpecBase with MockitoSugar {
+class UpdateContactAddressControllerSpec extends ControllerSpecBase {
   private def onwardRoute = Call("GET", "/foo")
 
   private val mockPspDetailsService = mock[PspDetailsService]
+
+  override def fakeApplication(): Application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
   override def modules: Seq[GuiceableModule] = Seq(
     bind[PspDetailsService].toInstance(mockPspDetailsService),
@@ -86,17 +87,14 @@ class UpdateContactAddressControllerSpec extends ControllerSpecBase with Mockito
         when(mockPspDetailsService.getUserAnswers(any(), any())(any(), any()))
           .thenReturn(Future.successful(UserAnswers(jsObject)))
 
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
         val request = FakeRequest(GET, routes.UpdateContactAddressController.onPageLoad().url)
 
-        val result = route(application, request).value
+        val result = route(app, request).value
 
         val view = app.injector.instanceOf[UpdateContactAddressView].apply(expectedAddress, expectedUrl)(request, messages)
 
         status(result) mustEqual OK
         compareResultAndView(result, view)
-
-        application.stop()
       }
     }
   }
