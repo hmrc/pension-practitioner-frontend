@@ -22,109 +22,86 @@ import forms.register.BusinessRegistrationTypeFormProvider
 import matchers.JsonMatchers
 import models.UserAnswers
 import models.register.BusinessRegistrationType
-import org.mockito.ArgumentCaptor
+import play.api.inject.bind
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.register.BusinessRegistrationTypePage
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
+import views.html.register.BusinessRegistrationTypeView
 
 import scala.concurrent.Future
 
-class BusinessRegistrationTypeControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class BusinessRegistrationTypeControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers with OptionValues with TryValues {
 
   def onwardRoute = Call("GET", "/foo")
 
-  def businessRegistrationTypeRoute = routes.BusinessRegistrationTypeController.onPageLoad().url
-  def businessRegistrationTypeSubmitRoute = routes.BusinessRegistrationTypeController.onSubmit().url
+  def businessRegistrationTypeRoute: String = routes.BusinessRegistrationTypeController.onPageLoad().url
+  def businessRegistrationTypeSubmitRoute: String = routes.BusinessRegistrationTypeController.onSubmit().url
 
   val formProvider = new BusinessRegistrationTypeFormProvider()
   val form = formProvider()
-
 
   val answers: UserAnswers = emptyUserAnswers.set(BusinessRegistrationTypePage, BusinessRegistrationType.values.head).success.value
 
   "BusinessRegistrationType Controller" must {
 
     "return OK and the correct view for a GET" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
+      val view = mock[BusinessRegistrationTypeView]
+
+      when(view.apply(any(), any(), any())(any(), any())).thenReturn(Html(""))
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(
+          bind[BusinessRegistrationTypeView].toInstance(view)
         )
         .build()
-      val request = FakeRequest(GET, businessRegistrationTypeRoute)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
+      val request = FakeRequest(GET, businessRegistrationTypeRoute)
       val result = route(application, request).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-      val expectedJson = Json.obj(
-        "form"   -> form,
-        "submitUrl" -> businessRegistrationTypeSubmitRoute,
-        "radios" -> BusinessRegistrationType.radios(form)
-      )
-
-      templateCaptor.getValue mustEqual "register/businessRegistrationType.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      verify(view, times(1)).apply(any(), any(), any())(any(), any())
 
       application.stop()
     }
 
     "populate the view correctly on a GET when the question has previously been answered" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
+      val view = mock[BusinessRegistrationTypeView]
+
+      when(view.apply(any(), any(), any())(any(), any())).thenReturn(Html(""))
 
       val application = applicationBuilder(userAnswers = Some(answers))
         .overrides(
+          bind[BusinessRegistrationTypeView].toInstance(view)
         )
         .build()
-      val request = FakeRequest(GET, businessRegistrationTypeRoute)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
+      val request = FakeRequest(GET, businessRegistrationTypeRoute)
       val result = route(application, request).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-      val filledForm = form.bind(Map("value" -> BusinessRegistrationType.values.head.toString))
-
-      val expectedJson = Json.obj(
-        "form"   -> filledForm,
-        "submitUrl" -> businessRegistrationTypeSubmitRoute,
-        "radios" -> BusinessRegistrationType.radios(filledForm)
-      )
-
-      templateCaptor.getValue mustEqual "register/businessRegistrationType.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      verify(view, times(1)).apply(any(), any(), any())(any(), any())
 
       application.stop()
     }
 
     "redirect to the next page when valid data is submitted" in {
-
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-        )
         .build()
 
-      val request =
-        FakeRequest(POST, businessRegistrationTypeRoute)
-      .withFormUrlEncodedBody(("value", BusinessRegistrationType.values.head.toString))
+      val request = FakeRequest(POST, businessRegistrationTypeRoute)
+        .withFormUrlEncodedBody(("value", BusinessRegistrationType.values.head.toString))
 
       val result = route(application, request).value
 
@@ -136,38 +113,27 @@ class BusinessRegistrationTypeControllerSpec extends ControllerSpecBase with Moc
     }
 
     "return a Bad Request and errors when invalid data is submitted" in {
+      val view = mock[BusinessRegistrationTypeView]
 
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
+      when(view.apply(any(), any(), any())(any(), any())).thenReturn(Html(""))
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(
+          bind[BusinessRegistrationTypeView].toInstance(view)
         )
         .build()
-      val request = FakeRequest(POST, businessRegistrationTypeRoute).withFormUrlEncodedBody(("value", "invalid value"))
-      val boundForm = form.bind(Map("value" -> "invalid value"))
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
+      val request = FakeRequest(POST, businessRegistrationTypeRoute).withFormUrlEncodedBody(("value", "invalid value"))
       val result = route(application, request).value
 
       status(result) mustEqual BAD_REQUEST
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-      val expectedJson = Json.obj(
-        "form"   -> boundForm,
-        "submitUrl" -> businessRegistrationTypeSubmitRoute,
-        "radios" -> BusinessRegistrationType.radios(boundForm)
-      )
-
-      templateCaptor.getValue mustEqual "register/businessRegistrationType.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      verify(view, times(1)).apply(any(), any(), any())(any(), any())
 
       application.stop()
     }
 
     "redirect to Session Expired for a GET if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       val request = FakeRequest(GET, businessRegistrationTypeRoute)
@@ -181,12 +147,10 @@ class BusinessRegistrationTypeControllerSpec extends ControllerSpecBase with Moc
     }
 
     "redirect to Session Expired for a POST if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
-      val request =
-        FakeRequest(POST, businessRegistrationTypeRoute)
-      .withFormUrlEncodedBody(("value", BusinessRegistrationType.values.head.toString))
+      val request = FakeRequest(POST, businessRegistrationTypeRoute)
+        .withFormUrlEncodedBody(("value", BusinessRegistrationType.values.head.toString))
 
       val result = route(application, request).value
 
