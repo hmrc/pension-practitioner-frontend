@@ -28,12 +28,12 @@ import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.individual.{AreYouUKResidentPage, IndividualPhonePage}
 import play.api.Application
-import play.api.data.Form
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import views.html.individual.PhoneView
 
 import scala.concurrent.Future
 
@@ -41,9 +41,9 @@ class IndividualPhoneControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
-  private val application: Application =
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
-  private val templateToBeRendered = "individual/phone.njk"
+
   private val form = new PhoneFormProvider()(messages("individual.phone.error.required"))
   private val phone = "11111111"
   private val dummyCall: Call = Call("GET", "/foo")
@@ -55,8 +55,6 @@ class IndividualPhoneControllerSpec extends ControllerSpecBase with MockitoSugar
 
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
 
-  private val jsonToPassToTemplate: Form[String] => JsObject =
-    form => Json.obj("form" -> form, "submitUrl" -> submitUrl)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -67,23 +65,22 @@ class IndividualPhoneControllerSpec extends ControllerSpecBase with MockitoSugar
 
   "IndividualPhone Controller" must {
     "return OK and the correct view for a GET" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val request = httpGETRequest(onPageLoadUrl)
+      
+      val view = app.injector.instanceOf[PhoneView]
+        .apply(routes.IndividualPhoneController.onSubmit(NormalMode), form)(request, messages)
+
+      val result = route(app, request).value
 
       status(result) mustEqual OK
-
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
+      compareResultAndView(result, view)
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual SEE_OTHER
 
@@ -98,7 +95,7 @@ class IndividualPhoneControllerSpec extends ControllerSpecBase with MockitoSugar
       when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(IndividualPhonePage), any(), any())).thenReturn(dummyCall)
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
@@ -109,7 +106,7 @@ class IndividualPhoneControllerSpec extends ControllerSpecBase with MockitoSugar
 
     "return a BAD REQUEST when invalid data is submitted" in {
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesInvalid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesInvalid)).value
 
       status(result) mustEqual BAD_REQUEST
 
@@ -119,7 +116,7 @@ class IndividualPhoneControllerSpec extends ControllerSpecBase with MockitoSugar
     "redirect to Session Expired page for a POST when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
 
