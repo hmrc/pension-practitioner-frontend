@@ -16,12 +16,11 @@
 
 package controllers.deregister.individual
 
-import connectors.cache.UserAnswersCacheConnector
 import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import matchers.JsonMatchers
 import models.UserAnswers
-import models.WhatTypeBusiness.{Companyorpartnership, Yourselfasindividual}
+import models.WhatTypeBusiness.Yourselfasindividual
 import org.mockito.ArgumentMatchers.any
 import play.api.mvc.Results.Ok
 import org.mockito.Mockito.when
@@ -35,15 +34,14 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.api.test.Helpers.contentAsString
 import views.html.deregister.individual.SuccessView
-import play.api.inject.bind
 
 import scala.concurrent.Future
 
 class SuccessControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
-  private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
-  override lazy val app: Application =
+  private lazy val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
 
   private val pspId = "1234567890"
@@ -75,8 +73,7 @@ class SuccessControllerSpec extends ControllerSpecBase with MockitoSugar
       val fakeRequest = FakeRequest(GET, onPageLoadUrl)
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val messages: Messages = messagesApi.preferred(fakeRequest)
-      contentAsString(result).removeAllNonces() mustEqual view(submitUrl)(fakeRequest, messages).toString
-
+      compareResultAndView(result, view(submitUrl)(fakeRequest, messages))
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {

@@ -121,9 +121,9 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
         mockAppConfig.returnToPspDashboardUrl,
         "1 February 2020",
         DateInput.localDate(form("deregistrationDate"))
-      )(request, messages).toString
+      )(request, messages)
 
-      contentAsString(result).removeAllNonces() mustEqual expectedView
+      compareResultAndView(result, expectedView)
     }
 
     "populate the view correctly on a GET when the question has previously been answered" in {
@@ -142,9 +142,9 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
         mockAppConfig.returnToPspDashboardUrl,
         "1 February 2020",
         DateInput.localDate(form("deregistrationDate"))
-      )(request, messages).toString
+      )(request, messages)
 
-      contentAsString(result).removeAllNonces() mustEqual expectedView
+      compareResultAndView(result, expectedView)
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {
@@ -191,7 +191,6 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       val result = route(app, httpPOSTRequest(submitUrl, valuesInvalid)).value
 
       status(result) mustEqual BAD_REQUEST
-
       verify(mockUserAnswersCacheConnector, times(0)).save(any())(any(), any())
     }
 
@@ -201,7 +200,6 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
-
       redirectLocation(result).value mustBe controllers.routes.SessionExpiredController.onPageLoad().url
     }
   }

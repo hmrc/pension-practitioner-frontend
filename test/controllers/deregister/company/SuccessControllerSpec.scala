@@ -39,9 +39,10 @@ class SuccessControllerSpec
     with OptionValues
     with TryValues {
 
-  private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val pspName: String = "Psp name"
-  override lazy val app: Application =
+
+  private lazy val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
 
   val userAnswers: UserAnswers = UserAnswers().setOrException(PspNamePage, pspName)

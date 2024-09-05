@@ -53,10 +53,10 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
   private val mockMinimalConnector = mock[MinimalConnector]
   private val mockDeregistrationConnector = mock[DeregistrationConnector]
   private val minPsp = MinimalPSP("a@b.c", Some(pspName), None, rlsFlag = false, deceasedFlag = false)
-  private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   val userAnswers: UserAnswers = UserAnswers().set(PspNamePage, pspName).toOption.value
+  private lazy val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
 
-  override lazy val app: Application =
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
   private def getRoute: String = routes.ConfirmDeregistrationController.onPageLoad().url
   private def postRoute: String = routes.ConfirmDeregistrationController.onSubmit().url
@@ -110,7 +110,6 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
         mockAppConfig.returnToPspDashboardUrl
       )(request, messages)
 
-      //contentAsString(result).removeAllNonces() mustEqual expectedView
       compareResultAndView(result, expectedView)
     }
 
@@ -157,7 +156,6 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
         mockAppConfig.returnToPspDashboardUrl
       )(request, messages)
 
-      //contentAsString(result).removeAllNonces() mustEqual expectedView
       compareResultAndView(result, expectedView)
     }
   }
