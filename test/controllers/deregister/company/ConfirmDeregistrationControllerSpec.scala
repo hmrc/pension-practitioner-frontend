@@ -34,11 +34,10 @@ import pages.PspNamePage
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import utils.annotations.AuthMustHaveEnrolmentWithNoIV
 import views.html.deregister.company.ConfirmDeregistrationView
 
@@ -53,10 +52,11 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
   private val pspName = "test-psp"
   private val mockMinimalConnector = mock[MinimalConnector]
   private val mockDeregistrationConnector = mock[DeregistrationConnector]
-  private val minPsp = MinimalPSP("a@a.a", Some(pspName), None, rlsFlag = false, deceasedFlag = false)
+  private val minPsp = MinimalPSP("a@b.c", Some(pspName), None, rlsFlag = false, deceasedFlag = false)
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   val userAnswers: UserAnswers = UserAnswers().set(PspNamePage, pspName).toOption.value
-  private val application: Application =
+
+  override lazy val app: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
   private def getRoute: String = routes.ConfirmDeregistrationController.onPageLoad().url
   private def postRoute: String = routes.ConfirmDeregistrationController.onSubmit().url
@@ -84,11 +84,11 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
 
       val request = FakeRequest(GET, getRoute)
 
-      val result = route(application, request).value
+      val result = route(app, request).value
 
       status(result) mustEqual OK
 
-      val view = application.injector.instanceOf[ConfirmDeregistrationView]
+      val view = app.injector.instanceOf[ConfirmDeregistrationView]
       val expectedView = view(
         routes.ConfirmDeregistrationController.onSubmit(),
         form,
@@ -108,16 +108,17 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
         ),
         pspName,
         mockAppConfig.returnToPspDashboardUrl
-      )(request, messages).toString
+      )(request, messages)
 
-      contentAsString(result).removeAllNonces() mustEqual expectedView
+      //contentAsString(result).removeAllNonces() mustEqual expectedView
+      compareResultAndView(result, expectedView)
     }
 
     "redirect to the next page when valid data is submitted" in {
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
       val request = FakeRequest(POST, postRoute).withFormUrlEncodedBody(("value", "true"))
 
-      val result = route(application, request).value
+      val result = route(app, request).value
 
       status(result) mustEqual SEE_OTHER
 
@@ -129,11 +130,11 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
       val request = FakeRequest(POST, postRoute).withFormUrlEncodedBody(("value", ""))
       val boundForm = form.bind(Map("value" -> ""))
 
-      val result = route(application, request).value
+      val result = route(app, request).value
 
       status(result) mustEqual BAD_REQUEST
 
-      val view = application.injector.instanceOf[ConfirmDeregistrationView]
+      val view = app.injector.instanceOf[ConfirmDeregistrationView]
 
       val expectedView = view(
         routes.ConfirmDeregistrationController.onSubmit(),
@@ -154,9 +155,10 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
         ),
         pspName,
         mockAppConfig.returnToPspDashboardUrl
-      )(request, messages).toString
+      )(request, messages)
 
-      contentAsString(result).removeAllNonces() mustEqual expectedView
+      //contentAsString(result).removeAllNonces() mustEqual expectedView
+      compareResultAndView(result, expectedView)
     }
   }
 }

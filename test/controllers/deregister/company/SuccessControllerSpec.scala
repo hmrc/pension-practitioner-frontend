@@ -41,7 +41,7 @@ class SuccessControllerSpec
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val pspName: String = "Psp name"
-  private val application: Application =
+  override lazy val app: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
 
   val userAnswers: UserAnswers = UserAnswers().setOrException(PspNamePage, pspName)
@@ -58,13 +58,13 @@ class SuccessControllerSpec
 
   "Success Controller" must {
     "return OK and the correct view for a GET" in {
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      val expectedView = application.injector.instanceOf[views.html.deregister.company.SuccessView]
+      val expectedView = app.injector.instanceOf[views.html.deregister.company.SuccessView]
       val fakeRequest = FakeRequest()
-      val expectedHtml = expectedView(pspName, submitUrl)(fakeRequest, messages).toString
+      val expectedHtml = expectedView(pspName, submitUrl)(fakeRequest, messages)
 
       contentAsString(result)
         .replaceAll("&amp;referrerUrl=%2F\\[.*?\\]", "&amp;referrerUrl=%2F[]")
@@ -74,7 +74,7 @@ class SuccessControllerSpec
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual SEE_OTHER
 

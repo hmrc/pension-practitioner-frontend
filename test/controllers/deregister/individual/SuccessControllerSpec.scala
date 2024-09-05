@@ -76,6 +76,7 @@ class SuccessControllerSpec extends ControllerSpecBase with MockitoSugar
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val messages: Messages = messagesApi.preferred(fakeRequest)
       contentAsString(result).removeAllNonces() mustEqual view(submitUrl)(fakeRequest, messages).toString
+
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {

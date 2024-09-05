@@ -111,9 +111,10 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
           )
         ),
         mockAppConfig.returnToPspDashboardUrl
-      )(request, messages).toString
+      )(request, messages)
 
-      contentAsString(result).removeAllNonces() mustEqual expectedView
+      //contentAsString(result).removeAllNonces() mustEqual expectedView
+      compareResultAndView(result, expectedView)
     }
 
     "return a Bad Request and errors when invalid data is submitted" in {
@@ -145,9 +146,11 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
           )
         ),
         ""
-      )(request, messages).toString
+      )(request, messages)
 
-      contentAsString(result).removeAllNonces() mustEqual expectedView
+      //contentAsString(result).removeAllNonces() mustEqual expectedView
+      compareResultAndView(result, expectedView)
+
     }
 
   }
