@@ -19,17 +19,15 @@ package controllers.register
 import controllers.base.ControllerSpecBase
 import data.SampleData
 import matchers.JsonMatchers
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.libs.json.{JsObject, Json}
+import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-
-import scala.concurrent.Future
+import views.html.register.BusinessDetailsNotFound
 
 class BusinessDetailsNotFoundControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers {
 
@@ -37,8 +35,10 @@ class BusinessDetailsNotFoundControllerSpec extends ControllerSpecBase with Mock
 
     "return OK and the correct view for a GET" in {
 
-      when(mockRenderer.render(any(), any())(any()))
-        .thenReturn(Future.successful(Html("")))
+      val view = mock[BusinessDetailsNotFound]
+
+      when(view.apply(any(), any(), any(), any())(any(), any()))
+        .thenReturn(Html(""))
 
       val companiesHouseUrl = "companiesHouseURL"
       val hmrcChangesUrl = "hmrc"
@@ -52,29 +52,22 @@ class BusinessDetailsNotFoundControllerSpec extends ControllerSpecBase with Mock
 
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
-      val application = applicationBuilder(userAnswers = Some(SampleData.emptyUserAnswers)).build()
-      val request = FakeRequest(GET, routes.BusinessDetailsNotFoundController.onPageLoad().url)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+      val application = applicationBuilder(userAnswers = Some(SampleData.emptyUserAnswers))
+        .overrides(
+          bind[BusinessDetailsNotFound].toInstance(view)
+        )
+        .build()
 
+      val request = FakeRequest(GET, routes.BusinessDetailsNotFoundController.onPageLoad().url)
       val result = route(application, request).value
 
+      val expectedView = view.apply(companiesHouseUrl, hmrcChangesUrl, taxHelplineUrl, onwardRoute.toString)(request, messages)
+
       status(result) mustEqual OK
-
-      val jsonToPassToTemplate = Json.obj(
-        "companiesHouseUrl" -> companiesHouseUrl,
-        "hmrcUrl" -> hmrcChangesUrl,
-        "hmrcTaxHelplineUrl" -> taxHelplineUrl,
-        "enterDetailsAgainUrl" -> onwardRoute.url
-      )
-
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-      templateCaptor.getValue mustEqual "register/businessDetailsNotFound.njk"
-
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate)
+      compareResultAndView(result, expectedView)
 
       application.stop()
     }
   }
+
 }
