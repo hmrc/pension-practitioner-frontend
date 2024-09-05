@@ -91,7 +91,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
     bind[AuditService].toInstance(mockAuditService)
   )
 
-  private val application: Application =
+  override lazy val app: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction, extraModules).build()
 
   override def beforeEach(): Unit = {
@@ -112,11 +112,11 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
     "return OK and the correct view for a GET" in {
       val request = FakeRequest(GET, onPageLoadUrl)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      val view = application.injector.instanceOf[DeregistrationDateView]
+      val view = app.injector.instanceOf[DeregistrationDateView]
       val expectedView = view(
         routes.DeregistrationDateController.onSubmit(),
         companyName,
@@ -134,11 +134,11 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       mutableFakeDataRetrievalAction.setDataToReturn(Some(prepopUA))
       val request = FakeRequest(GET, onPageLoadUrl)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      val view = application.injector.instanceOf[DeregistrationDateView]
+      val view = app.injector.instanceOf[DeregistrationDateView]
       val expectedView = view(
         routes.DeregistrationDateController.onSubmit(),
         companyName,
@@ -154,7 +154,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual SEE_OTHER
 
@@ -177,7 +177,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       when(mockAppConfig.emailPspDeregistrationTemplateId).thenReturn(templateId)
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
@@ -193,7 +193,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
 
     "return a BAD REQUEST when invalid data is submitted" in {
       mutableFakeDataRetrievalAction.setDataToReturn(Some(ua))
-      val result = route(application, httpPOSTRequest(submitUrl, valuesInvalid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesInvalid)).value
 
       status(result) mustEqual BAD_REQUEST
 
@@ -203,7 +203,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
     "redirect to Session Expired page for a POST when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
 
