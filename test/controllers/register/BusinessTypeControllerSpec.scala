@@ -42,6 +42,7 @@ class BusinessTypeControllerSpec extends ControllerSpecBase with MockitoSugar wi
   private def onwardRoute = Call("GET", "/foo")
 
   private def businessTypeRoute: String = routes.BusinessTypeController.onPageLoad().url
+  private def businessTypeRouteCall: Call = routes.BusinessTypeController.onPageLoad()
 
   private val formProvider = new BusinessTypeFormProvider()
   private val form = formProvider()
@@ -64,9 +65,25 @@ class BusinessTypeControllerSpec extends ControllerSpecBase with MockitoSugar wi
       val request = FakeRequest(GET, businessTypeRoute)
       val result = route(application, request).value
 
-      status(result) mustEqual OK
+      val radios = Seq(
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("Yes"),
+          value = Some("true"),
+          checked = form("value").value.contains("true"),
+          id = Some("value")
+        ),
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("No"),
+          value = Some("false"),
+          checked = form("value").value.contains("false"),
+          id = Some("value-no")
+        )
+      )
 
-      verify(view, times(1)).apply(any(), any(), any())(any(), any())
+      val expectedView = view.apply(businessTypeRouteCall, form, radios)(request, messages)
+
+      status(result) mustEqual OK
+      compareResultAndView(result, expectedView)
 
       application.stop()
     }
@@ -85,9 +102,25 @@ class BusinessTypeControllerSpec extends ControllerSpecBase with MockitoSugar wi
       val request = FakeRequest(GET, businessTypeRoute)
       val result = route(application, request).value
 
-      status(result) mustEqual OK
+      val radios = Seq(
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("Yes"),
+          value = Some("true"),
+          checked = form("value").value.contains("true"),
+          id = Some("value")
+        ),
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("No"),
+          value = Some("false"),
+          checked = form("value").value.contains("false"),
+          id = Some("value-no")
+        )
+      )
 
-      verify(view, times(1)).apply(any(), any(), any())(any(), any())
+      val expectedView = view.apply(businessTypeRouteCall, form.fill(BusinessType.values.head), radios)(request, messages)
+
+      status(result) mustEqual OK
+      compareResultAndView(result, expectedView)
 
       application.stop()
     }
@@ -105,7 +138,6 @@ class BusinessTypeControllerSpec extends ControllerSpecBase with MockitoSugar wi
       val result = route(application, request).value
 
       status(result) mustEqual SEE_OTHER
-
       redirectLocation(result).value mustEqual onwardRoute.url
 
       application.stop()
@@ -123,11 +155,28 @@ class BusinessTypeControllerSpec extends ControllerSpecBase with MockitoSugar wi
         .build()
 
       val request = FakeRequest(POST, businessTypeRoute).withFormUrlEncodedBody(("value", "invalid value"))
+      val boundForm = form.bind(Map("value" -> "invalid value"))
+
+      val radios = Seq(
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("Yes"),
+          value = Some("true"),
+          checked = form("value").value.contains("true"),
+          id = Some("value")
+        ),
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("No"),
+          value = Some("false"),
+          checked = form("value").value.contains("false"),
+          id = Some("value-no")
+        )
+      )
+      val expectedView = view.apply(businessTypeRouteCall, boundForm, radios)(request, messages)
+
       val result = route(application, request).value
 
       status(result) mustEqual BAD_REQUEST
-
-      verify(view, times(1)).apply(any(), any(), any())(any(), any())
+      compareResultAndView(result, expectedView)
 
       application.stop()
     }
@@ -136,7 +185,6 @@ class BusinessTypeControllerSpec extends ControllerSpecBase with MockitoSugar wi
       val application = applicationBuilder(userAnswers = None).build()
 
       val request = FakeRequest(GET, businessTypeRoute)
-
       val result = route(application, request).value
 
       status(result) mustEqual SEE_OTHER
@@ -154,7 +202,6 @@ class BusinessTypeControllerSpec extends ControllerSpecBase with MockitoSugar wi
       val result = route(application, request).value
 
       status(result) mustEqual SEE_OTHER
-
       redirectLocation(result).value mustEqual controllers.routes.SessionExpiredController.onPageLoad().url
 
       application.stop()

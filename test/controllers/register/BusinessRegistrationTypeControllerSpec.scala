@@ -42,7 +42,7 @@ class BusinessRegistrationTypeControllerSpec extends ControllerSpecBase with Moc
   def onwardRoute = Call("GET", "/foo")
 
   def businessRegistrationTypeRoute: String = routes.BusinessRegistrationTypeController.onPageLoad().url
-  def businessRegistrationTypeSubmitRoute: String = routes.BusinessRegistrationTypeController.onSubmit().url
+  def businessRegistrationTypeSubmitRoute: Call = routes.BusinessRegistrationTypeController.onSubmit()
 
   val formProvider = new BusinessRegistrationTypeFormProvider()
   val form = formProvider()
@@ -62,12 +62,28 @@ class BusinessRegistrationTypeControllerSpec extends ControllerSpecBase with Moc
         )
         .build()
 
+      val radios = Seq(
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("Yes"),
+          value = Some("true"),
+          checked = form("value").value.contains("true"),
+          id = Some("value")
+        ),
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("No"),
+          value = Some("false"),
+          checked = form("value").value.contains("false"),
+          id = Some("value-no")
+        )
+      )
+
       val request = FakeRequest(GET, businessRegistrationTypeRoute)
       val result = route(application, request).value
 
-      status(result) mustEqual OK
+      val expectedView = view.apply(businessRegistrationTypeSubmitRoute, form, radios )(request, messages)
 
-      verify(view, times(1)).apply(any(), any(), any())(any(), any())
+      status(result) mustEqual OK
+      compareResultAndView(result, expectedView)
 
       application.stop()
     }
@@ -83,12 +99,28 @@ class BusinessRegistrationTypeControllerSpec extends ControllerSpecBase with Moc
         )
         .build()
 
+      val radios = Seq(
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("Yes"),
+          value = Some("true"),
+          checked = form("value").value.contains("true"),
+          id = Some("value")
+        ),
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("No"),
+          value = Some("false"),
+          checked = form("value").value.contains("false"),
+          id = Some("value-no")
+        )
+      )
+
       val request = FakeRequest(GET, businessRegistrationTypeRoute)
       val result = route(application, request).value
 
-      status(result) mustEqual OK
+      val expectedView = view.apply(businessRegistrationTypeSubmitRoute, form.fill(BusinessRegistrationType.values.head), radios)(request, messages)
 
-      verify(view, times(1)).apply(any(), any(), any())(any(), any())
+      status(result) mustEqual OK
+      compareResultAndView(result, expectedView)
 
       application.stop()
     }
@@ -106,7 +138,6 @@ class BusinessRegistrationTypeControllerSpec extends ControllerSpecBase with Moc
       val result = route(application, request).value
 
       status(result) mustEqual SEE_OTHER
-
       redirectLocation(result).value mustEqual onwardRoute.url
 
       application.stop()
@@ -123,12 +154,30 @@ class BusinessRegistrationTypeControllerSpec extends ControllerSpecBase with Moc
         )
         .build()
 
+      val radios = Seq(
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("Yes"),
+          value = Some("true"),
+          checked = form("value").value.contains("true"),
+          id = Some("value")
+        ),
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("No"),
+          value = Some("false"),
+          checked = form("value").value.contains("false"),
+          id = Some("value-no")
+        )
+      )
+
       val request = FakeRequest(POST, businessRegistrationTypeRoute).withFormUrlEncodedBody(("value", "invalid value"))
+      val boundForm = form.bind(Map("value" -> "invalid value"))
+
+      val expectedView = view.apply(businessRegistrationTypeSubmitRoute, boundForm, radios)(request, messages)
+
       val result = route(application, request).value
 
       status(result) mustEqual BAD_REQUEST
-
-      verify(view, times(1)).apply(any(), any(), any())(any(), any())
+      compareResultAndView(result, expectedView)
 
       application.stop()
     }
@@ -137,7 +186,6 @@ class BusinessRegistrationTypeControllerSpec extends ControllerSpecBase with Moc
       val application = applicationBuilder(userAnswers = None).build()
 
       val request = FakeRequest(GET, businessRegistrationTypeRoute)
-
       val result = route(application, request).value
 
       status(result) mustEqual SEE_OTHER
@@ -155,7 +203,6 @@ class BusinessRegistrationTypeControllerSpec extends ControllerSpecBase with Moc
       val result = route(application, request).value
 
       status(result) mustEqual SEE_OTHER
-
       redirectLocation(result).value mustEqual controllers.routes.SessionExpiredController.onPageLoad().url
 
       application.stop()

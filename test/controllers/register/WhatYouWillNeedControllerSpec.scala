@@ -18,17 +18,19 @@ package controllers.register
 
 import controllers.base.ControllerSpecBase
 import data.SampleData._
+import matchers.JsonMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.inject
+import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import views.html.register.WhatYouWillNeedView
+import navigators.CompoundNavigator
 
-class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar {
+class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers {
 
   private def onwardRoute = Call("GET", "/foo")
 
@@ -37,21 +39,25 @@ class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar
     "return OK and the correct view for a GET" in {
 
       val view = mock[WhatYouWillNeedView]
+      val mockNavigator = mock[CompoundNavigator]
 
       when(view.apply(any())(any(), any())).thenReturn(Html(""))
+
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(inject.bind[WhatYouWillNeedView].toInstance(view))
+        .overrides(
+          bind[WhatYouWillNeedView].toInstance(view)
+        )
         .build()
 
       val request = FakeRequest(GET, routes.WhatYouWillNeedController.onPageLoad().url)
-
       val result = route(application, request).value
 
-      status(result) mustEqual OK
+      val expectedView = view.apply(onwardRoute.url)(request, messages)
 
-      verify(view, times(1)).apply(any())(any(), any())
+      status(result) mustEqual OK
+      compareResultAndView(result, expectedView)
 
       application.stop()
     }

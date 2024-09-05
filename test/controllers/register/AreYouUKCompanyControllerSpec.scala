@@ -21,9 +21,8 @@ import data.SampleData._
 import forms.register.AreYouUKCompanyFormProvider
 import matchers.JsonMatchers
 import models.UserAnswers
-import play.api.inject.bind
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.when
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.register.AreYouUKCompanyPage
@@ -31,7 +30,6 @@ import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import views.html.register.AreYouUkCompanyView
 
 import scala.concurrent.Future
@@ -44,49 +42,98 @@ class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar
   private val form = formProvider()
 
   private def areYouUKCompanyRoute: String = routes.AreYouUKCompanyController.onPageLoad().url
+  private def areYouUKCompanySubmitCall: Call = routes.AreYouUKCompanyController.onSubmit()
 
   private val answers: UserAnswers = userAnswersWithCompanyName.set(AreYouUKCompanyPage, true).success.value
+  private val falseAnswers: UserAnswers = userAnswersWithCompanyName.set(AreYouUKCompanyPage, false).success.value
 
   "AreYouUKCompany Controller" must {
 
     "return OK and the correct view for a GET" in {
-      val view = mock[AreYouUkCompanyView]
-
-      when(view.apply(any(), any(), any())(any(), any())).thenReturn(Html(""))
-
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
-        .overrides(
-          bind[AreYouUkCompanyView].toInstance(view)
-        )
-        .build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName)).build()
 
       val request = FakeRequest(GET, areYouUKCompanyRoute)
       val result = route(application, request).value
 
-      status(result) mustEqual OK
+      val radios = Seq(
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("Yes"),
+          value = Some("true"),
+          checked = form("value").value.contains("true"),
+          id = Some("value")
+        ),
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("No"),
+          value = Some("false"),
+          checked = form("value").value.contains("false"),
+          id = Some("value-no")
+        )
+      )
+      val view = application.injector.instanceOf[AreYouUkCompanyView]
+      val expectedView = view.apply(areYouUKCompanySubmitCall, form, radios)(request, messages)
 
-      verify(view, times(1)).apply(any(), any(), any())(any(), any())
+      status(result) mustEqual OK
+      compareResultAndView(result, expectedView)
 
       application.stop()
     }
 
-    "populate the view correctly on a GET when the question has previously been answered" in {
-      val view = mock[AreYouUkCompanyView]
-
-      when(view.apply(any(), any(), any())(any(), any())).thenReturn(Html(""))
-
-      val application = applicationBuilder(userAnswers = Some(answers))
-        .overrides(
-          bind[AreYouUkCompanyView].toInstance(view)
-        )
-        .build()
+    "populate the view correctly on a GET when the question has previously been answered with true" in {
+      val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       val request = FakeRequest(GET, areYouUKCompanyRoute)
       val result = route(application, request).value
 
-      status(result) mustEqual OK
+      val radios = Seq(
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("Yes"),
+          value = Some("true"),
+          checked = form.fill(true)("value").value.contains("true"),
+          id = Some("value")
+        ),
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("No"),
+          value = Some("false"),
+          checked = form.fill(true)("value").value.contains("false"),
+          id = Some("value-no")
+        )
+      )
 
-      verify(view, times(1)).apply(any(), any(), any())(any(), any())
+      val view = application.injector.instanceOf[AreYouUkCompanyView]
+      val expectedView = view.apply(areYouUKCompanySubmitCall, form, radios)(request, messages)
+
+      status(result) mustEqual OK
+      compareResultAndView(result, expectedView)
+
+      application.stop()
+    }
+
+    "populate the view correctly on a GET when the question has previously been answered with false" in {
+      val application = applicationBuilder(userAnswers = Some(falseAnswers)).build()
+
+      val request = FakeRequest(GET, areYouUKCompanyRoute)
+      val result = route(application, request).value
+
+      val radios = Seq(
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("Yes"),
+          value = Some("true"),
+          checked = form.fill(false)("value").value.contains("true"),
+          id = Some("value")
+        ),
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("No"),
+          value = Some("false"),
+          checked = form.fill(false)("value").value.contains("false"),
+          id = Some("value-no")
+        )
+      )
+
+      val view = application.injector.instanceOf[AreYouUkCompanyView]
+      val expectedView = view.apply(areYouUKCompanySubmitCall, form, radios)(request, messages)
+
+      status(result) mustEqual OK
+      compareResultAndView(result, expectedView)
 
       application.stop()
     }
@@ -111,22 +158,33 @@ class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar
     }
 
     "return a Bad Request and errors when invalid data is submitted" in {
-      val view = mock[AreYouUkCompanyView]
-
-      when(view.apply(any(), any(), any())(any(), any())).thenReturn(Html(""))
-
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
-        .overrides(
-          bind[AreYouUkCompanyView].toInstance(view)
-        )
-        .build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName)).build()
 
       val request = FakeRequest(POST, areYouUKCompanyRoute).withFormUrlEncodedBody(("value", ""))
+      val boundForm = form.bind(Map("value" -> ""))
+
+      val radios = Seq(
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("Yes"),
+          value = Some("true"),
+          checked = boundForm("value").value.contains("true"),
+          id = Some("value")
+        ),
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("No"),
+          value = Some("false"),
+          checked = boundForm("value").value.contains("false"),
+          id = Some("value-no")
+        )
+      )
+
+      val view = application.injector.instanceOf[AreYouUkCompanyView]
+      val expectedView = view.apply(areYouUKCompanySubmitCall, boundForm, radios)(request, messages)
+
       val result = route(application, request).value
 
       status(result) mustEqual BAD_REQUEST
-
-      verify(view, times(1)).apply(any(), any(), any())(any(), any())
+      compareResultAndView(result, expectedView)
 
       application.stop()
     }

@@ -20,7 +20,7 @@ import controllers.base.ControllerSpecBase
 import data.SampleData
 import matchers.JsonMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -59,14 +59,15 @@ class BusinessDetailsNotFoundControllerSpec extends ControllerSpecBase with Mock
         .build()
 
       val request = FakeRequest(GET, routes.BusinessDetailsNotFoundController.onPageLoad().url)
-
       val result = route(application, request).value
 
-      status(result) mustEqual OK
+      val expectedView = view.apply(companiesHouseUrl, hmrcChangesUrl, taxHelplineUrl, onwardRoute.toString)(request, messages)
 
-      verify(view, times(1)).apply(any(), any(), any(), any())(any(), any())
+      status(result) mustEqual OK
+      compareResultAndView(result, expectedView)
 
       application.stop()
     }
   }
+
 }
