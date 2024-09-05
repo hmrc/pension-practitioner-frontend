@@ -20,24 +20,25 @@ import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import forms.address.AddressFormProvider
 import matchers.JsonMatchers
-import models.{Address, NormalMode, UserAnswers}
+import models.{Address, Country, NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.mockito.{ArgumentCaptor, ArgumentMatchers}
+import org.mockito.ArgumentMatchers
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.partnership.{BusinessNamePage, PartnershipAddressPage}
 import pages.register.AreYouUKCompanyPage
 import play.api.Application
-import play.api.data.Form
 import play.api.inject.bind
-import play.api.libs.json.{JsArray, JsBoolean, JsObject, Json}
+import play.api.libs.json.Json
 import play.api.mvc.Call
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.InputOption
 import utils.countryOptions.CountryOptions
+import views.html.address.ManualAddressView
 
 import scala.concurrent.Future
 
@@ -57,7 +58,6 @@ class PartnershipContactAddressControllerSpec
       mutableFakeDataRetrievalAction,
       extraModules = Seq(bind[CountryOptions].toInstance(countryOptions))
     ).build()
-  private val templateToBeRendered = "address/manualAddress.njk"
   private val form = new AddressFormProvider(countryOptions)()
 
   val userAnswers: UserAnswers = UserAnswers()
@@ -65,7 +65,8 @@ class PartnershipContactAddressControllerSpec
     .setOrException(AreYouUKCompanyPage, true)
 
   private def onPageLoadUrl: String = routes.PartnershipContactAddressController.onPageLoad(NormalMode).url
-  private def submitUrl: String = routes.PartnershipContactAddressController.onSubmit(NormalMode).url
+  private def submitCall: Call = routes.PartnershipContactAddressController.onSubmit(NormalMode)
+  private def submitUrl: String = submitCall.url
   private val dummyCall: Call = Call("GET", "/foo")
   private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("ZZ1 1ZZ"), "GB")
 
@@ -80,14 +81,6 @@ class PartnershipContactAddressControllerSpec
 
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
 
-  private val jsonToPassToTemplate: Form[Address] => JsObject =
-    form => Json.obj(
-      "submitUrl" -> submitUrl,
-      "form" -> form,
-      "pageTitle" -> messages("address.title", messages("partnership")),
-      "h1" -> messages("address.title", partnershipName)
-    )
-
   override def beforeEach(): Unit = {
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
@@ -99,18 +92,21 @@ class PartnershipContactAddressControllerSpec
 
   "PartnershipAddress Controller" must {
     "return OK and the correct view for a GET with countries and postcode" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+      val request = FakeRequest(GET, onPageLoadUrl)
       val result = route(application, httpGETRequest(onPageLoadUrl)).value
-
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[ManualAddressView].apply(
+        messages("address.title", messages("partnership")),
+        messages("address.title", partnershipName),
+        postcodeEntry = true,
+        postcodeFirst = true,
+        Array(Country("", ""), Country("GB", "United Kingdom")),
+        submitCall,
+        form
+      )(request, messages)
 
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
-      (jsonCaptor.getValue \ "countries").asOpt[JsArray].isDefined mustBe true
-      (jsonCaptor.getValue \ "postcodeEntry").asOpt[JsBoolean].isDefined mustBe true
+      compareResultAndView(result, view)
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {
@@ -129,16 +125,13 @@ class PartnershipContactAddressControllerSpec
           BusinessNamePage.toString -> partnershipName,
           PartnershipAddressPage.toString -> address)
 
+      when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(expectedJson)
       when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(PartnershipAddressPage), any(), any())).thenReturn(dummyCall)
 
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
       val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
-      verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
-      jsonCaptor.getValue must containJson(expectedJson)
-      redirectLocation(result) mustBe Some(dummyCall.url)
-
+      redirectLocation(result).value mustEqual dummyCall.url
     }
 
     "return a BAD REQUEST when invalid data is submitted" in {
