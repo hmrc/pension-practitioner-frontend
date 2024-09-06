@@ -20,22 +20,21 @@ import controllers.base.ControllerSpecBase
 import forms.address.UseAddressForContactFormProvider
 import matchers.JsonMatchers
 import models.{Address, NormalMode, UserAnswers}
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.individual.{AreYouUKResidentPage, IndividualAddressPage, IndividualManualAddressPage, UseAddressForContactPage}
-import play.api.data.Form
 import play.api.inject.bind
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
-import viewmodels.CommonViewModel
+import views.html.address.UseAddressForContactView
 
 import scala.concurrent.Future
 
@@ -53,17 +52,8 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
   private val address = Address("line1", "line2", Some("line3"), Some("line4"), Some("post code"), "GB")
   private val manualAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("post code"), "GB")
   private val countryOptions: CountryOptions = mock[CountryOptions]
-  private val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-  private val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
   private val uaWithIndividualAddress = UserAnswers().set(IndividualAddressPage, address).success.value
   private val uaWithAddressAndUkResident = uaWithIndividualAddress.set(AreYouUKResidentPage, true).success.value
-
-  private def expectedJson(form: Form[Boolean]): JsObject = Json.obj(
-    "form" -> form,
-    "viewmodel" -> CommonViewModel("individual.you", "individual.you", useAddressForContactPostRoute),
-    "radios" -> Radios.yesNo(form("value")),
-    "address" -> address.lines(countryOptions)
-  )
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -79,14 +69,17 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
         val application = applicationBuilder(userAnswers = Some(uaWithAddressAndUkResident),
           extraModules = Seq(bind[CountryOptions].toInstance(countryOptions))).overrides().build()
         val request = FakeRequest(GET, useAddressForContactGetRoute)
+
+        val view = application.injector.instanceOf[UseAddressForContactView]
+          .apply(routes.UseAddressForContactController.onSubmit(),
+            form, TwirlMigration.toTwirlRadios(Radios.yesNo(form("value"))),
+            "individual.you", "individual.you",
+            address.lines(countryOptions))(request, messages)
+
         val result = route(application, request).value
 
         status(result) mustEqual OK
-
-        verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-        templateCaptor.getValue mustEqual "address/useAddressForContact.njk"
-        jsonCaptor.getValue must containJson(expectedJson(form))
+        compareResultAndView(result, view)
 
         application.stop()
       }
@@ -96,16 +89,18 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
           extraModules = Seq(bind[CountryOptions].toInstance(countryOptions))).overrides().build()
         val request = FakeRequest(GET, useAddressForContactGetRoute)
 
+        val filledForm = form.bind(Map("value" -> "true"))
+
+        val view = application.injector.instanceOf[UseAddressForContactView]
+          .apply(routes.UseAddressForContactController.onSubmit(),
+            filledForm, TwirlMigration.toTwirlRadios(Radios.yesNo(filledForm("value"))),
+            "individual.you", "individual.you",
+            address.lines(countryOptions))(request, messages)
+
         val result = route(application, request).value
 
         status(result) mustEqual OK
-
-        verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-        val filledForm = form.bind(Map("value" -> "true"))
-
-        templateCaptor.getValue mustEqual "address/useAddressForContact.njk"
-        jsonCaptor.getValue must containJson(expectedJson(filledForm))
+        compareResultAndView(result, view)
 
         application.stop()
       }
@@ -177,14 +172,17 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
 
       val request = FakeRequest(POST, useAddressForContactPostRoute).withFormUrlEncodedBody(("value", ""))
       val boundForm = form.bind(Map("value" -> ""))
+
+      val view = application.injector.instanceOf[UseAddressForContactView]
+        .apply(routes.UseAddressForContactController.onSubmit(),
+          boundForm, TwirlMigration.toTwirlRadios(Radios.yesNo(boundForm("value"))),
+          "individual.you", "individual.you",
+          address.lines(countryOptions))(request, messages)
+
       val result = route(application, request).value
 
       status(result) mustEqual BAD_REQUEST
-
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-      templateCaptor.getValue mustEqual "address/useAddressForContact.njk"
-      jsonCaptor.getValue must containJson(expectedJson(boundForm))
+      compareResultAndView(result, view)
 
       application.stop()
     }

@@ -22,22 +22,22 @@ import forms.individual.IsThisYouFormProvider
 import matchers.JsonMatchers
 import models.register._
 import models.{Address, NormalMode, UserAnswers}
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.RegistrationInfoPage
 import pages.individual.{IndividualAddressPage, IndividualDetailsPage, IsThisYouPage}
-import play.api.data.Form
 import play.api.inject.bind
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
+import views.html.individual.IsThisYouView
 
 import scala.concurrent.Future
 
@@ -56,16 +56,6 @@ class IsThisYouControllerSpec extends ControllerSpecBase with MockitoSugar with 
 
   private val countryOptions: CountryOptions = mock[CountryOptions]
   private val registrationConnector = mock[RegistrationConnector]
-  private val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-  private val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-
-  private def expectedJson(form: Form[Boolean]): JsObject = Json.obj(
-    "form" -> form,
-    "submitUrl" -> isThisYouPostRoute,
-    "radios" -> Radios.yesNo(form("value")),
-    "name" -> individual.fullName,
-    "address" -> address.lines(countryOptions)
-  )
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -84,15 +74,18 @@ class IsThisYouControllerSpec extends ControllerSpecBase with MockitoSugar with 
         val application = applicationBuilder(userAnswers = Some(uaWithIndividualAddressRegInfo),
           extraModules = Seq(bind[CountryOptions].toInstance(countryOptions),
             bind[RegistrationConnector].toInstance(registrationConnector))).overrides().build()
+
         val request = FakeRequest(GET, isThisYouGetRoute)
+
+        val view = application.injector.instanceOf[IsThisYouView]
+          .apply(routes.IsThisYouController.onSubmit(NormalMode),
+            form, TwirlMigration.toTwirlRadios(Radios.yesNo(form("value"))),
+            individual.fullName, address.lines(countryOptions))(request, messages)
+
         val result = route(application, request).value
 
         status(result) mustEqual OK
-
-        verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-        templateCaptor.getValue mustEqual "individual/isThisYou.njk"
-        jsonCaptor.getValue must containJson(expectedJson(form))
+        compareResultAndView(result, view)
 
         application.stop()
       }
@@ -106,16 +99,17 @@ class IsThisYouControllerSpec extends ControllerSpecBase with MockitoSugar with 
             bind[RegistrationConnector].toInstance(registrationConnector))).overrides().build()
         val request = FakeRequest(GET, isThisYouGetRoute)
 
+        val filledForm = form.bind(Map("value" -> "true"))
+
+        val view = application.injector.instanceOf[IsThisYouView]
+          .apply(routes.IsThisYouController.onSubmit(NormalMode),
+            filledForm, TwirlMigration.toTwirlRadios(Radios.yesNo(filledForm("value"))),
+            individual.fullName, address.lines(countryOptions))(request, messages)
+
         val result = route(application, request).value
 
         status(result) mustEqual OK
-
-        verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-        val filledForm = form.bind(Map("value" -> "true"))
-
-        templateCaptor.getValue mustEqual "individual/isThisYou.njk"
-        jsonCaptor.getValue must containJson(expectedJson(filledForm))
+        compareResultAndView(result, view)
 
         application.stop()
       }
@@ -130,15 +124,15 @@ class IsThisYouControllerSpec extends ControllerSpecBase with MockitoSugar with 
             bind[RegistrationConnector].toInstance(registrationConnector))).overrides().build()
         val request = FakeRequest(GET, isThisYouGetRoute)
 
+        val view = application.injector.instanceOf[IsThisYouView]
+          .apply(routes.IsThisYouController.onSubmit(NormalMode),
+            form, TwirlMigration.toTwirlRadios(Radios.yesNo(form("value"))),
+            individual.fullName, address.lines(countryOptions))(request, messages)
+
         val result = route(application, request).value
 
         status(result) mustEqual OK
-
-        verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-        verify(mockUserAnswersCacheConnector, times(1)).save(eqTo(uaWithIndividualAddressRegInfo.data))(any(), any())
-
-        templateCaptor.getValue mustEqual "individual/isThisYou.njk"
-        jsonCaptor.getValue must containJson(expectedJson(form))
+        compareResultAndView(result, view)
 
         application.stop()
       }
@@ -189,14 +183,16 @@ class IsThisYouControllerSpec extends ControllerSpecBase with MockitoSugar with 
 
       val request = FakeRequest(POST, isThisYouPostRoute).withFormUrlEncodedBody(("value", ""))
       val boundForm = form.bind(Map("value" -> ""))
+
+      val view = application.injector.instanceOf[IsThisYouView]
+        .apply(routes.IsThisYouController.onSubmit(NormalMode),
+          boundForm, TwirlMigration.toTwirlRadios(Radios.yesNo(boundForm("value"))),
+          individual.fullName, address.lines(countryOptions))(request, messages)
+
       val result = route(application, request).value
 
       status(result) mustEqual BAD_REQUEST
-
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-      templateCaptor.getValue mustEqual "individual/isThisYou.njk"
-      jsonCaptor.getValue must containJson(expectedJson(boundForm))
+      compareResultAndView(result, view)
 
       application.stop()
     }

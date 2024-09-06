@@ -41,6 +41,7 @@ import play.twirl.api.Html
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.KnownFactsRetrieval
+import views.html.individual.DeclarationView
 
 import scala.concurrent.Future
 
@@ -53,7 +54,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
   private val mockEnrolmentConnector: EnrolmentConnector = mock[EnrolmentConnector]
   private val knownFactsRetrieval: KnownFactsRetrieval = mock[KnownFactsRetrieval]
 
-  private val application: Application =
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(
       mutableFakeDataRetrievalAction,
       Seq(
@@ -69,7 +70,6 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
     Set(KnownFact("NINO", "test-nino")
     )))
 
-  private val templateToBeRendered = "individual/declaration.njk"
   private val dummyCall: Call = Call("GET", "/foo")
   private val valuesValid: Map[String, Seq[String]] = Map()
 
@@ -84,21 +84,20 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   "Declaration Controller" must {
     "return OK and the correct view for a GET" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
+      val request = httpGETRequest(onPageLoadUrl)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val view = app.injector.instanceOf[DeclarationView].apply(routes.DeclarationController.onSubmit())(request, messages)
+
+      val result = route(app, request).value
 
       status(result) mustEqual OK
-
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), any())(any())
-
-      templateCaptor.getValue mustEqual templateToBeRendered
+      compareResultAndView(result, view)
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual SEE_OTHER
 
@@ -129,7 +128,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
       when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
@@ -141,7 +140,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
     "redirect to Session Expired page for a POST when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
 
@@ -158,7 +157,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
         reportAs = FORBIDDEN
       )))
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
 
