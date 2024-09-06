@@ -22,7 +22,6 @@ import matchers.JsonMatchers
 import models.UserAnswers
 import models.WhatTypeBusiness.Yourselfasindividual
 import org.mockito.ArgumentMatchers.any
-import play.api.mvc.Results.Ok
 import org.mockito.Mockito.when
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
@@ -30,9 +29,9 @@ import pages.company.CompanyEmailPage
 import pages.{PspIdPage, WhatTypeBusinessPage}
 import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
+import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.test.Helpers.contentAsString
 import views.html.deregister.individual.SuccessView
 
 import scala.concurrent.Future

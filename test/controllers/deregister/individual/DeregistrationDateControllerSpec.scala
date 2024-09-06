@@ -23,9 +23,9 @@ import controllers.base.ControllerSpecBase
 import forms.deregister.DeregistrationDateFormProvider
 import matchers.JsonMatchers
 import models.{JourneyType, UserAnswers}
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.mockito.ArgumentMatchers
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.deregister.DeregistrationDatePage
@@ -46,14 +46,29 @@ import scala.concurrent.Future
 class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
-  private val minDate: LocalDate = LocalDate.of(2020,2, 1)
-  private val form = new DeregistrationDateFormProvider()("individual", minDate)
-  private val dummyCall: Call = Call("GET", "/foo")
   private val mockDeregistrationConnector = mock[DeregistrationConnector]
   private val mockEnrolmentConnector = mock[EnrolmentConnector]
   private val mockEmailConnector: EmailConnector = mock[EmailConnector]
   private val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
   private val mockAuditService = mock[AuditService]
+
+  private def extraModules: Seq[GuiceableModule] = Seq(
+    bind[DeregistrationConnector].toInstance(mockDeregistrationConnector),
+    bind[EnrolmentConnector].toInstance(mockEnrolmentConnector),
+    bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
+    bind[EmailConnector].toInstance(mockEmailConnector),
+    bind[AuditService].toInstance(mockAuditService),
+  )
+
+  private lazy val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
+
+  override def fakeApplication(): Application =
+    applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction, extraModules).build()
+
+  private val minDate: LocalDate = LocalDate.of(2020,2, 1)
+  private val form = new DeregistrationDateFormProvider()("individual", minDate)
+  private val dummyCall: Call = Call("GET", "/foo")
+
 
   private val email = "a@a.c"
   private val name = "name"
@@ -79,18 +94,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
     "amountTaxDue" -> Seq("33.44")
   )
 
-  private def extraModules: Seq[GuiceableModule] = Seq(
-    bind[DeregistrationConnector].toInstance(mockDeregistrationConnector),
-    bind[EnrolmentConnector].toInstance(mockEnrolmentConnector),
-    bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
-    bind[EmailConnector].toInstance(mockEmailConnector),
-    bind[AuditService].toInstance(mockAuditService),
-  )
 
-  private lazy val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
-
-  override def fakeApplication(): Application =
-    applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction, extraModules).build()
 
   override def beforeEach(): Unit = {
     super.beforeEach()

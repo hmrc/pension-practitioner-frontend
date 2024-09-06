@@ -25,7 +25,6 @@ import forms.deregister.ConfirmDeregistrationFormProvider
 import matchers.JsonMatchers
 import models.{MinimalPSP, UserAnswers}
 import navigators.CompoundNavigator
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
