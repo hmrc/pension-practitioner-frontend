@@ -71,7 +71,7 @@ class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
           renderer.render(template = "confirmName.njk", json),
           confirmNameView(
             "partnership",
-            form,
+            preparedForm,
             routes.ConfirmNameController.onSubmit(),
             pspName,
             TwirlMigration.toTwirlRadios(Radios.yesNo(preparedForm("value"))))
