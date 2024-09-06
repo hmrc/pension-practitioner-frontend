@@ -100,7 +100,7 @@ class IsCompanyRegisteredInUkControllerSpec extends ControllerSpecBase with Mock
         isCompanyRegisteredInUkSubmitCall,
         filledForm,
         Seq(
-          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true"), id = Some("value")),
+          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true"), id = Some("value"), checked = true),
           components.RadioItem(content = Text(Messages("site.no")), value = Some("false"), id = Some("value-no"))
         )
       )(request, messages)
