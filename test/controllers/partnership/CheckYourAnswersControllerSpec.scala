@@ -20,7 +20,6 @@ import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import matchers.JsonMatchers
 import models.UserAnswers
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
@@ -28,7 +27,6 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.i18n.Messages
 import play.api.inject.bind
-import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -48,7 +46,7 @@ class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSuga
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val partnershipCYAService = mock[PartnershipCYAService]
   private val partnershipName: String = "Partnership name"
-  private val application: Application =
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(
       mutableFakeDataRetrievalAction,
       extraModules = Seq(bind[PartnershipCYAService].toInstance(partnershipCYAService))).build()
@@ -72,11 +70,11 @@ class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSuga
       val request = FakeRequest(GET, onPageLoadUrl)
       when(partnershipCYAService.partnershipCya(any())(any())).thenReturn(list)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      val view = application.injector.instanceOf[CheckYourAnswersView].apply(
+      val view = app.injector.instanceOf[CheckYourAnswersView].apply(
         controllers.partnership.routes.DeclarationController.onPageLoad(),
         Seq(
           SummaryListRow(key = Key(Text(Messages("cya.partnershipName")), classes = "govuk-!-width-one-half"),
@@ -90,7 +88,7 @@ class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSuga
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual SEE_OTHER
 

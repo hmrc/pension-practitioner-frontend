@@ -43,7 +43,7 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val partnershipName: String = "Partnership name"
-  private val application: Application =
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
   private val pspId = "1234567890"
   private val email = "a@a.c"
@@ -69,11 +69,11 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
 
       when(mockUserAnswersCacheConnector.removeAll(any(), any())).thenReturn(Future.successful(Ok))
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      val view = application.injector.instanceOf[ConfirmationView].apply(
+      val view = app.injector.instanceOf[ConfirmationView].apply(
         pspId,
         email,
         CommonViewModel("partnership.capitalised", partnershipName, submitUrl)
@@ -86,7 +86,7 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual SEE_OTHER
 
