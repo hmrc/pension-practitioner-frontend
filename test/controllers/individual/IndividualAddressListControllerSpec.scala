@@ -35,9 +35,12 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.countryOptions.CountryOptions
-import viewmodels.CommonViewModel
+import viewmodels.CommonViewModelTwirl
+import views.html.individual.AddressListView
 
 import scala.concurrent.Future
 
@@ -45,17 +48,15 @@ class IndividualAddressListControllerSpec extends ControllerSpecBase with Mockit
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
- // private val individualName: String = "individual name"
   private val tolerantIndividualName: TolerantIndividual = TolerantIndividual(Some("individual"),None,Some("name"))
 
   private val countryOptions: CountryOptions = mock[CountryOptions]
-  private val application: Application =
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(
       mutableFakeDataRetrievalAction,
       extraModules = Seq(bind[CountryOptions].toInstance(countryOptions))
     ).build()
-  private val templateToBeRendered = "individual/addressList.njk"
-  private val form = new AddressListFormProvider()(messages("individual.addressList.error.required"))
+  private val form: Form[Int] = new AddressListFormProvider()(messages("individual.addressList.error.required"))
   private val tolerantAddress = TolerantAddress(Some("addr1"), Some("addr2"), Some("addr3"), Some("addr4"), Some("postcode"), Some("GB"))
 
   private val userAnswers: UserAnswers = UserAnswers().set(IndividualDetailsPage, tolerantIndividualName).toOption.value
@@ -70,17 +71,9 @@ class IndividualAddressListControllerSpec extends ControllerSpecBase with Mockit
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq("0"))
 
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
-  private val jsonToPassToTemplate: Form[Int] => JsObject =
-    form => Json.obj(
-      "form" -> form,
-      "addresses" -> Json.arr(Json.obj("value" -> 0, "text" -> "addr1, addr2, addr3, addr4, postcode, United Kingdom")),
-      "viewmodel" -> CommonViewModel(
-        "individual",
-        tolerantIndividualName.fullName,
-        submitUrl,
-        Some(enterManuallyUrl.url)
-    )
-    )
+
+  private val address = Seq(
+    RadioItem(Text("addr1, addr2, addr3, addr4, postcode, United Kingdom"), value = Some("0")))
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -92,23 +85,26 @@ class IndividualAddressListControllerSpec extends ControllerSpecBase with Mockit
 
   "IndividualAddressList Controller" must {
     "return OK and the correct view for a GET" in {
-      val templateCaptor:ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor:ArgumentCaptor[JsObject] = ArgumentCaptor.forClass(classOf[JsObject])
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val request = httpGETRequest(onPageLoadUrl)
+
+      val view = app.injector.instanceOf[AddressListView].apply(
+        CommonViewModelTwirl(
+          "individual",
+          tolerantIndividualName.fullName,
+          routes.IndividualAddressListController.onSubmit(NormalMode),
+          Some(enterManuallyUrl.url)
+        ), form, address)(request, messages)
+      val result = route(app, request).value
 
       status(result) mustEqual OK
-
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
+      compareResultAndView(result, view)
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual SEE_OTHER
 
@@ -125,7 +121,7 @@ class IndividualAddressListControllerSpec extends ControllerSpecBase with Mockit
       when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(IndividualAddressListPage), any(), any())).thenReturn(enterManuallyUrl)
 
       val jsonCaptor: ArgumentCaptor[JsObject] = ArgumentCaptor.forClass(classOf[JsObject])
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
       jsonCaptor.getValue must containJson(expectedJson)
@@ -135,7 +131,7 @@ class IndividualAddressListControllerSpec extends ControllerSpecBase with Mockit
 
     "return a BAD REQUEST when invalid data is submitted" in {
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesInvalid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesInvalid)).value
 
       status(result) mustEqual BAD_REQUEST
 
@@ -145,7 +141,7 @@ class IndividualAddressListControllerSpec extends ControllerSpecBase with Mockit
     "redirect to Session Expired page for a POST when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
 

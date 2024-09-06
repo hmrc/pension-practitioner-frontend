@@ -22,10 +22,10 @@ import connectors.{DeregistrationConnector, MinimalConnector}
 import controllers.actions.{AuthAction, FakeAuthAction, MutableFakeDataRetrievalAction}
 import controllers.base.ControllerSpecBase
 import forms.deregister.ConfirmDeregistrationFormProvider
+import handlers.FrontendErrorHandler
 import matchers.JsonMatchers
 import models.{MinimalPSP, UserAnswers}
 import navigators.CompoundNavigator
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
@@ -34,112 +34,123 @@ import pages.PspNamePage
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.Call
+import play.api.libs.json.Json
+import play.api.mvc.{Call, Request, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
-import uk.gov.hmrc.nunjucks.NunjucksRenderer
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import utils.annotations.AuthMustHaveEnrolmentWithNoIV
 
 import scala.concurrent.Future
 
-class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers with OptionValues with TryValues {
 
-  private def onwardRoute = Call("GET", "/foo")
+  val validFormData = Map("value" -> "true")
+  private def getRoute: String = routes.ConfirmDeregistrationController.onPageLoad().url
+  val request = FakeRequest(GET, getRoute).withFormUrlEncodedBody(validFormData.toSeq: _*)
+  implicit val req: Request[_] = request
 
   private val formProvider = new ConfirmDeregistrationFormProvider()
   private val form = formProvider("individual")
   private val pspName = "test-psp"
   private val mockMinimalConnector = mock[MinimalConnector]
   private val mockDeregistrationConnector = mock[DeregistrationConnector]
+  private val mockFrontendErrorHandler = mock[FrontendErrorHandler]
   private val minPsp = MinimalPSP("a@a.a", Some(pspName), None, rlsFlag = false, deceasedFlag = false)
-  private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
+
   val userAnswers: UserAnswers = UserAnswers().set(PspNamePage, pspName).toOption.value
-  private val application: Application =
+
+  private lazy val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
-  private def getRoute: String = routes.ConfirmDeregistrationController.onPageLoad().url
-  private def postRoute: String = routes.ConfirmDeregistrationController.onSubmit().url
+
+  private def postRoute: Call = routes.ConfirmDeregistrationController.onSubmit()
 
   override def modules: Seq[GuiceableModule] = Seq(
     bind[MinimalConnector].toInstance(mockMinimalConnector),
     bind[DeregistrationConnector].toInstance(mockDeregistrationConnector),
     bind[AuthAction].qualifiedWith(classOf[AuthMustHaveEnrolmentWithNoIV]).to[FakeAuthAction],
-    bind[NunjucksRenderer].toInstance(mockRenderer),
     bind[FrontendAppConfig].toInstance(mockAppConfig),
     bind[UserAnswersCacheConnector].toInstance(mockUserAnswersCacheConnector),
-    bind[CompoundNavigator].toInstance(mockCompoundNavigator)
+    bind[CompoundNavigator].toInstance(mockCompoundNavigator),
+    bind[FrontendErrorHandler].toInstance(mockFrontendErrorHandler)
   )
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
     when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp))
     when(mockDeregistrationConnector.canDeRegister(any())(any(), any())).thenReturn(Future.successful(true))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
+    when(mockFrontendErrorHandler.onClientError(any(), any(), any())).thenReturn(Future.successful(Results.BadRequest))
   }
 
   "ConfirmDeregistrationController" must {
 
     "return OK and the correct view for a GET" in {
-
+      mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
       val request = FakeRequest(GET, getRoute)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-
-      val result = route(application, request).value
-
+      val result = route(app, request).value
       status(result) mustEqual OK
+      val view = app.injector.instanceOf[views.html.deregister.individual.ConfirmDeregistrationView]
+      val expectedView = view(
+        postRoute,
+        form,
+        Seq(
+          RadioItem(
+            content = Text("Yes"),
+            value = Some("true"),
+            checked = form("value").value.contains("true"),
+            id = Some("value")
+          ),
+          RadioItem(
+            content = Text("No"),
+            value = Some("false"),
+            checked = form("value").value.contains("false"),
+            id = Some("value-no")
+          )
+        ),
+        mockAppConfig.returnToPspDashboardUrl
+      )(request, messages)
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-      val expectedJson = Json.obj(
-        "form"   -> form,
-        "submitUrl" -> postRoute,
-        "radios" -> Radios.yesNo(form("value"))
-      )
-
-      templateCaptor.getValue mustEqual "deregister/individual/confirmDeregistration.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
-
-    }
-
-    "redirect to the next page when valid data is submitted" in {
-      when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
-      val request = FakeRequest(POST, getRoute).withFormUrlEncodedBody(("value", "true"))
-
-      val result = route(application, request).value
-
-      status(result) mustEqual SEE_OTHER
-
-      redirectLocation(result).value mustEqual onwardRoute.url
-
+      compareResultAndView(result, expectedView)
     }
 
     "return a Bad Request and errors when invalid data is submitted" in {
-      when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
-      val request = FakeRequest(POST, getRoute).withFormUrlEncodedBody(("value", ""))
-      val boundForm = form.bind(Map("value" -> ""))
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
-      val result = route(application, request).value
+      val request = FakeRequest(POST, routes.ConfirmDeregistrationController.onSubmit().url).withFormUrlEncodedBody(("value", ""))
+      val boundForm = form.bind(Map("value" -> ""))
+
+      val result = route(app, request).value
 
       status(result) mustEqual BAD_REQUEST
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = app.injector.instanceOf[views.html.deregister.individual.ConfirmDeregistrationView]
 
-      val expectedJson = Json.obj(
-        "form"   -> boundForm,
-        "submitUrl" -> postRoute,
-        "radios" -> Radios.yesNo(boundForm("value"))
-      )
+      val expectedView = view(
+        routes.ConfirmDeregistrationController.onSubmit(),
+        boundForm,
+        Seq(
+          uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+            content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("Yes"),
+            value = Some("true"),
+            checked = boundForm("value").value.contains("true"),
+            id = Some("value")
+          ),
+          uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+            content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("No"),
+            value = Some("false"),
+            checked = boundForm("value").value.contains("false"),
+            id = Some("value-no")
+          )
+        ),
+        ""
+      )(request, messages)
 
-      templateCaptor.getValue mustEqual "deregister/individual/confirmDeregistration.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      compareResultAndView(result, expectedView)
 
     }
+
   }
 }
