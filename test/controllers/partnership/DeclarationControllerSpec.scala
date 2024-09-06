@@ -36,11 +36,13 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.KnownFactsRetrieval
+import views.html.register.DeclarationView
 
 import scala.concurrent.Future
 
@@ -53,7 +55,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
   private val mockEnrolmentConnector: EnrolmentConnector = mock[EnrolmentConnector]
   private val knownFactsRetrieval: KnownFactsRetrieval = mock[KnownFactsRetrieval]
 
-  private val application: Application =
+  override lazy val app: Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction,
       Seq(
         bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
@@ -62,7 +64,6 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
         bind[KnownFactsRetrieval].toInstance(knownFactsRetrieval)
       )).build()
 
-  private val templateToBeRendered = "register/declaration.njk"
   private val dummyCall: Call = Call("GET", "/foo")
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq("true"))
 
@@ -76,30 +77,26 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
     mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
-
   }
 
   "Declaration Controller" must {
     "return OK and the correct view for a GET" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val req = httpGETRequest(onPageLoadUrl)
+      val result = route(app, req).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = app.injector.instanceOf[DeclarationView]
+        .apply(routes.DeclarationController.onSubmit())(req, messages)
+      compareResultAndView(result, view)
 
-      templateCaptor.getValue mustEqual templateToBeRendered
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
-
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
       status(result) mustEqual SEE_OTHER
 
       redirectLocation(result).value mustBe controllers.routes.SessionExpiredController.onPageLoad().url
@@ -129,7 +126,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
       when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
@@ -141,7 +138,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
     "redirect to Session Expired page for a POST when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
 
@@ -158,7 +155,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
         reportAs = FORBIDDEN
       )))
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
 
