@@ -36,9 +36,7 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
-import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.KnownFactsRetrieval
@@ -55,7 +53,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
   private val mockEnrolmentConnector: EnrolmentConnector = mock[EnrolmentConnector]
   private val knownFactsRetrieval: KnownFactsRetrieval = mock[KnownFactsRetrieval]
 
-  override lazy val app: Application =
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction,
       Seq(
         bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),

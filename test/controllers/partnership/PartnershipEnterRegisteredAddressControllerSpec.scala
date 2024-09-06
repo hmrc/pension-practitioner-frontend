@@ -55,7 +55,7 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
 
   private val mockRegistrationConnector = mock[RegistrationConnector]
 
-  private val application: Application =
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(
       mutableFakeDataRetrievalAction,
       extraModules = Seq(
@@ -99,11 +99,11 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
     "return OK and the correct view for a GET with countries but no postcode" in {
 
       val request = FakeRequest(GET, onPageLoadUrl)
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      val view = application.injector.instanceOf[ManualAddressView].apply(
+      val view = app.injector.instanceOf[ManualAddressView].apply(
         messages("address.title", messages("partnership")),
         messages("address.title", companyName),
         postcodeEntry = false,
@@ -119,7 +119,7 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual SEE_OTHER
 
@@ -146,7 +146,7 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1))
@@ -163,7 +163,7 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
 
     "return a BAD REQUEST when invalid data is submitted" in {
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesInvalid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesInvalid)).value
 
       status(result) mustEqual BAD_REQUEST
 
@@ -173,7 +173,7 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
     "redirect to Session Expired page for a POST when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
 

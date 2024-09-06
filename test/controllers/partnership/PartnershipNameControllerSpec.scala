@@ -43,7 +43,7 @@ class PartnershipNameControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
-  private val application: Application =
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
 
   private val form = new BusinessNameFormProvider()(messages("required", messages("invalid"), messages("length")))
@@ -71,14 +71,14 @@ class PartnershipNameControllerSpec extends ControllerSpecBase with MockitoSugar
 
   "Partnership Name Controller" must {
     "return OK and the correct view for a GET" in {
-      val view = application.injector.instanceOf[BusinessNameView].apply(
+      val view = app.injector.instanceOf[BusinessNameView].apply(
         "partnership",
         form,
         submitCall,
         None
       )(request, messages)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
       status(result) mustEqual OK
 
       compareResultAndView(result, view)
@@ -90,11 +90,11 @@ class PartnershipNameControllerSpec extends ControllerSpecBase with MockitoSugar
           .setOrException(AreYouUKCompanyPage, true)
       mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      val view = application.injector.instanceOf[BusinessNameView].apply(
+      val view = app.injector.instanceOf[BusinessNameView].apply(
         "partnership",
         form,
         submitCall,
@@ -108,11 +108,11 @@ class PartnershipNameControllerSpec extends ControllerSpecBase with MockitoSugar
       val prepopUA: UserAnswers = userAnswers.set(BusinessNamePage, name).toOption.value
       mutableFakeDataRetrievalAction.setDataToReturn(Some(prepopUA))
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
       status(result) mustEqual OK
 
       val filledForm = form.bind(Map("value" -> name))
-      val view = application.injector.instanceOf[BusinessNameView].apply(
+      val view = app.injector.instanceOf[BusinessNameView].apply(
         "partnership",
         filledForm,
         submitCall,
@@ -126,7 +126,7 @@ class PartnershipNameControllerSpec extends ControllerSpecBase with MockitoSugar
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual SEE_OTHER
 
@@ -140,7 +140,7 @@ class PartnershipNameControllerSpec extends ControllerSpecBase with MockitoSugar
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(expectedJson)
       when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(BusinessNamePage), any(), any())).thenReturn(dummyCall)
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
       redirectLocation(result).value mustEqual dummyCall.url
@@ -148,7 +148,7 @@ class PartnershipNameControllerSpec extends ControllerSpecBase with MockitoSugar
 
     "return a BAD REQUEST when invalid data is submitted" in {
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesInvalid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesInvalid)).value
 
       status(result) mustEqual BAD_REQUEST
 
@@ -158,7 +158,7 @@ class PartnershipNameControllerSpec extends ControllerSpecBase with MockitoSugar
     "redirect to Session Expired page for a POST when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
 

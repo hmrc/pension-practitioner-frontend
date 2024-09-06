@@ -22,6 +22,7 @@ import matchers.JsonMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.Application
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -31,6 +32,8 @@ import scala.concurrent.Future
 
 class TellHMRCControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers {
 
+  override def fakeApplication(): Application = applicationBuilder(userAnswers = Some(SampleData.emptyUserAnswers)).build()
+
   "TellHMRC Controller" must {
 
     "return OK and the correct view for a GET" in {
@@ -38,7 +41,6 @@ class TellHMRCControllerSpec extends ControllerSpecBase with MockitoSugar with J
       when(mockRenderer.render(any(), any())(any()))
         .thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(SampleData.emptyUserAnswers)).build()
       val request = FakeRequest(GET, controllers.routes.TellHMRCController.onPageLoad("partnership").url)
       val hmrcUrl = "url1"
       val companiesHouseUrl = "url2"
@@ -47,15 +49,13 @@ class TellHMRCControllerSpec extends ControllerSpecBase with MockitoSugar with J
       when(mockAppConfig.companiesHouseFileChangesUrl).thenReturn(companiesHouseUrl)
 
 
-      val result = route(application, request).value
+      val result = route(app, request).value
 
       status(result) mustEqual OK
 
-      val view = application.injector.instanceOf[TellHMRCView].apply("partnership",
+      val view = app.injector.instanceOf[TellHMRCView].apply("partnership",
         companiesHouseUrl, hmrcUrl)(request, messages)
       compareResultAndView(result, view)
-
-      application.stop()
     }
   }
 }

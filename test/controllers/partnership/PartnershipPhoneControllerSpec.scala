@@ -44,7 +44,7 @@ class PartnershipPhoneControllerSpec extends ControllerSpecBase with MockitoSuga
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val PartnershipName: String = "Partnership name"
-  private val application: Application =
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
   private val form = new PhoneFormProvider()(messages("phone.error.required", messages("Partnership")))
   private val phone = "11111111"
@@ -71,12 +71,12 @@ class PartnershipPhoneControllerSpec extends ControllerSpecBase with MockitoSuga
 
   "PartnershipPhone Controller" must {
     "return OK and the correct view for a GET" in {
-      val view = application.injector.instanceOf[PhoneView].apply(
+      val view = app.injector.instanceOf[PhoneView].apply(
         CommonViewModelTwirl("partnership", PartnershipName, submitCall),
         form
       )(request, messages)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
       status(result) mustEqual OK
 
       compareResultAndView(result, view)
@@ -86,12 +86,12 @@ class PartnershipPhoneControllerSpec extends ControllerSpecBase with MockitoSuga
       val prepopUA: UserAnswers = userAnswers.set(PartnershipPhonePage, phone).toOption.value
       mutableFakeDataRetrievalAction.setDataToReturn(Some(prepopUA))
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
       val filledForm = form.bind(Map("value" -> phone))
-      val view = application.injector.instanceOf[PhoneView].apply(
+      val view = app.injector.instanceOf[PhoneView].apply(
         CommonViewModelTwirl("partnership", PartnershipName, submitCall),
         filledForm
       )(request, messages)
@@ -103,7 +103,7 @@ class PartnershipPhoneControllerSpec extends ControllerSpecBase with MockitoSuga
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual SEE_OTHER
 
@@ -117,14 +117,14 @@ class PartnershipPhoneControllerSpec extends ControllerSpecBase with MockitoSuga
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(expectedJson)
       when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(PartnershipPhonePage), any(), any())).thenReturn(dummyCall)
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
       status(result) mustEqual SEE_OTHER
       redirectLocation(result).value mustEqual dummyCall.url
     }
 
     "return a BAD REQUEST when invalid data is submitted" in {
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesInvalid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesInvalid)).value
 
       status(result) mustEqual BAD_REQUEST
 
@@ -134,7 +134,7 @@ class PartnershipPhoneControllerSpec extends ControllerSpecBase with MockitoSuga
     "redirect to Session Expired page for a POST when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
 

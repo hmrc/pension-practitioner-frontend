@@ -47,7 +47,7 @@ class PartnershipUseSameAddressControllerSpec extends ControllerSpecBase with Mo
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val partnershipName: String = "Partnership name"
   private val countryOptions: CountryOptions = mock[CountryOptions]
-  private val application: Application =
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction,
       extraModules = Seq(bind[CountryOptions].toInstance(countryOptions))).build()
   private val form = new UseAddressForContactFormProvider()(messages("useAddressForContact.error.required", messages("partnership")))
@@ -82,7 +82,7 @@ class PartnershipUseSameAddressControllerSpec extends ControllerSpecBase with Mo
 
   "PartnershipUseSameAddress Controller" must {
     "return OK and the correct view for a GET" in {
-      val view = application.injector.instanceOf[UseAddressForContactView].apply(
+      val view = app.injector.instanceOf[UseAddressForContactView].apply(
         submitCall,
         form,
         TwirlMigration.toTwirlRadios(Radios.yesNo(form("value"))),
@@ -91,7 +91,7 @@ class PartnershipUseSameAddressControllerSpec extends ControllerSpecBase with Mo
         Seq("addr1", "addr2", "addr3", "addr4", "postcode", "United Kingdom")
       )(request, messages)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
       compareResultAndView(result, view)
@@ -101,11 +101,11 @@ class PartnershipUseSameAddressControllerSpec extends ControllerSpecBase with Mo
       val prepopUA: UserAnswers = userAnswers.set(PartnershipUseSameAddressPage, true).toOption.value
       mutableFakeDataRetrievalAction.setDataToReturn(Some(prepopUA))
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
       status(result) mustEqual OK
       val filledForm = form.fill(true)
 
-      val view = application.injector.instanceOf[UseAddressForContactView].apply(
+      val view = app.injector.instanceOf[UseAddressForContactView].apply(
         submitCall,
         filledForm,
         TwirlMigration.toTwirlRadios(Radios.yesNo(form("value"))),
@@ -120,7 +120,7 @@ class PartnershipUseSameAddressControllerSpec extends ControllerSpecBase with Mo
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual SEE_OTHER
 
@@ -137,7 +137,7 @@ class PartnershipUseSameAddressControllerSpec extends ControllerSpecBase with Mo
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(expectedJson)
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(dummyCall)
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
       redirectLocation(result).value mustEqual dummyCall.url
@@ -145,7 +145,7 @@ class PartnershipUseSameAddressControllerSpec extends ControllerSpecBase with Mo
 
     "return a BAD REQUEST when invalid data is submitted" in {
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesInvalid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesInvalid)).value
 
       status(result) mustEqual BAD_REQUEST
 
@@ -155,7 +155,7 @@ class PartnershipUseSameAddressControllerSpec extends ControllerSpecBase with Mo
     "redirect to Session Expired page for a POST when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
 
