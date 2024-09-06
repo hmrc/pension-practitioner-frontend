@@ -92,8 +92,8 @@ class CompanyUseSameAddressControllerSpec extends ControllerSpecBase with Mockit
         submitCall,
         form,
         Seq(
-          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true")),
-          components.RadioItem(content = Text(Messages("site.no")), value = Some("false"))
+          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true"), id = Some("value")),
+          components.RadioItem(content = Text(Messages("site.no")), value = Some("false"), id = Some("value-no"))
         ),
         "company",
         companyName,
@@ -117,8 +117,8 @@ class CompanyUseSameAddressControllerSpec extends ControllerSpecBase with Mockit
         submitCall,
         filledForm,
         Seq(
-          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true")),
-          components.RadioItem(content = Text(Messages("site.no")), value = Some("false"))
+          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true"), id = Some("value")),
+          components.RadioItem(content = Text(Messages("site.no")), value = Some("false"), id = Some("value-no"))
         ),
         "company",
         companyName,
