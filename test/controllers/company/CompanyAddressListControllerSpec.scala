@@ -24,34 +24,33 @@ import models.{Address, NormalMode, TolerantAddress, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
-import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.{BusinessNamePage, CompanyAddressListPage, CompanyAddressPage, CompanyPostcodePage}
 import play.api.Application
-import play.api.data.Form
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import utils.countryOptions.CountryOptions
-import viewmodels.CommonViewModel
+import viewmodels.CommonViewModelTwirl
+import views.html.address.AddressListView
 
 import scala.concurrent.Future
 
-class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
-                                with JsonMatchers with OptionValues with TryValues {
+class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val companyName: String = "Company name"
   val countryOptions: CountryOptions = mock[CountryOptions]
-  private val application: Application =
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(
       mutableFakeDataRetrievalAction,
       extraModules = Seq(bind[CountryOptions].toInstance(countryOptions))
     ).build()
-  private val templateToBeRendered = "address/addressList.njk"
   private val form = new AddressListFormProvider()(messages("addressList.error.invalid", messages("company")))
   private val tolerantAddress = TolerantAddress(Some("addr1"), Some("addr2"), Some("addr3"), Some("addr4"), Some("postcode"), Some("GB"))
 
@@ -86,7 +85,8 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
 
   private def onPageLoadUrl: String = routes.CompanyAddressListController.onPageLoad(NormalMode).url
   private def enterManuallyUrl: Call = routes.CompanyContactAddressController.onPageLoad(NormalMode)
-  private def submitUrl: String = routes.CompanyAddressListController.onSubmit(NormalMode).url
+  private def submitCall: Call = routes.CompanyAddressListController.onSubmit(NormalMode)
+  private def submitUrl: String = submitCall.url
 
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq("0"))
   private val valuesValid1: Map[String, Seq[String]] = Map("value" -> Seq("1"))
@@ -94,13 +94,14 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
 
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
 
-  private val jsonToPassToTemplate: Form[Int] => JsObject =
-    form => Json.obj(
-        "form" -> form,
-      "addresses" -> Json.arr(Json.obj("value" -> 0,"text" ->"addr1, addr2, addr3, addr4, postcode, United Kingdom"),
-        Json.obj("value" -> 1, "text" -> "Address 2 Line 1, Address 2 Line 4, 123, United Kingdom"),
-        Json.obj("value" -> 2,"text" -> "Address 1 Line 1, A1 1PC, United Kingdom")),
-      "viewmodel" -> CommonViewModel("company", companyName, submitUrl, Some(enterManuallyUrl.url)))
+  private val radioItems = Seq(
+    RadioItem(Text("addr1, addr2, addr3, addr4, postcode, United Kingdom"), value = Some("0")),
+    RadioItem(Text("Address 2 Line 1, Address 2 Line 4, 123, United Kingdom"), value = Some("1")),
+    RadioItem(Text("Address 1 Line 1, A1 1PC, United Kingdom"), value = Some("2"))
+  )
+
+  private val commonViewModelTwirl = CommonViewModelTwirl(
+    "company", companyName, submitCall, Some(enterManuallyUrl.url))
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -112,25 +113,23 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
     when(countryOptions.getCountryNameFromCode(eqTo(incompleteFixableAddresses))).thenReturn(Some("United Kingdom"))
   }
 
+  private val request = FakeRequest(GET, onPageLoadUrl)
+
   "CompanyAddressList Controller" must {
     "return OK and the correct view for a GET" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = app.injector.instanceOf[AddressListView].apply(form, radioItems, commonViewModelTwirl)(request, messages)
 
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
+      compareResultAndView(result, view)
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual SEE_OTHER
 
@@ -147,7 +146,7 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
       when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(CompanyAddressListPage), any(), any())).thenReturn(enterManuallyUrl)
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
@@ -165,7 +164,7 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
       when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(CompanyAddressListPage), any(), any())).thenReturn(enterManuallyUrl)
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid1)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid1)).value
 
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
@@ -178,7 +177,7 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
 
       when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(CompanyAddressListPage), any(), any())).thenReturn(enterManuallyUrl)
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid2)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid2)).value
 
       status(result) mustEqual SEE_OTHER
 
@@ -188,7 +187,7 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
 
     "return a BAD REQUEST when invalid data is submitted" in {
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesInvalid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesInvalid)).value
 
       status(result) mustEqual BAD_REQUEST
 
@@ -198,7 +197,7 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
     "redirect to Session Expired page for a POST when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
 

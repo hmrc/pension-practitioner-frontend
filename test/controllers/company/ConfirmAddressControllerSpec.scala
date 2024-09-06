@@ -21,29 +21,29 @@ import controllers.base.ControllerSpecBase
 import data.SampleData
 import data.SampleData._
 import forms.ConfirmAddressFormProvider
-import matchers.JsonMatchers
 import models.register._
 import models.{TolerantAddress, UserAnswers}
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.mockito.{ArgumentCaptor, ArgumentMatchers}
-import org.scalatest.{BeforeAndAfterEach, OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.{BusinessNamePage, BusinessUTRPage, ConfirmAddressPage}
 import pages.register.BusinessTypePage
+import play.api.i18n.Messages
 import play.api.inject.bind
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import uk.gov.hmrc.govukfrontend.views.html.components
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import utils.countryOptions.CountryOptions
+import views.html.ConfirmAddressView
 
 import scala.concurrent.Future
 
-class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar with
-  NunjucksSupport with JsonMatchers with OptionValues with TryValues with BeforeAndAfterEach {
+class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar {
 
   private def onwardRoute = Call("GET", "/foo")
 
@@ -52,7 +52,8 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
 
   private def confirmAddressRoute = routes.ConfirmAddressController.onPageLoad().url
 
-  private def confirmAddressSubmitRoute = routes.ConfirmAddressController.onSubmit().url
+  private def confirmAddressSubmitCall: Call = routes.ConfirmAddressController.onSubmit()
+  private def confirmAddressSubmitRoute = confirmAddressSubmitCall.url
 
   private val organisation = Organisation(pspName, BusinessType.LimitedCompany)
   private val organisationRegistration = OrganisationRegistration(
@@ -98,26 +99,28 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
       when(mockCountryOptions.getCountryNameFromCode(ArgumentMatchers.any[TolerantAddress])).thenReturn(Some("GB"))
 
       val request = FakeRequest(GET, confirmAddressRoute)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
       verify(mockRegistrationConnector, times(1))
         .registerWithIdOrganisation(any(), any(), any())(any(), any())
       verify(mockUserAnswersCacheConnector, times(1)).save(any())(any(), any())
 
-      val expectedJson = Json.obj(
-        "form" -> form,
-        "submitUrl" -> confirmAddressSubmitRoute,
-        "radios" -> Radios.yesNo(form("value"))
-      )
+      val view = application.injector.instanceOf[ConfirmAddressView].apply(
+        "the company",
+        form,
+        confirmAddressSubmitCall,
+        "test-company",
+        Seq("addr1", "addr2", "", "GB"),
+        Seq(
+          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true"), id = Some("value")),
+          components.RadioItem(content = Text(Messages("site.no")), value = Some("false"), id = Some("value-no"))
+        )
+      )(request, messages)
 
-      templateCaptor.getValue mustEqual "confirmAddress.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      compareResultAndView(result, view)
 
       application.stop()
     }
@@ -157,23 +160,24 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
         .build()
       val request = FakeRequest(POST, confirmAddressSubmitRoute).withFormUrlEncodedBody(("value", ""))
       val boundForm = form.bind(Map("value" -> ""))
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual BAD_REQUEST
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[ConfirmAddressView].apply(
+        "the company",
+        boundForm,
+        confirmAddressSubmitCall,
+        "test-company",
+        Seq("addr1", "addr2", "", "GB"),
+        Seq(
+          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true"), id = Some("value")),
+          components.RadioItem(content = Text(Messages("site.no")), value = Some("false"), id = Some("value-no"))
+        )
+      )(request, messages)
 
-      val expectedJson = Json.obj(
-        "form" -> boundForm,
-        "submitUrl" -> confirmAddressSubmitRoute,
-        "radios" -> Radios.yesNo(boundForm("value"))
-      )
-
-      templateCaptor.getValue mustEqual "confirmAddress.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      compareResultAndView(result, view)
 
       application.stop()
     }

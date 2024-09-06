@@ -19,25 +19,25 @@ package controllers.company
 import controllers.base.ControllerSpecBase
 import data.SampleData
 import forms.company.IsCompanyRegisteredInUkFormProvider
-import matchers.JsonMatchers
 import models.UserAnswers
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
-import org.scalatest.{OptionValues, TryValues}
+import org.mockito.Mockito.when
+import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.IsCompanyRegisteredInUkPage
-import play.api.libs.json.{JsObject, Json}
+import play.api.i18n.Messages
+import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import uk.gov.hmrc.govukfrontend.views.html.components
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import views.html.company.IsCompanyRegisteredInUkView
 
 import scala.concurrent.Future
 
-class IsCompanyRegisteredInUkControllerSpec extends ControllerSpecBase with MockitoSugar with
-  NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class IsCompanyRegisteredInUkControllerSpec extends ControllerSpecBase with MockitoSugar with TryValues {
 
   def onwardRoute = Call("GET", "/foo")
 
@@ -45,7 +45,8 @@ class IsCompanyRegisteredInUkControllerSpec extends ControllerSpecBase with Mock
   val form = formProvider()
 
   def isCompanyRegisteredInUkRoute = routes.IsCompanyRegisteredInUkController.onPageLoad().url
-  def isCompanyRegisteredInUkSubmitRoute = routes.IsCompanyRegisteredInUkController.onSubmit().url
+  def isCompanyRegisteredInUkSubmitCall = routes.IsCompanyRegisteredInUkController.onSubmit()
+  def isCompanyRegisteredInUkSubmitRoute = isCompanyRegisteredInUkSubmitCall.url
 
   val answers: UserAnswers = SampleData.userAnswersWithCompanyName.set(IsCompanyRegisteredInUkPage, true).success.value
 
@@ -59,24 +60,21 @@ class IsCompanyRegisteredInUkControllerSpec extends ControllerSpecBase with Mock
         )
         .build()
       val request = FakeRequest(GET, isCompanyRegisteredInUkRoute)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[IsCompanyRegisteredInUkView].apply(
+        isCompanyRegisteredInUkSubmitCall,
+        form,
+        Seq(
+          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true"), id = Some("value")),
+          components.RadioItem(content = Text(Messages("site.no")), value = Some("false"), id = Some("value-no"))
+        )
+      )(request, messages)
 
-      val expectedJson = Json.obj(
-        "form"   -> form,
-        "submitUrl" -> isCompanyRegisteredInUkSubmitRoute,
-        "radios" -> Radios.yesNo(form("value"))
-      )
-
-      templateCaptor.getValue mustEqual "company/isCompanyRegisteredInUk.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
-
+      compareResultAndView(result, view)
       application.stop()
     }
 
@@ -88,25 +86,23 @@ class IsCompanyRegisteredInUkControllerSpec extends ControllerSpecBase with Mock
         )
         .build()
       val request = FakeRequest(GET, isCompanyRegisteredInUkRoute)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
       val filledForm = form.bind(Map("value" -> "true"))
 
-      val expectedJson = Json.obj(
-        "form"   -> filledForm,
-        "submitUrl" -> isCompanyRegisteredInUkSubmitRoute,
-        "radios" -> Radios.yesNo(filledForm("value"))
-      )
+      val view = application.injector.instanceOf[IsCompanyRegisteredInUkView].apply(
+        isCompanyRegisteredInUkSubmitCall,
+        filledForm,
+        Seq(
+          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true"), id = Some("value"), checked = true),
+          components.RadioItem(content = Text(Messages("site.no")), value = Some("false"), id = Some("value-no"))
+        )
+      )(request, messages)
 
-      templateCaptor.getValue mustEqual "company/isCompanyRegisteredInUk.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      compareResultAndView(result, view)
 
       application.stop()
     }
@@ -143,23 +139,21 @@ class IsCompanyRegisteredInUkControllerSpec extends ControllerSpecBase with Mock
         .build()
       val request = FakeRequest(POST, isCompanyRegisteredInUkRoute).withFormUrlEncodedBody(("value", ""))
       val boundForm = form.bind(Map("value" -> ""))
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual BAD_REQUEST
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[IsCompanyRegisteredInUkView].apply(
+        isCompanyRegisteredInUkSubmitCall,
+        boundForm,
+        Seq(
+          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true"), id = Some("value")),
+          components.RadioItem(content = Text(Messages("site.no")), value = Some("false"), id = Some("value-no"))
+        )
+      )(request, messages)
 
-      val expectedJson = Json.obj(
-        "form"   -> boundForm,
-        "submitUrl" -> isCompanyRegisteredInUkSubmitRoute,
-        "radios" -> Radios.yesNo(boundForm("value"))
-      )
-
-      templateCaptor.getValue mustEqual "company/isCompanyRegisteredInUk.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      compareResultAndView(result, view)
 
       application.stop()
     }

@@ -25,33 +25,29 @@ import models.{NormalMode, TolerantAddress, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
-import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.{BusinessNamePage, CompanyPostcodePage}
 import play.api.Application
-import play.api.data.Form
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import viewmodels.CommonViewModel
+import views.html.address.PostcodeView
 
 import scala.concurrent.Future
 
-class CompanyPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
-                                with JsonMatchers with OptionValues with TryValues {
+class CompanyPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers {
 
   private val mockAddressLookupConnector = mock[AddressLookupConnector]
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val companyName: String = "Company name"
-  private val application: Application =
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(
       mutableFakeDataRetrievalAction,
       extraModules = Seq(bind[AddressLookupConnector].toInstance(mockAddressLookupConnector))
     ).build()
-  private val templateToBeRendered = "address/postcode.njk"
   private val form = new PostcodeFormProvider()(
     messages("postcode.error.required", messages("company")),
     messages("postcode.error.invalid", messages("company")))
@@ -62,15 +58,13 @@ class CompanyPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar
   val userAnswers: UserAnswers = UserAnswers().set(BusinessNamePage, companyName).toOption.value
 
   private def onPageLoadUrl: String = routes.CompanyPostcodeController.onPageLoad(NormalMode).url
-  private def enterManuallyUrl: Call = routes.CompanyContactAddressController.onPageLoad(NormalMode)
-  private def submitUrl: String = routes.CompanyPostcodeController.onSubmit(NormalMode).url
+  private def enterManuallyCall: Call = routes.CompanyContactAddressController.onPageLoad(NormalMode)
+  private def submitCall: Call = routes.CompanyPostcodeController.onSubmit(NormalMode)
+  private def submitUrl: String = submitCall.url
 
   private val valuesValid: Map[String, Seq[String]] = Map("value" -> Seq(postcode))
 
   private val valuesInvalid: Map[String, Seq[String]] = Map("value" -> Seq(""))
-
-  private val jsonToPassToTemplate: Form[String] => JsObject =
-    form => Json.obj("form" -> form, "viewmodel" -> CommonViewModel("company", companyName, submitUrl, Some(enterManuallyUrl.url)))
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -82,23 +76,26 @@ class CompanyPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar
   "CompanyPostcode Controller" must {
     "return OK and the correct view for a GET" in {
       when(mockAppConfig.betaFeedbackUnauthenticatedUrl).thenReturn("betaFeedbackUnauthenticatedUrl")
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val request = FakeRequest(GET, onPageLoadUrl)
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = app.injector.instanceOf[PostcodeView].apply(
+        submitCall,
+        enterManuallyCall.url,
+        "company",
+        companyName,
+        form
+      )(request, messages)
 
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate.apply(form))
+      compareResultAndView(result, view)
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual SEE_OTHER
 
@@ -111,22 +108,22 @@ class CompanyPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar
           BusinessNamePage.toString -> companyName,
           CompanyPostcodePage.toString -> seqAddresses)
 
-      when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(CompanyPostcodePage), any(), any())).thenReturn(enterManuallyUrl)
+      when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(CompanyPostcodePage), any(), any())).thenReturn(enterManuallyCall)
       when(mockAddressLookupConnector.addressLookupByPostCode(any())(any(), any())).thenReturn(Future.successful(seqAddresses))
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
       jsonCaptor.getValue must containJson(expectedJson)
-      redirectLocation(result) mustBe Some(enterManuallyUrl.url)
+      redirectLocation(result) mustBe Some(enterManuallyCall.url)
 
     }
 
     "return a BAD REQUEST when invalid data is submitted" in {
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesInvalid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesInvalid)).value
 
       status(result) mustEqual BAD_REQUEST
 
@@ -136,7 +133,7 @@ class CompanyPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar
     "redirect to Session Expired page for a POST when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
 

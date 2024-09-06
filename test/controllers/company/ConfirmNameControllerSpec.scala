@@ -19,24 +19,25 @@ package controllers.company
 import controllers.base.ControllerSpecBase
 import data.SampleData._
 import forms.ConfirmNameFormProvider
-import matchers.JsonMatchers
 import models.UserAnswers
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.{OptionValues, TryValues}
+import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.ConfirmNamePage
-import play.api.libs.json.{JsObject, Json}
+import play.api.i18n.Messages
+import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import uk.gov.hmrc.govukfrontend.views.html.components
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import views.html.ConfirmNameView
 
 import scala.concurrent.Future
 
-class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar with TryValues {
 
   def onwardRoute = Call("GET", "/foo")
 
@@ -44,70 +45,63 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
   private val form = formProvider()
 
   private def confirmNameRoute = routes.ConfirmNameController.onPageLoad().url
-  private def confirmNameSubmitRoute = routes.ConfirmNameController.onSubmit().url
+  private def confirmNameSubmitCall = routes.ConfirmNameController.onSubmit()
+  private def confirmNameSubmitRoute = confirmNameSubmitCall.url
 
   private val answers: UserAnswers = userAnswersWithCompanyName.set(ConfirmNamePage, true).success.value
 
   "ConfirmName Controller" must {
 
     "return OK and the correct view for a GET" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-
       val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
         .build()
       val request = FakeRequest(GET, confirmNameRoute)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[ConfirmNameView].apply(
+        "company",
+        form,
+        confirmNameSubmitCall,
+        pspName,
+        Seq(
+          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true"), id = Some("value")),
+          components.RadioItem(content = Text(Messages("site.no")), value = Some("false"), id = Some("value-no"))
+        )
+      )(request, messages)
 
-      val expectedJson = Json.obj(
-        "form"   -> form,
-        "entityName" -> "company",
-        "pspName" -> pspName,
-        "submitUrl" -> confirmNameSubmitRoute,
-        "radios" -> Radios.yesNo(form("value"))
-      )
-
-      templateCaptor.getValue mustEqual "confirmName.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      compareResultAndView(result, view)
 
       application.stop()
     }
 
     "populate the view correctly on a GET when the question has previously been answered" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-
       val application = applicationBuilder(userAnswers = Some(answers))
         .overrides(
         )
         .build()
       val request = FakeRequest(GET, confirmNameRoute)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
       val filledForm = form.bind(Map("value" -> "true"))
 
-      val expectedJson = Json.obj(
-        "form"   -> filledForm,
-        "entityName" -> "company",
-        "pspName" -> pspName,
-        "submitUrl" -> confirmNameSubmitRoute,
-        "radios" -> Radios.yesNo(filledForm("value"))
-      )
+      val view = application.injector.instanceOf[ConfirmNameView].apply(
+        "company",
+        filledForm,
+        confirmNameSubmitCall,
+        pspName,
+        Seq(
+          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true"), id = Some("value"), checked = true),
+          components.RadioItem(content = Text(Messages("site.no")), value = Some("false"), id = Some("value-no"))
+        )
+      )(request, messages)
 
-      templateCaptor.getValue mustEqual "confirmName.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      compareResultAndView(result, view)
 
       application.stop()
     }
@@ -144,25 +138,23 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
         .build()
       val request = FakeRequest(POST, confirmNameSubmitRoute).withFormUrlEncodedBody(("value", ""))
       val boundForm = form.bind(Map("value" -> ""))
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual BAD_REQUEST
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[ConfirmNameView].apply(
+        "company",
+        boundForm,
+        confirmNameSubmitCall,
+        pspName,
+        Seq(
+          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true"), id = Some("value")),
+          components.RadioItem(content = Text(Messages("site.no")), value = Some("false"), id = Some("value-no"))
+        )
+      )(request, messages)
 
-      val expectedJson = Json.obj(
-        "form"   -> boundForm,
-        "entityName" -> "company",
-        "pspName" -> pspName,
-        "submitUrl" -> confirmNameSubmitRoute,
-        "radios" -> Radios.yesNo(boundForm("value"))
-      )
-
-      templateCaptor.getValue mustEqual "confirmName.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      compareResultAndView(result, view)
 
       application.stop()
     }
