@@ -26,8 +26,8 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{PspIdPage, WhatTypeBusinessPage}
 import pages.partnership.{BusinessNamePage, PartnershipEmailPage}
+import pages.{PspIdPage, WhatTypeBusinessPage}
 import play.api.Application
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Results.Ok

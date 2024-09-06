@@ -18,38 +18,28 @@ package controllers
 
 import controllers.base.ControllerSpecBase
 import data.SampleData._
-import matchers.JsonMatchers
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
-import org.scalatest.{OptionValues, TryValues}
-import org.scalatestplus.mockito.MockitoSugar
+import play.api.Application
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.CannotRegisterPractitionerView
 
-import scala.concurrent.Future
+class CannotRegisterPractitionerControllerSpec extends ControllerSpecBase {
 
-class CannotRegisterPractitionerControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
-  with JsonMatchers with OptionValues with TryValues {
 
+  override def fakeApplication(): Application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName)).overrides().build()
   private def getRoute: String = routes.CannotRegisterPractitionerController.onPageLoad().url
 
   "CannotRegisterPractitionerController" must {
 
     "return OK and the correct view for a GET" in {
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName)).overrides().build()
       val request = FakeRequest(GET, getRoute)
 
-      val result = route(application, request).value
+      val result = route(app, request).value
 
-      val view = application.injector.instanceOf[CannotRegisterPractitionerView].apply()(request, messages)
+      val view = app.injector.instanceOf[CannotRegisterPractitionerView].apply()(request, messages)
 
       status(result) mustEqual OK
       compareResultAndView(result, view)
-
-      application.stop()
     }
   }
 }

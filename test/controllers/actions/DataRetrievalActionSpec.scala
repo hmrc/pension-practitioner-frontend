@@ -18,10 +18,7 @@ package controllers.actions
 
 import base.SpecBase
 import connectors.cache.UserAnswersCacheConnector
-import models.requests.AuthenticatedRequest
-import models.requests.OptionalDataRequest
-import models.requests.PSPUser
-import models.requests.UserType
+import models.requests.{AuthenticatedRequest, OptionalDataRequest, PSPUser, UserType}
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures

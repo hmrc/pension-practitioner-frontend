@@ -26,7 +26,7 @@
 
 @field = @{form("value")}
 
-@layout(messages("postcode.title", entityType), formHasErrors = form.hasErrors) {
+@layout(messages("postcode.title", messages(entityType)), formHasErrors = form.hasErrors) {
 
     @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
         @if(form.errors.nonEmpty) {

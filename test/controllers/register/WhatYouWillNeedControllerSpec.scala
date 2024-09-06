@@ -17,17 +17,15 @@
 package controllers.register
 
 import controllers.base.ControllerSpecBase
+import data.SampleData._
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import data.SampleData._
-import play.api.mvc.Call
 
 import scala.concurrent.Future
 
