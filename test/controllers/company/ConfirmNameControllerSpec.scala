@@ -102,7 +102,7 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
         confirmNameSubmitCall,
         pspName,
         Seq(
-          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true"), checked = false),
+          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true"), checked = true),
           components.RadioItem(content = Text(Messages("site.no")), value = Some("false"))
         )
       )(request, messages)
