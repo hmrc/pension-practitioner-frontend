@@ -119,8 +119,8 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
         "test-company",
         Seq("addr1", "addr2", "", "GB"),
         Seq(
-          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true")),
-          components.RadioItem(content = Text(Messages("site.no")), value = Some("false"))
+          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true"), id = Some("value")),
+          components.RadioItem(content = Text(Messages("site.no")), value = Some("false"), id = Some("value-no"))
         )
       )(request, messages)
 
@@ -176,8 +176,8 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
         "test-company",
         Seq("addr1", "addr2", "", "GB"),
         Seq(
-          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true")),
-          components.RadioItem(content = Text(Messages("site.no")), value = Some("false"))
+          components.RadioItem(content = Text(Messages("site.yes")), value = Some("true"), id = Some("value")),
+          components.RadioItem(content = Text(Messages("site.no")), value = Some("false"), id = Some("value-no"))
         )
       )(request, messages)
 
