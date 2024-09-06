@@ -22,7 +22,6 @@ import matchers.JsonMatchers
 import models.UserAnswers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalatest.OptionValues
 import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
@@ -34,20 +33,19 @@ import play.twirl.api.Html
 import services.CompanyCYAService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, SummaryListRow, Value}
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, SummaryList}
 import uk.gov.hmrc.viewmodels.SummaryList.Row
 import uk.gov.hmrc.viewmodels.Text.Literal
+import uk.gov.hmrc.viewmodels.{MessageInterpolators, SummaryList}
 import views.html.CheckYourAnswersView
 
 import scala.concurrent.Future
 
-class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
-  with JsonMatchers with OptionValues with TryValues {
+class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSugar with TryValues with JsonMatchers {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val companyCYAService = mock[CompanyCYAService]
   private val companyName: String = "Company name"
-  private val application: Application =
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(
       mutableFakeDataRetrievalAction,
       extraModules = Seq(bind[CompanyCYAService].toInstance(companyCYAService))).build()
@@ -69,11 +67,11 @@ class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSuga
       val request = FakeRequest(GET, onPageLoadUrl)
       when(companyCYAService.companyCya(any())(any())).thenReturn(list)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      val view = application.injector.instanceOf[CheckYourAnswersView].apply(
+      val view = app.injector.instanceOf[CheckYourAnswersView].apply(
         controllers.company.routes.DeclarationController.onPageLoad(),
         Seq(
           SummaryListRow(key = Key(Text(Messages("cya.companyName")), classes = "govuk-!-width-one-half"),
@@ -87,7 +85,7 @@ class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSuga
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual SEE_OTHER
 

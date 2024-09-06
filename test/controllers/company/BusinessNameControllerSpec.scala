@@ -19,11 +19,10 @@ package controllers.company
 import controllers.base.ControllerSpecBase
 import data.SampleData._
 import forms.BusinessNameFormProvider
-import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.{OptionValues, TryValues}
+import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.BusinessNamePage
 import play.api.data.Form
@@ -32,12 +31,11 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.BusinessNameView
 
 import scala.concurrent.Future
 
-class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar with TryValues {
   def onwardRoute: Call = Call("GET", "/foo")
 
   val formProvider = new BusinessNameFormProvider()

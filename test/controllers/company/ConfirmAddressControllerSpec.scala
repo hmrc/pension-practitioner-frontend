@@ -21,13 +21,11 @@ import controllers.base.ControllerSpecBase
 import data.SampleData
 import data.SampleData._
 import forms.ConfirmAddressFormProvider
-import matchers.JsonMatchers
 import models.register._
 import models.{TolerantAddress, UserAnswers}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.{BeforeAndAfterEach, OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.{BusinessNamePage, BusinessUTRPage, ConfirmAddressPage}
 import pages.register.BusinessTypePage
@@ -40,14 +38,12 @@ import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.govukfrontend.views.html.components
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.countryOptions.CountryOptions
 import views.html.ConfirmAddressView
 
 import scala.concurrent.Future
 
-class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar with
-  NunjucksSupport with JsonMatchers with OptionValues with TryValues with BeforeAndAfterEach {
+class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar {
 
   private def onwardRoute = Call("GET", "/foo")
 

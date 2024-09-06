@@ -18,7 +18,6 @@ package controllers.company
 
 import controllers.base.ControllerSpecBase
 import data.SampleData
-import matchers.JsonMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
@@ -29,7 +28,7 @@ import views.html.TellHMRCView
 
 import scala.concurrent.Future
 
-class TellHMRCControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers {
+class TellHMRCControllerSpec extends ControllerSpecBase with MockitoSugar {
 
   "TellHMRC Controller" must {
 

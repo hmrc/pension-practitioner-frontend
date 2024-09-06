@@ -24,7 +24,6 @@ import models.{NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
-import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.{BusinessNamePage, CompanyEmailPage}
 import play.api.Application
@@ -33,18 +32,16 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import viewmodels.CommonViewModelTwirl
 import views.html.EmailView
 
 import scala.concurrent.Future
 
-class CompanyEmailControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
-  with JsonMatchers with OptionValues with TryValues {
+class CompanyEmailControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val companyName: String = "Company name"
-  private val application: Application =
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
   private val form = new EmailFormProvider()(messages("email.error.required", messages("company")))
   private val email = "xyz@gmail.com"
@@ -75,11 +72,11 @@ class CompanyEmailControllerSpec extends ControllerSpecBase with MockitoSugar wi
   "CompanyEmail Controller" must {
     "return OK and the correct view for a GET" in {
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      val view = application.injector.instanceOf[EmailView].apply(sampleCommonViewModelTwirl, form)(request, messages)
+      val view = app.injector.instanceOf[EmailView].apply(sampleCommonViewModelTwirl, form)(request, messages)
 
       compareResultAndView(result, view)
     }
@@ -88,13 +85,13 @@ class CompanyEmailControllerSpec extends ControllerSpecBase with MockitoSugar wi
       val prepopUA: UserAnswers = userAnswers.set(CompanyEmailPage, email).toOption.value
       mutableFakeDataRetrievalAction.setDataToReturn(Some(prepopUA))
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
       val filledForm = form.bind(Map("value" -> email))
 
-      val view = application.injector.instanceOf[EmailView].apply(sampleCommonViewModelTwirl, filledForm)(request, messages)
+      val view = app.injector.instanceOf[EmailView].apply(sampleCommonViewModelTwirl, filledForm)(request, messages)
 
       compareResultAndView(result, view)
     }
@@ -102,7 +99,7 @@ class CompanyEmailControllerSpec extends ControllerSpecBase with MockitoSugar wi
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual SEE_OTHER
 
@@ -118,7 +115,7 @@ class CompanyEmailControllerSpec extends ControllerSpecBase with MockitoSugar wi
       when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(CompanyEmailPage), any(), any())).thenReturn(dummyCall)
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
@@ -129,7 +126,7 @@ class CompanyEmailControllerSpec extends ControllerSpecBase with MockitoSugar wi
 
     "return a BAD REQUEST when invalid data is submitted" in {
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesInvalid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesInvalid)).value
 
       status(result) mustEqual BAD_REQUEST
 
@@ -139,7 +136,7 @@ class CompanyEmailControllerSpec extends ControllerSpecBase with MockitoSugar wi
     "redirect to Session Expired page for a POST when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
 

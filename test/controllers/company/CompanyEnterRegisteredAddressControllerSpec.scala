@@ -26,7 +26,6 @@ import models.{Address, Country, NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
-import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.{BusinessNamePage, CompanyRegisteredAddressPage}
 import pages.register.AreYouUKCompanyPage
@@ -37,15 +36,13 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.InputOption
 import utils.countryOptions.CountryOptions
 import views.html.address.ManualAddressView
 
 import scala.concurrent.Future
 
-class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
-                                with JsonMatchers with OptionValues with TryValues {
+class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val companyName: String = "Company name"
@@ -54,7 +51,7 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
 
   private val mockRegistrationConnector = mock[RegistrationConnector]
 
-  private val application: Application =
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(
       mutableFakeDataRetrievalAction,
       extraModules = Seq(
@@ -97,11 +94,11 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
     "return OK and the correct view for a GET with countries but no postcode" in {
       val request = FakeRequest(GET, onPageLoadUrl)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual OK
 
-      val view = application.injector.instanceOf[ManualAddressView].apply(
+      val view = app.injector.instanceOf[ManualAddressView].apply(
         messages("address.title", messages("company")),
         messages("address.title", companyName),
         postcodeEntry = false,
@@ -117,7 +114,7 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual SEE_OTHER
 
@@ -144,7 +141,7 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1))
@@ -160,7 +157,7 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
     }
 
     "return a BAD REQUEST when invalid data is submitted" in {
-      val result = route(application, httpPOSTRequest(submitUrl, valuesInvalid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesInvalid)).value
 
       status(result) mustEqual BAD_REQUEST
 
@@ -170,7 +167,7 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
     "redirect to Session Expired page for a POST when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpPOSTRequest(submitUrl, valuesValid)).value
+      val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value
 
       status(result) mustEqual SEE_OTHER
 

@@ -19,11 +19,10 @@ package controllers.company
 import controllers.base.ControllerSpecBase
 import data.SampleData._
 import forms.ConfirmNameFormProvider
-import matchers.JsonMatchers
 import models.UserAnswers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.{OptionValues, TryValues}
+import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.ConfirmNamePage
 import play.api.i18n.Messages
@@ -34,12 +33,11 @@ import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.govukfrontend.views.html.components
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.ConfirmNameView
 
 import scala.concurrent.Future
 
-class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar with TryValues {
 
   def onwardRoute = Call("GET", "/foo")
 
