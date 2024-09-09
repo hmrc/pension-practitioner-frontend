@@ -54,7 +54,8 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
                                     countryOptions: CountryOptions,
                                     val controllerComponents: MessagesControllerComponents,
                                     renderer: Renderer,
-                                    isThisYouView: IsThisYouView
+                                    isThisYouView: IsThisYouView,
+                                    twirlMigration: TwirlMigration
                                    )(implicit val executionContext: ExecutionContext
                                    ) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
 
@@ -76,7 +77,7 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
         case Some(nino) =>
           (ua.get(IndividualDetailsPage), ua.get(IndividualAddressPage), ua.get(RegistrationInfoPage)) match {
             case (Some(individual), Some(address), Some(info)) if info.idType.contains(Nino) && info.idNumber.contains(nino.value) =>
-              val template = TwirlMigration.duoTemplate(
+              val template = twirlMigration.duoTemplate(
                 renderer.render(template = "individual/isThisYou.njk",
                   json ++ jsonWithNameAndAddress(individual, address)),
                 isThisYouView(
@@ -95,7 +96,7 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
                   _.set(RegistrationInfoPage, registration.info)
                 )).flatMap { uaWithRegInfo =>
                   userAnswersCacheConnector.save(uaWithRegInfo.data).flatMap { _ =>
-                    val template = TwirlMigration.duoTemplate(
+                    val template = twirlMigration.duoTemplate(
                       renderer.render(template = "individual/isThisYou.njk",
                         json ++ jsonWithNameAndAddress(registration.response.individual, registration.response.address.toPrepopAddress)),
                       isThisYouView(
@@ -126,7 +127,7 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
           )
           (IndividualDetailsPage and IndividualAddressPage).retrieve.map {
             case individual ~ address =>
-              val template = TwirlMigration.duoTemplate(
+              val template = twirlMigration.duoTemplate(
                 renderer.render("individual/isThisYou.njk", json ++ jsonWithNameAndAddress(individual, address)),
                 isThisYouView(
                   routes.IsThisYouController.onSubmit(mode),

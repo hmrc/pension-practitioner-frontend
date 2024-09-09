@@ -45,7 +45,8 @@ class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
                                       formProvider: ConfirmNameFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
                                       confirmNameView: ConfirmNameView,
-                                      renderer: Renderer
+                                      renderer: Renderer,
+                                      twirlMigration: TwirlMigration
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
 
   private val form = formProvider()
@@ -53,9 +54,9 @@ class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
   def onPageLoad(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       BusinessNamePage.retrieve.map { pspName =>
-        val preparedForm = request.userAnswers.get (ConfirmNamePage) match {
+        val preparedForm = request.userAnswers.get(ConfirmNamePage) match {
           case None => form
-          case Some (value) => form.fill (value)
+          case Some(value) => form.fill(value)
         }
 
         val json = Json.obj(
@@ -63,14 +64,14 @@ class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
           "entityName" -> "company",
           "pspName" -> pspName,
           "submitUrl" -> routes.ConfirmNameController.onSubmit().url,
-          "radios" -> Radios.yesNo (preparedForm("value"))
+          "radios" -> Radios.yesNo(preparedForm("value"))
         )
 
-        def template = TwirlMigration.duoTemplate(
+        def template = twirlMigration.duoTemplate(
           renderer.render(template = "confirmName.njk", json),
           confirmNameView(
             "company",
-            form,
+            preparedForm,
             routes.ConfirmNameController.onSubmit(),
             pspName,
             TwirlMigration.toTwirlRadios(Radios.yesNo(preparedForm("value"))))
@@ -94,7 +95,7 @@ class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
               "radios" -> Radios.yesNo(formWithErrors("value"))
             )
 
-            def template = TwirlMigration.duoTemplate(
+            def template = twirlMigration.duoTemplate(
               renderer.render(template = "confirmName.njk", json),
               confirmNameView(
                 "company",

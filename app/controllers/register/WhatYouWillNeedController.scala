@@ -40,7 +40,8 @@ class WhatYouWillNeedController @Inject()(
     navigator: CompoundNavigator,
     val controllerComponents: MessagesControllerComponents,
     renderer: Renderer,
-    whatYouWillNeedView: WhatYouWillNeedView
+    whatYouWillNeedView: WhatYouWillNeedView,
+    twirlMigration: TwirlMigration
 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async { implicit request =>
@@ -49,7 +50,7 @@ class WhatYouWillNeedController @Inject()(
 
     val json = Json.obj(fields = "nextPage" -> nextPage.url)
 
-    val template = TwirlMigration.duoTemplate(
+    val template = twirlMigration.duoTemplate(
       renderer.render("register/whatYouWillNeed.njk", json),
       whatYouWillNeedView(nextPage.url)
     )

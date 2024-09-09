@@ -19,10 +19,7 @@ package navigators
 import controllers.company.routes._
 import controllers.register.routes._
 import data.SampleData
-import models.Address
-import models.CheckMode
-import models.NormalMode
-import models.UserAnswers
+import models.{CheckMode, NormalMode, UserAnswers}
 import org.scalatest.prop.TableFor3
 import pages.Page
 import pages.company._
@@ -47,7 +44,7 @@ class CompanyNavigatorSpec extends NavigatorBehaviour {
   private def uaIsCompanyRegisteredInUkPage(v:Boolean): UserAnswers =
     SampleData.emptyUserAnswers.setOrException(IsCompanyRegisteredInUkPage, v)
 
-  private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
+  private val navigator: CompoundNavigator = app.injector.instanceOf[CompoundNavigator]
 
   "NormalMode" must {
     def normalModeRoutes: TableFor3[Page, UserAnswers, Call] =

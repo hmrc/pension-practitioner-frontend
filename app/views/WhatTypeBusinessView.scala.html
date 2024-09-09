@@ -48,10 +48,8 @@
 
   @govukButton(
    Button(
-    content = Text(messages("site.save_and_continue")),
-    inputType = Some("submit"),
-    preventDoubleClick = Some(true)
-   )
+    content = Text(messages("site.save_and_continue"))
+   ).asFormSubmit
   )
 
  }

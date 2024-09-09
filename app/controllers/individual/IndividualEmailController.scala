@@ -48,7 +48,8 @@ class IndividualEmailController @Inject()(override val messagesApi: MessagesApi,
                                           formProvider: EmailFormProvider,
                                           val controllerComponents: MessagesControllerComponents,
                                           renderer: Renderer,
-                                          emailView: EmailView
+                                          emailView: EmailView,
+                                          twirlMigration: TwirlMigration
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController
   with Retrievals with I18nSupport with NunjucksSupport with Variation {
 
@@ -62,7 +63,7 @@ class IndividualEmailController @Inject()(override val messagesApi: MessagesApi,
           case Some(true) =>
             val formFilled = request.userAnswers.get(IndividualEmailPage).fold(form)(form.fill)
             getJson(mode, formFilled) { json =>
-              val template = TwirlMigration.duoTemplate(
+              val template = twirlMigration.duoTemplate(
               renderer.render(template = "individual/email.njk", json),
                 emailView(
                   routes.IndividualEmailController.onSubmit(mode),
@@ -83,7 +84,7 @@ class IndividualEmailController @Inject()(override val messagesApi: MessagesApi,
         form.bindFromRequest().fold(
           formWithErrors =>
             getJson(mode, formWithErrors) { json =>
-              val template = TwirlMigration.duoTemplate(
+              val template = twirlMigration.duoTemplate(
                 renderer.render(template = "individual/email.njk", json),
                 emailView(
                   routes.IndividualEmailController.onSubmit(mode),

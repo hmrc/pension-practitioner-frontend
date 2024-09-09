@@ -38,12 +38,13 @@ class YouNeedToTellHMRCController @Inject()(override val messagesApi: MessagesAp
                                             val controllerComponents: MessagesControllerComponents,
                                             config: FrontendAppConfig,
                                             renderer: Renderer,
-                                            youNeedToTellHMRCView: YouNeedToTellHMRCView
+                                            youNeedToTellHMRCView: YouNeedToTellHMRCView,
+                                            twirlMigration: TwirlMigration
                                            )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      val template = TwirlMigration.duoTemplate(
+      val template = twirlMigration.duoTemplate(
         renderer.render(template = "individual/youNeedToTellHMRC.njk",
           Json.obj(fields = "changeOfDetailsGovUKLink" -> config.tellHMRCChangesUrl)),
         youNeedToTellHMRCView(

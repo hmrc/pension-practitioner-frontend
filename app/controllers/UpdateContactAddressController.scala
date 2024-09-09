@@ -44,7 +44,8 @@ class UpdateContactAddressController @Inject()(
                                                 getData: DataRetrievalAction,
                                                 countryOptions: CountryOptions,
                                                 pspDetailsService: PspDetailsService,
-                                                updateContactAddressView: UpdateContactAddressView
+                                                updateContactAddressView: UpdateContactAddressView,
+                                                twirlMigration: TwirlMigration
                                               )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
@@ -58,7 +59,7 @@ class UpdateContactAddressController @Inject()(
               "continueUrl" -> url,
               "address" -> address.lines(countryOptions)
             )
-            val template = TwirlMigration.duoTemplate(
+            val template = twirlMigration.duoTemplate(
               renderer.render("updateContactAddress.njk", json),
               updateContactAddressView(address.lines(countryOptions), url)
             )

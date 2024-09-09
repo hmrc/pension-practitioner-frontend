@@ -32,7 +32,8 @@ class CannotRegisterPractitionerController @Inject()(
                                         val controllerComponents: MessagesControllerComponents,
                                         renderer: Renderer,
                                         config: FrontendAppConfig,
-                                        cannotRegisterPractitionerView: CannotRegisterPractitionerView
+                                        cannotRegisterPractitionerView: CannotRegisterPractitionerView,
+                                        twirlMigration: TwirlMigration
                                       )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
@@ -42,9 +43,9 @@ class CannotRegisterPractitionerController @Inject()(
       "contactHmrcUrl" -> config.contactHmrcUrl
     )
 
-    def template = TwirlMigration.duoTemplate(
+    def template = twirlMigration.duoTemplate(
         renderer.render("cannotRegisterPractitioner.njk",json),
-        cannotRegisterPractitionerView(config.contactHmrcUrl)
+        cannotRegisterPractitionerView()
     )
 
       template.map(Ok(_))

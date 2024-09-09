@@ -25,8 +25,6 @@
 
 @(submitCall: Call, pspName: String, form: Form[java.time.LocalDate], returnUrl: String, applicationDate: String, viewmodel: uk.gov.hmrc.viewmodels.DateInput.ViewModel)(implicit request: Request[_], messages: Messages)
 
-@field = @{form("value")}
-
 @layout(messages("deregistrationDate.company.title") , formHasErrors = form.hasErrors) {
 
     @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {

@@ -57,7 +57,8 @@ class DeclarationController @Inject()(
                                        emailConnector: EmailConnector,
                                        knownFactsRetrieval: KnownFactsRetrieval,
                                        enrolment: EnrolmentConnector,
-                                       config: FrontendAppConfig)(implicit ec: ExecutionContext)
+                                       config: FrontendAppConfig,
+                                       twirlMigration: TwirlMigration)(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with Retrievals
     with I18nSupport
@@ -65,7 +66,7 @@ class DeclarationController @Inject()(
 
   def onPageLoad: Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
-      val template = TwirlMigration.duoTemplate(
+      val template = twirlMigration.duoTemplate(
         renderer.render("individual/declaration.njk",
           Json.obj("submitUrl" -> routes.DeclarationController.onSubmit().url)),
         declarationView(routes.DeclarationController.onSubmit())

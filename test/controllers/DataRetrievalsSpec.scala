@@ -20,10 +20,9 @@ package controllers
 import controllers.base.ControllerSpecBase
 import data.SampleData
 import models.UserAnswers
-import models.register.{TolerantIndividual, RegistrationLegalStatus}
+import models.register.{RegistrationLegalStatus, TolerantIndividual}
 import models.requests.{DataRequest, PSPUser, UserType}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
 import pages.RegistrationInfoPage
 import pages.company.CompanyEmailPage
 import pages.individual.{IndividualDetailsPage, IndividualEmailPage}
@@ -34,7 +33,7 @@ import uk.gov.hmrc.domain.Nino
 
 import scala.concurrent.Future
 
-class DataRetrievalsSpec extends ControllerSpecBase with MockitoSugar with Results with ScalaFutures  {
+class DataRetrievalsSpec extends ControllerSpecBase with Results with ScalaFutures  {
 
   private val defaultPspId: String = "A0000000"
   private val defaultUserType = UserType.Organisation

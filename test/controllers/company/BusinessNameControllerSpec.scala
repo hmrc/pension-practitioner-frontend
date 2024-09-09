@@ -19,32 +19,30 @@ package controllers.company
 import controllers.base.ControllerSpecBase
 import data.SampleData._
 import forms.BusinessNameFormProvider
-import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.{OptionValues, TryValues}
+import org.scalatest.TryValues
 import org.scalatestplus.mockito.MockitoSugar
 import pages.company.BusinessNamePage
 import play.api.data.Form
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
+import views.html.BusinessNameView
 
 import scala.concurrent.Future
 
-class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar with TryValues {
   def onwardRoute: Call = Call("GET", "/foo")
 
   val formProvider = new BusinessNameFormProvider()
   val form: Form[String] = formProvider()
 
   private def companyNameRoute = routes.CompanyNameController.onPageLoad(NormalMode).url
-  private def companyNameSubmitRoute = routes.CompanyNameController.onSubmit(NormalMode).url
+  private def companyNameSubmitCall = routes.CompanyNameController.onSubmit(NormalMode)
 
   val answers: UserAnswers = userAnswersWithCompanyName.set(BusinessNamePage, "answer").success.value
 
@@ -56,23 +54,19 @@ class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar wi
       val application = applicationBuilder(userAnswers = Some(UserAnswers()))
         .build()
       val request = FakeRequest(GET, companyNameRoute)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[BusinessNameView].apply(
+        "company",
+        form,
+        companyNameSubmitCall,
+        None
+      )(request, messages)
 
-      val expectedJson = Json.obj(
-        "form" -> form,
-        "submitUrl" -> companyNameSubmitRoute
-      )
-
-      templateCaptor.getValue mustEqual "businessName.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
-
+      compareResultAndView(result, view)
 
       application.stop()
     }
@@ -86,24 +80,21 @@ class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar wi
         )
         .build()
       val request = FakeRequest(GET, companyNameRoute)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
       val filledForm = form.bind(Map("value" -> "answer"))
 
-      val expectedJson = Json.obj(
-        "form" -> filledForm,
-        "submitUrl" -> companyNameSubmitRoute
-      )
+      val view = application.injector.instanceOf[BusinessNameView].apply(
+        "company",
+        filledForm,
+        companyNameSubmitCall,
+        None
+      )(request, messages)
 
-      templateCaptor.getValue mustEqual "businessName.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      compareResultAndView(result, view)
 
       application.stop()
     }
@@ -139,22 +130,19 @@ class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar wi
         .build()
       val request = FakeRequest(POST, companyNameRoute).withFormUrlEncodedBody(("value", ""))
       val boundForm = form.bind(Map("value" -> ""))
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual BAD_REQUEST
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[BusinessNameView].apply(
+        "company",
+        boundForm,
+        companyNameSubmitCall,
+        None
+      )(request, messages)
 
-      val expectedJson = Json.obj(
-        "form" -> boundForm,
-        "submitUrl" -> companyNameSubmitRoute
-      )
-
-      templateCaptor.getValue mustEqual "businessName.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      compareResultAndView(result, view)
 
       application.stop()
     }

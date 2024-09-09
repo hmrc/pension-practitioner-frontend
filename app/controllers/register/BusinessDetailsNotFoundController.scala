@@ -42,7 +42,8 @@ class BusinessDetailsNotFoundController @Inject()(
                                                    config: FrontendAppConfig,
                                                    val controllerComponents: MessagesControllerComponents,
                                                    renderer: Renderer,
-                                                   businessDetailsNotFoundView: BusinessDetailsNotFound
+                                                   businessDetailsNotFoundView: BusinessDetailsNotFound,
+                                                   twirlMigration: TwirlMigration
                                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
@@ -56,7 +57,7 @@ class BusinessDetailsNotFoundController @Inject()(
         "yourPensionSchemesUrl" -> config.pspListSchemesUrl
       )
 
-      val template = TwirlMigration.duoTemplate(
+      val template = twirlMigration.duoTemplate(
         renderer.render("register/businessDetailsNotFound.njk", json),
         businessDetailsNotFoundView(
           config.companiesHouseFileChangesUrl,

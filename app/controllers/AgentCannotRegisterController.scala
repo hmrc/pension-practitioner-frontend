@@ -33,7 +33,8 @@ class AgentCannotRegisterController @Inject()(
                                         val controllerComponents: MessagesControllerComponents,
                                         renderer: Renderer,
                                         config: FrontendAppConfig,
-                                        agentCannotRegisterView: AgentCannotRegisterView
+                                        agentCannotRegisterView: AgentCannotRegisterView,
+                                        twirlMigration: TwirlMigration
                                       )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
@@ -43,7 +44,7 @@ class AgentCannotRegisterController @Inject()(
       "govUkUrl" -> config.govUkUrl
     )
 
-    def template = TwirlMigration.duoTemplate(
+    def template = twirlMigration.duoTemplate(
       renderer.render("agentCannotRegister.njk", json),
       agentCannotRegisterView()
     )

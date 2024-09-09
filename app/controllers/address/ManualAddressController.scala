@@ -19,19 +19,19 @@ package controllers.address
 import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.{Retrievals, Variation}
-import models.requests.DataRequest
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import models.AddressConfiguration.AddressConfiguration
-import models.{Address, AddressConfiguration, Country, Mode, TolerantAddress}
+import models.requests.DataRequest
+import models.{Address, AddressConfiguration, Mode, TolerantAddress}
 import navigators.CompoundNavigator
-import pages.{AddressChange, QuestionPage}
 import pages.company.CompanyAddressPage
+import pages.{AddressChange, QuestionPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.libs.json.{JsArray, JsObject, Json}
 import play.api.mvc.{AnyContent, Call, Result}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.TwirlMigration
 import views.html.address.ManualAddressView
 
@@ -66,6 +66,8 @@ trait ManualAddressController
 
   protected val h1MessageKey: String = pageTitleMessageKey
 
+  protected val twirlMigration: TwirlMigration
+
   protected def addressConfigurationForPostcodeAndCountry(isUK:Boolean): AddressConfiguration =
     if(isUK) AddressConfiguration.PostcodeFirst else AddressConfiguration.CountryFirst
 
@@ -85,7 +87,7 @@ trait ManualAddressController
       case Some(value) => form.fill(value)
     }
     val jsonValue: JsObject =  json(mode, name, preparedForm, addressLocation)
-    val template = TwirlMigration.duoTemplate(
+    val template = twirlMigration.duoTemplate(
       renderer.render(viewTemplate, jsonValue),
       manualAddressView(
         (jsonValue \ "pageTitle").asOpt[String].getOrElse(""),
@@ -111,7 +113,7 @@ trait ManualAddressController
       .fold(
         formWithErrors => {
           val jsonValue: JsObject =  json(mode, name, formWithErrors, addressLocation)
-          val template = TwirlMigration.duoTemplate(
+          val template = twirlMigration.duoTemplate(
             renderer.render(viewTemplate, jsonValue),
             manualAddressView((jsonValue \ "pageTitle").asOpt[String].getOrElse(""),
               (jsonValue \ "h1").asOpt[String].getOrElse(""),

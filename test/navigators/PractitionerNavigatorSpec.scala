@@ -33,7 +33,7 @@ import play.api.mvc.Call
 
 class PractitionerNavigatorSpec extends NavigatorBehaviour {
 
-  private val navigator: CompoundNavigator = injector.instanceOf[CompoundNavigator]
+  private val navigator: CompoundNavigator = app.injector.instanceOf[CompoundNavigator]
 
   private val uaCompanyOrPartnership = SampleData.emptyUserAnswers.setOrException(WhatTypeBusinessPage, WhatTypeBusiness.Companyorpartnership)
   private def uaInUk(v:Boolean):UserAnswers = SampleData.emptyUserAnswers.setOrException(AreYouUKCompanyPage, v)

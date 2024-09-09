@@ -44,7 +44,8 @@ class AreYouUKResidentController @Inject()(override val messagesApi: MessagesApi
                                            formProvider: AreYouUKResidentFormProvider,
                                            val controllerComponents: MessagesControllerComponents,
                                            renderer: Renderer,
-                                           areYouUKResidentView : AreYouUKResidentView
+                                           areYouUKResidentView : AreYouUKResidentView,
+                                           twirlMigration: TwirlMigration
                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
 
   private val form = formProvider()
@@ -63,7 +64,7 @@ class AreYouUKResidentController @Inject()(override val messagesApi: MessagesApi
         "radios" -> Radios.yesNo(preparedForm("value"))
       )
 
-      val template = TwirlMigration.duoTemplate(
+      val template = twirlMigration.duoTemplate(
         renderer.render("individual/areYouUKResident.njk", json),
         areYouUKResidentView(
           routes.AreYouUKResidentController.onSubmit(mode),
@@ -87,7 +88,7 @@ class AreYouUKResidentController @Inject()(override val messagesApi: MessagesApi
             "radios" -> Radios.yesNo(formWithErrors("value"))
           )
 
-          val template = TwirlMigration.duoTemplate(
+          val template = twirlMigration.duoTemplate(
             renderer.render("individual/areYouUKResident.njk", json),
             areYouUKResidentView(
               routes.AreYouUKResidentController.onSubmit(mode),

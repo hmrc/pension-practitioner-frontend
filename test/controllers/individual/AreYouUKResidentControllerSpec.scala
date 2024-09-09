@@ -24,7 +24,6 @@ import forms.individual.AreYouUKResidentFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
 import navigators.CompoundNavigator
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
@@ -32,14 +31,15 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.individual.AreYouUKResidentPage
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import views.html.individual.AreYouUKResidentView
 
 import scala.concurrent.Future
 
@@ -52,7 +52,7 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
 
   private def areYouUKResidentRoute: String = routes.AreYouUKResidentController.onPageLoad(NormalMode).url
 
-  private def areYouUKResidentSubmitRoute: String = routes.AreYouUKResidentController.onSubmit(NormalMode).url
+  private def areYouUKResidentSubmitRoute: Call = routes.AreYouUKResidentController.onSubmit(NormalMode)
 
   override def modules: Seq[GuiceableModule] = Seq(
     bind[DataRequiredAction].to[DataRequiredActionImpl],
@@ -68,58 +68,39 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
   "AreYouUKResident Controller" must {
 
     "return OK and the correct view for a GET" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
-      val application = applicationBuilder(userAnswers = Some(UserAnswers()))
-        .overrides(
-        )
-        .build()
+      val application = applicationBuilder(userAnswers = Some(UserAnswers())).overrides().build()
       val request = FakeRequest(GET, areYouUKResidentRoute)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[AreYouUKResidentView].apply(areYouUKResidentSubmitRoute, form, false,
+        TwirlMigration.toTwirlRadios(Radios.yesNo(form("value"))))(request, messages)
 
-      val expectedJson = Json.obj(
-        "form" -> form,
-        "submitUrl" -> areYouUKResidentSubmitRoute,
-        "radios" -> Radios.yesNo(form("value"))
-      )
-
-      templateCaptor.getValue mustEqual "individual/areYouUKResident.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      status(result) mustEqual OK
+      compareResultAndView(result, view)
 
       application.stop()
     }
 
     "populate the view correctly on a GET when the question has previously been answered" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(answers)).overrides().build()
       val request = FakeRequest(GET, areYouUKResidentRoute)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
       val filledForm = form.bind(Map("value" -> "true"))
 
-      val expectedJson = Json.obj(
-        "form" -> filledForm,
-        "submitUrl" -> areYouUKResidentSubmitRoute,
-        "radios" -> Radios.yesNo(filledForm("value"))
-      )
+      val view = application.injector.instanceOf[AreYouUKResidentView].apply(areYouUKResidentSubmitRoute, filledForm, false,
+        TwirlMigration.toTwirlRadios(Radios.yesNo(filledForm("value"))))(request, messages)
 
-      templateCaptor.getValue mustEqual "individual/areYouUKResident.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      status(result) mustEqual OK
+      compareResultAndView(result, view)
 
       application.stop()
     }
@@ -147,31 +128,20 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
 
     "return a Bad Request and errors when invalid data is submitted" in {
 
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-
-      val application = applicationBuilder(userAnswers = Some(answers))
-        .overrides(
-        )
-        .build()
+      val application = applicationBuilder(userAnswers = Some(answers)).overrides().build()
       val request = FakeRequest(POST, areYouUKResidentRoute).withFormUrlEncodedBody(("value", ""))
       val boundForm = form.bind(Map("value" -> ""))
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual BAD_REQUEST
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
 
-      val expectedJson = Json.obj(
-        "form" -> boundForm,
-        "submitUrl" -> areYouUKResidentSubmitRoute,
-        "radios" -> Radios.yesNo(boundForm("value"))
-      )
+      val view = application.injector.instanceOf[AreYouUKResidentView].apply(areYouUKResidentSubmitRoute, boundForm, false,
+        TwirlMigration.toTwirlRadios(Radios.yesNo(boundForm("value"))))(request, messages)
 
-      templateCaptor.getValue mustEqual "individual/areYouUKResident.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      status(result) mustEqual BAD_REQUEST
+      compareResultAndView(result, view)
 
       application.stop()
     }

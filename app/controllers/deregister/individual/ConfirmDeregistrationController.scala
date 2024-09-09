@@ -52,7 +52,8 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
                                                 deregistrationConnector: DeregistrationConnector,
                                                 minimalConnector: MinimalConnector,
                                                 renderer: Renderer,
-                                                confirmDeregistrationView: ConfirmDeregistrationView
+                                                confirmDeregistrationView: ConfirmDeregistrationView,
+                                                twirlMigration: TwirlMigration
                                                )(implicit ec: ExecutionContext) extends FrontendBaseController
                                                 with I18nSupport with NunjucksSupport with Retrievals {
 
@@ -76,7 +77,7 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
                     val updatedAnswers = UserAnswers()
                       .setOrException(PspNamePage, name)
                       .setOrException(PspEmailPage, email)
-                    TwirlMigration.duoTemplate(
+                    twirlMigration.duoTemplate(
                       renderer.render("deregister/individual/confirmDeregistration.njk", json),
                       confirmDeregistrationView(routes.ConfirmDeregistrationController.onSubmit(),
                         form,
@@ -104,7 +105,7 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
               "submitUrl" -> routes.ConfirmDeregistrationController.onSubmit().url,
               "radios" -> Radios.yesNo(formWithErrors("value"))
             )
-            TwirlMigration.duoTemplate(
+            twirlMigration.duoTemplate(
               renderer.render("deregister/individual/confirmDeregistration.njk", json),
               confirmDeregistrationView(routes.ConfirmDeregistrationController.onSubmit(),
                 formWithErrors,

@@ -16,7 +16,6 @@
 
 package controllers.register
 
-import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import forms.register.AreYouUKCompanyFormProvider
@@ -31,7 +30,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
 import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
-import views.html.register.AreYouUkCompany
+import views.html.register.AreYouUkCompanyView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -44,9 +43,9 @@ class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
                                       requireData: DataRequiredAction,
                                       formProvider: AreYouUKCompanyFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
-                                      config: FrontendAppConfig,
                                       renderer: Renderer,
-                                      areYouUkCompanyView: AreYouUkCompany
+                                      areYouUkCompanyView: AreYouUkCompanyView,
+                                      twirlMigration: TwirlMigration
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
 
   private val form = formProvider()
@@ -64,7 +63,7 @@ class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
           "radios" -> Radios.yesNo (preparedForm("value"))
         )
 
-      val template = TwirlMigration.duoTemplate(
+      val template = twirlMigration.duoTemplate(
         renderer.render(
           "register/areYouUKCompany.njk", json
         ),
@@ -88,7 +87,7 @@ class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
               "radios" -> Radios.yesNo(formWithErrors("value"))
             )
 
-            val template = TwirlMigration.duoTemplate(
+            val template = twirlMigration.duoTemplate(
               renderer.render(
                 "register/areYouUKCompany.njk", json
               ),

@@ -47,7 +47,8 @@ class CompanyPhoneController @Inject()(override val messagesApi: MessagesApi,
                                        formProvider: PhoneFormProvider,
                                        val controllerComponents: MessagesControllerComponents,
                                        renderer: Renderer,
-                                       phoneView: PhoneView
+                                       phoneView: PhoneView,
+                                       twirlMigration: TwirlMigration
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController
   with Retrievals with I18nSupport with NunjucksSupport with Variation {
 
@@ -59,7 +60,7 @@ class CompanyPhoneController @Inject()(override val messagesApi: MessagesApi,
       implicit request =>
         val formFilled = request.userAnswers.get(CompanyPhonePage).fold(form)(form.fill)
         getModel(mode) { model =>
-          val template = TwirlMigration.duoTemplate(
+          val template = twirlMigration.duoTemplate(
             renderer.render("phone.njk", TwirlMigration.nunjucksGetJson(formFilled, model.toNunjucks)),
             phoneView(model, formFilled)
           )
@@ -74,7 +75,7 @@ class CompanyPhoneController @Inject()(override val messagesApi: MessagesApi,
         form.bindFromRequest().fold(
           formWithErrors =>
             getModel(mode) { model =>
-              val template = TwirlMigration.duoTemplate(
+              val template = twirlMigration.duoTemplate(
                 renderer.render("phone.njk", TwirlMigration.nunjucksGetJson(formWithErrors, model.toNunjucks)),
                 phoneView(model, formWithErrors)
               )

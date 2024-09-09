@@ -29,13 +29,14 @@ import scala.concurrent.ExecutionContext
 class AssistantNoAccessController @Inject()(
                                         val controllerComponents: MessagesControllerComponents,
                                         renderer: Renderer,
-                                        assistantNoAccessView: AssistantNoAccessView
+                                        assistantNoAccessView: AssistantNoAccessView,
+                                        twirlMigration: TwirlMigration
                                       )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = Action.async { implicit request =>
-    def template = TwirlMigration.duoTemplate(renderer.render("assistantNoAccess.njk"), assistantNoAccessView())
+    def template = twirlMigration.duoTemplate(renderer.render("assistantNoAccess.njk"), assistantNoAccessView())
     template.map(Ok(_))
   }
 }

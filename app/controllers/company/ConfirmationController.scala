@@ -42,7 +42,8 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        renderer: Renderer,
-                                       confirmationView: ConfirmationView
+                                       confirmationView: ConfirmationView,
+                                       twirlMigration: TwirlMigration
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController
   with Retrievals with I18nSupport with NunjucksSupport {
 
@@ -59,7 +60,7 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
           )
 
           userAnswersCacheConnector.removeAll.flatMap { _ =>
-            val template = TwirlMigration.duoTemplate(
+            val template = twirlMigration.duoTemplate(
               renderer.render("register/confirmation.njk", json),
               confirmationView(
                 pspid,

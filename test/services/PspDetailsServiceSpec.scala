@@ -45,8 +45,6 @@ class PspDetailsServiceSpec
     with BeforeAndAfterEach
     with ScalaFutures {
 
-  import PspDetailsServiceSpec._
-
   private def minPsp(rlsFlag: Boolean) = MinimalPSP("a@a.a", Some("name"), None, rlsFlag = rlsFlag, deceasedFlag = false)
 
   private val pspId: String = "psp-id"
@@ -63,7 +61,7 @@ class PspDetailsServiceSpec
     reset(mockAppConfig)
     reset(mockMinimalConnector)
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
-    when(mockAppConfig.returnToPspDashboardUrl).thenReturn(frontendAppConfig.returnToPspDashboardUrl)
+    when(mockAppConfig.returnToPspDashboardUrl).thenReturn("testUrlPspDashboard")
   }
 
   "amendmentsExist" must {

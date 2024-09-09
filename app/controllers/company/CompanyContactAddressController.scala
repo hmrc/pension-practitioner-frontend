@@ -22,18 +22,21 @@ import controllers.Retrievals
 import controllers.actions._
 import controllers.address.ManualAddressController
 import forms.address.UKAddressFormProvider
+
 import javax.inject.Inject
-import models.{Mode, Address}
+import models.{Address, Mode}
 import navigators.CompoundNavigator
 import pages.QuestionPage
-import pages.company.{CompanyAddressPage, BusinessNamePage, CompanyAddressListPage}
+import pages.company.{BusinessNamePage, CompanyAddressListPage, CompanyAddressPage}
 import pages.register.AreYouUKCompanyPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.mvc.{Call, AnyContent, MessagesControllerComponents, Action}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import utils.TwirlMigration
 import views.html.address.ManualAddressView
+
 import scala.concurrent.ExecutionContext
 
 class CompanyContactAddressController @Inject()(
@@ -47,7 +50,8 @@ class CompanyContactAddressController @Inject()(
   val controllerComponents: MessagesControllerComponents,
   val config: FrontendAppConfig,
   val renderer: Renderer,
-  manualAddressView: ManualAddressView
+  manualAddressView: ManualAddressView,
+  val twirlMigration: TwirlMigration
 )(implicit ec: ExecutionContext)
     extends ManualAddressController
     with Retrievals

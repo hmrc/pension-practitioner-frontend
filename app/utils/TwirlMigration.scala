@@ -16,35 +16,46 @@
 
 package utils
 
-import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.libs.json.{JsObject, Json, Writes}
 import play.api.mvc.Request
+import play.api.{Configuration, Logging}
 import play.twirl.api.Html
-import uk.gov.hmrc.govukfrontend.views.Aliases.{HtmlContent, Key, RadioItem, SummaryListRow, Value}
+import uk.gov.hmrc
+import uk.gov.hmrc.govukfrontend.views.Aliases._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{Content, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions}
-import uk.gov.hmrc
 import viewmodels.CommonViewModel
 
+import javax.inject.Inject
 import scala.concurrent.Future
 
-object TwirlMigration extends Logging {
+class TwirlMigration @Inject() (config: Configuration) extends Logging {
   def duoTemplate(nunjucks: => Future[Html], twirl: => Html)(implicit request: Request[_]): Future[Html] = {
-    val useTwirl = request.session.get("twirl").exists {
+    val sessionContainsTwirl = request.session.get("twirl").map {
       case "true" => true
       case _ => false
     }
+
+    val twirlMigrationEnabledInConfig = config.getOptional[Boolean]("twirlMigration").getOrElse(false)
+
+    val useTwirl = sessionContainsTwirl.getOrElse(twirlMigrationEnabledInConfig)
+
     if(useTwirl) {
       logger.warn("Using twirl template")
       Future.successful(twirl)
-    } else nunjucks
+    } else {
+      nunjucks
+    }
   }
+}
+
+object TwirlMigration extends Logging {
 
   def toTwirlRadios(nunjucksRadios: Seq[uk.gov.hmrc.viewmodels.Radios.Item])(implicit messages: Messages): Seq[RadioItem] = {
     nunjucksRadios.map(radio => {
-      RadioItem(content = Text(radio.text.resolve), value = Some(radio.value))
+      RadioItem(content = Text(radio.text.resolve), value = Some(radio.value), checked = radio.checked, id = Some(radio.id))
     })
   }
 

@@ -36,13 +36,14 @@ class NonUKPractitionerController @Inject()(
                                              getData: DataRetrievalAction,
                                              val controllerComponents: MessagesControllerComponents,
                                              renderer: Renderer,
-                                             nonUKPractitionerView: NonUKPractitionerView
+                                             nonUKPractitionerView: NonUKPractitionerView,
+                                             twirlMigration: TwirlMigration
                                            )(implicit ec: ExecutionContext) extends FrontendBaseController
   with I18nSupport with Retrievals {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData).async {
     implicit request =>
-      val template = TwirlMigration.duoTemplate(
+      val template = twirlMigration.duoTemplate(
         renderer.render("register/nonUKPractitioner.njk", Json.obj()),
         nonUKPractitionerView()
       )

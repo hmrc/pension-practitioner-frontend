@@ -22,8 +22,6 @@ import controllers.Retrievals
 import controllers.actions._
 import controllers.address.ManualAddressController
 import forms.address.UKAddressFormProvider
-
-import javax.inject.Inject
 import models.{Address, Mode}
 import navigators.CompoundNavigator
 import pages.QuestionPage
@@ -34,9 +32,10 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.countryOptions.CountryOptions
+import utils.TwirlMigration
 import views.html.address.ManualAddressView
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class PartnershipContactAddressController @Inject()(
@@ -47,11 +46,11 @@ class PartnershipContactAddressController @Inject()(
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: UKAddressFormProvider,
-  countryOptions: CountryOptions,
   val controllerComponents: MessagesControllerComponents,
   val config: FrontendAppConfig,
   val renderer: Renderer,
-  manualAddressView: ManualAddressView
+  manualAddressView: ManualAddressView,
+  val twirlMigration: TwirlMigration
 )(implicit ec: ExecutionContext)
   extends ManualAddressController
     with Retrievals

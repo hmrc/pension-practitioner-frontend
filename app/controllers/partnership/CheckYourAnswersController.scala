@@ -38,7 +38,8 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
                                            val controllerComponents: MessagesControllerComponents,
                                            partnershipCYAService: PartnershipCYAService,
                                            checkYourAnswersView: CheckYourAnswersView,
-                                           renderer: Renderer)(implicit ec: ExecutionContext)
+                                           renderer: Renderer,
+                                           twirlMigration: TwirlMigration)(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
     with NunjucksSupport {
@@ -50,7 +51,7 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
         "list" -> partnershipCYAService.partnershipCya(request.userAnswers)
       )
 
-      def template = TwirlMigration.duoTemplate(
+      def template = twirlMigration.duoTemplate(
         renderer.render("check-your-answers.njk", json),
         checkYourAnswersView(
           controllers.partnership.routes.DeclarationController.onPageLoad(),

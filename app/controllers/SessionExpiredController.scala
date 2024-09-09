@@ -29,13 +29,14 @@ import scala.concurrent.ExecutionContext
 class SessionExpiredController @Inject()(
     val controllerComponents: MessagesControllerComponents,
     renderer: Renderer,
-    sessionExpiredView: SessionExpiredView
+    sessionExpiredView: SessionExpiredView,
+    twirlMigration: TwirlMigration
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = Action.async { implicit request =>
-    val template = TwirlMigration.duoTemplate(
+    val template = twirlMigration.duoTemplate(
       renderer.render("session-expired.njk"),
       sessionExpiredView()
     )

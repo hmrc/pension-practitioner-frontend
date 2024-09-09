@@ -33,13 +33,14 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class SuccessController @Inject()(override val messagesApi: MessagesApi,
-                                       userAnswersCacheConnector: UserAnswersCacheConnector,
-                                       authenticate: AuthAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       renderer: Renderer,
-                                       successView: SuccessView
+                                  userAnswersCacheConnector: UserAnswersCacheConnector,
+                                  authenticate: AuthAction,
+                                  getData: DataRetrievalAction,
+                                  requireData: DataRequiredAction,
+                                  val controllerComponents: MessagesControllerComponents,
+                                  renderer: Renderer,
+                                  successView: SuccessView,
+                                  twirlMigration: TwirlMigration
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController
   with Retrievals with I18nSupport with NunjucksSupport {
 
@@ -51,7 +52,7 @@ class SuccessController @Inject()(override val messagesApi: MessagesApi,
             "submitUrl" -> controllers.routes.SignOutController.signOut().url
           )
           userAnswersCacheConnector.removeAll.flatMap { _ =>
-            TwirlMigration.duoTemplate(
+            twirlMigration.duoTemplate(
               renderer.render("deregister/company/success.njk", json),
               successView(
                 name,

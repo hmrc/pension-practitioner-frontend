@@ -29,13 +29,14 @@ import scala.concurrent.ExecutionContext
 class UnauthorisedController @Inject()(
                                         val controllerComponents: MessagesControllerComponents,
                                         renderer: Renderer,
-                                        unauthorisedView: UnauthorisedView
+                                        unauthorisedView: UnauthorisedView,
+                                        twirlMigration: TwirlMigration
                                       )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = Action.async { implicit request =>
-    val template = TwirlMigration.duoTemplate(
+    val template = twirlMigration.duoTemplate(
       renderer.render("unauthorised.njk"),
       unauthorisedView()
     )

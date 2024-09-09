@@ -42,7 +42,8 @@ class FrontendErrorHandler @Inject()(
                                       badRequestView: BadRequestView,
                                       internalServerErrorView: InternalServerErrorView,
                                       errorTemplate: ErrorTemplate,
-                                      notFoundView: NotFoundView
+                                      notFoundView: NotFoundView,
+                                      twirlMigration: TwirlMigration
                                     )(implicit ec: ExecutionContext) extends uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler with I18nSupport {
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html = {
@@ -55,7 +56,7 @@ class FrontendErrorHandler @Inject()(
 
     statusCode match {
       case BAD_REQUEST =>
-        def template = TwirlMigration.duoTemplate(
+        def template = twirlMigration.duoTemplate(
           renderer.render("badRequest.njk"),
           badRequestView()
         )
@@ -64,7 +65,7 @@ class FrontendErrorHandler @Inject()(
         val json = Json.obj(
           "yourPensionSchemesUrl" -> config.pspListSchemesUrl
         )
-        val template = TwirlMigration.duoTemplate(
+        val template = twirlMigration.duoTemplate(
           renderer.render("notFound.njk", json),
           notFoundView(config.pspListSchemesUrl)
         )
@@ -82,7 +83,7 @@ class FrontendErrorHandler @Inject()(
       case ApplicationException(result, _) =>
         Future.successful(result)
       case _ =>
-        def template = TwirlMigration.duoTemplate(
+        def template = twirlMigration.duoTemplate(
           renderer.render("internalServerError.njk"),
           internalServerErrorView()
         )

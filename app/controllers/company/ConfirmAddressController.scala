@@ -55,7 +55,8 @@ class ConfirmAddressController @Inject()(
                                           val controllerComponents: MessagesControllerComponents,
                                           countryOptions: CountryOptions,
                                           confirmAddressView: ConfirmAddressView,
-                                          renderer: Renderer
+                                          renderer: Renderer,
+                                          twirlMigration: TwirlMigration
                                         )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport
@@ -105,7 +106,7 @@ class ConfirmAddressController @Inject()(
                 "submitUrl" -> routes.ConfirmAddressController.onSubmit().url,
                 "radios" -> Radios.yesNo(form("value")))
 
-              def template = TwirlMigration.duoTemplate(
+              def template = twirlMigration.duoTemplate(
                 renderer.render("confirmAddress.njk", json),
                 confirmAddressView("company",
                   form,
@@ -144,7 +145,7 @@ class ConfirmAddressController @Inject()(
                   "radios" -> Radios.yesNo(formWithErrors("value"))
                 )
 
-                def template = TwirlMigration.duoTemplate(
+                def template = twirlMigration.duoTemplate(
                   renderer.render("confirmAddress.njk", json),
                   confirmAddressView("company",
                     formWithErrors,

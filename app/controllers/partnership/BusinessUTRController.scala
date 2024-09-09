@@ -47,7 +47,8 @@ class BusinessUTRController @Inject()(override val messagesApi: MessagesApi,
                                       formProvider: BusinessUTRFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
                                       renderer: Renderer,
-                                      businessUTRView: BusinessUTRView
+                                      businessUTRView: BusinessUTRView,
+                                      twirlMigration: TwirlMigration
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
 
   protected def form: Form[String] = formProvider.apply(
@@ -67,7 +68,7 @@ class BusinessUTRController @Inject()(override val messagesApi: MessagesApi,
           "businessType" -> s"whatTypeBusiness.$businessType"
         )
 
-        def template = TwirlMigration.duoTemplate(
+        def template = twirlMigration.duoTemplate(
           renderer.render("businessUTR.njk", json),
           businessUTRView(s"whatTypeBusiness.$businessType", preparedForm, routes.BusinessUTRController.onSubmit())
         )
@@ -88,7 +89,7 @@ class BusinessUTRController @Inject()(override val messagesApi: MessagesApi,
               "businessType" -> s"whatTypeBusiness.$businessType"
             )
 
-            def template = TwirlMigration.duoTemplate(
+            def template = twirlMigration.duoTemplate(
               renderer.render("businessUTR.njk", json),
               businessUTRView(s"whatTypeBusiness.$businessType", formWithErrors, routes.BusinessUTRController.onSubmit())
             )

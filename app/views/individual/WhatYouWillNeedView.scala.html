@@ -45,7 +45,7 @@
         )
 
         @govukButton(
-            ButtonViewModel(Text(messages("site.continue"))).asLink(submitCallUrl)
+            ButtonViewModel(Text(messages("site.continue"))).asLink(submitCallUrl).withAttribute("id" -> "submit")
         )
 
 }

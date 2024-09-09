@@ -17,6 +17,7 @@
 package controllers.actions
 
 import base.SpecBase
+import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import connectors.{MinimalConnector, SessionDataCacheConnector}
 import models.WhatTypeBusiness.Companyorpartnership
@@ -43,6 +44,8 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 
   import AuthActionSpec._
 
+  private val fakeRequest = FakeRequest("", "")
+  private val frontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
   override def beforeEach(): Unit = {
     reset(mockUserAnswersCacheConnector)
     reset(authConnector)
@@ -403,7 +406,8 @@ object AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach
         Ok(Json.obj("userId" -> request.user.userId))
     }
   }
-
+  
+  private val frontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
   private val mockMinimalConnector: MinimalConnector = mock[MinimalConnector]
   private val mockUserAnswersCacheConnector: UserAnswersCacheConnector = mock[UserAnswersCacheConnector]
   private val authConnector: AuthConnector = mock[AuthConnector]

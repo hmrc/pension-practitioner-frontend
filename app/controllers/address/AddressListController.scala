@@ -35,7 +35,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModelTwirl
-import views.html.address.AddressListView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -46,6 +45,7 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
   protected def navigator: CompoundNavigator
   protected def form(implicit messages: Messages): Form[Int]
   protected def viewTemplate = "address/addressList.njk"
+  protected def twirlMigration: TwirlMigration
 
   def get(json: Form[Int] => JsObject, onSubmitCall: Call, manualUrl: String, twirlView: (CommonViewModelTwirl, Seq[RadioItem]) => Html)
          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
@@ -57,7 +57,7 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
       submitUrl = onSubmitCall,
       enterManuallyUrl = Some(manualUrl))
 
-    TwirlMigration.duoTemplate(
+    twirlMigration.duoTemplate(
       renderer.render(viewTemplate, jsonValue),
       twirlView(model, twirlAddressRadios(jsonValue))
     ).map(Ok(_))
@@ -82,7 +82,7 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
 
         val radios = twirlAddressRadios(jsonObject)
 
-        TwirlMigration.duoTemplate(
+        twirlMigration.duoTemplate(
           renderer.render(viewTemplate, json(formWithErrors)),
           twirlView(model, radios, formWithErrors)
         ).map(BadRequest(_))

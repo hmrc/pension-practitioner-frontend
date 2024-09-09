@@ -21,32 +21,29 @@ import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import models.UserAnswers
-import models.requests.DataRequest
 import navigators.CompoundNavigator
 import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfterEach
+import org.scalatest.{Assertion, BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.HeaderNames
 import play.api.inject.bind
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
-import play.api.mvc.{ActionFilter, AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
+import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
 import play.api.test.Helpers.{GET, POST}
 import play.api.test.{FakeHeaders, FakeRequest}
+import play.twirl.api.Html
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import utils.annotations.{AuthMustHaveEnrolmentWithNoIV, AuthMustHaveNoEnrolmentWithIV, AuthMustHaveNoEnrolmentWithNoIV, AuthWithIV}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
+import scala.concurrent.duration.DurationInt
 
-trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with MockitoSugar {
-
-  val FakeActionFilter: ActionFilter[DataRequest] = new ActionFilter[DataRequest] {
-    override protected def executionContext: ExecutionContext = global
-
-    override protected def filter[A](request: DataRequest[A]): Future[Option[Result]] = Future.successful(None)
-  }
+trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with BeforeAndAfterAll with MockitoSugar {
 
   override def beforeEach(): Unit = {
+    reset(mockAppConfig)
+    when(mockAppConfig.betaFeedbackUnauthenticatedUrl).thenReturn("betaFeedbackTestUrl")
+    when(mockAppConfig.contactHmrcUrl).thenReturn("testContactHmrcUrl")
     reset(mockRenderer)
     reset(mockUserAnswersCacheConnector)
     reset(mockCompoundNavigator)
@@ -105,6 +102,25 @@ trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with MockitoSu
         ): _*
       )
 
+  protected def compareResultAndView(
+                                      result: Future[Result],
+                                      view: Html
+                                    ): Assertion = {
+    org.scalatest.Assertions.assert(
+      play.api.test.Helpers.contentAsString(result)(1.seconds).removeAllNonces().filterAndTrim == view.toString().filterAndTrim
+    )
+  }
+
+  implicit class StringOps(value: String) {
+    def filterAndTrim: String =
+      value
+        .split("\n")
+        .filterNot(_.contains("csrfToken"))
+        .map(_.trim)
+        .mkString
+    def removeAllNonces(): String = value.replaceAll("""nonce="[^"]*"""", "")
+  }
+
   protected def httpGETRequest(path: String): FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, path)
 
   protected def httpPOSTRequest(path: String, values: Map[String, Seq[String]]): FakeRequest[AnyContentAsFormUrlEncoded] =
@@ -114,4 +130,5 @@ trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with MockitoSu
         uri = path,
         headers = FakeHeaders(Seq(HeaderNames.HOST -> "localhost")),
         body = AnyContentAsFormUrlEncoded(values))
+
 }

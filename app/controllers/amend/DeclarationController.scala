@@ -53,7 +53,8 @@ class DeclarationController @Inject()(
                                        auditService: AuditService,
                                        pspDetailsService: PspDetailsService,
                                        config: FrontendAppConfig,
-                                       declarationView: views.html.amend.DeclarationView
+                                       declarationView: views.html.amend.DeclarationView,
+                                       twirlMigration: TwirlMigration
                                      )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with Retrievals
@@ -66,7 +67,7 @@ class DeclarationController @Inject()(
 
         if (pspDetailsService.amendmentsExist(request.userAnswers)) {
           val json: JsObject = Json.obj("submitUrl" -> routes.DeclarationController.onSubmit().url)
-          val template = TwirlMigration.duoTemplate(
+          val template = twirlMigration.duoTemplate(
             renderer.render("amend/declaration.njk", json),
             declarationView(routes.DeclarationController.onSubmit())
           )

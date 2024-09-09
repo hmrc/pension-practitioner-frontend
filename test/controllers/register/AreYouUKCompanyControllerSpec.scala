@@ -21,103 +21,125 @@ import data.SampleData._
 import forms.register.AreYouUKCompanyFormProvider
 import matchers.JsonMatchers
 import models.UserAnswers
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
 import org.mockito.Mockito.when
-import org.scalatest.OptionValues
-import org.scalatest.TryValues
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.register.AreYouUKCompanyPage
-import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import play.api.mvc.Call
-import play.api.test.Helpers._
-import play.twirl.api.Html
 import play.api.test.FakeRequest
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import uk.gov.hmrc.viewmodels.Radios
+import play.api.test.Helpers._
+import views.html.register.AreYouUkCompanyView
 
 import scala.concurrent.Future
 
-class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers with OptionValues with TryValues {
 
   private def onwardRoute = Call("GET", "/foo")
 
   private val formProvider = new AreYouUKCompanyFormProvider()
   private val form = formProvider()
 
-  private def areYouUKCompanyRoute = routes.AreYouUKCompanyController.onPageLoad().url
-  private def areYouUKCompanySubmitRoute = routes.AreYouUKCompanyController.onSubmit().url
-
+  private def areYouUKCompanyRoute: String = routes.AreYouUKCompanyController.onPageLoad().url
+  private def areYouUKCompanySubmitCall: Call = routes.AreYouUKCompanyController.onSubmit()
 
   private val answers: UserAnswers = userAnswersWithCompanyName.set(AreYouUKCompanyPage, true).success.value
+  private val falseAnswers: UserAnswers = userAnswersWithCompanyName.set(AreYouUKCompanyPage, false).success.value
 
   "AreYouUKCompany Controller" must {
 
     "return OK and the correct view for a GET" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName)).build()
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
-        .overrides(
-        )
-        .build()
       val request = FakeRequest(GET, areYouUKCompanyRoute)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-
       val result = route(application, request).value
 
-      status(result) mustEqual OK
-
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-      val expectedJson = Json.obj(
-        "form"   -> form,
-        "submitUrl" -> areYouUKCompanySubmitRoute,
-        "radios" -> Radios.yesNo(form("value"))
+      val radios = Seq(
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("Yes"),
+          value = Some("true"),
+          checked = form("value").value.contains("true"),
+          id = Some("value")
+        ),
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("No"),
+          value = Some("false"),
+          checked = form("value").value.contains("false"),
+          id = Some("value-no")
+        )
       )
+      val view = application.injector.instanceOf[AreYouUkCompanyView]
+      val expectedView = view.apply(areYouUKCompanySubmitCall, form, radios)(request, messages)
 
-      templateCaptor.getValue mustEqual "register/areYouUKCompany.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      status(result) mustEqual OK
+      compareResultAndView(result, expectedView)
 
       application.stop()
     }
 
-    "populate the view correctly on a GET when the question has previously been answered" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
+    "populate the view correctly on a GET when the question has previously been answered with true" in {
+      val application = applicationBuilder(userAnswers = Some(answers)).build()
 
-      val application = applicationBuilder(userAnswers = Some(answers))
-        .overrides(
-        )
-        .build()
       val request = FakeRequest(GET, areYouUKCompanyRoute)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-
       val result = route(application, request).value
 
-      status(result) mustEqual OK
-
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-      val filledForm = form.bind(Map("value" -> "true"))
-
-      val expectedJson = Json.obj(
-        "form"   -> filledForm,
-        "submitUrl" -> areYouUKCompanySubmitRoute,
-        "radios" -> Radios.yesNo(filledForm("value"))
+      val radios = Seq(
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("Yes"),
+          value = Some("true"),
+          checked = form.fill(true)("value").value.contains("true"),
+          id = Some("value")
+        ),
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("No"),
+          value = Some("false"),
+          checked = form.fill(true)("value").value.contains("false"),
+          id = Some("value-no")
+        )
       )
 
-      templateCaptor.getValue mustEqual "register/areYouUKCompany.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      val view = application.injector.instanceOf[AreYouUkCompanyView]
+      val expectedView = view.apply(areYouUKCompanySubmitCall, form, radios)(request, messages)
+
+      status(result) mustEqual OK
+      compareResultAndView(result, expectedView)
+
+      application.stop()
+    }
+
+    "populate the view correctly on a GET when the question has previously been answered with false" in {
+      val application = applicationBuilder(userAnswers = Some(falseAnswers)).build()
+
+      val request = FakeRequest(GET, areYouUKCompanyRoute)
+      val result = route(application, request).value
+
+      val radios = Seq(
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("Yes"),
+          value = Some("true"),
+          checked = form.fill(false)("value").value.contains("true"),
+          id = Some("value")
+        ),
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("No"),
+          value = Some("false"),
+          checked = form.fill(false)("value").value.contains("false"),
+          id = Some("value-no")
+        )
+      )
+
+      val view = application.injector.instanceOf[AreYouUkCompanyView]
+      val expectedView = view.apply(areYouUKCompanySubmitCall, form, radios)(request, messages)
+
+      status(result) mustEqual OK
+      compareResultAndView(result, expectedView)
 
       application.stop()
     }
 
     "redirect to the next page when valid data is submitted" in {
-      when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
+      when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
       val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
@@ -125,10 +147,7 @@ class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar
         )
         .build()
 
-      val request =
-        FakeRequest(POST, areYouUKCompanyRoute)
-      .withFormUrlEncodedBody(("value", "true"))
-
+      val request = FakeRequest(POST, areYouUKCompanyRoute).withFormUrlEncodedBody(("value", "true"))
       val result = route(application, request).value
 
       status(result) mustEqual SEE_OTHER
@@ -139,42 +158,41 @@ class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar
     }
 
     "return a Bad Request and errors when invalid data is submitted" in {
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName)).build()
 
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
-        .overrides(
-        )
-        .build()
       val request = FakeRequest(POST, areYouUKCompanyRoute).withFormUrlEncodedBody(("value", ""))
       val boundForm = form.bind(Map("value" -> ""))
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+
+      val radios = Seq(
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("Yes"),
+          value = Some("true"),
+          checked = boundForm("value").value.contains("true"),
+          id = Some("value")
+        ),
+        uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem(
+          content = uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text("No"),
+          value = Some("false"),
+          checked = boundForm("value").value.contains("false"),
+          id = Some("value-no")
+        )
+      )
+
+      val view = application.injector.instanceOf[AreYouUkCompanyView]
+      val expectedView = view.apply(areYouUKCompanySubmitCall, boundForm, radios)(request, messages)
 
       val result = route(application, request).value
 
       status(result) mustEqual BAD_REQUEST
-
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
-      val expectedJson = Json.obj(
-        "form"   -> boundForm,
-        "submitUrl" -> areYouUKCompanySubmitRoute,
-        "radios" -> Radios.yesNo(boundForm("value"))
-      )
-
-      templateCaptor.getValue mustEqual "register/areYouUKCompany.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      compareResultAndView(result, expectedView)
 
       application.stop()
     }
 
     "redirect to Session Expired for a GET if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       val request = FakeRequest(GET, areYouUKCompanyRoute)
-
       val result = route(application, request).value
 
       status(result) mustEqual SEE_OTHER
@@ -185,13 +203,9 @@ class AreYouUKCompanyControllerSpec extends ControllerSpecBase with MockitoSugar
     }
 
     "redirect to Session Expired for a POST if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
-      val request =
-        FakeRequest(POST, areYouUKCompanyRoute)
-      .withFormUrlEncodedBody(("value", "true"))
-
+      val request = FakeRequest(POST, areYouUKCompanyRoute).withFormUrlEncodedBody(("value", "true"))
       val result = route(application, request).value
 
       status(result) mustEqual SEE_OTHER
