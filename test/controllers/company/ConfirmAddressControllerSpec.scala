@@ -25,7 +25,6 @@ import matchers.JsonMatchers
 import models.register._
 import models.{TolerantAddress, UserAnswers}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.{BeforeAndAfterEach, OptionValues, TryValues}

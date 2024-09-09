@@ -20,7 +20,6 @@ import connectors.SessionDataCacheConnector
 import controllers.base.ControllerSpecBase
 import data.SampleData._
 import matchers.JsonMatchers
-import models.UserAnswers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
@@ -32,11 +31,10 @@ import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 
 import scala.concurrent.Future
 
-class SignOutControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class SignOutControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers with OptionValues with TryValues {
 
   private def signOutRoute: String = routes.SignOutController.signOut().url
 
@@ -48,8 +46,8 @@ class SignOutControllerSpec extends ControllerSpecBase with MockitoSugar with Nu
     bind[AuthConnector].toInstance(mockAuthConnector)
   )
 
-  private def buildApp(userAnswers: Option[UserAnswers]): Application =
-    applicationBuilder(userAnswers,
+  override def fakeApplication(): Application =
+    applicationBuilder(Some(userAnswersWithCompanyName),
       extraModules = extraModules).build()
 
   override def beforeEach(): Unit = {
@@ -65,14 +63,12 @@ class SignOutControllerSpec extends ControllerSpecBase with MockitoSugar with Nu
       when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any())).thenReturn(Future.successful(Some("id")))
       when(mockAppConfig.signOutUrl).thenReturn(signoutUrl)
 
-      val application = buildApp(userAnswers = Some(userAnswersWithCompanyName))
       val request = FakeRequest(GET, signOutRoute)
 
-      val result = route(application, request).value
+      val result = route(app, request).value
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(signoutUrl)
-      application.stop()
     }
   }
 }

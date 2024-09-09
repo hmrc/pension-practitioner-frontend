@@ -17,8 +17,8 @@
 package controllers.actions
 
 import com.google.inject.Inject
-import models.requests.{AuthenticatedRequest, PSPUser, UserType}
 import models.requests.UserType.UserType
+import models.requests.{AuthenticatedRequest, PSPUser, UserType}
 import play.api.mvc._
 import uk.gov.hmrc.domain.Nino
 

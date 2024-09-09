@@ -18,39 +18,29 @@ package controllers
 
 import controllers.base.ControllerSpecBase
 import data.SampleData._
-import matchers.JsonMatchers
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
-import org.scalatest.{OptionValues, TryValues}
-import org.scalatestplus.mockito.MockitoSugar
+import play.api.Application
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.YourActionWasNotProcessedView
 
-import scala.concurrent.Future
+class YourActionWasNotProcessedControllerSpec extends ControllerSpecBase {
 
-class YourActionWasNotProcessedControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
-  with JsonMatchers with OptionValues with TryValues {
+  override def fakeApplication(): Application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName)).overrides().build()
 
   private def getRoute: String = routes.YourActionWasNotProcessedController.onPageLoad().url
 
   "YourActionWasNotProcessedController" must {
 
     "return OK and the correct view for a GET" in {
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName)).overrides().build()
       val request = FakeRequest(GET, getRoute)
 
-      val result = route(application, request).value
+      val result = route(app, request).value
 
       status(result) mustEqual OK
 
-      val view = application.injector.instanceOf[YourActionWasNotProcessedView].apply("testUrl", None)(request, messages)
+      val view = app.injector.instanceOf[YourActionWasNotProcessedView].apply("testUrl", None)(request, messages)
 
       compareResultAndView(result, view)
-
-      application.stop()
     }
   }
 }

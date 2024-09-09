@@ -34,6 +34,7 @@ import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import views.html.individual.WhatYouWillNeedView
 
 import scala.concurrent.Future
 
@@ -59,15 +60,14 @@ class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
       val request = FakeRequest(GET, routes.WhatYouWillNeedController.onPageLoad().url)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
+
+      val view = application.injector.instanceOf[WhatYouWillNeedView]
+        .apply(onwardRoute.url)(request, messages)
 
       val result = route(application, request).value
 
       status(result) mustEqual OK
-
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), any())(any())
-
-      templateCaptor.getValue mustEqual "individual/whatYouWillNeed.njk"
+      compareResultAndView(result, view)
 
       application.stop()
     }

@@ -21,7 +21,6 @@ import config.FrontendAppConfig
 import connectors.cache.UserAnswersCacheConnector
 import controllers.actions._
 import models.UserAnswers
-import models.requests.DataRequest
 import navigators.CompoundNavigator
 import org.mockito.Mockito._
 import org.scalatest.{Assertion, BeforeAndAfterAll, BeforeAndAfterEach}
@@ -29,26 +28,17 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.HeaderNames
 import play.api.inject.bind
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
-import play.api.mvc.{ActionFilter, AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
-import play.api.test.{FakeHeaders, FakeRequest}
+import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
 import play.api.test.Helpers.{GET, POST}
+import play.api.test.{FakeHeaders, FakeRequest}
 import play.twirl.api.Html
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import utils.annotations.{AuthMustHaveEnrolmentWithNoIV, AuthMustHaveNoEnrolmentWithIV, AuthMustHaveNoEnrolmentWithNoIV, AuthWithIV}
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
-import scala.concurrent.{ExecutionContext, Future}
 
 trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with BeforeAndAfterAll with MockitoSugar {
-
-  val FakeActionFilter: ActionFilter[DataRequest] = new ActionFilter[DataRequest] {
-    override protected def executionContext: ExecutionContext = global
-
-    override protected def filter[A](request: DataRequest[A]): Future[Option[Result]] = Future.successful(None)
-  }
-
-
 
   override def beforeEach(): Unit = {
     reset(mockAppConfig)
@@ -117,12 +107,18 @@ trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with BeforeAnd
                                       view: Html
                                     ): Assertion = {
     org.scalatest.Assertions.assert(
-      play.api.test.Helpers.contentAsString(result)(1.seconds).removeAllNonces() == view.toString()
+      play.api.test.Helpers.contentAsString(result)(1.seconds).removeAllNonces().filterAndTrim == view.toString().filterAndTrim
     )
   }
 
-  implicit class StringOps(s: String) {
-    def removeAllNonces(): String = s.replaceAll("""nonce="[^"]*"""", "")
+  implicit class StringOps(value: String) {
+    def filterAndTrim: String =
+      value
+        .split("\n")
+        .filterNot(_.contains("csrfToken"))
+        .map(_.trim)
+        .mkString
+    def removeAllNonces(): String = value.replaceAll("""nonce="[^"]*"""", "")
   }
 
   protected def httpGETRequest(path: String): FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, path)

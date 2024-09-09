@@ -20,7 +20,6 @@ import controllers.actions.MutableFakeDataRetrievalAction
 import controllers.base.ControllerSpecBase
 import matchers.JsonMatchers
 import models.UserAnswers
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
@@ -28,11 +27,12 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.PspIdPage
 import pages.individual.IndividualEmailPage
 import play.api.Application
-import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Results.Ok
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.viewmodels.NunjucksSupport
+import views.html.individual.ConfirmationView
 
 import scala.concurrent.Future
 
@@ -41,9 +41,10 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
   private val email = "a@a.c"
-  private val application: Application =
+
+  override def fakeApplication(): Application =
     applicationBuilderMutableRetrievalAction(mutableFakeDataRetrievalAction).build()
-  private val templateToBeRendered = "individual/confirmation.njk"
+
   private val pspId = "1234567890"
 
   val userAnswers: UserAnswers = UserAnswers()
@@ -53,14 +54,6 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
   private def onPageLoadUrl: String = routes.ConfirmationController.onPageLoad().url
   private def submitUrl: String = controllers.routes.SignOutController.signOut().url
 
-  private val jsonToPassToTemplate: JsObject =
-    Json.obj(
-      "submitUrl" -> submitUrl,
-      "email" -> email,
-    "panelHtml" -> Html(s"""<p>${{ messages("confirmation.psp.id") }}</p>
-                           |<span class="heading-large govuk-!-font-weight-bold">$pspId</span>""".stripMargin).toString()
-    )
-
   override def beforeEach(): Unit = {
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
@@ -69,24 +62,24 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
 
   "Confirmation Controller" must {
     "return OK and the correct view for a GET" in {
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+      val request = FakeRequest(GET, onPageLoadUrl)
       when(mockUserAnswersCacheConnector.removeAll(any(), any())).thenReturn(Future.successful(Ok))
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app,request).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = app.injector.instanceOf[ConfirmationView].apply(pspId, email, submitUrl)(request, messages)
 
-      templateCaptor.getValue mustEqual templateToBeRendered
-      jsonCaptor.getValue must containJson(jsonToPassToTemplate)
+      status(result) mustEqual OK
+      compareResultAndView(result, view)
+
     }
 
     "redirect to Session Expired page for a GET when there is no data" in {
       mutableFakeDataRetrievalAction.setDataToReturn(None)
 
-      val result = route(application, httpGETRequest(onPageLoadUrl)).value
+      val result = route(app, httpGETRequest(onPageLoadUrl)).value
 
       status(result) mustEqual SEE_OTHER
 

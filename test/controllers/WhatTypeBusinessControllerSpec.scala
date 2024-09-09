@@ -20,12 +20,10 @@ import audit.AuditService
 import controllers.base.ControllerSpecBase
 import data.SampleData._
 import forms.WhatTypeBusinessFormProvider
-import matchers.JsonMatchers
 import models.{UserAnswers, WhatTypeBusiness}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.{OptionValues, TryValues}
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.TryValues
 import pages.{PspIdPage, WhatTypeBusinessPage}
 import play.api.Application
 import play.api.inject.bind
@@ -34,13 +32,12 @@ import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.TwirlMigration
 import views.html.WhatTypeBusinessView
 
 import scala.concurrent.Future
 
-class WhatTypeBusinessControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class WhatTypeBusinessControllerSpec extends ControllerSpecBase with TryValues {
 
   private def onwardRoute = Call("GET", "/foo")
 

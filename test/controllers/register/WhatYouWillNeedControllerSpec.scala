@@ -17,21 +17,20 @@
 package controllers.register
 
 import controllers.base.ControllerSpecBase
-import org.mockito.ArgumentCaptor
+import data.SampleData._
+import matchers.JsonMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.inject.bind
+import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import data.SampleData._
-import play.api.mvc.Call
+import views.html.register.WhatYouWillNeedView
+import navigators.CompoundNavigator
 
-import scala.concurrent.Future
-
-class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar {
+class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers {
 
   private def onwardRoute = Call("GET", "/foo")
 
@@ -39,21 +38,26 @@ class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar
 
     "return OK and the correct view for a GET" in {
 
-      when(mockRenderer.render(any(), any())(any()))
-        .thenReturn(Future.successful(Html("")))
+      val view = mock[WhatYouWillNeedView]
+      val mockNavigator = mock[CompoundNavigator]
+
+      when(view.apply(any())(any(), any())).thenReturn(Html(""))
+
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-      val request = FakeRequest(GET, routes.WhatYouWillNeedController.onPageLoad().url)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[WhatYouWillNeedView].toInstance(view)
+        )
+        .build()
 
+      val request = FakeRequest(GET, routes.WhatYouWillNeedController.onPageLoad().url)
       val result = route(application, request).value
 
+      val expectedView = view.apply(onwardRoute.url)(request, messages)
+
       status(result) mustEqual OK
-
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), any())(any())
-
-      templateCaptor.getValue mustEqual "register/whatYouWillNeed.njk"
+      compareResultAndView(result, expectedView)
 
       application.stop()
     }

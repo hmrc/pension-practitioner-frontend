@@ -21,23 +21,19 @@ import data.SampleData
 import forms.partnership.IsPartnershipRegisteredInUkFormProvider
 import matchers.JsonMatchers
 import models.UserAnswers
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
 import org.mockito.Mockito.when
-import org.scalatest.OptionValues
-import org.scalatest.TryValues
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.partnership.IsPartnershipRegisteredInUkPage
-import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import uk.gov.hmrc.viewmodels.Radios
+import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import utils.TwirlMigration
+import views.html.partnership.IsPartnershipRegisteredInUkView
 
 import scala.concurrent.Future
 
@@ -49,10 +45,14 @@ class IsPartnershipRegisteredInUkControllerSpec extends ControllerSpecBase with 
   val formProvider = new IsPartnershipRegisteredInUkFormProvider()
   val form = formProvider()
 
-  def isPartnershipRegisteredInUkRoute = routes.IsPartnershipRegisteredInUkController.onPageLoad().url
-  def isPartnershipRegisteredInUkSubmitRoute = routes.IsPartnershipRegisteredInUkController.onSubmit().url
+  def isPartnershipRegisteredInUkRoute: String = routes.IsPartnershipRegisteredInUkController.onPageLoad().url
+  def isPartnershipRegisteredInUkSubmitCall: Call = routes.IsPartnershipRegisteredInUkController.onSubmit()
 
-  val answers: UserAnswers = SampleData.userAnswersWithPartnershipName.set(IsPartnershipRegisteredInUkPage, true).success.value
+  def isPartnershipRegisteredInUkSubmitRoute: String = isPartnershipRegisteredInUkSubmitCall.url
+
+
+  val answers: UserAnswers = SampleData.userAnswersWithPartnershipName
+    .set(IsPartnershipRegisteredInUkPage, true).success.value
 
   "IsPartnershipRegisteredInUk Controller" must {
 
@@ -64,23 +64,18 @@ class IsPartnershipRegisteredInUkControllerSpec extends ControllerSpecBase with 
         )
         .build()
       val request = FakeRequest(GET, isPartnershipRegisteredInUkRoute)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[IsPartnershipRegisteredInUkView].apply(
+        isPartnershipRegisteredInUkSubmitCall,
+        form,
+        TwirlMigration.toTwirlRadios(Radios.yesNo (form("value")))
+      )(request, messages)
 
-      val expectedJson = Json.obj(
-        "form"   -> form,
-        "submitUrl" -> isPartnershipRegisteredInUkSubmitRoute,
-        "radios" -> Radios.yesNo(form("value"))
-      )
-
-      templateCaptor.getValue mustEqual "partnership/isPartnershipRegisteredInUk.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
+      compareResultAndView(result, view)
 
       application.stop()
     }
@@ -93,26 +88,20 @@ class IsPartnershipRegisteredInUkControllerSpec extends ControllerSpecBase with 
         )
         .build()
       val request = FakeRequest(GET, isPartnershipRegisteredInUkRoute)
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual OK
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
-
       val filledForm = form.bind(Map("value" -> "true"))
 
-      val expectedJson = Json.obj(
-        "form"   -> filledForm,
-        "submitUrl" -> isPartnershipRegisteredInUkSubmitRoute,
-        "radios" -> Radios.yesNo(filledForm("value"))
-      )
+      val view = application.injector.instanceOf[IsPartnershipRegisteredInUkView].apply(
+        isPartnershipRegisteredInUkSubmitCall,
+        filledForm,
+        TwirlMigration.toTwirlRadios(Radios.yesNo(filledForm("value")))
+      )(request, messages)
 
-      templateCaptor.getValue mustEqual "partnership/isPartnershipRegisteredInUk.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
-
+      compareResultAndView(result, view)
       application.stop()
     }
 
@@ -148,24 +137,18 @@ class IsPartnershipRegisteredInUkControllerSpec extends ControllerSpecBase with 
         .build()
       val request = FakeRequest(POST, isPartnershipRegisteredInUkRoute).withFormUrlEncodedBody(("value", ""))
       val boundForm = form.bind(Map("value" -> ""))
-      val templateCaptor = ArgumentCaptor.forClass(classOf[String])
-      val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
 
       val result = route(application, request).value
 
       status(result) mustEqual BAD_REQUEST
 
-      verify(mockRenderer, times(1)).render(templateCaptor.capture(), jsonCaptor.capture())(any())
+      val view = application.injector.instanceOf[IsPartnershipRegisteredInUkView].apply(
+        isPartnershipRegisteredInUkSubmitCall,
+        boundForm,
+        TwirlMigration.toTwirlRadios(Radios.yesNo(boundForm("value")))
+      )(request, messages)
 
-      val expectedJson = Json.obj(
-        "form"   -> boundForm,
-        "submitUrl" -> isPartnershipRegisteredInUkSubmitRoute,
-        "radios" -> Radios.yesNo(boundForm("value"))
-      )
-
-      templateCaptor.getValue mustEqual "partnership/isPartnershipRegisteredInUk.njk"
-      jsonCaptor.getValue must containJson(expectedJson)
-
+      compareResultAndView(result, view)
       application.stop()
     }
 
