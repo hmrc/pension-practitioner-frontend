@@ -43,7 +43,7 @@ class TwirlMigration @Inject() (config: Configuration) extends Logging {
     val useTwirl = sessionContainsTwirl.getOrElse(twirlMigrationEnabledInConfig)
 
     if(useTwirl) {
-      logger.warn("Using twirl template")
+      logger.debug("Using twirl template")
       Future.successful(twirl)
     } else {
       nunjucks
