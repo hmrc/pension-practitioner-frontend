@@ -91,13 +91,11 @@ class FrontendAppConfig @Inject()(configuration: Configuration, servicesConfig: 
 
   lazy val enrolmentBase: String = servicesConfig.baseUrl("tax-enrolments")
 
-  lazy val ukJourneyContinueUrl: String = configuration.get[String]("urls.ukJourneyContinue")
   lazy val companiesHouseFileChangesUrl: String = configuration.get[String]("urls.companiesHouseFileChanges")
   lazy val hmrcChangesMustReportUrl: String = configuration.get[String]("urls.hmrcChangesMustReport")
   lazy val hmrcTaxHelplineUrl: String = configuration.get[String]("urls.hmrcTaxHelpline")
 
   lazy val loginContinueUrl: String = configuration.get[String]("urls.loginContinue")
-  lazy val loginContinueUrlRelative: String = configuration.get[String]("urls.loginContinueRelative")
 
   lazy val loginUrl: String = configuration.get[String]("urls.login")
 
@@ -124,9 +122,6 @@ class FrontendAppConfig @Inject()(configuration: Configuration, servicesConfig: 
     "english" -> Lang("en"),
     "cymraeg" -> Lang("cy")
   )
-
-  def routeToSwitchLanguage: String => Call =
-    (lang: String) => routes.LanguageSwitchController.switchToLanguage(lang)
 
   lazy val gtmContainerId: String = configuration.get[String]("tracking-consent-frontend.gtm.container")
   lazy val trackingSnippetUrl: String = configuration.get[String]("tracking-consent-frontend.url")
