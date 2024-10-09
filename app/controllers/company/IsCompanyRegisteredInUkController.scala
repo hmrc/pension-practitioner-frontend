@@ -26,9 +26,8 @@ import pages.company.IsCompanyRegisteredInUkPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.Radios
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import viewmodels.Radios
 import views.html.company.IsCompanyRegisteredInUkView
 
 import javax.inject.Inject
@@ -57,7 +56,7 @@ class IsCompanyRegisteredInUkController @Inject()(override val messagesApi: Mess
       Ok(isCompanyRegisteredInUkView(
         routes.IsCompanyRegisteredInUkController.onSubmit(),
         preparedForm,
-        TwirlMigration.toTwirlRadios(Radios.yesNo(preparedForm("value")))
+        Radios.yesNo(preparedForm("value"))
       ))
   }
 
@@ -68,7 +67,7 @@ class IsCompanyRegisteredInUkController @Inject()(override val messagesApi: Mess
           Future.successful(BadRequest(isCompanyRegisteredInUkView(
             routes.IsCompanyRegisteredInUkController.onSubmit(),
             formWithErrors,
-            TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value")))
+            Radios.yesNo(formWithErrors("value"))
           )))
         },
         value =>

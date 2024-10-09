@@ -17,8 +17,11 @@
 package models.register
 
 import play.api.data.Form
-import uk.gov.hmrc.viewmodels.{Radios, _}
-import utils.{InputOption, WithName, Enumerable}
+import play.api.i18n.Messages
+import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.viewmodels._
+import utils.{Enumerable, InputOption, WithName}
 
 sealed trait BusinessType
 
@@ -56,18 +59,21 @@ object BusinessType extends Enumerable.Implicits {
       InputOption(value.toString, s"businessType.${value.toString}")
     }
 
-  def radios(form: Form[_]): Seq[Radios.Item] = {
+  def radios(form: Form[_])(implicit messages: Messages): Seq[RadioItem] = {
 
     val field = form("value")
-    val items = Seq(
-      Radios.Radio(msg"whatTypeBusiness.limitedCompany", LimitedCompany.toString),
-      Radios.Radio(msg"whatTypeBusiness.businessPartnership", BusinessPartnership.toString),
-      Radios.Radio(msg"whatTypeBusiness.limitedPartnership", LimitedPartnership.toString),
-      Radios.Radio(msg"whatTypeBusiness.limitedLiabilityPartnership", LimitedLiabilityPartnership.toString),
-      Radios.Radio(msg"whatTypeBusiness.unlimitedCompany", UnlimitedCompany.toString)
+    Seq(
+      RadioItem(content = Text(Messages("whatTypeBusiness.limitedCompany")),
+        value = Some(LimitedCompany.toString), checked = field.values.contains(LimitedCompany.toString), id = Some(field.id)),
+      RadioItem(content = Text(Messages("whatTypeBusiness.businessPartnership")),
+        value = Some(BusinessPartnership.toString), checked = field.values.contains(BusinessPartnership.toString), id = Some(field.id)),
+      RadioItem(content = Text(Messages("whatTypeBusiness.limitedPartnership")),
+        value = Some(LimitedPartnership.toString), checked = field.values.contains(LimitedPartnership.toString), id = Some(field.id)),
+      RadioItem(content = Text(Messages("whatTypeBusiness.limitedLiabilityPartnership")),
+        value = Some(LimitedLiabilityPartnership.toString), checked = field.values.contains(LimitedLiabilityPartnership.toString), id = Some(field.id)),
+      RadioItem(content = Text(Messages("whatTypeBusiness.unlimitedCompany")),
+        value = Some(UnlimitedCompany.toString), checked = field.values.contains(UnlimitedCompany.toString), id = Some(field.id))
     )
-
-    Radios(field, items)
   }
 
   implicit val enumerable: Enumerable[BusinessType] =

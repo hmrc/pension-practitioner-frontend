@@ -21,24 +21,19 @@ import connectors.cache.UserAnswersCacheConnector
 import connectors.{DeregistrationConnector, MinimalConnector}
 import controllers.Retrievals
 import controllers.actions._
-import controllers.deregister.company.routes
 import forms.deregister.ConfirmDeregistrationFormProvider
-
-import javax.inject.Inject
 import models.{NormalMode, UserAnswers}
 import navigators.CompoundNavigator
-import pages.{PspEmailPage, PspNamePage}
 import pages.deregister.ConfirmDeregistrationCompanyPage
+import pages.{PspEmailPage, PspNamePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveEnrolmentWithNoIV
+import viewmodels.Radios
 import views.html.deregister.company.ConfirmDeregistrationView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
@@ -54,7 +49,7 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
                                                 minimalConnector: MinimalConnector,
                                                 confirmDeregistrationView: ConfirmDeregistrationView
                                                )(implicit ec: ExecutionContext) extends FrontendBaseController
-                                                with I18nSupport with NunjucksSupport with Retrievals {
+                                                with I18nSupport with Retrievals {
 
   private val form = formProvider()
 
@@ -73,7 +68,7 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
                   userAnswersCacheConnector.save(updatedAnswers.data).map(_ =>
                     Ok(confirmDeregistrationView(routes.ConfirmDeregistrationController.onSubmit(),
                       form,
-                      TwirlMigration.toTwirlRadios(Radios.yesNo(form("value"))),
+                      Radios.yesNo(form("value")),
                       name,
                       config.returnToPspDashboardUrl)))
 
@@ -93,7 +88,7 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
           formWithErrors => {
             Future.successful(BadRequest(confirmDeregistrationView(routes.ConfirmDeregistrationController.onSubmit(),
               formWithErrors,
-              TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value"))),
+              Radios.yesNo(formWithErrors("value")),
               name,
               config.returnToPspDashboardUrl)))
           },

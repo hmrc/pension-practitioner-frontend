@@ -32,12 +32,10 @@ import pages.register.BusinessTypePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import renderer.Renderer
 import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
-import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
+import viewmodels.Radios
 import views.html.ConfirmAddressView
 
 import javax.inject.Inject
@@ -100,7 +98,7 @@ class ConfirmAddressController @Inject()(
                 routes.ConfirmAddressController.onSubmit(),
                 pspName,
                 reg.response.address.lines(countryOptions),
-                TwirlMigration.toTwirlRadios(Radios.yesNo(form("value")))
+                Radios.yesNo(form("value"))
               )))
             }
           } recoverWith {
@@ -123,7 +121,7 @@ class ConfirmAddressController @Inject()(
                   routes.ConfirmAddressController.onSubmit(),
                   pspName,
                   addr.lines(countryOptions),
-                  TwirlMigration.toTwirlRadios(Radios.yesNo(form("value")))
+                  Radios.yesNo(form("value"))
                 )))
               case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
             }

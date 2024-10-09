@@ -28,7 +28,6 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.register.BusinessRegistrationTypeView
 
@@ -58,7 +57,7 @@ class BusinessRegistrationTypeController @Inject()(override val messagesApi: Mes
       Ok(businessRegistrationTypeView(
         routes.BusinessRegistrationTypeController.onSubmit(),
         preparedForm,
-        TwirlMigration.toTwirlRadios(BusinessRegistrationType.radios(preparedForm))))
+        BusinessRegistrationType.radios(preparedForm)))
   }
 
   def onSubmit: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
@@ -69,7 +68,7 @@ class BusinessRegistrationTypeController @Inject()(override val messagesApi: Mes
           Future.successful(BadRequest(businessRegistrationTypeView(
             routes.BusinessRegistrationTypeController.onSubmit(),
             formWithErrors,
-            TwirlMigration.toTwirlRadios(BusinessRegistrationType.radios(formWithErrors)))))
+            BusinessRegistrationType.radios(formWithErrors))))
         },
         value =>
           for {

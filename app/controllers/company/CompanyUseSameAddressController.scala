@@ -31,10 +31,9 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
-import utils.TwirlMigration
+import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.countryOptions.CountryOptions
-import viewmodels.CommonViewModel
+import viewmodels.{CommonViewModel, Radios}
 import views.html.address.UseAddressForContactView
 
 import javax.inject.Inject
@@ -64,7 +63,7 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
         Future.successful(Ok(useAddressForContactView(
           routes.CompanyUseSameAddressController.onSubmit(),
           preparedForm,
-          TwirlMigration.toTwirlRadios(Radios.yesNo(preparedForm("value"))),
+          Radios.yesNo(preparedForm("value")),
           (json \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
           (json \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
           (json  \ "address").asOpt[Seq[String]].getOrElse(Seq.empty[String])
@@ -80,7 +79,7 @@ class CompanyUseSameAddressController @Inject()(override val messagesApi: Messag
               Future.successful(BadRequest(useAddressForContactView(
                 routes.CompanyUseSameAddressController.onSubmit(),
                 formWithErrors,
-                TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value"))),
+                Radios.yesNo(formWithErrors("value")),
                 (json \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
                 (json \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
                 (json  \ "address").asOpt[Seq[String]].getOrElse(Seq.empty[String])
