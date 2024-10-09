@@ -22,19 +22,16 @@ import connectors.cache.UserAnswersCacheConnector
 import connectors.{EmailConnector, EmailStatus, SubscriptionConnector}
 import controllers.actions._
 import controllers.{DataRetrievals, Retrievals}
-import models.{JourneyType, UserAnswers}
 import models.requests.DataRequest
+import models.{JourneyType, UserAnswers}
 import pages.{PspIdPage, UnchangedPspDetailsPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.JsValue
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import services.PspDetailsService
 import uk.gov.hmrc.http.HttpErrorFunctions.is5xx
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveEnrolmentWithNoIV
 
 import javax.inject.Inject
@@ -48,30 +45,22 @@ class DeclarationController @Inject()(
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
-                                       renderer: Renderer,
                                        emailConnector: EmailConnector,
                                        auditService: AuditService,
                                        pspDetailsService: PspDetailsService,
                                        config: FrontendAppConfig,
-                                       declarationView: views.html.amend.DeclarationView,
-                                       twirlMigration: TwirlMigration
+                                       declarationView: views.html.amend.DeclarationView
                                      )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with Retrievals
-    with I18nSupport
-    with NunjucksSupport {
+    with I18nSupport {
 
   def onPageLoad: Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>
 
         if (pspDetailsService.amendmentsExist(request.userAnswers)) {
-          val json: JsObject = Json.obj("submitUrl" -> routes.DeclarationController.onSubmit().url)
-          val template = twirlMigration.duoTemplate(
-            renderer.render("amend/declaration.njk", json),
-            declarationView(routes.DeclarationController.onSubmit())
-          )
-          template.map(Ok(_))
+          Future.successful(Ok(declarationView(routes.DeclarationController.onSubmit())))
         } else {
           Future.successful(Redirect(routes.ViewDetailsController.onPageLoad()))
         }

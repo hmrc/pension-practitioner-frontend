@@ -18,36 +18,22 @@ package controllers
 
 import config.FrontendAppConfig
 import play.api.i18n.I18nSupport
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.TwirlMigration
 import views.html.CannotRegisterPractitionerView
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class CannotRegisterPractitionerController @Inject()(
-                                        val controllerComponents: MessagesControllerComponents,
-                                        renderer: Renderer,
-                                        config: FrontendAppConfig,
-                                        cannotRegisterPractitionerView: CannotRegisterPractitionerView,
-                                        twirlMigration: TwirlMigration
-                                      )(implicit ec: ExecutionContext)
+                                                      val controllerComponents: MessagesControllerComponents,
+                                                      config: FrontendAppConfig,
+                                                      cannotRegisterPractitionerView: CannotRegisterPractitionerView
+                                                    )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = Action.async { implicit request =>
-    val json = Json.obj(
-      "contactHmrcUrl" -> config.contactHmrcUrl
-    )
-
-    def template = twirlMigration.duoTemplate(
-        renderer.render("cannotRegisterPractitioner.njk",json),
-        cannotRegisterPractitionerView()
-    )
-
-      template.map(Ok(_))
+  def onPageLoad: Action[AnyContent] = Action { implicit request =>
+    Ok(cannotRegisterPractitionerView())
   }
 }

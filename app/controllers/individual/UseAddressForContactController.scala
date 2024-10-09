@@ -28,10 +28,9 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
-import utils.TwirlMigration
+import uk.gov.hmrc.viewmodels.NunjucksSupport
+import viewmodels.Radios
 import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModel
@@ -49,11 +48,10 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
                                                formProvider: UseAddressForContactFormProvider,
                                                val controllerComponents: MessagesControllerComponents,
                                                countryOptions: CountryOptions,
-                                               renderer: Renderer,
-                                               useAddressForContactView: UseAddressForContactView,
-                                               twirlMigration: TwirlMigration
+                                               useAddressForContactView: UseAddressForContactView
                                               )(implicit ec: ExecutionContext) extends FrontendBaseController
   with I18nSupport with NunjucksSupport with Retrievals {
+
 
   private def form(implicit messages: Messages): Form[Boolean] =
     formProvider(messages("useAddressForContact.error.required", messages("individual.you")))
@@ -64,18 +62,14 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
         case Some(true) =>
           val preparedForm = request.userAnswers.get(UseAddressForContactPage).fold(form)(form.fill)
           getJson(preparedForm) { json =>
-                  val template = twirlMigration.duoTemplate(
-                  renderer.render("address/useAddressForContact.njk", json),
-                  useAddressForContactView(
-                    routes.UseAddressForContactController.onSubmit(),
-                    preparedForm,
-                    TwirlMigration.toTwirlRadios(Radios.yesNo(preparedForm("value"))),
-                    (json \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
-                    (json \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
-                    (json  \ "address").asOpt[Seq[String]].getOrElse(Seq.empty[String])
-                  )
-                )
-                template.map(Ok(_))
+            Future.successful(Ok(useAddressForContactView(
+              routes.UseAddressForContactController.onSubmit(),
+              preparedForm,
+              Radios.yesNo(preparedForm("value")),
+              (json \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
+              (json \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
+              (json \ "address").asOpt[Seq[String]].getOrElse(Seq.empty[String])
+            )))
           }
         case _ => Future.successful(
           Redirect(controllers.individual.routes.AreYouUKResidentController.onPageLoad(mode))
@@ -88,18 +82,14 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
       form.bindFromRequest().fold(
         formWithErrors => {
           getJson(formWithErrors) { json =>
-            val template = twirlMigration.duoTemplate(
-              renderer.render("address/useAddressForContact.njk", json),
-              useAddressForContactView(
-                routes.UseAddressForContactController.onSubmit(),
-                formWithErrors,
-                TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value"))),
-                (json \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
-                (json \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
-                (json  \ "address").asOpt[Seq[String]].getOrElse(Seq.empty[String])
-              )
-            )
-            template.map(BadRequest(_))
+            Future.successful(BadRequest(useAddressForContactView(
+              routes.UseAddressForContactController.onSubmit(),
+              formWithErrors,
+              Radios.yesNo(formWithErrors("value")),
+              (json \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
+              (json \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
+              (json \ "address").asOpt[Seq[String]].getOrElse(Seq.empty[String])
+            )))
           }
         },
         value => {

@@ -22,14 +22,12 @@ import controllers.actions._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import views.html.deregister.individual.SuccessView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class SuccessController @Inject()(override val messagesApi: MessagesApi,
                                   userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -37,10 +35,8 @@ class SuccessController @Inject()(override val messagesApi: MessagesApi,
                                   getData: DataRetrievalAction,
                                   requireData: DataRequiredAction,
                                   val controllerComponents: MessagesControllerComponents,
-                                  renderer: Renderer,
-                                  successView: SuccessView,
-                                  twirlMigration: TwirlMigration
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController
+                                  successView: SuccessView
+                                 )(implicit ec: ExecutionContext) extends FrontendBaseController
   with Retrievals with I18nSupport with NunjucksSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
@@ -49,12 +45,9 @@ class SuccessController @Inject()(override val messagesApi: MessagesApi,
             "submitUrl" -> controllers.routes.SignOutController.signOut().url
           )
           userAnswersCacheConnector.removeAll.flatMap { _ =>
-            twirlMigration.duoTemplate(
-              renderer.render("deregister/individual/success.njk", json),
-              successView(
-                controllers.routes.SignOutController.signOut().url
-              )
-            ).map(Ok(_))
+            Future.successful(Ok(successView(
+              controllers.routes.SignOutController.signOut().url
+            )))
           }
   }
 

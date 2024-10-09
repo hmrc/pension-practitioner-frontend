@@ -31,14 +31,14 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import viewmodels.Radios
 import utils.TwirlMigration
 import views.html.partnership.IsPartnershipRegisteredInUkView
 
 import scala.concurrent.Future
 
-class IsPartnershipRegisteredInUkControllerSpec extends ControllerSpecBase with MockitoSugar with
-  NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class IsPartnershipRegisteredInUkControllerSpec extends ControllerSpecBase with MockitoSugar
+  with JsonMatchers with OptionValues with TryValues {
 
   def onwardRoute = Call("GET", "/foo")
 
@@ -72,7 +72,7 @@ class IsPartnershipRegisteredInUkControllerSpec extends ControllerSpecBase with 
       val view = application.injector.instanceOf[IsPartnershipRegisteredInUkView].apply(
         isPartnershipRegisteredInUkSubmitCall,
         form,
-        TwirlMigration.toTwirlRadios(Radios.yesNo (form("value")))
+        Radios.yesNo (form("value"))
       )(request, messages)
 
       compareResultAndView(result, view)
@@ -98,7 +98,7 @@ class IsPartnershipRegisteredInUkControllerSpec extends ControllerSpecBase with 
       val view = application.injector.instanceOf[IsPartnershipRegisteredInUkView].apply(
         isPartnershipRegisteredInUkSubmitCall,
         filledForm,
-        TwirlMigration.toTwirlRadios(Radios.yesNo(filledForm("value")))
+        Radios.yesNo(filledForm("value"))
       )(request, messages)
 
       compareResultAndView(result, view)
@@ -145,7 +145,7 @@ class IsPartnershipRegisteredInUkControllerSpec extends ControllerSpecBase with 
       val view = application.injector.instanceOf[IsPartnershipRegisteredInUkView].apply(
         isPartnershipRegisteredInUkSubmitCall,
         boundForm,
-        TwirlMigration.toTwirlRadios(Radios.yesNo(boundForm("value")))
+        Radios.yesNo(boundForm("value"))
       )(request, messages)
 
       compareResultAndView(result, view)

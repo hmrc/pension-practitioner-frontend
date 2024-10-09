@@ -58,13 +58,11 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
                                              enrolmentConnector: EnrolmentConnector,
                                              subscriptionConnector: SubscriptionConnector,
                                              val controllerComponents: MessagesControllerComponents,
-                                             renderer: Renderer,
                                              emailConnector: EmailConnector,
                                              auditService: AuditService,
-                                             deregistrationDateView: DeregistrationDateView,
-                                             twirlMigration: TwirlMigration
+                                             deregistrationDateView: DeregistrationDateView
                                             )(implicit ec: ExecutionContext)
-  extends FrontendBaseController with Retrievals with I18nSupport with NunjucksSupport {
+  extends FrontendBaseController with Retrievals with I18nSupport {
 
   private def form(minDate: LocalDate)(implicit messages: Messages): Form[LocalDate] = formProvider("company", minDate)
 
@@ -72,26 +70,14 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
     implicit request =>
       getDate.flatMap { date =>
         PspNamePage.retrieve.map { name =>
-
           val preparedForm = request.userAnswers.get(DeregistrationDateCompanyPage).fold(form(date))(form(date).fill)
-          val json = Json.obj(
-            "form" -> preparedForm,
-            "pspName" -> name,
-            "submitUrl" -> routes.DeregistrationDateController.onSubmit().url,
-            "date" -> DateInput.localDate(preparedForm("deregistrationDate")),
-            "applicationDate" -> getDateString(date),
-            "returnUrl" -> config.returnToPspDashboardUrl
-          )
-          twirlMigration.duoTemplate(
-            renderer.render("deregister/company/deregistrationDate.njk", json),
-            deregistrationDateView(routes.DeregistrationDateController.onSubmit(),
-              name,
-              preparedForm,
-              config.returnToPspDashboardUrl,
-              getDateString(date),
-              DateInput.localDate(preparedForm("deregistrationDate"))
-              )
-          ).map(Ok(_))
+          Future.successful(Ok(deregistrationDateView(routes.DeregistrationDateController.onSubmit(),
+            name,
+            preparedForm,
+            config.returnToPspDashboardUrl,
+            getDateString(date),
+            DateInput.localDate(preparedForm("deregistrationDate"))
+          )))
         }
       }
   }
@@ -103,27 +89,15 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
         (PspNamePage and PspEmailPage).retrieve.map { case pspName ~ email =>
           form(date).bindFromRequest().fold(
             formWithErrors => {
-              val json = Json.obj(
-                "form" -> formWithErrors,
-                "pspName" -> pspName,
-                "submitUrl" -> routes.DeregistrationDateController.onSubmit().url,
-                "date" -> DateInput.localDate(formWithErrors("deregistrationDate")),
-                "applicationDate" -> getDateString(date)
-              )
-
-              twirlMigration.duoTemplate(
-                renderer.render("deregister/company/deregistrationDate.njk", json),
-                deregistrationDateView(routes.DeregistrationDateController.onSubmit(),
-                  pspName,
-                  formWithErrors,
-                  config.returnToPspDashboardUrl,
-                  getDateString(date),
-                  DateInput.localDate(formWithErrors("deregistrationDate"))
-                )
-              ).map(BadRequest(_))
+              Future.successful(BadRequest(deregistrationDateView(routes.DeregistrationDateController.onSubmit(),
+                pspName,
+                formWithErrors,
+                config.returnToPspDashboardUrl,
+                getDateString(date),
+                DateInput.localDate(formWithErrors("deregistrationDate"))
+              )))
             },
             value =>
-
               for {
                 updatedAnswers <- Future.fromTry(request.userAnswers.set(DeregistrationDateCompanyPage, value))
                 _ <- userAnswersCacheConnector.save(updatedAnswers.data)

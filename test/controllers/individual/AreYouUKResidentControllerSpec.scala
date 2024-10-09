@@ -36,14 +36,14 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import viewmodels.Radios
 import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.individual.AreYouUKResidentView
 
 import scala.concurrent.Future
 
-class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers with OptionValues with TryValues {
 
   private def onwardRoute = Call("GET", "/foo")
 
@@ -77,7 +77,7 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
       status(result) mustEqual OK
 
       val view = application.injector.instanceOf[AreYouUKResidentView].apply(areYouUKResidentSubmitRoute, form, false,
-        TwirlMigration.toTwirlRadios(Radios.yesNo(form("value"))))(request, messages)
+        Radios.yesNo(form("value")))(request, messages)
 
       status(result) mustEqual OK
       compareResultAndView(result, view)
@@ -97,7 +97,7 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
       val filledForm = form.bind(Map("value" -> "true"))
 
       val view = application.injector.instanceOf[AreYouUKResidentView].apply(areYouUKResidentSubmitRoute, filledForm, false,
-        TwirlMigration.toTwirlRadios(Radios.yesNo(filledForm("value"))))(request, messages)
+        Radios.yesNo(filledForm("value")))(request, messages)
 
       status(result) mustEqual OK
       compareResultAndView(result, view)
@@ -138,7 +138,7 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
 
 
       val view = application.injector.instanceOf[AreYouUKResidentView].apply(areYouUKResidentSubmitRoute, boundForm, false,
-        TwirlMigration.toTwirlRadios(Radios.yesNo(boundForm("value"))))(request, messages)
+        Radios.yesNo(boundForm("value")))(request, messages)
 
       status(result) mustEqual BAD_REQUEST
       compareResultAndView(result, view)

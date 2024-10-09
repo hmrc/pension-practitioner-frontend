@@ -24,11 +24,9 @@ import models.NormalMode
 import navigators.CompoundNavigator
 import pages.company.{BusinessNamePage, ConfirmNamePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import viewmodels.Radios
 import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.ConfirmNameView
@@ -44,10 +42,8 @@ class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
                                       requireData: DataRequiredAction,
                                       formProvider: ConfirmNameFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
-                                      confirmNameView: ConfirmNameView,
-                                      renderer: Renderer,
-                                      twirlMigration: TwirlMigration
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
+                                      confirmNameView: ConfirmNameView
+                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Retrievals {
 
   private val form = formProvider()
 
@@ -58,26 +54,13 @@ class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
           case None => form
           case Some(value) => form.fill(value)
         }
-
-        val json = Json.obj(
-          "form" -> preparedForm,
-          "entityName" -> "company",
-          "pspName" -> pspName,
-          "submitUrl" -> routes.ConfirmNameController.onSubmit().url,
-          "radios" -> Radios.yesNo(preparedForm("value"))
-        )
-
-        def template = twirlMigration.duoTemplate(
-          renderer.render(template = "confirmName.njk", json),
-          confirmNameView(
-            "company",
-            preparedForm,
-            routes.ConfirmNameController.onSubmit(),
-            pspName,
-            TwirlMigration.toTwirlRadios(Radios.yesNo(preparedForm("value"))))
-        )
-
-        template.map(Ok (_))
+        Future.successful(Ok(confirmNameView(
+          "company",
+          preparedForm,
+          routes.ConfirmNameController.onSubmit(),
+          pspName,
+          Radios.yesNo(preparedForm("value")))
+        ))
     }
   }
 
@@ -86,26 +69,13 @@ class ConfirmNameController @Inject()(override val messagesApi: MessagesApi,
       BusinessNamePage.retrieve.map { pspName =>
         form.bindFromRequest().fold(
           formWithErrors => {
-
-            val json = Json.obj(
-              "form"   -> formWithErrors,
-              "entityName" -> "company",
-              "pspName" -> pspName,
-              "submitUrl"   -> routes.ConfirmNameController.onSubmit().url,
-              "radios" -> Radios.yesNo(formWithErrors("value"))
-            )
-
-            def template = twirlMigration.duoTemplate(
-              renderer.render(template = "confirmName.njk", json),
-              confirmNameView(
-                "company",
-                formWithErrors,
-                routes.ConfirmNameController.onSubmit(),
-                pspName,
-                TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value"))))
-            )
-
-            template.map(BadRequest(_))
+            Future.successful(BadRequest(confirmNameView(
+              "company",
+              formWithErrors,
+              routes.ConfirmNameController.onSubmit(),
+              pspName,
+              Radios.yesNo(formWithErrors("value")))
+            ))
           },
           value =>
             for {

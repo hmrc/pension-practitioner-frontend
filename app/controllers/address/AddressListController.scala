@@ -44,7 +44,6 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
   protected def userAnswersCacheConnector: UserAnswersCacheConnector
   protected def navigator: CompoundNavigator
   protected def form(implicit messages: Messages): Form[Int]
-  protected def viewTemplate = "address/addressList.njk"
   protected def twirlMigration: TwirlMigration
 
   def get(json: Form[Int] => JsObject, onSubmitCall: Call, manualUrl: String, twirlView: (CommonViewModelTwirl, Seq[RadioItem]) => Html)
@@ -56,11 +55,7 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
       entityName = (jsonValue \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
       submitUrl = onSubmitCall,
       enterManuallyUrl = Some(manualUrl))
-
-    twirlMigration.duoTemplate(
-      renderer.render(viewTemplate, jsonValue),
-      twirlView(model, twirlAddressRadios(jsonValue))
-    ).map(Ok(_))
+    Future.successful(Ok(twirlView(model, twirlAddressRadios(jsonValue))))
   }
 
   def post(mode: Mode,
@@ -81,11 +76,7 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
           enterManuallyUrl = Some(manualUrlCall.url))
 
         val radios = twirlAddressRadios(jsonObject)
-
-        twirlMigration.duoTemplate(
-          renderer.render(viewTemplate, json(formWithErrors)),
-          twirlView(model, radios, formWithErrors)
-        ).map(BadRequest(_))
+        Future.successful(BadRequest(twirlView(model, radios, formWithErrors)))
 
       },
       value =>

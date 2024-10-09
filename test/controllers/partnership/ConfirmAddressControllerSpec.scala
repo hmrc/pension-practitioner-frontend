@@ -37,15 +37,15 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import viewmodels.Radios
 import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
 import views.html.ConfirmAddressView
 
 import scala.concurrent.Future
 
-class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar with
-  NunjucksSupport with JsonMatchers with OptionValues with TryValues with BeforeAndAfterEach {
+class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar
+   with JsonMatchers with OptionValues with TryValues with BeforeAndAfterEach {
 
   private def onwardRoute = Call("GET", "/foo")
 
@@ -115,7 +115,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
         confirmAddressSubmitCall,
         "test-partnership",
         Seq("addr1", "addr2", "", "GB"),
-        TwirlMigration.toTwirlRadios(Radios.yesNo(form("value")))
+        Radios.yesNo(form("value"))
       )(request, messages)
 
       compareResultAndView(result, view)
@@ -168,7 +168,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
         confirmAddressSubmitCall,
         "test-partnership",
         Seq("addr1", "addr2", "", "GB"),
-        TwirlMigration.toTwirlRadios(Radios.yesNo(boundForm("value")))
+        Radios.yesNo(boundForm("value"))
       )(request, messages)
       compareResultAndView(result, view)
       application.stop()

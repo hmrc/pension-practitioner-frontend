@@ -34,14 +34,14 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import viewmodels.Radios
 import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
 import views.html.individual.IsThisYouView
 
 import scala.concurrent.Future
 
-class IsThisYouControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class IsThisYouControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers with OptionValues with TryValues {
 
   import IsThisYouControllerSpec._
 
@@ -79,7 +79,7 @@ class IsThisYouControllerSpec extends ControllerSpecBase with MockitoSugar with 
 
         val view = application.injector.instanceOf[IsThisYouView]
           .apply(routes.IsThisYouController.onSubmit(NormalMode),
-            form, TwirlMigration.toTwirlRadios(Radios.yesNo(form("value"))),
+            form, Radios.yesNo(form("value")),
             individual.fullName, address.lines(countryOptions))(request, messages)
 
         val result = route(application, request).value
@@ -103,7 +103,7 @@ class IsThisYouControllerSpec extends ControllerSpecBase with MockitoSugar with 
 
         val view = application.injector.instanceOf[IsThisYouView]
           .apply(routes.IsThisYouController.onSubmit(NormalMode),
-            filledForm, TwirlMigration.toTwirlRadios(Radios.yesNo(filledForm("value"))),
+            filledForm, Radios.yesNo(filledForm("value")),
             individual.fullName, address.lines(countryOptions))(request, messages)
 
         val result = route(application, request).value
@@ -126,7 +126,7 @@ class IsThisYouControllerSpec extends ControllerSpecBase with MockitoSugar with 
 
         val view = application.injector.instanceOf[IsThisYouView]
           .apply(routes.IsThisYouController.onSubmit(NormalMode),
-            form, TwirlMigration.toTwirlRadios(Radios.yesNo(form("value"))),
+            form, Radios.yesNo(form("value")),
             individual.fullName, address.lines(countryOptions))(request, messages)
 
         val result = route(application, request).value
@@ -186,7 +186,7 @@ class IsThisYouControllerSpec extends ControllerSpecBase with MockitoSugar with 
 
       val view = application.injector.instanceOf[IsThisYouView]
         .apply(routes.IsThisYouController.onSubmit(NormalMode),
-          boundForm, TwirlMigration.toTwirlRadios(Radios.yesNo(boundForm("value"))),
+          boundForm, Radios.yesNo(boundForm("value")),
           individual.fullName, address.lines(countryOptions))(request, messages)
 
       val result = route(application, request).value

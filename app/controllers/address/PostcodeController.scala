@@ -51,11 +51,7 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
   def get(json: Form[String] => JsObject, twirlTemplate: Option[Html] = None)
          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
     twirlTemplate match {
-      case Some(template) =>
-        twirlMigration.duoTemplate(
-          renderer.render(viewTemplate, json(form)),
-          template
-        ).map(Ok(_))
+      case Some(template) => Future.successful(Ok(template))
       case None => renderer.render(viewTemplate, json(form)).map(Ok(_))
     }
   }
@@ -67,10 +63,7 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
       formWithErrors =>
         formToTwirlTemplate match {
           case Some(formToTemplate) =>
-            twirlMigration.duoTemplate(
-              renderer.render(viewTemplate, formToJson(formWithErrors)),
-              formToTemplate(formWithErrors)
-            ).map(BadRequest(_))
+            Future.successful(BadRequest(formToTemplate(formWithErrors)))
           case None => renderer.render(viewTemplate, formToJson(formWithErrors)).map(BadRequest(_))
         },
       value =>
@@ -80,10 +73,7 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
               val json = formToJson(formWithErrors)
               formToTwirlTemplate match {
                 case Some(formToTemplate) =>
-                  twirlMigration.duoTemplate(
-                    renderer.render(viewTemplate, json),
-                    formToTemplate(formWithErrors)
-                  ).map(BadRequest(_))
+                  Future.successful(BadRequest(formToTemplate(formWithErrors)))
                 case None => renderer.render(viewTemplate, json).map(BadRequest(_))
               }
 

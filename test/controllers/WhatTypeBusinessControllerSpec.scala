@@ -76,7 +76,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with TryValues {
 
       val view = application.injector.instanceOf[WhatTypeBusinessView].apply(whatTypeBusinessSubmitRoute,
         form,
-        TwirlMigration.toTwirlRadios(WhatTypeBusiness.radios(form)))(request, messages)
+        WhatTypeBusiness.radios(form))(request, messages)
 
       compareResultAndView(result, view)
 
@@ -97,7 +97,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with TryValues {
 
       val view = application.injector.instanceOf[WhatTypeBusinessView].apply(whatTypeBusinessSubmitRoute,
         filledForm,
-        TwirlMigration.toTwirlRadios(WhatTypeBusiness.radios(filledForm)))(request, messages)
+        WhatTypeBusiness.radios(filledForm))(request, messages)
 
       compareResultAndView(result, view)
 
@@ -134,7 +134,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with TryValues {
 
       val view = application.injector.instanceOf[WhatTypeBusinessView].apply(whatTypeBusinessSubmitRoute,
         boundForm,
-        TwirlMigration.toTwirlRadios(WhatTypeBusiness.radios(boundForm)))(request, messages)
+        WhatTypeBusiness.radios(boundForm))(request, messages)
 
       compareResultAndView(result, view)
 

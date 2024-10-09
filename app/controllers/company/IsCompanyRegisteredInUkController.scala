@@ -24,17 +24,15 @@ import models.NormalMode
 import navigators.CompoundNavigator
 import pages.company.IsCompanyRegisteredInUkPage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import uk.gov.hmrc.viewmodels.Radios
 import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import views.html.company.IsCompanyRegisteredInUkView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import views.html.company.IsCompanyRegisteredInUkView
 class IsCompanyRegisteredInUkController @Inject()(override val messagesApi: MessagesApi,
                                                   userAnswersCacheConnector: UserAnswersCacheConnector,
                                                   navigator: CompoundNavigator,
@@ -43,58 +41,35 @@ class IsCompanyRegisteredInUkController @Inject()(override val messagesApi: Mess
                                                   requireData: DataRequiredAction,
                                                   formProvider: IsCompanyRegisteredInUkFormProvider,
                                                   val controllerComponents: MessagesControllerComponents,
-                                                  renderer: Renderer,
-                                                  isCompanyRegisteredInUkView: IsCompanyRegisteredInUkView,
-                                                  twirlMigration: TwirlMigration
+                                                  isCompanyRegisteredInUkView: IsCompanyRegisteredInUkView
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with
-  I18nSupport with NunjucksSupport with Retrievals {
+  I18nSupport with Retrievals {
 
   private val form = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (authenticate andThen getData andThen requireData) {
     implicit request =>
       val preparedForm = request.userAnswers.get (IsCompanyRegisteredInUkPage) match {
         case None => form
         case Some (value) => form.fill (value)
       }
 
-      val json = Json.obj(
-        "form" -> preparedForm,
-        "submitUrl" -> routes.IsCompanyRegisteredInUkController.onSubmit().url,
-        "radios" -> Radios.yesNo (preparedForm("value"))
-      )
-
-      val template = twirlMigration.duoTemplate(
-        renderer.render("company/isCompanyRegisteredInUk.njk", json),
-        isCompanyRegisteredInUkView(
-          routes.IsCompanyRegisteredInUkController.onSubmit(),
-          preparedForm,
-          TwirlMigration.toTwirlRadios(Radios.yesNo(preparedForm("value")))
-        )
-      )
-      template.map(Ok(_))
+      Ok(isCompanyRegisteredInUkView(
+        routes.IsCompanyRegisteredInUkController.onSubmit(),
+        preparedForm,
+        TwirlMigration.toTwirlRadios(Radios.yesNo(preparedForm("value")))
+      ))
   }
 
   def onSubmit(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       form.bindFromRequest().fold(
         formWithErrors => {
-
-          val json = Json.obj(
-            "form"   -> formWithErrors,
-            "submitUrl"   -> routes.IsCompanyRegisteredInUkController.onSubmit().url,
-            "radios" -> Radios.yesNo(formWithErrors("value"))
-          )
-
-          val template = twirlMigration.duoTemplate(
-            renderer.render("company/isCompanyRegisteredInUk.njk", json),
-            isCompanyRegisteredInUkView(
-              routes.IsCompanyRegisteredInUkController.onSubmit(),
-              formWithErrors,
-              TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value")))
-            )
-          )
-          template.map(BadRequest(_))
+          Future.successful(BadRequest(isCompanyRegisteredInUkView(
+            routes.IsCompanyRegisteredInUkController.onSubmit(),
+            formWithErrors,
+            TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value")))
+          )))
         },
         value =>
           for {

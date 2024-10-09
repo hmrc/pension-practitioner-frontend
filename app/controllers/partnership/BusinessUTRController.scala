@@ -26,12 +26,8 @@ import pages.partnership.BusinessUTRPage
 import pages.register.BusinessTypePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.BusinessUTRView
 
@@ -46,10 +42,8 @@ class BusinessUTRController @Inject()(override val messagesApi: MessagesApi,
                                       requireData: DataRequiredAction,
                                       formProvider: BusinessUTRFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
-                                      renderer: Renderer,
-                                      businessUTRView: BusinessUTRView,
-                                      twirlMigration: TwirlMigration
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
+                                      businessUTRView: BusinessUTRView
+                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Retrievals {
 
   protected def form: Form[String] = formProvider.apply(
     "businessUTR.partnership.error.required", "businessUTR.partnership.error.invalid")
@@ -61,19 +55,8 @@ class BusinessUTRController @Inject()(override val messagesApi: MessagesApi,
           case None => form
           case Some(value) => form.fill(value)
         }
-
-        val json = Json.obj(
-          "form" -> preparedForm,
-          "submitUrl" -> routes.BusinessUTRController.onSubmit().url,
-          "businessType" -> s"whatTypeBusiness.$businessType"
-        )
-
-        def template = twirlMigration.duoTemplate(
-          renderer.render("businessUTR.njk", json),
-          businessUTRView(s"whatTypeBusiness.$businessType", preparedForm, routes.BusinessUTRController.onSubmit())
-        )
-
-        template.map(Ok(_))
+        Future.successful(Ok(businessUTRView(s"whatTypeBusiness.$businessType",
+          preparedForm, routes.BusinessUTRController.onSubmit())))
       }
   }
 
@@ -82,19 +65,8 @@ class BusinessUTRController @Inject()(override val messagesApi: MessagesApi,
       BusinessTypePage.retrieve.map { businessType =>
         form.bindFromRequest().fold(
           formWithErrors => {
-
-            val json = Json.obj(
-              "form" -> formWithErrors,
-              "submitUrl" -> routes.BusinessUTRController.onSubmit().url,
-              "businessType" -> s"whatTypeBusiness.$businessType"
-            )
-
-            def template = twirlMigration.duoTemplate(
-              renderer.render("businessUTR.njk", json),
-              businessUTRView(s"whatTypeBusiness.$businessType", formWithErrors, routes.BusinessUTRController.onSubmit())
-            )
-
-            template.map(BadRequest(_))
+            Future.successful(BadRequest(businessUTRView(s"whatTypeBusiness.$businessType",
+              formWithErrors, routes.BusinessUTRController.onSubmit())))
           },
           value =>
             for {

@@ -18,17 +18,13 @@ package controllers.individual
 
 import config.FrontendAppConfig
 import controllers.actions._
-
-import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import views.html.individual.YouNeedToTellHMRCView
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class YouNeedToTellHMRCController @Inject()(override val messagesApi: MessagesApi,
@@ -37,20 +33,13 @@ class YouNeedToTellHMRCController @Inject()(override val messagesApi: MessagesAp
                                             requireData: DataRequiredAction,
                                             val controllerComponents: MessagesControllerComponents,
                                             config: FrontendAppConfig,
-                                            renderer: Renderer,
-                                            youNeedToTellHMRCView: YouNeedToTellHMRCView,
-                                            twirlMigration: TwirlMigration
+                                            youNeedToTellHMRCView: YouNeedToTellHMRCView
                                            )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
+  def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData) {
     implicit request =>
-      val template = twirlMigration.duoTemplate(
-        renderer.render(template = "individual/youNeedToTellHMRC.njk",
-          Json.obj(fields = "changeOfDetailsGovUKLink" -> config.tellHMRCChangesUrl)),
-        youNeedToTellHMRCView(
-          config.tellHMRCChangesUrl
-        )
-      )
-      template.map(Ok(_))
+      Ok(youNeedToTellHMRCView(
+        config.tellHMRCChangesUrl
+      ))
   }
 }

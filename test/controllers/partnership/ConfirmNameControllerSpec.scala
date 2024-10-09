@@ -31,13 +31,13 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import viewmodels.Radios
 import utils.TwirlMigration
 import views.html.ConfirmNameView
 
 import scala.concurrent.Future
 
-class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers with OptionValues with TryValues {
 
   def onwardRoute = Call("GET", "/foo")
 
@@ -69,7 +69,7 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
         form,
         confirmNameSubmitCall,
         pspName,
-        TwirlMigration.toTwirlRadios(Radios.yesNo(form("value")))
+        Radios.yesNo(form("value"))
       )(request, messages)
 
       compareResultAndView(result, view)
@@ -96,7 +96,7 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
         filledForm,
         confirmNameSubmitCall,
         pspName,
-        TwirlMigration.toTwirlRadios(Radios.yesNo(filledForm("value")))
+        Radios.yesNo(filledForm("value"))
       )(request, messages)
 
       compareResultAndView(result, view)
@@ -145,7 +145,7 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
         boundForm,
         confirmNameSubmitCall,
         pspName,
-        TwirlMigration.toTwirlRadios(Radios.yesNo(boundForm("value")))
+        Radios.yesNo(boundForm("value"))
       )(request, messages)
 
       compareResultAndView(result, view)

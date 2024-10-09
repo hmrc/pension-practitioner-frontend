@@ -16,7 +16,11 @@
 
 package models
 
+import play.api.data
 import play.api.data.Form
+import play.api.i18n.Messages
+import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.viewmodels._
 import utils.{Enumerable, WithName}
 
@@ -32,15 +36,14 @@ object WhatTypeBusiness extends Enumerable.Implicits {
     Yourselfasindividual
   )
 
-  def radios(form: Form[_]): Seq[Radios.Item] = {
-
-    val field = form("value")
-    val items = Seq(
-      Radios.Radio(msg"whatTypeBusiness.companyOrPartnership", Companyorpartnership.toString),
-      Radios.Radio(msg"whatTypeBusiness.yourselfAsIndividual", Yourselfasindividual.toString)
+  def radios(form: Form[_])(implicit messages: Messages): Seq[RadioItem] = {
+    val field: data.Field = form("value")
+    Seq(
+      RadioItem(content = Text(Messages("whatTypeBusiness.companyOrPartnership")),
+        value = Some(Companyorpartnership.toString), checked = field.values.contains(Companyorpartnership.toString), id = Some(field.id)),
+      RadioItem(content = Text(Messages("whatTypeBusiness.yourselfAsIndividual")),
+        value = Some(Yourselfasindividual.toString), checked = field.values.contains(Yourselfasindividual.toString), id = Some(field.id))
     )
-
-    Radios(field, items)
   }
 
   implicit val enumerable: Enumerable[WhatTypeBusiness] =

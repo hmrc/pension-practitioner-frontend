@@ -34,14 +34,14 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import viewmodels.Radios
 import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
 import views.html.address.UseAddressForContactView
 
 import scala.concurrent.Future
 
-class PartnershipUseSameAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class PartnershipUseSameAddressControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
@@ -85,7 +85,7 @@ class PartnershipUseSameAddressControllerSpec extends ControllerSpecBase with Mo
       val view = app.injector.instanceOf[UseAddressForContactView].apply(
         submitCall,
         form,
-        TwirlMigration.toTwirlRadios(Radios.yesNo(form("value"))),
+        Radios.yesNo(form("value")),
         "partnership",
         partnershipName,
         Seq("addr1", "addr2", "addr3", "addr4", "postcode", "United Kingdom")
@@ -108,7 +108,7 @@ class PartnershipUseSameAddressControllerSpec extends ControllerSpecBase with Mo
       val view = app.injector.instanceOf[UseAddressForContactView].apply(
         submitCall,
         filledForm,
-        TwirlMigration.toTwirlRadios(Radios.yesNo(form("value"))),
+        Radios.yesNo(form("value")),
         "partnership",
         partnershipName,
         Seq("addr1", "addr2", "addr3", "addr4", "postcode", "United Kingdom")

@@ -25,17 +25,15 @@ import models.NormalMode
 import navigators.CompoundNavigator
 import pages.partnership.IsPartnershipRegisteredInUkPage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
-import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import viewmodels.Radios
 import utils.TwirlMigration
+import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import views.html.partnership.IsPartnershipRegisteredInUkView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import views.html.partnership.IsPartnershipRegisteredInUkView
 
 class IsPartnershipRegisteredInUkController @Inject()(override val messagesApi: MessagesApi,
                                       userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -46,62 +44,34 @@ class IsPartnershipRegisteredInUkController @Inject()(override val messagesApi: 
                                       formProvider: IsPartnershipRegisteredInUkFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
                                       config: FrontendAppConfig,
-                                      renderer: Renderer,
-                                      isPartnershipRegisteredInUkView: IsPartnershipRegisteredInUkView,
-                                      twirlMigration: TwirlMigration
+                                      isPartnershipRegisteredInUkView: IsPartnershipRegisteredInUkView
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with
-  I18nSupport with NunjucksSupport with Retrievals {
+  I18nSupport with Retrievals {
 
   private val form = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (authenticate andThen getData andThen requireData) {
     implicit request =>
       val preparedForm = request.userAnswers.get (IsPartnershipRegisteredInUkPage) match {
         case None => form
         case Some (value) => form.fill (value)
       }
-
-      val json = Json.obj(
-        "form" -> preparedForm,
-        "submitUrl" -> routes.IsPartnershipRegisteredInUkController.onSubmit().url,
-        "radios" -> Radios.yesNo (preparedForm("value"))
-      )
-
-      val template = twirlMigration.duoTemplate(
-        renderer.render(
-          "partnership/isPartnershipRegisteredInUk.njk", json
-        ),
-        isPartnershipRegisteredInUkView(
-          routes.IsPartnershipRegisteredInUkController.onSubmit(),
-          preparedForm,
-          TwirlMigration.toTwirlRadios(Radios.yesNo (preparedForm("value")))
-        )
-      )
-    template.map(Ok(_))
+      Ok(isPartnershipRegisteredInUkView(
+        routes.IsPartnershipRegisteredInUkController.onSubmit(),
+        preparedForm,
+        Radios.yesNo(preparedForm("value"))
+      ))
   }
 
   def onSubmit(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       form.bindFromRequest().fold(
         formWithErrors => {
-
-          val json = Json.obj(
-            "form"   -> formWithErrors,
-            "submitUrl"   -> routes.IsPartnershipRegisteredInUkController.onSubmit().url,
-            "radios" -> Radios.yesNo(formWithErrors("value"))
-          )
-
-          val template = twirlMigration.duoTemplate(
-            renderer.render(
-              "partnership/isPartnershipRegisteredInUk.njk", json
-            ),
-            isPartnershipRegisteredInUkView(
-              routes.IsPartnershipRegisteredInUkController.onSubmit(),
-              formWithErrors,
-              TwirlMigration.toTwirlRadios(Radios.yesNo (formWithErrors("value")))
-            )
-          )
-          template.map(BadRequest(_))
+          Future.successful(BadRequest(isPartnershipRegisteredInUkView(
+            routes.IsPartnershipRegisteredInUkController.onSubmit(),
+            formWithErrors,
+            Radios.yesNo (formWithErrors("value"))
+          )))
         },
         value =>
           for {

@@ -19,12 +19,9 @@ package controllers.partnership
 import com.google.inject.Inject
 import controllers.actions.{AuthAction, DataRequiredAction, DataRetrievalAction}
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import services.PartnershipCYAService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.CheckYourAnswersView
@@ -37,28 +34,16 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
                                            requireData: DataRequiredAction,
                                            val controllerComponents: MessagesControllerComponents,
                                            partnershipCYAService: PartnershipCYAService,
-                                           checkYourAnswersView: CheckYourAnswersView,
-                                           renderer: Renderer,
-                                           twirlMigration: TwirlMigration)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
-    with I18nSupport
-    with NunjucksSupport {
+                                           checkYourAnswersView: CheckYourAnswersView
+                                          )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
+    with I18nSupport {
 
   def onPageLoad: Action[AnyContent] =
-    (authenticate andThen getData andThen requireData).async { implicit request =>
-      val json = Json.obj(
-        "redirectUrl" -> controllers.partnership.routes.DeclarationController.onPageLoad().url,
-        "list" -> partnershipCYAService.partnershipCya(request.userAnswers)
-      )
-
-      def template = twirlMigration.duoTemplate(
-        renderer.render("check-your-answers.njk", json),
-        checkYourAnswersView(
-          controllers.partnership.routes.DeclarationController.onPageLoad(),
-          TwirlMigration.summaryListRow(partnershipCYAService.partnershipCya(request.userAnswers))
-        )
-      )
-
-      template.map(Ok(_))
+    (authenticate andThen getData andThen requireData) { implicit request =>
+      Ok(checkYourAnswersView(
+        controllers.partnership.routes.DeclarationController.onPageLoad(),
+        TwirlMigration.summaryListRow(partnershipCYAService.partnershipCya(request.userAnswers))
+      ))
     }
 }

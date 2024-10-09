@@ -21,7 +21,8 @@ import pages.partnership._
 import pages.register.AreYouUKCompanyPage
 import play.api.i18n.Messages
 import play.api.mvc.Call
-import uk.gov.hmrc.viewmodels.SummaryList.{Key, Value, Row, Action}
+import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryListRow
+import uk.gov.hmrc.viewmodels.SummaryList.{Action, Key, Row, Value}
 import uk.gov.hmrc.viewmodels.Text.Literal
 import uk.gov.hmrc.viewmodels._
 

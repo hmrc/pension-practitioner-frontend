@@ -57,8 +57,6 @@ class IndividualAddressListController @Inject()(override val messagesApi: Messag
   def form(implicit messages: Messages): Form[Int] =
     formProvider(messages("individual.addressList.error.required"))
 
-  override def viewTemplate: String = "individual/addressList.njk"
-
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
       implicit request =>

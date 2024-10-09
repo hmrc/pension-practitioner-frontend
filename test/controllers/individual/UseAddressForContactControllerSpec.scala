@@ -31,14 +31,14 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
+import viewmodels.Radios
 import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
 import views.html.address.UseAddressForContactView
 
 import scala.concurrent.Future
 
-class UseAddressForContactControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class UseAddressForContactControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers with OptionValues with TryValues {
 
   private def onwardRoute = Call("GET", "/foo")
 
@@ -72,7 +72,7 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
 
         val view = application.injector.instanceOf[UseAddressForContactView]
           .apply(routes.UseAddressForContactController.onSubmit(),
-            form, TwirlMigration.toTwirlRadios(Radios.yesNo(form("value"))),
+            form, Radios.yesNo(form("value")),
             "individual.you", "individual.you",
             address.lines(countryOptions))(request, messages)
 
@@ -93,7 +93,7 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
 
         val view = application.injector.instanceOf[UseAddressForContactView]
           .apply(routes.UseAddressForContactController.onSubmit(),
-            filledForm, TwirlMigration.toTwirlRadios(Radios.yesNo(filledForm("value"))),
+            filledForm, Radios.yesNo(filledForm("value")),
             "individual.you", "individual.you",
             address.lines(countryOptions))(request, messages)
 
@@ -175,7 +175,7 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
 
       val view = application.injector.instanceOf[UseAddressForContactView]
         .apply(routes.UseAddressForContactController.onSubmit(),
-          boundForm, TwirlMigration.toTwirlRadios(Radios.yesNo(boundForm("value"))),
+          boundForm, Radios.yesNo(boundForm("value")),
           "individual.you", "individual.you",
           address.lines(countryOptions))(request, messages)
 

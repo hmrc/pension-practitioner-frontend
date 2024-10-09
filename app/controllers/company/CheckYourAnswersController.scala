@@ -20,12 +20,9 @@ import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.actions.{AuthAction, DataRequiredAction, DataRetrievalAction}
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import services.CompanyCYAService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.CheckYourAnswersView
@@ -39,31 +36,17 @@ class CheckYourAnswersController @Inject()(config: FrontendAppConfig,
                                            requireData: DataRequiredAction,
                                            val controllerComponents: MessagesControllerComponents,
                                            companyCYAService: CompanyCYAService,
-                                           renderer: Renderer,
-                                           checkYourAnswersView: CheckYourAnswersView,
-                                           twirlMigration: TwirlMigration)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
-    with I18nSupport
-    with NunjucksSupport {
+                                           checkYourAnswersView: CheckYourAnswersView)(implicit ec: ExecutionContext)
+  extends FrontendBaseController
+    with I18nSupport {
 
   def onPageLoad: Action[AnyContent] =
-    (authenticate andThen getData andThen requireData).async { implicit request =>
-
-      val json = Json.obj(
-        "redirectUrl" -> controllers.company.routes.DeclarationController.onPageLoad().url,
-        "list" -> companyCYAService.companyCya(request.userAnswers)
-    )
-
-      def template = twirlMigration.duoTemplate(
-        renderer.render("check-your-answers.njk", json),
-        checkYourAnswersView(
-          controllers.company.routes.DeclarationController.onPageLoad(),
-          TwirlMigration.summaryListRow(
-            companyCYAService.companyCya(request.userAnswers)
-          )
+    (authenticate andThen getData andThen requireData) { implicit request =>
+      Ok(checkYourAnswersView(
+        controllers.company.routes.DeclarationController.onPageLoad(),
+        TwirlMigration.summaryListRow(
+          companyCYAService.companyCya(request.userAnswers)
         )
-      )
-
-      template.map(Ok(_))
-      }
+      ))
+    }
 }

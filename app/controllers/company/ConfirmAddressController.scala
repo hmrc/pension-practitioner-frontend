@@ -54,13 +54,10 @@ class ConfirmAddressController @Inject()(
                                           formProvider: ConfirmAddressFormProvider,
                                           val controllerComponents: MessagesControllerComponents,
                                           countryOptions: CountryOptions,
-                                          confirmAddressView: ConfirmAddressView,
-                                          renderer: Renderer,
-                                          twirlMigration: TwirlMigration
+                                          confirmAddressView: ConfirmAddressView
                                         )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport
-    with NunjucksSupport
     with Retrievals {
 
   private val form = formProvider()
@@ -98,33 +95,18 @@ class ConfirmAddressController @Inject()(
               .setOrException(RegistrationInfoPage, reg.info)
 
             userAnswersCacheConnector.save(ua.data).flatMap { _ =>
-              val json = Json.obj(
-                "form" -> form,
-                "entityName" -> "company",
-                "pspName" -> pspName,
-                "address" -> formattedAddress(reg.response.address),
-                "submitUrl" -> routes.ConfirmAddressController.onSubmit().url,
-                "radios" -> Radios.yesNo(form("value")))
-
-              def template = twirlMigration.duoTemplate(
-                renderer.render("confirmAddress.njk", json),
-                confirmAddressView("company",
-                  form,
-                  routes.ConfirmAddressController.onSubmit(),
-                  pspName,
-                  reg.response.address.lines(countryOptions),
-                  TwirlMigration.toTwirlRadios(Radios.yesNo(form("value")))
-                )
-              )
-
-              template.map(Ok(_))
+              Future.successful(Ok(confirmAddressView("company",
+                form,
+                routes.ConfirmAddressController.onSubmit(),
+                pspName,
+                reg.response.address.lines(countryOptions),
+                TwirlMigration.toTwirlRadios(Radios.yesNo(form("value")))
+              )))
             }
           } recoverWith {
             case _: NotFoundException =>
               Future.successful(Redirect(controllers.register.routes.BusinessDetailsNotFoundController.onPageLoad()))
           }
-
-
         }
     }
 
@@ -136,28 +118,13 @@ class ConfirmAddressController @Inject()(
 
             request.userAnswers.get(ConfirmAddressPage) match {
               case Some(addr) =>
-                val json = Json.obj(
-                  "form" -> formWithErrors,
-                  "entityName" -> "company",
-                  "pspName" -> pspName,
-                  "address" -> formattedAddress(addr),
-                  "submitUrl" -> routes.ConfirmAddressController.onSubmit().url,
-                  "radios" -> Radios.yesNo(formWithErrors("value"))
-                )
-
-                def template = twirlMigration.duoTemplate(
-                  renderer.render("confirmAddress.njk", json),
-                  confirmAddressView("company",
-                    formWithErrors,
-                    routes.ConfirmAddressController.onSubmit(),
-                    pspName,
-                    addr.lines(countryOptions),
-                    TwirlMigration.toTwirlRadios(Radios.yesNo(form("value")))
-                  )
-                )
-
-                template.map(BadRequest(_))
-
+                Future.successful(BadRequest(confirmAddressView("company",
+                  formWithErrors,
+                  routes.ConfirmAddressController.onSubmit(),
+                  pspName,
+                  addr.lines(countryOptions),
+                  TwirlMigration.toTwirlRadios(Radios.yesNo(form("value")))
+                )))
               case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
             }
           },
