@@ -32,7 +32,6 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import views.html.address.ManualAddressView
 
 import javax.inject.Inject
@@ -49,8 +48,7 @@ class PartnershipContactAddressController @Inject()(
   val controllerComponents: MessagesControllerComponents,
   val config: FrontendAppConfig,
   val renderer: Renderer,
-  manualAddressView: ManualAddressView,
-  val twirlMigration: TwirlMigration
+  manualAddressView: ManualAddressView
 )(implicit ec: ExecutionContext)
   extends ManualAddressController
     with Retrievals

@@ -37,7 +37,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import viewmodels.Radios
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.individual.AreYouUKResidentView
 

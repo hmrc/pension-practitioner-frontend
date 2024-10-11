@@ -32,7 +32,6 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
 import viewmodels.{CommonViewModel, Radios}
 import views.html.address.UseAddressForContactView
@@ -50,8 +49,7 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
                                                     formProvider: UseAddressForContactFormProvider,
                                                     val controllerComponents: MessagesControllerComponents,
                                                     countryOptions: CountryOptions,
-                                                    useAddressForContactView: UseAddressForContactView,
-                                                    twirlMigration: TwirlMigration
+                                                    useAddressForContactView: UseAddressForContactView
                                                    )(implicit ec: ExecutionContext) extends FrontendBaseController
   with I18nSupport with NunjucksSupport with Retrievals {
 

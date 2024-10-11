@@ -38,7 +38,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import viewmodels.Radios
-import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
 import views.html.ConfirmAddressView
 

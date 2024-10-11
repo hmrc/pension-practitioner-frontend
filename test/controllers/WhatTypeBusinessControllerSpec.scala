@@ -32,7 +32,6 @@ import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import utils.TwirlMigration
 import views.html.WhatTypeBusinessView
 
 import scala.concurrent.Future

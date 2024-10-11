@@ -35,7 +35,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.Radios
-import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
 import views.html.ConfirmAddressView
 

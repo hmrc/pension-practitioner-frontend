@@ -31,11 +31,10 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import services.PartnershipCYAService
+import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryListRow
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, SummaryListRow, Value}
-import uk.gov.hmrc.viewmodels.SummaryList.Row
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, SummaryList}
-import uk.gov.hmrc.viewmodels.Text.Literal
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, Value}
+import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.CheckYourAnswersView
 
 import scala.concurrent.Future
@@ -53,9 +52,9 @@ class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSuga
 
   private def onPageLoadUrl: String = routes.CheckYourAnswersController.onPageLoad().url
 
-  private val list: Seq[Row] = Seq(Row(
-    key = SummaryList.Key(msg"cya.partnershipName", classes = Seq("govuk-!-width-one-half")),
-    value = SummaryList.Value(Literal(partnershipName), classes = Seq("govuk-!-width-one-third"))
+  private val list = Seq(SummaryListRow(
+    key = Key(Text(Messages("cya.partnershipName")), classes = "govuk-!-width-one-half"),
+    value = Value(Text(partnershipName), classes = "govuk-!-width-one-third")
   ))
 
   override def beforeEach(): Unit = {

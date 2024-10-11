@@ -25,7 +25,9 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.individual._
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
-import uk.gov.hmrc.viewmodels.SummaryList.{Action, Key, Row, Value}
+import uk.gov.hmrc.govukfrontend.views.Aliases.{Key, SummaryListRow, Value}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions}
 import uk.gov.hmrc.viewmodels.Text.Literal
 import uk.gov.hmrc.viewmodels._
 
@@ -48,46 +50,47 @@ class IndividualCYAServiceSpec
     .set(IndividualPhonePage, phone).toOption.value
 
 
-  private def addressRow(href: String) = Row(
-    key = Key(msg"cya.address", classes = Seq("govuk-!-width-one-half")),
-    value = Value(addressAnswer(address), classes = Seq("govuk-!-width-one-third")),
-    actions = List(
-      Action(
-        content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
-        href = href,
-        visuallyHiddenText = Some(msg"cya.change.address")
-      )
-    )
+  private def addressRow(href: String) = SummaryListRow(
+    key = Key(Text(Messages("cya.address")), classes = "govuk-!-width-one-half"),
+    value = Value(addressAnswer(address), classes = "govuk-!-width-one-third"),
+    actions = Some(
+      Actions(
+        items = Seq(ActionItem(
+          content = HtmlContent(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
+          href = href,
+          visuallyHiddenText = Some(Messages("cya.change.address"))))))
   )
 
-  def expectedRows(addressRow: Row): Seq[Row] = Seq(
-    Row(
-      key = Key(msg"cya.name", classes = Seq("govuk-!-width-one-half")),
-      value = Value(Literal(individualDetails.fullName), classes = Seq("govuk-!-width-one-third"))
+  def expectedRows(addressRow: SummaryListRow): Seq[SummaryListRow] = Seq(
+    SummaryListRow(
+      key = Key(Text(Messages("cya.name")), classes = "govuk-!-width-one-half"),
+      value = Value(Text(individualDetails.fullName), classes = "govuk-!-width-one-third")
     ),
     addressRow,
-    Row(
-      key = Key(msg"cya.individual.email", classes = Seq("govuk-!-width-one-half")),
-      value = Value(Literal(email), classes = Seq("govuk-!-width-one-third")),
-      actions = List(
-        Action(
-          content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
-          href = controllers.individual.routes.IndividualEmailController.onPageLoad(CheckMode).url,
-          visuallyHiddenText = Some(msg"cya.individual.change.email")
-        )
-      )
+    SummaryListRow(
+      key = Key(Text(Messages("cya.individual.email")), classes = "govuk-!-width-one-half"),
+      value = Value(Text(email), classes = "govuk-!-width-one-third"),
+      actions = Some(
+        Actions(
+          items = Seq(ActionItem(
+            content = HtmlContent(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
+            href = controllers.individual.routes.IndividualEmailController.onPageLoad(CheckMode).url,
+            visuallyHiddenText = Some(Messages("cya.individual.change.email"))
+          )
+          )))
     ),
-    Row(
-      key = Key(msg"cya.individual.phone", classes = Seq("govuk-!-width-one-half")),
-      value = Value(Literal(phone), classes = Seq("govuk-!-width-one-third")),
-      actions = List(
-        Action(
-          content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
-          href = controllers.individual.routes.IndividualPhoneController.onPageLoad(CheckMode).url,
-          visuallyHiddenText = Some(msg"cya.individual.change.phone")
-        )
-      )
-    )
+    SummaryListRow(
+      key = Key(Text(Messages("cya.individual.phone")), classes = "govuk-!-width-one-half"),
+      value = Value(Text(phone), classes = "govuk-!-width-one-third"),
+      actions = Some(
+        Actions(
+          items = Seq(ActionItem(
+            content = HtmlContent(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
+            href = controllers.individual.routes.IndividualPhoneController.onPageLoad(CheckMode).url,
+            visuallyHiddenText = Some(Messages("cya.individual.change.phone"))
+          )
+          )
+        )))
   )
 
   "individualCya" must {

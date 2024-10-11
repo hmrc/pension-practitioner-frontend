@@ -22,7 +22,6 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.PspDetailsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveEnrolmentWithNoIV
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,7 +40,7 @@ class ViewDetailsController @Inject()(@AuthMustHaveEnrolmentWithNoIV authenticat
             Future.successful(Ok(viewDetailsView(
               data.pageTitle,
               data.heading,
-              TwirlMigration.summaryListRow(data.list),
+              data.list,
               data.displayContinueButton,
               data.nextPage,
               data.returnLinkAndUrl

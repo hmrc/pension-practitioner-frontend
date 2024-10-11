@@ -32,7 +32,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import viewmodels.Radios
-import utils.TwirlMigration
 import views.html.partnership.IsPartnershipRegisteredInUkView
 
 import scala.concurrent.Future

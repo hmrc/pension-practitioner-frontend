@@ -31,7 +31,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import views.html.BusinessNameView
 
 import javax.inject.Inject
@@ -46,8 +45,7 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
                                       formProvider: BusinessNameFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
                                       renderer: Renderer,
-                                      businessNameView: BusinessNameView,
-                                      twirlMigration: TwirlMigration
+                                      businessNameView: BusinessNameView
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController
                                       with I18nSupport with NunjucksSupport with Variation {
 

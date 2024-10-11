@@ -24,7 +24,6 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.register.WhatYouWillNeedView
 
@@ -39,8 +38,7 @@ class WhatYouWillNeedController @Inject()(
     navigator: CompoundNavigator,
     val controllerComponents: MessagesControllerComponents,
     renderer: Renderer,
-    whatYouWillNeedView: WhatYouWillNeedView,
-    twirlMigration: TwirlMigration
+    whatYouWillNeedView: WhatYouWillNeedView
 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData) { implicit request =>

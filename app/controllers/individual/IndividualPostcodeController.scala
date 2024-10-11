@@ -32,7 +32,6 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import utils.annotations.AuthWithIV
 import views.html.individual.PostcodeView
 
@@ -50,8 +49,7 @@ class IndividualPostcodeController @Inject()(override val messagesApi: MessagesA
                                              val addressLookupConnector: AddressLookupConnector,
                                              val controllerComponents: MessagesControllerComponents,
                                              val renderer: Renderer,
-                                             postCodeView: PostcodeView,
-                                             val twirlMigration: TwirlMigration
+                                             postCodeView: PostcodeView
                                             )(implicit ec: ExecutionContext) extends PostcodeController
   with Retrievals with I18nSupport with NunjucksSupport {
 

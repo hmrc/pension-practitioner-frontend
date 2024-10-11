@@ -23,7 +23,6 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.CompanyCYAService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.CheckYourAnswersView
 
@@ -44,9 +43,7 @@ class CheckYourAnswersController @Inject()(config: FrontendAppConfig,
     (authenticate andThen getData andThen requireData) { implicit request =>
       Ok(checkYourAnswersView(
         controllers.company.routes.DeclarationController.onPageLoad(),
-        TwirlMigration.summaryListRow(
-          companyCYAService.companyCya(request.userAnswers)
-        )
+        companyCYAService.companyCya(request.userAnswers)
       ))
     }
 }

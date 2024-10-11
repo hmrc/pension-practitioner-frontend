@@ -33,7 +33,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import forms.FormsHelper.formWithError
 import play.twirl.api.Html
-import utils.TwirlMigration
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -45,8 +44,6 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
   protected def form(implicit messages: Messages): Form[String]
   protected def addressLookupConnector: AddressLookupConnector
   protected def viewTemplate = "address/postcode.njk"
-
-  protected def twirlMigration: TwirlMigration
 
   def get(json: Form[String] => JsObject, twirlTemplate: Option[Html] = None)
          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {

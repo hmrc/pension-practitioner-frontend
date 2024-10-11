@@ -32,7 +32,6 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModelTwirl
 
@@ -44,7 +43,6 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
   protected def userAnswersCacheConnector: UserAnswersCacheConnector
   protected def navigator: CompoundNavigator
   protected def form(implicit messages: Messages): Form[Int]
-  protected def twirlMigration: TwirlMigration
 
   def get(json: Form[Int] => JsObject, onSubmitCall: Call, manualUrl: String, twirlView: (CommonViewModelTwirl, Seq[RadioItem]) => Html)
          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
