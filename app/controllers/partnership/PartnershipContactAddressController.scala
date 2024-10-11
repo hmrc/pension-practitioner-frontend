@@ -31,7 +31,6 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import renderer.Renderer
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.address.ManualAddressView
 
 import javax.inject.Inject
@@ -52,8 +51,7 @@ class PartnershipContactAddressController @Inject()(
 )(implicit ec: ExecutionContext)
   extends ManualAddressController
     with Retrievals
-    with I18nSupport
-    with NunjucksSupport {
+    with I18nSupport {
 
   def form(implicit messages: Messages): Form[Address] = formProvider()
 

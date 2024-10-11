@@ -26,7 +26,6 @@ import pages.register.BusinessTypePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.register.BusinessTypeView
 
@@ -42,7 +41,7 @@ class BusinessTypeController @Inject()(override val messagesApi: MessagesApi,
                                        formProvider: BusinessTypeFormProvider,
                                        val controllerComponents: MessagesControllerComponents,
                                        businessTypeView: BusinessTypeView
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
+                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   private val form = formProvider()
 

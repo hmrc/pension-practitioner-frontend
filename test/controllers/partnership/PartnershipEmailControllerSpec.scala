@@ -33,13 +33,12 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import viewmodels.CommonViewModelTwirl
 import views.html.EmailView
 
 import scala.concurrent.Future
 
-class PartnershipEmailControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class PartnershipEmailControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()

@@ -23,11 +23,9 @@ import controllers.actions._
 import pages.PspIdPage
 import pages.company.CompanyEmailPage
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.annotations.AuthMustHaveEnrolmentWithNoIV
 
 import javax.inject.Inject
@@ -42,18 +40,12 @@ class ConfirmationController @Inject()(appConfig: FrontendAppConfig,
                                        val controllerComponents: MessagesControllerComponents,
                                        confirmationView: views.html.amend.ConfirmationView
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController
-  with Retrievals with I18nSupport with NunjucksSupport {
+  with Retrievals with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       (CompanyEmailPage and PspIdPage).retrieve.map {
         case email ~ pspid =>
-          val json: JsObject = Json.obj(
-            "panelHtml" -> confirmationPanelText(pspid).toString(),
-            "email" -> email,
-            "submitUrl" -> appConfig.returnToPspDashboardUrl
-          )
-
           userAnswersCacheConnector.removeAll.flatMap { _ =>
             Future.successful(Ok(confirmationView(email, confirmationPanelText(pspid).toString(), appConfig.returnToPspDashboardUrl)))
           }

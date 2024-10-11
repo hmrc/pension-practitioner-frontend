@@ -21,9 +21,9 @@ import controllers.base.ControllerSpecBase
 import forms.PhoneFormProvider
 import matchers.JsonMatchers
 import models.{NormalMode, UserAnswers}
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.mockito.ArgumentMatchers
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.partnership.{BusinessNamePage, PartnershipPhonePage}
@@ -33,13 +33,12 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import viewmodels.CommonViewModelTwirl
 import views.html.PhoneView
 
 import scala.concurrent.Future
 
-class PartnershipPhoneControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class PartnershipPhoneControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()

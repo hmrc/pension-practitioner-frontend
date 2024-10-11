@@ -29,7 +29,6 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import viewmodels.CommonViewModelTwirl
 import views.html.PhoneView
 
@@ -46,7 +45,7 @@ class CompanyPhoneController @Inject()(override val messagesApi: MessagesApi,
                                        val controllerComponents: MessagesControllerComponents,
                                        phoneView: PhoneView
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController
-  with Retrievals with I18nSupport with NunjucksSupport with Variation {
+  with Retrievals with I18nSupport with Variation {
 
   private def form(implicit messages: Messages): Form[String] =
     formProvider(messages("phone.error.required", messages("company")))
@@ -77,7 +76,6 @@ class CompanyPhoneController @Inject()(override val messagesApi: MessagesApi,
         )
 
     }
-
 
   private def getModel(mode: Mode)(block: CommonViewModelTwirl => Future[Result])(implicit request: DataRequest[AnyContent]) = {
     BusinessNamePage.retrieve match {

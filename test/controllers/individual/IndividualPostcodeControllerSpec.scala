@@ -34,12 +34,11 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.individual.PostcodeView
 
 import scala.concurrent.Future
 
-class IndividualPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class IndividualPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
   private val mockAddressLookupConnector = mock[AddressLookupConnector]

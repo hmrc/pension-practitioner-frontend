@@ -29,11 +29,9 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import viewmodels.Radios
 import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import utils.countryOptions.CountryOptions
-import viewmodels.CommonViewModel
+import viewmodels.{CommonViewModel, Radios}
 import views.html.address.UseAddressForContactView
 
 import javax.inject.Inject
@@ -50,7 +48,7 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
                                                countryOptions: CountryOptions,
                                                useAddressForContactView: UseAddressForContactView
                                               )(implicit ec: ExecutionContext) extends FrontendBaseController
-  with I18nSupport with NunjucksSupport with Retrievals {
+  with I18nSupport with Retrievals {
 
 
   private def form(implicit messages: Messages): Form[Boolean] =
@@ -112,7 +110,6 @@ class UseAddressForContactController @Inject()(override val messagesApi: Message
                      (implicit request: DataRequest[AnyContent]): Future[Result] =
     IndividualAddressPage.retrieve.map { address =>
       val json = Json.obj(
-        "form" -> form,
         "viewmodel" -> CommonViewModel("individual.you", "individual.you", routes.UseAddressForContactController.onSubmit().url),
         "radios" -> Radios.yesNo(form("value")),
         "address" -> address.lines(countryOptions),

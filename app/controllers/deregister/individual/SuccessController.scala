@@ -23,7 +23,6 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.deregister.individual.SuccessView
 
 import javax.inject.Inject
@@ -37,7 +36,7 @@ class SuccessController @Inject()(override val messagesApi: MessagesApi,
                                   val controllerComponents: MessagesControllerComponents,
                                   successView: SuccessView
                                  )(implicit ec: ExecutionContext) extends FrontendBaseController
-  with Retrievals with I18nSupport with NunjucksSupport {
+  with Retrievals with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
@@ -50,5 +49,4 @@ class SuccessController @Inject()(override val messagesApi: MessagesApi,
             )))
           }
   }
-
 }

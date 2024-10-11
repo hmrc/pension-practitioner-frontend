@@ -30,12 +30,11 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.BusinessNameView
 
 import scala.concurrent.Future
 
-class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers with OptionValues with TryValues {
   def onwardRoute: Call = Call("GET", "/foo")
 
   private val formProvider = new BusinessNameFormProvider()

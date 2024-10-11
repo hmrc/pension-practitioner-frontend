@@ -26,11 +26,9 @@ import pages.NameChange
 import pages.company.BusinessNamePage
 import pages.register.AreYouUKCompanyPage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.BusinessNameView
 
 import javax.inject.Inject
@@ -47,7 +45,7 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
                                       renderer: Renderer,
                                       businessNameView: BusinessNameView
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController
-                                      with I18nSupport with NunjucksSupport with Variation {
+                                      with I18nSupport with Variation {
 
   private val form = formProvider()
 

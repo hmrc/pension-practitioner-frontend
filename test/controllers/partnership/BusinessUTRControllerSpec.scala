@@ -32,12 +32,11 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.BusinessUTRView
 
 import scala.concurrent.Future
 
-class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers with OptionValues with TryValues {
   private def onwardRoute = Call("GET", "/foo")
 
   private val formProvider = new BusinessUTRFormProvider

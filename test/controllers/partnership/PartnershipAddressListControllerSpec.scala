@@ -35,14 +35,13 @@ import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModelTwirl
 import views.html.address.AddressListView
 
 import scala.concurrent.Future
 
-class PartnershipAddressListControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class PartnershipAddressListControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()

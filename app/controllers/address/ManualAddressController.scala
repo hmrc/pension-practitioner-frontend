@@ -27,10 +27,10 @@ import pages.company.CompanyAddressPage
 import pages.{AddressChange, QuestionPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages}
+import play.api.libs.json.Json._
 import play.api.libs.json.{JsArray, JsObject, Json}
 import play.api.mvc.{AnyContent, Call, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.address.ManualAddressView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -39,7 +39,6 @@ trait ManualAddressController
     extends FrontendBaseController
     with Retrievals
     with I18nSupport
-    with NunjucksSupport
     with Variation {
 
   protected def userAnswersCacheConnector: UserAnswersCacheConnector
@@ -158,7 +157,6 @@ trait ManualAddressController
 
     Json.obj(
       "submitUrl" -> submitRoute(mode).url,
-      "form" -> form,
       "pageTitle" -> pageTitle,
       "h1" -> h1
     ) ++ extraJson

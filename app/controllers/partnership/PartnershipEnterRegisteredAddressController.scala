@@ -23,31 +23,19 @@ import controllers.Retrievals
 import controllers.actions._
 import controllers.address.ManualAddressController
 import forms.address.UKAddressFormProvider
-
-import javax.inject.Inject
-import models.Address
-import models.AddressConfiguration
-import models.Mode
+import models.{Address, AddressConfiguration, Mode}
 import models.register.RegistrationLegalStatus
 import navigators.CompoundNavigator
-import pages.QuestionPage
-import pages.RegistrationInfoPage
-import pages.partnership.BusinessNamePage
-import pages.partnership.{PartnershipAddressListPage, PartnershipRegisteredAddressPage}
+import pages.{QuestionPage, RegistrationInfoPage}
+import pages.partnership.{BusinessNamePage, PartnershipAddressListPage, PartnershipRegisteredAddressPage}
 import play.api.data.Form
-import play.api.i18n.I18nSupport
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.MessagesControllerComponents
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import renderer.Renderer
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.address.ManualAddressView
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class PartnershipEnterRegisteredAddressController @Inject()(override val messagesApi: MessagesApi,
                                                             val userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -62,7 +50,7 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
                                                             registrationConnector:RegistrationConnector,
                                                             manualAddressView: ManualAddressView
 )(implicit ec: ExecutionContext) extends ManualAddressController
-  with Retrievals with I18nSupport with NunjucksSupport {
+  with Retrievals with I18nSupport {
 
   def form(implicit messages: Messages): Form[Address] = formProvider()
 

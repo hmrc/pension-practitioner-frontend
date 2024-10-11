@@ -20,8 +20,8 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import forms.address.UseAddressForContactFormProvider
-import models.{Address, NormalMode, TolerantAddress, UserAnswers}
 import models.requests.DataRequest
+import models.{Address, NormalMode, TolerantAddress, UserAnswers}
 import navigators.CompoundNavigator
 import pages.company.CompanyAddressPage
 import pages.partnership.{BusinessNamePage, ConfirmAddressPage, PartnershipRegisteredAddressPage, PartnershipUseSameAddressPage}
@@ -31,7 +31,6 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.countryOptions.CountryOptions
 import viewmodels.{CommonViewModel, Radios}
 import views.html.address.UseAddressForContactView
@@ -51,7 +50,7 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
                                                     countryOptions: CountryOptions,
                                                     useAddressForContactView: UseAddressForContactView
                                                    )(implicit ec: ExecutionContext) extends FrontendBaseController
-  with I18nSupport with NunjucksSupport with Retrievals {
+  with I18nSupport with Retrievals {
 
   private def form(implicit messages: Messages): Form[Boolean] =
     formProvider(messages("useAddressForContact.error.required", messages("company")))
@@ -127,7 +126,6 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
       case Some(tolerantAddress) =>
         BusinessNamePage.retrieve.map { companyName =>
           val json = Json.obj(
-            "form" -> form,
             "viewmodel" -> CommonViewModel("partnership", companyName, routes.PartnershipUseSameAddressController.onSubmit().url),
             "radios" -> Radios.yesNo(form("value")),
             "address" -> tolerantAddress.lines(countryOptions),

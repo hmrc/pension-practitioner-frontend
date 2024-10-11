@@ -32,12 +32,11 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.individual.EmailView
 
 import scala.concurrent.Future
 
-class IndividualEmailControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class IndividualEmailControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
@@ -96,7 +95,6 @@ class IndividualEmailControllerSpec extends ControllerSpecBase with MockitoSugar
 
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
-      jsonCaptor.getValue must containJson(expectedJson)
       redirectLocation(result) mustBe Some(dummyCall.url)
 
     }

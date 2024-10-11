@@ -33,12 +33,11 @@ import play.twirl.api.Html
 import services.IndividualCYAService
 import uk.gov.hmrc.govukfrontend.views.Aliases.{Key, SummaryListRow, Value}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.CheckYourAnswersView
 
 import scala.concurrent.Future
 
-class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()

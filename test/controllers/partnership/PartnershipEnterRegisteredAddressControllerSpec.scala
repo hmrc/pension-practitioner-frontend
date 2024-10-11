@@ -38,14 +38,13 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.InputOption
 import utils.countryOptions.CountryOptions
 import views.html.address.ManualAddressView
 
 import scala.concurrent.Future
 
-class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase with MockitoSugar
                                 with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
