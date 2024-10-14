@@ -48,7 +48,6 @@ class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar wi
   "PartnershipName Controller" must {
 
     "return OK and the correct view for a GET" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(UserAnswers()))
         .overrides(
@@ -73,7 +72,6 @@ class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar wi
 
     "populate the view correctly on a GET when the question has previously been answered" in {
 
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(answers))
         .overrides(
@@ -121,7 +119,6 @@ class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar wi
     }
 
     "return a Bad Request and errors when invalid data is submitted" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(UserAnswers()))
         .overrides(

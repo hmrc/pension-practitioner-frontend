@@ -30,25 +30,23 @@ import pages.register.AreYouUKCompanyPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
-import renderer.Renderer
 import views.html.address.ManualAddressView
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class PartnershipContactAddressController @Inject()(
-  override val messagesApi: MessagesApi,
-  val userAnswersCacheConnector: UserAnswersCacheConnector,
-  val navigator: CompoundNavigator,
-  authenticate: AuthAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: UKAddressFormProvider,
-  val controllerComponents: MessagesControllerComponents,
-  val config: FrontendAppConfig,
-  val renderer: Renderer,
-  manualAddressView: ManualAddressView
-)(implicit ec: ExecutionContext)
+                                                     override val messagesApi: MessagesApi,
+                                                     val userAnswersCacheConnector: UserAnswersCacheConnector,
+                                                     val navigator: CompoundNavigator,
+                                                     authenticate: AuthAction,
+                                                     getData: DataRetrievalAction,
+                                                     requireData: DataRequiredAction,
+                                                     formProvider: UKAddressFormProvider,
+                                                     val controllerComponents: MessagesControllerComponents,
+                                                     val config: FrontendAppConfig,
+                                                     manualAddressView: ManualAddressView
+                                                   )(implicit ec: ExecutionContext)
   extends ManualAddressController
     with Retrievals
     with I18nSupport {

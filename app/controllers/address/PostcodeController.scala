@@ -28,7 +28,6 @@ import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.libs.json.{JsArray, JsObject, Json}
 import play.api.mvc.{AnyContent, Result}
-import renderer.Renderer
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import forms.FormsHelper.formWithError
@@ -38,7 +37,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait PostcodeController extends FrontendBaseController with Retrievals {
 
-  protected def renderer: Renderer
   protected def userAnswersCacheConnector: UserAnswersCacheConnector
   protected def navigator: CompoundNavigator
   protected def form(implicit messages: Messages): Form[String]
@@ -49,7 +47,6 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
     twirlTemplate match {
       case Some(template) => Future.successful(Ok(template))
-      case None => renderer.render(viewTemplate, json(form)).map(Ok(_))
     }
   }
 
@@ -61,7 +58,6 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
         formToTwirlTemplate match {
           case Some(formToTemplate) =>
             Future.successful(BadRequest(formToTemplate(formWithErrors)))
-          case None => renderer.render(viewTemplate, formToJson(formWithErrors)).map(BadRequest(_))
         },
       value =>
           addressLookupConnector.addressLookupByPostCode(value).flatMap {
@@ -71,7 +67,6 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
               formToTwirlTemplate match {
                 case Some(formToTemplate) =>
                   Future.successful(BadRequest(formToTemplate(formWithErrors)))
-                case None => renderer.render(viewTemplate, json).map(BadRequest(_))
               }
 
             case addresses =>

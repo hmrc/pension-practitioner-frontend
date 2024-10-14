@@ -53,7 +53,6 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
   "ConfirmName Controller" must {
 
     "return OK and the correct view for a GET" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(UserAnswers().setOrException(BusinessNamePage, pspName)))
         .build()
@@ -76,7 +75,6 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
     }
 
     "populate the view correctly on a GET when the question has previously been answered" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(answers))
         .overrides(
@@ -126,7 +124,6 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
     "return a Bad Request and errors when invalid data is submitted" in {
 
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(UserAnswers().setOrException(BusinessNamePage, pspName)))
         .overrides(

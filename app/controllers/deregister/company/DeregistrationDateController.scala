@@ -34,7 +34,6 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.DateInput
 import utils.annotations.AuthMustHaveEnrolmentWithNoIV
 import views.html.deregister.company.DeregistrationDateView
 
@@ -71,8 +70,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
             name,
             preparedForm,
             config.returnToPspDashboardUrl,
-            getDateString(date),
-            DateInput.localDate(preparedForm("deregistrationDate"))
+            getDateString(date)
           )))
         }
       }
@@ -89,8 +87,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
                 pspName,
                 formWithErrors,
                 config.returnToPspDashboardUrl,
-                getDateString(date),
-                DateInput.localDate(formWithErrors("deregistrationDate"))
+                getDateString(date)
               )))
             },
             value =>

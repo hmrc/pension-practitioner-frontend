@@ -27,7 +27,6 @@ import play.api.i18n.Messages
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{AnyContent, Call, Result}
 import play.twirl.api.Html
-import renderer.Renderer
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.http.HeaderCarrier
@@ -39,7 +38,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait AddressListController extends FrontendBaseController with Retrievals with Variation {
 
-  protected def renderer: Renderer
   protected def userAnswersCacheConnector: UserAnswersCacheConnector
   protected def navigator: CompoundNavigator
   protected def form(implicit messages: Messages): Form[Int]

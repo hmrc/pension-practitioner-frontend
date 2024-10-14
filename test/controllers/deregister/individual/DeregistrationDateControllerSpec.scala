@@ -38,7 +38,6 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.viewmodels.DateInput
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -123,8 +122,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
         routes.DeregistrationDateController.onSubmit(),
         form,
         mockAppConfig.returnToPspDashboardUrl,
-        "1 February 2020",
-        DateInput.localDate(form("deregistrationDate"))
+        "1 February 2020"
       )(request, messages)
 
       compareResultAndView(result, expectedView)
@@ -144,8 +142,7 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
         routes.DeregistrationDateController.onSubmit(),
         form.fill(LocalDate.now()),
         mockAppConfig.returnToPspDashboardUrl,
-        "1 February 2020",
-        DateInput.localDate(form("deregistrationDate"))
+        "1 February 2020"
       )(request, messages)
 
       compareResultAndView(result, expectedView)

@@ -21,7 +21,6 @@ import play.api.data.Form
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.viewmodels._
 import utils.{Enumerable, WithName}
 
 sealed trait WhatTypeBusiness
@@ -40,9 +39,9 @@ object WhatTypeBusiness extends Enumerable.Implicits {
     val field: data.Field = form("value")
     Seq(
       RadioItem(content = Text(Messages("whatTypeBusiness.companyOrPartnership")),
-        value = Some(Companyorpartnership.toString), checked = field.values.contains(Companyorpartnership.toString), id = Some(field.id)),
+        value = Some(Companyorpartnership.toString), checked = field.value.contains(Companyorpartnership.toString), id = Some(field.id)),
       RadioItem(content = Text(Messages("whatTypeBusiness.yourselfAsIndividual")),
-        value = Some(Yourselfasindividual.toString), checked = field.values.contains(Yourselfasindividual.toString), id = Some(field.id))
+        value = Some(Yourselfasindividual.toString), checked = field.value.contains(Yourselfasindividual.toString), id = Some(field.id))
     )
   }
 

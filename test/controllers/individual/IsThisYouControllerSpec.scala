@@ -59,8 +59,7 @@ class IsThisYouControllerSpec extends ControllerSpecBase with MockitoSugar with 
   override def beforeEach(): Unit = {
     super.beforeEach()
     when(countryOptions.getCountryNameFromCode(eqTo(address))).thenReturn("United Kingdom")
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   "IsThisYouController" when {
 

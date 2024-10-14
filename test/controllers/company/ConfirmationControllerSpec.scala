@@ -56,8 +56,7 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar {
   override def beforeEach(): Unit = {
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   "Confirmation Controller" must {
     "return OK and the correct view for a GET" in {

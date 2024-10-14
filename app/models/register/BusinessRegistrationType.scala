@@ -20,7 +20,6 @@ import play.api.data.Form
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.viewmodels._
 import utils.{Enumerable, WithName}
 
 sealed trait BusinessRegistrationType
@@ -39,9 +38,9 @@ object BusinessRegistrationType extends Enumerable.Implicits {
     val field = form("value")
     Seq(
       RadioItem(content = Text(Messages("businessRegistrationType.company")),
-        value = Some(Company.toString), checked = field.values.contains(Company.toString), id = Some(field.id)),
+        value = Some(Company.toString), checked = field.value.contains(Company.toString), id = Some(field.id)),
       RadioItem(content = Text(Messages("businessRegistrationType.partnership")),
-        value = Some(Partnership.toString), checked = field.values.contains(Partnership.toString), id = Some(field.id))
+        value = Some(Partnership.toString), checked = field.value.contains(Partnership.toString), id = Some(field.id))
     )
   }
 

@@ -74,8 +74,7 @@ class PartnershipUseSameAddressControllerSpec extends ControllerSpecBase with Mo
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
     when(countryOptions.getCountryNameFromCode(eqTo(address))).thenReturn(Some("United Kingdom"))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   val request = FakeRequest(GET, onPageLoadUrl)
 

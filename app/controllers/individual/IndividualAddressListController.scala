@@ -28,7 +28,6 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import utils.countryOptions.CountryOptions
 import viewmodels.{CommonViewModel, CommonViewModelTwirl}
@@ -45,7 +44,6 @@ class IndividualAddressListController @Inject()(override val messagesApi: Messag
                                                 formProvider: AddressListFormProvider,
                                                 val controllerComponents: MessagesControllerComponents,
                                                 countryOptions: CountryOptions,
-                                                val renderer: Renderer,
                                                 addressListView: views.html.individual.AddressListView
                                                )(implicit ec: ExecutionContext) extends AddressListController
   with Retrievals with I18nSupport {

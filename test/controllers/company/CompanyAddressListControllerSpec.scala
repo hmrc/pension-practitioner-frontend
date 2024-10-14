@@ -107,8 +107,7 @@ class CompanyAddressListControllerSpec extends ControllerSpecBase with MockitoSu
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-    when(countryOptions.getCountryNameFromCode(eqTo(tolerantAddress))).thenReturn(Some("United Kingdom"))
+     when(countryOptions.getCountryNameFromCode(eqTo(tolerantAddress))).thenReturn(Some("United Kingdom"))
     when(countryOptions.getCountryNameFromCode(eqTo(incompleteAddresses))).thenReturn(Some("United Kingdom"))
     when(countryOptions.getCountryNameFromCode(eqTo(incompleteFixableAddresses))).thenReturn(Some("United Kingdom"))
   }

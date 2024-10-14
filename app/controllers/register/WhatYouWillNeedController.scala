@@ -22,7 +22,6 @@ import navigators.CompoundNavigator
 import pages.register.WhatYouWillNeedPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.register.WhatYouWillNeedView
@@ -31,15 +30,14 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class WhatYouWillNeedController @Inject()(
-    override val messagesApi: MessagesApi,
-    @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
-    getData: DataRetrievalAction,
-    requireData: DataRequiredAction,
-    navigator: CompoundNavigator,
-    val controllerComponents: MessagesControllerComponents,
-    renderer: Renderer,
-    whatYouWillNeedView: WhatYouWillNeedView
-)(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                           override val messagesApi: MessagesApi,
+                                           @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
+                                           getData: DataRetrievalAction,
+                                           requireData: DataRequiredAction,
+                                           navigator: CompoundNavigator,
+                                           val controllerComponents: MessagesControllerComponents,
+                                           whatYouWillNeedView: WhatYouWillNeedView
+                                         )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData) { implicit request =>
     val ua = request.userAnswers

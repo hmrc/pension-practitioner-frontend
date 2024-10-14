@@ -58,8 +58,7 @@ class IndividualEmailControllerSpec extends ControllerSpecBase with MockitoSugar
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers().set(AreYouUKResidentPage, true).success.value))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   "IndividualEmail Controller" must {
     "return OK and the correct view for a GET" in {

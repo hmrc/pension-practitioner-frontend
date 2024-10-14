@@ -44,8 +44,7 @@ class ViewDetailsControllerSpec extends ControllerSpecBase {
     super.beforeEach()
     when(pspDetailsService.getData(any(), any())(any(), any(), any())).thenReturn(Future.successful
     (PspDetailsData("title", "heading", Seq(), None, false, routes.DeclarationController.onPageLoad().url)))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   "ViewDetails Controller" must {
     "return OK and the correct view for a GET" in {

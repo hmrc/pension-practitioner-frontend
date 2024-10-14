@@ -57,8 +57,7 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
   override def beforeEach(): Unit = {
     super.beforeEach()
     when(countryOptions.getCountryNameFromCode(eqTo(address))).thenReturn("United Kingdom")
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   "UseAddressForContactController" when {
 

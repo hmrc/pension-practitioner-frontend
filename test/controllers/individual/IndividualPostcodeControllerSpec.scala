@@ -70,8 +70,7 @@ class IndividualPostcodeControllerSpec extends ControllerSpecBase with MockitoSu
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   "IndividualPostcode Controller" must {
     "return OK and the correct view for a GET" in {

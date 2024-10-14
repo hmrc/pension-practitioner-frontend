@@ -83,8 +83,7 @@ class PartnershipContactAddressControllerSpec
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-    when(countryOptions.options).thenReturn(Seq(InputOption("GB", "United Kingdom")))
+     when(countryOptions.options).thenReturn(Seq(InputOption("GB", "United Kingdom")))
     when(mockAppConfig.validCountryCodes).thenReturn(Seq("GB"))
   }
 

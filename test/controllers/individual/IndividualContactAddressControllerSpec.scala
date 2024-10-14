@@ -74,8 +74,7 @@ class IndividualContactAddressControllerSpec extends ControllerSpecBase with Moc
       UserAnswers().setOrException(AreYouUKResidentPage, true)
     ))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-    when(countryOptions.options).thenReturn(Seq(InputOption("UK", "United Kingdom")))
+     when(countryOptions.options).thenReturn(Seq(InputOption("UK", "United Kingdom")))
     when(mockAppConfig.validCountryCodes).thenReturn(Seq("UK"))
   }
 

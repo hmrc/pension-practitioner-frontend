@@ -39,7 +39,6 @@ class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar
     "return OK and the correct view for a GET" in {
 
       val view = mock[WhatYouWillNeedView]
-      val mockNavigator = mock[CompoundNavigator]
 
       when(view.apply(any())(any(), any())).thenReturn(Html(""))
 

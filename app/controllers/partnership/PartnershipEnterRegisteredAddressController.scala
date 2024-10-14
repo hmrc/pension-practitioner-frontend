@@ -31,7 +31,6 @@ import pages.partnership.{BusinessNamePage, PartnershipAddressListPage, Partners
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
-import renderer.Renderer
 import views.html.address.ManualAddressView
 
 import javax.inject.Inject
@@ -46,7 +45,6 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
                                                             formProvider: UKAddressFormProvider,
                                                             val controllerComponents: MessagesControllerComponents,
                                                             val config: FrontendAppConfig,
-                                                            val renderer: Renderer,
                                                             registrationConnector:RegistrationConnector,
                                                             manualAddressView: ManualAddressView
 )(implicit ec: ExecutionContext) extends ManualAddressController
@@ -74,8 +72,15 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
           .bindFromRequest()
           .fold(
             formWithErrors => {
-              renderer.render(viewTemplate,
-                json(mode, Some(partnershipName), formWithErrors, AddressConfiguration.CountryOnly)).map(BadRequest(_))
+              val jsonValue = json(mode, Some(partnershipName), formWithErrors, AddressConfiguration.CountryOnly)
+              Future.successful(BadRequest(manualAddressView(
+                (jsonValue \ "pageTitle").asOpt[String].getOrElse(""),
+                (jsonValue \ "h1").asOpt[String].getOrElse(""),
+                (jsonValue \ "postcodeEntry").asOpt[Boolean].getOrElse(false),
+                (jsonValue \ "postcodeFirst").asOpt[Boolean].getOrElse(false),
+                (jsonValue \ "countries").asOpt[Array[models.Country]].getOrElse(Array.empty[models.Country]),
+                submitRoute(mode),
+                formWithErrors)))
             },
             value => {
               val updatedUA = request.userAnswers.setOrException(addressPage, value)

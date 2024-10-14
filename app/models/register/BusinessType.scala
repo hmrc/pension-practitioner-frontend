@@ -20,7 +20,6 @@ import play.api.data.Form
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.viewmodels._
 import utils.{Enumerable, InputOption, WithName}
 
 sealed trait BusinessType
@@ -64,15 +63,15 @@ object BusinessType extends Enumerable.Implicits {
     val field = form("value")
     Seq(
       RadioItem(content = Text(Messages("whatTypeBusiness.limitedCompany")),
-        value = Some(LimitedCompany.toString), checked = field.values.contains(LimitedCompany.toString), id = Some(field.id)),
+        value = Some(LimitedCompany.toString), checked = field.value.contains(LimitedCompany.toString), id = Some(field.id)),
       RadioItem(content = Text(Messages("whatTypeBusiness.businessPartnership")),
-        value = Some(BusinessPartnership.toString), checked = field.values.contains(BusinessPartnership.toString), id = Some(field.id)),
+        value = Some(BusinessPartnership.toString), checked = field.value.contains(BusinessPartnership.toString), id = Some(field.id)),
       RadioItem(content = Text(Messages("whatTypeBusiness.limitedPartnership")),
-        value = Some(LimitedPartnership.toString), checked = field.values.contains(LimitedPartnership.toString), id = Some(field.id)),
+        value = Some(LimitedPartnership.toString), checked = field.value.contains(LimitedPartnership.toString), id = Some(field.id)),
       RadioItem(content = Text(Messages("whatTypeBusiness.limitedLiabilityPartnership")),
-        value = Some(LimitedLiabilityPartnership.toString), checked = field.values.contains(LimitedLiabilityPartnership.toString), id = Some(field.id)),
+        value = Some(LimitedLiabilityPartnership.toString), checked = field.value.contains(LimitedLiabilityPartnership.toString), id = Some(field.id)),
       RadioItem(content = Text(Messages("whatTypeBusiness.unlimitedCompany")),
-        value = Some(UnlimitedCompany.toString), checked = field.values.contains(UnlimitedCompany.toString), id = Some(field.id))
+        value = Some(UnlimitedCompany.toString), checked = field.value.contains(UnlimitedCompany.toString), id = Some(field.id))
     )
   }
 

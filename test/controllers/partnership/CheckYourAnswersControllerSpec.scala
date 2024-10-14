@@ -59,8 +59,7 @@ class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSuga
   override def beforeEach(): Unit = {
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   "CheckYourAnswers Controller" must {
     "return OK and the correct view for a GET" in {

@@ -30,7 +30,6 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import utils.annotations.AuthWithIV
 import views.html.individual.PostcodeView
 
@@ -47,7 +46,6 @@ class IndividualPostcodeController @Inject()(override val messagesApi: MessagesA
                                              formProvider: PostcodeFormProvider,
                                              val addressLookupConnector: AddressLookupConnector,
                                              val controllerComponents: MessagesControllerComponents,
-                                             val renderer: Renderer,
                                              postCodeView: PostcodeView
                                             )(implicit ec: ExecutionContext) extends PostcodeController
   with Retrievals with I18nSupport {

@@ -77,8 +77,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-    mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
+     mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
   }
 
   "Declaration Controller" must {

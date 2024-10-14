@@ -27,7 +27,6 @@ import pages.company.BusinessNamePage
 import pages.register.AreYouUKCompanyPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.BusinessNameView
 
@@ -42,7 +41,6 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
                                       requireData: DataRequiredAction,
                                       formProvider: BusinessNameFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
-                                      renderer: Renderer,
                                       businessNameView: BusinessNameView
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController
                                       with I18nSupport with Variation {

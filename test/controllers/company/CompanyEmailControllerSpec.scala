@@ -64,8 +64,7 @@ class CompanyEmailControllerSpec extends ControllerSpecBase with MockitoSugar wi
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   private val request = FakeRequest(GET, onPageLoadUrl)
 

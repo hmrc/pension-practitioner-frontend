@@ -25,7 +25,6 @@ import play.api.mvc.Results._
 import play.api.mvc.{Request, RequestHeader, Result}
 import play.api.{Logger, PlayException}
 import play.twirl.api.Html
-import renderer.Renderer
 import views.html.templates.ErrorTemplate
 import views.html.{BadRequestView, InternalServerErrorView, NotFoundView}
 

@@ -28,8 +28,6 @@ import play.api.test.Helpers.stubMessages
 import uk.gov.hmrc.govukfrontend.views.Aliases.{Key, SummaryListRow, Value}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions}
-import uk.gov.hmrc.viewmodels.Text.Literal
-import uk.gov.hmrc.viewmodels._
 
 class IndividualCYAServiceSpec
   extends AnyWordSpec with MockitoSugar with BeforeAndAfterEach with CYAService with Matchers with OptionValues {
@@ -56,7 +54,7 @@ class IndividualCYAServiceSpec
     actions = Some(
       Actions(
         items = Seq(ActionItem(
-          content = HtmlContent(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
+          content = HtmlContent(s"""<span aria-hidden="true">${Messages("site.edit")}</span>"""),
           href = href,
           visuallyHiddenText = Some(Messages("cya.change.address"))))))
   )
@@ -73,7 +71,7 @@ class IndividualCYAServiceSpec
       actions = Some(
         Actions(
           items = Seq(ActionItem(
-            content = HtmlContent(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
+            content = HtmlContent(s"""<span aria-hidden="true">${Messages("site.edit")}</span>"""),
             href = controllers.individual.routes.IndividualEmailController.onPageLoad(CheckMode).url,
             visuallyHiddenText = Some(Messages("cya.individual.change.email"))
           )
@@ -85,7 +83,7 @@ class IndividualCYAServiceSpec
       actions = Some(
         Actions(
           items = Seq(ActionItem(
-            content = HtmlContent(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
+            content = HtmlContent(s"""<span aria-hidden="true">${Messages("site.edit")}</span>"""),
             href = controllers.individual.routes.IndividualPhoneController.onPageLoad(CheckMode).url,
             visuallyHiddenText = Some(Messages("cya.individual.change.phone"))
           )

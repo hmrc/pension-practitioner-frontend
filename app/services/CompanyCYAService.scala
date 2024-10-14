@@ -24,7 +24,6 @@ import play.api.mvc.Call
 import uk.gov.hmrc.govukfrontend.views.Aliases.{Key, SummaryListRow, Value}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions}
-import uk.gov.hmrc.viewmodels._
 
 class CompanyCYAService extends CYAService {
 
@@ -89,7 +88,7 @@ class CompanyCYAService extends CYAService {
       actions = Some(
         Actions(
           items = Seq(ActionItem(
-            content = HtmlContent(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
+            content = HtmlContent(s"""<span aria-hidden="true">${Messages("site.edit")}</span>"""),
             href = href.url,
             visuallyHiddenText = Some(Text(Messages("cya.change.address")).value)))))
     )
@@ -102,7 +101,7 @@ class CompanyCYAService extends CYAService {
       actions = Some(
         Actions(
           items = Seq(ActionItem(
-          content = HtmlContent(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
+          content = HtmlContent(s"""<span aria-hidden="true">${Messages("site.edit")}</span>"""),
           href = controllers.company.routes.CompanyEmailController.onPageLoad(CheckMode).url,
           visuallyHiddenText = Some(Text(Messages("cya.change.email",companyName)).value)
         )
@@ -117,7 +116,7 @@ class CompanyCYAService extends CYAService {
       actions = Some(
         Actions(
           items = Seq(ActionItem(
-            content = HtmlContent(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
+            content = HtmlContent(s"""<span aria-hidden="true">${Messages("site.edit")}</span>"""),
             href = controllers.company.routes.CompanyPhoneController.onPageLoad(CheckMode).url,
             visuallyHiddenText = Some(Text(Messages("cya.change.phone", companyName)).value)
           )

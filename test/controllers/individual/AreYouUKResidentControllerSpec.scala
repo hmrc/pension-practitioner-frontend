@@ -35,7 +35,6 @@ import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import viewmodels.Radios
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.individual.AreYouUKResidentView
@@ -56,7 +55,6 @@ class AreYouUKResidentControllerSpec extends ControllerSpecBase with MockitoSuga
   override def modules: Seq[GuiceableModule] = Seq(
     bind[DataRequiredAction].to[DataRequiredActionImpl],
     bind[AuthAction].qualifiedWith(classOf[AuthMustHaveNoEnrolmentWithNoIV]).to[FakeAuthAction],
-    bind[NunjucksRenderer].toInstance(mockRenderer),
     bind[FrontendAppConfig].toInstance(mockAppConfig),
     bind[UserAnswersCacheConnector].toInstance(mockUserAnswersCacheConnector),
     bind[CompoundNavigator].toInstance(mockCompoundNavigator)
