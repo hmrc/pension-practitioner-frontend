@@ -35,7 +35,7 @@ import pages.partnership._
 import pages.register._
 import pages.{PspIdPage, RegistrationDetailsPage, SubscriptionTypePage, UnchangedPspDetailsPage, company => comp}
 import play.api.i18n.Messages
-import play.api.libs.json.{JsObject, JsValue, Json, OWrites}
+import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc.Call
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.viewmodels.SummaryList.{Action, Key, Row, Value}
@@ -68,7 +68,7 @@ class PspDetailsService @Inject()(
   }
 
   private def returnUrlAndLinkData(name: Option[String], rlsFlag: Boolean)
-                              (implicit messages: Messages) = {
+                              (implicit messages: Messages): Option[(String, String)] = {
     if(rlsFlag) None else {
       Some(appConfig.returnToPspDashboardUrl -> name.fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name)))
     }

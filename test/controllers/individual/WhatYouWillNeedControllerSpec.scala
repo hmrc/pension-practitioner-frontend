@@ -22,7 +22,6 @@ import controllers.actions.{AuthAction, DataRequiredAction, DataRequiredActionIm
 import controllers.base.ControllerSpecBase
 import data.SampleData._
 import navigators.CompoundNavigator
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
