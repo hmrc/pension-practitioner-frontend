@@ -18,7 +18,7 @@ package forms.mappings
 
 trait Transforms {
 
-  val regexPostcode = """^[A-Za-z]{1,2}[0-9][0-9A-Za-z]?\s?[0-9][A-Za-z]{2}$"""
+  val regexPostcode = """^[A-Z]{1,2}[0-9][0-9A-Z]?\s?[0-9][A-Z]{2}$"""
 
   protected def noTransform(value: String): String = value
 
