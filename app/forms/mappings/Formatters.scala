@@ -27,7 +27,7 @@ import scala.util.{Failure, Success, Try}
 
 trait Formatters extends Transforms with Constraints {
   private[mappings] val decimalFormat = new DecimalFormat("0.00")
-  private[mappings] val postcodeRegexp = """^[A-Z]{1,2}[0-9][0-9A-Z]?\s?[0-9][A-Z]{2}$"""
+  private[mappings] val postcodeRegexp = """^[A-Za-z]{1,2}[0-9][0-9A-Za-z]?\\s?[0-9][A-Za-z]{2}$"""
   private[mappings] val numericRegexp = """^-?(\-?)(\d*)(\.?)(\d*)$"""
   private[mappings] val decimalRegexp = """^-?(\d*\.\d*)$"""
   private[mappings] val decimal2DPRegexp = """^-?(\d*\.\d{2})$"""
