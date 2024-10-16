@@ -41,7 +41,7 @@ object WhatTypeBusiness extends Enumerable.Implicits {
       RadioItem(content = Text(Messages("whatTypeBusiness.companyOrPartnership")),
         value = Some(Companyorpartnership.toString), checked = field.value.contains(Companyorpartnership.toString), id = Some(field.id)),
       RadioItem(content = Text(Messages("whatTypeBusiness.yourselfAsIndividual")),
-        value = Some(Yourselfasindividual.toString), checked = field.value.contains(Yourselfasindividual.toString), id = Some(field.id))
+        value = Some(Yourselfasindividual.toString), checked = field.value.contains(Yourselfasindividual.toString), id = Some(field.id + "_1"))
     )
   }
 

@@ -40,7 +40,7 @@ object BusinessRegistrationType extends Enumerable.Implicits {
       RadioItem(content = Text(Messages("businessRegistrationType.company")),
         value = Some(Company.toString), checked = field.value.contains(Company.toString), id = Some(field.id)),
       RadioItem(content = Text(Messages("businessRegistrationType.partnership")),
-        value = Some(Partnership.toString), checked = field.value.contains(Partnership.toString), id = Some(field.id))
+        value = Some(Partnership.toString), checked = field.value.contains(Partnership.toString), id = Some(field.id + "_1"))
     )
   }
 

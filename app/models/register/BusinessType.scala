@@ -65,13 +65,13 @@ object BusinessType extends Enumerable.Implicits {
       RadioItem(content = Text(Messages("whatTypeBusiness.limitedCompany")),
         value = Some(LimitedCompany.toString), checked = field.value.contains(LimitedCompany.toString), id = Some(field.id)),
       RadioItem(content = Text(Messages("whatTypeBusiness.businessPartnership")),
-        value = Some(BusinessPartnership.toString), checked = field.value.contains(BusinessPartnership.toString), id = Some(field.id)),
+        value = Some(BusinessPartnership.toString), checked = field.value.contains(BusinessPartnership.toString), id = Some(field.id + "_1")),
       RadioItem(content = Text(Messages("whatTypeBusiness.limitedPartnership")),
-        value = Some(LimitedPartnership.toString), checked = field.value.contains(LimitedPartnership.toString), id = Some(field.id)),
+        value = Some(LimitedPartnership.toString), checked = field.value.contains(LimitedPartnership.toString), id = Some(field.id + "_2")),
       RadioItem(content = Text(Messages("whatTypeBusiness.limitedLiabilityPartnership")),
-        value = Some(LimitedLiabilityPartnership.toString), checked = field.value.contains(LimitedLiabilityPartnership.toString), id = Some(field.id)),
+        value = Some(LimitedLiabilityPartnership.toString), checked = field.value.contains(LimitedLiabilityPartnership.toString), id = Some(field.id + "_3")),
       RadioItem(content = Text(Messages("whatTypeBusiness.unlimitedCompany")),
-        value = Some(UnlimitedCompany.toString), checked = field.value.contains(UnlimitedCompany.toString), id = Some(field.id))
+        value = Some(UnlimitedCompany.toString), checked = field.value.contains(UnlimitedCompany.toString), id = Some(field.id + "_4"))
     )
   }
 
