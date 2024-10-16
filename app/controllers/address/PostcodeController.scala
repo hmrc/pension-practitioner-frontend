@@ -41,7 +41,6 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
   protected def navigator: CompoundNavigator
   protected def form(implicit messages: Messages): Form[String]
   protected def addressLookupConnector: AddressLookupConnector
-  protected def viewTemplate = "address/postcode.njk"
 
   def get(json: Form[String] => JsObject, twirlTemplate: Option[Html] = None)
          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
@@ -103,4 +102,3 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
       }
 
 }
-

@@ -32,7 +32,7 @@ class NonUKPractitionerController @Inject()(
                                              @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
                                              getData: DataRetrievalAction,
                                              val controllerComponents: MessagesControllerComponents,
-                                             nonUKPractitionerView: NonUKPractitionerView,
+                                             nonUKPractitionerView: NonUKPractitionerView
                                            )(implicit ec: ExecutionContext) extends FrontendBaseController
   with I18nSupport with Retrievals {
 

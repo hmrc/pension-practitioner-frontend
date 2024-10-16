@@ -47,8 +47,6 @@ trait ManualAddressController
 
   protected def form(implicit messages: Messages): Form[Address]
 
-  protected def viewTemplate = "address/manualAddress.njk"
-
   protected def config: FrontendAppConfig
 
   protected def addressPage: QuestionPage[Address] = CompanyAddressPage

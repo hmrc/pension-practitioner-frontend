@@ -53,7 +53,7 @@ class DeclarationController @Inject()(
                                        knownFactsRetrieval: KnownFactsRetrieval,
                                        enrolment: EnrolmentConnector,
                                        config: FrontendAppConfig,
-                                       declarationView: DeclarationView,
+                                       declarationView: DeclarationView
                                      )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with Retrievals

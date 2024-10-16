@@ -40,7 +40,7 @@ class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
                                           requireData: DataRequiredAction,
                                           formProvider: AreYouUKCompanyFormProvider,
                                           val controllerComponents: MessagesControllerComponents,
-                                          areYouUkCompanyView: AreYouUkCompanyView,
+                                          areYouUkCompanyView: AreYouUkCompanyView
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   private val form = formProvider()

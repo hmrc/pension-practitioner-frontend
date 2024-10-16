@@ -40,7 +40,7 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
                                            formProvider: WhatTypeBusinessFormProvider,
                                            val controllerComponents: MessagesControllerComponents,
                                            auditService: AuditService,
-                                           whatTypeBusinessView: WhatTypeBusinessView,
+                                           whatTypeBusinessView: WhatTypeBusinessView
                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   private val form = formProvider()

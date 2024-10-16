@@ -30,7 +30,7 @@ class ViewDetailsController @Inject()(@AuthMustHaveEnrolmentWithNoIV authenticat
                                       getData: DataRetrievalAction,
                                       pspDetailsService: PspDetailsService,
                                       val controllerComponents: MessagesControllerComponents,
-                                      viewDetailsView: views.html.amend.ViewDetailsView,
+                                      viewDetailsView: views.html.amend.ViewDetailsView
                                     )(implicit val executionContext: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData).async {

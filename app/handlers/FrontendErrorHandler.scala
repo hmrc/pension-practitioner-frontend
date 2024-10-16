@@ -39,7 +39,7 @@ class FrontendErrorHandler @Inject()(
                                       badRequestView: BadRequestView,
                                       internalServerErrorView: InternalServerErrorView,
                                       errorTemplate: ErrorTemplate,
-                                      notFoundView: NotFoundView,
+                                      notFoundView: NotFoundView
                                     )(implicit ec: ExecutionContext) extends uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler with I18nSupport {
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html = {
