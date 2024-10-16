@@ -23,7 +23,7 @@ import uk.gov.hmrc.domain.Nino
 import utils.countryOptions.CountryOptions
 
 trait Constraints {
-  private val regexPostcode = """^[A-Za-z]{1,2}[0-9][0-9A-Za-z]?\\s?[0-9][A-Za-z]{2}$"""
+  private val regexPostcode = """^[A-Za-z]{1,2}[0-9][0-9A-Za-z]?\s?[0-9][A-Za-z]{2}$"""
   protected val nameRegex = """^[a-zA-Z &`\-\'\.^]{1,35}$"""
   private val regexCrn = "^[A-Za-z0-9 -]{8}$"
   val addressLineRegex = """^[A-Za-z0-9 \-,.&'\/]{1,35}$"""
