@@ -33,14 +33,13 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.InputOption
 import utils.countryOptions.CountryOptions
 import views.html.address.ManualAddressView
 
 import scala.concurrent.Future
 
-class IndividualContactAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class IndividualContactAddressControllerSpec extends ControllerSpecBase with MockitoSugar
                                 with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
@@ -75,8 +74,7 @@ class IndividualContactAddressControllerSpec extends ControllerSpecBase with Moc
       UserAnswers().setOrException(AreYouUKResidentPage, true)
     ))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-    when(countryOptions.options).thenReturn(Seq(InputOption("UK", "United Kingdom")))
+     when(countryOptions.options).thenReturn(Seq(InputOption("UK", "United Kingdom")))
     when(mockAppConfig.validCountryCodes).thenReturn(Seq("UK"))
   }
 

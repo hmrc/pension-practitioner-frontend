@@ -30,9 +30,6 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import utils.annotations.AuthWithIV
 import views.html.individual.PostcodeView
 
@@ -49,11 +46,9 @@ class IndividualPostcodeController @Inject()(override val messagesApi: MessagesA
                                              formProvider: PostcodeFormProvider,
                                              val addressLookupConnector: AddressLookupConnector,
                                              val controllerComponents: MessagesControllerComponents,
-                                             val renderer: Renderer,
-                                             postCodeView: PostcodeView,
-                                             val twirlMigration: TwirlMigration
+                                             postCodeView: PostcodeView
                                             )(implicit ec: ExecutionContext) extends PostcodeController
-  with Retrievals with I18nSupport with NunjucksSupport {
+  with Retrievals with I18nSupport {
 
   def form(implicit messages: Messages): Form[String] =
     formProvider(
@@ -61,7 +56,6 @@ class IndividualPostcodeController @Inject()(override val messagesApi: MessagesA
       messages("individual.postcode.error.invalid")
     )
 
-  override def viewTemplate: String = "individual/postcode.njk"
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
@@ -86,7 +80,6 @@ class IndividualPostcodeController @Inject()(override val messagesApi: MessagesA
   def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Form[String] => JsObject = {
     form =>
       Json.obj(
-        "form" -> form,
         "submitUrl" -> routes.IndividualPostcodeController.onSubmit(mode).url,
         "enterManuallyUrl" -> Some(routes.IndividualContactAddressController.onPageLoad(mode).url)
       )

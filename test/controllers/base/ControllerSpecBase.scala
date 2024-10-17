@@ -32,7 +32,6 @@ import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
 import play.api.test.Helpers.{GET, POST}
 import play.api.test.{FakeHeaders, FakeRequest}
 import play.twirl.api.Html
-import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import utils.annotations.{AuthMustHaveEnrolmentWithNoIV, AuthMustHaveNoEnrolmentWithIV, AuthMustHaveNoEnrolmentWithNoIV, AuthWithIV}
 
 import scala.concurrent.Future
@@ -44,7 +43,6 @@ trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with BeforeAnd
     reset(mockAppConfig)
     when(mockAppConfig.betaFeedbackUnauthenticatedUrl).thenReturn("betaFeedbackTestUrl")
     when(mockAppConfig.contactHmrcUrl).thenReturn("testContactHmrcUrl")
-    reset(mockRenderer)
     reset(mockUserAnswersCacheConnector)
     reset(mockCompoundNavigator)
   }
@@ -55,7 +53,6 @@ trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with BeforeAnd
 
   protected val mockUserAnswersCacheConnector: UserAnswersCacheConnector = mock[UserAnswersCacheConnector]
   protected val mockCompoundNavigator: CompoundNavigator = mock[CompoundNavigator]
-  protected val mockRenderer: NunjucksRenderer = mock[NunjucksRenderer]
 
   def modules: Seq[GuiceableModule] = Seq(
     bind[DataRequiredAction].to[DataRequiredActionImpl],
@@ -64,7 +61,6 @@ trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with BeforeAnd
     bind[AuthAction].qualifiedWith(classOf[AuthMustHaveNoEnrolmentWithIV]).to[FakeAuthActionNoEnrolment],
     bind[AuthAction].qualifiedWith(classOf[AuthMustHaveEnrolmentWithNoIV]).to[FakeAuthAction],
     bind[AuthAction].qualifiedWith(classOf[AuthMustHaveNoEnrolmentWithNoIV]).to[FakeAuthAction],
-    bind[NunjucksRenderer].toInstance(mockRenderer),
     bind[FrontendAppConfig].toInstance(mockAppConfig),
     bind[UserAnswersCacheConnector].toInstance(mockUserAnswersCacheConnector),
     bind[CompoundNavigator].toInstance(mockCompoundNavigator)

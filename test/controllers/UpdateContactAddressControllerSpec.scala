@@ -31,7 +31,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.PspDetailsHelper._
 import services.PspDetailsService
-import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import utils.annotations.AuthMustHaveEnrolmentWithNoIV
 import views.html.UpdateContactAddressView
 
@@ -46,8 +45,7 @@ class UpdateContactAddressControllerSpec extends ControllerSpecBase {
 
   override def modules: Seq[GuiceableModule] = Seq(
     bind[PspDetailsService].toInstance(mockPspDetailsService),
-    bind[AuthAction].qualifiedWith(classOf[AuthMustHaveEnrolmentWithNoIV]).to[FakeAuthAction],
-    bind[NunjucksRenderer].toInstance(mockRenderer)
+    bind[AuthAction].qualifiedWith(classOf[AuthMustHaveEnrolmentWithNoIV]).to[FakeAuthAction]
   )
 
   override def beforeEach(): Unit = {

@@ -32,7 +32,6 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.nunjucks.NunjucksRenderer
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.individual.WhatYouWillNeedView
 
@@ -44,7 +43,6 @@ class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar
   override def modules: Seq[GuiceableModule] = Seq(
     bind[DataRequiredAction].to[DataRequiredActionImpl],
     bind[AuthAction].qualifiedWith(classOf[AuthMustHaveNoEnrolmentWithNoIV]).to[FakeAuthAction],
-    bind[NunjucksRenderer].toInstance(mockRenderer),
     bind[FrontendAppConfig].toInstance(mockAppConfig),
     bind[UserAnswersCacheConnector].toInstance(mockUserAnswersCacheConnector),
     bind[CompoundNavigator].toInstance(mockCompoundNavigator)
@@ -54,8 +52,6 @@ class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar
 
     "return OK and the correct view for a GET" in {
 
-      when(mockRenderer.render(any(), any())(any()))
-        .thenReturn(Future.successful(Html("")))
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()

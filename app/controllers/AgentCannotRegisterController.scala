@@ -17,38 +17,23 @@
 package controllers
 
 import config.FrontendAppConfig
-
-import javax.inject.Inject
 import play.api.i18n.I18nSupport
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.TwirlMigration
 import views.html.AgentCannotRegisterView
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class AgentCannotRegisterController @Inject()(
-                                        val controllerComponents: MessagesControllerComponents,
-                                        renderer: Renderer,
-                                        config: FrontendAppConfig,
-                                        agentCannotRegisterView: AgentCannotRegisterView,
-                                        twirlMigration: TwirlMigration
-                                      )(implicit ec: ExecutionContext)
+                                               val controllerComponents: MessagesControllerComponents,
+                                               config: FrontendAppConfig,
+                                               agentCannotRegisterView: AgentCannotRegisterView
+                                             )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = Action.async { implicit request =>
-    val json = Json.obj(
-      "govUkUrl" -> config.govUkUrl
-    )
-
-    def template = twirlMigration.duoTemplate(
-      renderer.render("agentCannotRegister.njk", json),
-      agentCannotRegisterView()
-    )
-
-    template.map(Ok(_))
+  def onPageLoad: Action[AnyContent] = Action { implicit request =>
+    Ok(agentCannotRegisterView())
   }
 }

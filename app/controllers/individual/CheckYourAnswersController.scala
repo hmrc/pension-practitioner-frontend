@@ -19,13 +19,9 @@ package controllers.individual
 import com.google.inject.Inject
 import controllers.actions.{AuthAction, DataRequiredAction, DataRetrievalAction}
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import services.IndividualCYAService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import views.html.CheckYourAnswersView
 
@@ -38,32 +34,15 @@ class CheckYourAnswersController @Inject()(
                                             requireData: DataRequiredAction,
                                             val controllerComponents: MessagesControllerComponents,
                                             individualCYAService: IndividualCYAService,
-                                            renderer: Renderer,
-                                            checkYourAnswersView: CheckYourAnswersView,
-                                            twirlMigration: TwirlMigration
+                                            checkYourAnswersView: CheckYourAnswersView
                                           )(implicit ec: ExecutionContext)
   extends FrontendBaseController
-    with I18nSupport
-    with NunjucksSupport {
+    with I18nSupport {
 
   def onPageLoad: Action[AnyContent] =
-    (authenticate andThen getData andThen requireData).async { implicit request =>
-
-      val json = Json.obj(
-        "redirectUrl" -> controllers.individual.routes.DeclarationController.onPageLoad().url,
-        "list" -> individualCYAService.individualCya(request.userAnswers)
-      )
-
-      def template = twirlMigration.duoTemplate(
-        renderer.render("check-your-answers.njk", json),
-        checkYourAnswersView(
-          controllers.individual.routes.DeclarationController.onPageLoad(),
-          TwirlMigration.summaryListRow(
-            individualCYAService.individualCya(request.userAnswers)
-          )
-        )
-      )
-
-      template.map(Ok(_))
+    (authenticate andThen getData andThen requireData) { implicit request =>
+      Ok(checkYourAnswersView(
+        controllers.individual.routes.DeclarationController.onPageLoad(),
+        individualCYAService.individualCya(request.userAnswers)))
     }
 }

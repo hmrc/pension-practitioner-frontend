@@ -25,12 +25,8 @@ import models.register.BusinessRegistrationType
 import navigators.CompoundNavigator
 import pages.register.BusinessRegistrationTypePage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.register.BusinessRegistrationTypeView
 
@@ -46,69 +42,39 @@ class BusinessRegistrationTypeController @Inject()(override val messagesApi: Mes
                                                    formProvider: BusinessRegistrationTypeFormProvider,
                                                    val controllerComponents: MessagesControllerComponents,
                                                    config: FrontendAppConfig,
-                                                   renderer: Renderer,
-                                                   businessRegistrationTypeView: BusinessRegistrationTypeView,
-                                                   twirlMigration: TwirlMigration
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
+                                                   businessRegistrationTypeView: BusinessRegistrationTypeView
+                                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   private val form = formProvider()
 
-  def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
+  def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData) {
     implicit request =>
-        val preparedForm = request.userAnswers.get(BusinessRegistrationTypePage) match {
-          case None => form
-          case Some(value) => form.fill(value)
-        }
-
-
-        val json = Json.obj(
-          "form" -> preparedForm,
-          "submitUrl" -> routes.BusinessRegistrationTypeController.onSubmit().url,
-          "radios" -> BusinessRegistrationType.radios(preparedForm)
-        )
-
-      val template = twirlMigration.duoTemplate(
-        renderer.render("register/businessRegistrationType.njk", json),
-        businessRegistrationTypeView(
-          routes.BusinessRegistrationTypeController.onSubmit(),
-          preparedForm,
-          TwirlMigration.toTwirlRadios(BusinessRegistrationType.radios(preparedForm))
-        )
-      )
-
-      template.map(Ok(_))
+      val preparedForm = request.userAnswers.get(BusinessRegistrationTypePage) match {
+        case None => form
+        case Some(value) => form.fill(value)
+      }
+      Ok(businessRegistrationTypeView(
+        routes.BusinessRegistrationTypeController.onSubmit(),
+        preparedForm,
+        BusinessRegistrationType.radios(preparedForm)))
   }
 
   def onSubmit: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
 
-        form.bindFromRequest().fold(
-          formWithErrors => {
-
-
-            val json = Json.obj(
-              "form" -> formWithErrors,
-              "submitUrl" -> routes.BusinessRegistrationTypeController.onSubmit().url,
-              "radios" -> BusinessRegistrationType.radios(formWithErrors)
-            )
-
-            val template = twirlMigration.duoTemplate(
-              renderer.render("register/businessRegistrationType.njk", json),
-              businessRegistrationTypeView(
-                routes.BusinessRegistrationTypeController.onSubmit(),
-                formWithErrors,
-                TwirlMigration.toTwirlRadios(BusinessRegistrationType.radios(formWithErrors))
-              )
-            )
-
-            template.map(BadRequest(_))
-          },
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessRegistrationTypePage, value))
-              _ <- userAnswersCacheConnector.save( updatedAnswers.data)
-            } yield Redirect(navigator.nextPage(BusinessRegistrationTypePage, NormalMode, updatedAnswers))
-        )
+      form.bindFromRequest().fold(
+        formWithErrors => {
+          Future.successful(BadRequest(businessRegistrationTypeView(
+            routes.BusinessRegistrationTypeController.onSubmit(),
+            formWithErrors,
+            BusinessRegistrationType.radios(formWithErrors))))
+        },
+        value =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessRegistrationTypePage, value))
+            _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+          } yield Redirect(navigator.nextPage(BusinessRegistrationTypePage, NormalMode, updatedAnswers))
+      )
 
   }
 }

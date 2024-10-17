@@ -28,10 +28,7 @@ import pages.partnership.{BusinessNamePage, PartnershipEmailPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import viewmodels.CommonViewModelTwirl
 import views.html.EmailView
 
@@ -46,11 +43,9 @@ class PartnershipEmailController @Inject()(override val messagesApi: MessagesApi
                                            requireData: DataRequiredAction,
                                            formProvider: EmailFormProvider,
                                            val controllerComponents: MessagesControllerComponents,
-                                           renderer: Renderer,
-                                           emailView: EmailView,
-                                           twirlMigration: TwirlMigration
+                                           emailView: EmailView
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController
-  with Retrievals with I18nSupport with NunjucksSupport with Variation {
+  with Retrievals with I18nSupport  with Variation {
 
   private def form(implicit messages: Messages): Form[String] =
     formProvider(messages("email.error.required", messages("partnership")))
@@ -60,11 +55,7 @@ class PartnershipEmailController @Inject()(override val messagesApi: MessagesApi
       implicit request =>
         val formFilled = request.userAnswers.get(PartnershipEmailPage).fold(form)(form.fill)
         getModel(mode) { model =>
-          val template = twirlMigration.duoTemplate(
-            renderer.render("email.njk", TwirlMigration.nunjucksGetJson(formFilled, model.toNunjucks)),
-            emailView(model, formFilled)
-          )
-          template.map(Ok(_))
+          Future.successful(Ok(emailView(model, formFilled)))
         }
     }
 
@@ -74,11 +65,7 @@ class PartnershipEmailController @Inject()(override val messagesApi: MessagesApi
         form.bindFromRequest().fold(
           formWithErrors =>
             getModel(mode) { model =>
-              val template = twirlMigration.duoTemplate(
-                renderer.render("email.njk", TwirlMigration.nunjucksGetJson(formWithErrors, model.toNunjucks)),
-                emailView(model, formWithErrors)
-              )
-              template.map(BadRequest(_))
+              Future.successful(BadRequest(emailView(model, formWithErrors)))
             },
           value =>
             for {

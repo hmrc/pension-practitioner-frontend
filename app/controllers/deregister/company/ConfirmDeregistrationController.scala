@@ -21,24 +21,19 @@ import connectors.cache.UserAnswersCacheConnector
 import connectors.{DeregistrationConnector, MinimalConnector}
 import controllers.Retrievals
 import controllers.actions._
-import controllers.deregister.company.routes
 import forms.deregister.ConfirmDeregistrationFormProvider
-
-import javax.inject.Inject
 import models.{NormalMode, UserAnswers}
 import navigators.CompoundNavigator
-import pages.{PspEmailPage, PspNamePage}
 import pages.deregister.ConfirmDeregistrationCompanyPage
+import pages.{PspEmailPage, PspNamePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveEnrolmentWithNoIV
+import viewmodels.Radios
 import views.html.deregister.company.ConfirmDeregistrationView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
@@ -52,11 +47,9 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
                                                 val controllerComponents: MessagesControllerComponents,
                                                 deregistrationConnector: DeregistrationConnector,
                                                 minimalConnector: MinimalConnector,
-                                                renderer: Renderer,
-                                                confirmDeregistrationView: ConfirmDeregistrationView,
-                                                twirlMigration: TwirlMigration
+                                                confirmDeregistrationView: ConfirmDeregistrationView
                                                )(implicit ec: ExecutionContext) extends FrontendBaseController
-                                                with I18nSupport with NunjucksSupport with Retrievals {
+                                                with I18nSupport with Retrievals {
 
   private val form = formProvider()
 
@@ -69,26 +62,15 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
             minimalConnector.getMinimalPspDetails(pspId).flatMap { minimalDetails =>
               (minimalDetails.name, minimalDetails.email) match {
                 case (Some(name), email) =>
-                    val json = Json.obj(
-                      "form" -> form,
-                      "pspName" -> name,
-                      "submitUrl" -> routes.ConfirmDeregistrationController.onSubmit().url,
-                      "radios" -> Radios.yesNo(form("value")),
-                      "returnUrl" -> config.returnToPspDashboardUrl
-                    )
-
                     val updatedAnswers = UserAnswers()
                       .setOrException(PspNamePage, name)
                       .setOrException(PspEmailPage, email)
-
-                  twirlMigration.duoTemplate(
-                    renderer.render("deregister/company/confirmDeregistration.njk", json),
-                    confirmDeregistrationView(routes.ConfirmDeregistrationController.onSubmit(),
-                    form,
-                    TwirlMigration.toTwirlRadios(Radios.yesNo(form("value"))),
+                  userAnswersCacheConnector.save(updatedAnswers.data).map(_ =>
+                    Ok(confirmDeregistrationView(routes.ConfirmDeregistrationController.onSubmit(),
+                      form,
+                      Radios.yesNo(form("value")),
                       name,
-                      config.returnToPspDashboardUrl)
-                  ).flatMap( view => userAnswersCacheConnector.save(updatedAnswers.data).map( _ => Ok(view)))
+                      config.returnToPspDashboardUrl)))
 
                 case _ => sessionExpired
               }
@@ -104,22 +86,11 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
       PspNamePage.retrieve.map { name =>
         form.bindFromRequest().fold(
           formWithErrors => {
-
-            val json = Json.obj(
-              "form" -> formWithErrors,
-              "pspName" -> name,
-              "submitUrl" -> routes.ConfirmDeregistrationController.onSubmit().url,
-              "radios" -> Radios.yesNo(formWithErrors("value"))
-            )
-
-            twirlMigration.duoTemplate(
-              renderer.render("deregister/company/confirmDeregistration.njk", json),
-              confirmDeregistrationView(routes.ConfirmDeregistrationController.onSubmit(),
-                formWithErrors,
-                TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value"))),
-                name,
-                config.returnToPspDashboardUrl)
-            ).map(BadRequest(_))
+            Future.successful(BadRequest(confirmDeregistrationView(routes.ConfirmDeregistrationController.onSubmit(),
+              formWithErrors,
+              Radios.yesNo(formWithErrors("value")),
+              name,
+              config.returnToPspDashboardUrl)))
           },
           value =>
             for {

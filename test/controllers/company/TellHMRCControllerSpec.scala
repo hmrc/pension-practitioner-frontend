@@ -34,8 +34,6 @@ class TellHMRCControllerSpec extends ControllerSpecBase with MockitoSugar {
 
     "return OK and the correct view for a GET" in {
 
-      when(mockRenderer.render(any(), any())(any()))
-        .thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(SampleData.emptyUserAnswers)).build()
       val request = FakeRequest(GET, controllers.routes.TellHMRCController.onPageLoad("company").url)

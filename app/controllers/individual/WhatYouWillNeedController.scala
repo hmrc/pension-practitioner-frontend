@@ -17,20 +17,16 @@
 package controllers.individual
 
 import controllers.actions._
-
-import javax.inject.Inject
 import models.NormalMode
 import navigators.CompoundNavigator
 import pages.individual.WhatYouWillNeedPage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
-import play.api.mvc.{AnyContent, MessagesControllerComponents, Action}
-import renderer.Renderer
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.individual.WhatYouWillNeedView
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class WhatYouWillNeedController @Inject()(
@@ -40,19 +36,12 @@ class WhatYouWillNeedController @Inject()(
                                            requireData: DataRequiredAction,
                                            navigator: CompoundNavigator,
                                            val controllerComponents: MessagesControllerComponents,
-                                           renderer: Renderer,
-                                           whatYouWillNeedView: WhatYouWillNeedView,
-                                           twirlMigration: TwirlMigration
+                                           whatYouWillNeedView: WhatYouWillNeedView
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
+  def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData) {
     implicit request =>
       val nextPage = navigator.nextPage(WhatYouWillNeedPage, NormalMode, request.userAnswers)
-      val template = twirlMigration.duoTemplate(
-        renderer.render(template = "individual/whatYouWillNeed.njk",
-          Json.obj(fields = "nextPage" -> nextPage.url)),
-        whatYouWillNeedView(nextPage.url)
-      )
-      template.map(Ok(_))
+      Ok(whatYouWillNeedView(nextPage.url))
   }
 }

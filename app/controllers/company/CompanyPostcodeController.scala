@@ -21,10 +21,7 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import controllers.address.PostcodeController
-import controllers.company.routes
 import forms.address.PostcodeFormProvider
-
-import javax.inject.Inject
 import models.Mode
 import navigators.CompoundNavigator
 import pages.company.{BusinessNamePage, CompanyPostcodePage}
@@ -32,12 +29,10 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import viewmodels.CommonViewModel
 import views.html.address.PostcodeView
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class CompanyPostcodeController @Inject()(override val messagesApi: MessagesApi,
@@ -49,11 +44,9 @@ class CompanyPostcodeController @Inject()(override val messagesApi: MessagesApi,
                                           formProvider: PostcodeFormProvider,
                                           val addressLookupConnector: AddressLookupConnector,
                                           val controllerComponents: MessagesControllerComponents,
-                                          val renderer: Renderer,
-                                          postCodeView: PostcodeView,
-                                          val twirlMigration: TwirlMigration
+                                          postCodeView: PostcodeView
                                          )(implicit ec: ExecutionContext) extends PostcodeController
-                                          with Retrievals with I18nSupport with NunjucksSupport {
+                                          with Retrievals with I18nSupport {
 
   def form(implicit messages: Messages): Form[String] =
     formProvider(
@@ -96,7 +89,6 @@ class CompanyPostcodeController @Inject()(override val messagesApi: MessagesApi,
       implicit request =>
         BusinessNamePage.retrieve.map { companyName =>
             form => Json.obj(
-              "form" -> form,
               "viewmodel" -> CommonViewModel(
                 "company",
                 companyName,

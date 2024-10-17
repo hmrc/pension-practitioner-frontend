@@ -24,12 +24,8 @@ import models.{NormalMode, UserAnswers, WhatTypeBusiness}
 import navigators.CompoundNavigator
 import pages.WhatTypeBusinessPage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.WhatTypeBusinessView
 
@@ -43,11 +39,9 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
                                            getData: DataRetrievalAction,
                                            formProvider: WhatTypeBusinessFormProvider,
                                            val controllerComponents: MessagesControllerComponents,
-                                           renderer: Renderer,
                                            auditService: AuditService,
-                                           whatTypeBusinessView: WhatTypeBusinessView,
-                                           twirlMigration: TwirlMigration
-                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
+                                           whatTypeBusinessView: WhatTypeBusinessView
+                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   private val form = formProvider()
 
@@ -58,56 +52,33 @@ class WhatTypeBusinessController @Inject()(override val messagesApi: MessagesApi
         case None => form
         case Some(value) => form.fill(value)
       }
-
-      val json = Json.obj(
-        "form" -> preparedForm,
-        "submitUrl" -> routes.WhatTypeBusinessController.onSubmit().url,
-        "radios" -> WhatTypeBusiness.radios(preparedForm)
-      )
-
-      val template = twirlMigration.duoTemplate(
-        renderer.render("whatTypeBusiness.njk", json),
-        whatTypeBusinessView(
-          routes.WhatTypeBusinessController.onSubmit(),
-          preparedForm,
-          TwirlMigration.toTwirlRadios(WhatTypeBusiness.radios(preparedForm))
-        )
-      )
-    template.map(Ok(_))
+      Future.successful(Ok(whatTypeBusinessView(
+        routes.WhatTypeBusinessController.onSubmit(),
+        preparedForm,
+        WhatTypeBusiness.radios(preparedForm))))
   }
 
   def onSubmit(): Action[AnyContent] = (authenticate andThen getData).async {
     implicit request =>
-        form.bindFromRequest().fold(
-          formWithErrors => {
+      form.bindFromRequest().fold(
+        formWithErrors => {
+          Future.successful(BadRequest(whatTypeBusinessView(
+            routes.WhatTypeBusinessController.onSubmit(),
+            formWithErrors,
+            WhatTypeBusiness.radios(formWithErrors)
+          )))
+        },
+        value => {
+          val ua = request.userAnswers.getOrElse(UserAnswers())
+          for {
+            updatedAnswers <- Future.fromTry(ua.set(WhatTypeBusinessPage, value))
+            _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+          } yield {
 
-            val json = Json.obj(
-              "form" -> formWithErrors,
-              "submitUrl" -> routes.WhatTypeBusinessController.onSubmit().url,
-              "radios" -> WhatTypeBusiness.radios(formWithErrors)
-            )
-            val template = twirlMigration.duoTemplate(
-              renderer.render("whatTypeBusiness.njk", json),
-              whatTypeBusinessView(
-                routes.WhatTypeBusinessController.onSubmit(),
-                formWithErrors,
-                TwirlMigration.toTwirlRadios(WhatTypeBusiness.radios(formWithErrors))
-              )
-            )
-
-            template.map(BadRequest(_))
-          },
-          value => {
-            val ua = request.userAnswers.getOrElse(UserAnswers())
-            for {
-              updatedAnswers <- Future.fromTry(ua.set(WhatTypeBusinessPage, value))
-              _ <- userAnswersCacheConnector.save( updatedAnswers.data)
-            } yield {
-
-              auditService.sendEvent(PSPStartEvent(request.user.userType, request.user.isExistingPSP))
-              Redirect(navigator.nextPage(WhatTypeBusinessPage, NormalMode, updatedAnswers))
-            }
+            auditService.sendEvent(PSPStartEvent(request.user.userType, request.user.isExistingPSP))
+            Redirect(navigator.nextPage(WhatTypeBusinessPage, NormalMode, updatedAnswers))
           }
-        )
+        }
+      )
   }
 }

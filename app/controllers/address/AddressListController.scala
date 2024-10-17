@@ -27,12 +27,10 @@ import play.api.i18n.Messages
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{AnyContent, Call, Result}
 import play.twirl.api.Html
-import renderer.Renderer
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
 import viewmodels.CommonViewModelTwirl
 
@@ -40,12 +38,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait AddressListController extends FrontendBaseController with Retrievals with Variation {
 
-  protected def renderer: Renderer
   protected def userAnswersCacheConnector: UserAnswersCacheConnector
   protected def navigator: CompoundNavigator
   protected def form(implicit messages: Messages): Form[Int]
-  protected def viewTemplate = "address/addressList.njk"
-  protected def twirlMigration: TwirlMigration
 
   def get(json: Form[Int] => JsObject, onSubmitCall: Call, manualUrl: String, twirlView: (CommonViewModelTwirl, Seq[RadioItem]) => Html)
          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
@@ -56,11 +51,7 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
       entityName = (jsonValue \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
       submitUrl = onSubmitCall,
       enterManuallyUrl = Some(manualUrl))
-
-    twirlMigration.duoTemplate(
-      renderer.render(viewTemplate, jsonValue),
-      twirlView(model, twirlAddressRadios(jsonValue))
-    ).map(Ok(_))
+    Future.successful(Ok(twirlView(model, twirlAddressRadios(jsonValue))))
   }
 
   def post(mode: Mode,
@@ -81,11 +72,7 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
           enterManuallyUrl = Some(manualUrlCall.url))
 
         val radios = twirlAddressRadios(jsonObject)
-
-        twirlMigration.duoTemplate(
-          renderer.render(viewTemplate, json(formWithErrors)),
-          twirlView(model, radios, formWithErrors)
-        ).map(BadRequest(_))
+        Future.successful(BadRequest(twirlView(model, radios, formWithErrors)))
 
       },
       value =>

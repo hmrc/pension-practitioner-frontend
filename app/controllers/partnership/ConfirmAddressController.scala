@@ -32,11 +32,9 @@ import pages.register.BusinessTypePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import renderer.Renderer
 import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
-import utils.TwirlMigration
+import viewmodels.Radios
 import utils.countryOptions.CountryOptions
 import views.html.ConfirmAddressView
 
@@ -53,10 +51,8 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
                                          formProvider: ConfirmAddressFormProvider,
                                          val controllerComponents: MessagesControllerComponents,
                                          countryOptions: CountryOptions,
-                                         confirmAddressView: ConfirmAddressView,
-                                         renderer: Renderer,
-                                         twirlMigration: TwirlMigration
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport with Retrievals {
+                                         confirmAddressView: ConfirmAddressView
+                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Retrievals {
 
   private val form = formProvider("confirmAddress.partnership.error.required")
 
@@ -86,26 +82,13 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
             .setOrException(RegistrationInfoPage, reg.info)
 
           userAnswersCacheConnector.save(ua.data).flatMap{ _ =>
-            val json = Json.obj(
-              "form" -> form,
-              "pspName" -> pspName,
-              "entityName" -> "partnership",
-              "address" -> formattedAddress(reg.response.address),
-              "submitUrl" -> routes.ConfirmAddressController.onSubmit().url,
-              "radios" -> Radios.yesNo(form("value")))
-
-            def template = twirlMigration.duoTemplate(
-              renderer.render("confirmAddress.njk", json),
-              confirmAddressView("partnership",
-                form,
-                routes.ConfirmAddressController.onSubmit(),
-                pspName,
-                reg.response.address.lines(countryOptions),
-                TwirlMigration.toTwirlRadios(Radios.yesNo(form("value")))
-              )
-            )
-
-            template.map(Ok(_))
+            Future.successful(Ok(confirmAddressView("partnership",
+              form,
+              routes.ConfirmAddressController.onSubmit(),
+              pspName,
+              reg.response.address.lines(countryOptions),
+              Radios.yesNo(form("value"))
+            )))
           }
         } recoverWith {
          case _: NotFoundException =>
@@ -122,28 +105,13 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
 
             request.userAnswers.get(ConfirmAddressPage) match {
               case Some(addr) =>
-                val json = Json.obj(
-                  "form"   -> formWithErrors,
-                  "entityName" -> "partnership",
-                  "pspName" -> pspName,
-                  "address" -> formattedAddress(addr),
-                  "submitUrl"   -> routes.ConfirmAddressController.onSubmit().url,
-                  "radios" -> Radios.yesNo(formWithErrors("value"))
-                )
-
-                def template = twirlMigration.duoTemplate(
-                  renderer.render("confirmAddress.njk", json),
-                  confirmAddressView("partnership",
-                    formWithErrors,
-                    routes.ConfirmAddressController.onSubmit(),
-                    pspName,
-                    addr.lines(countryOptions),
-                    TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value")))
-                  )
-                )
-
-                template.map(BadRequest(_))
-
+                Future.successful(BadRequest(confirmAddressView("partnership",
+                  formWithErrors,
+                  routes.ConfirmAddressController.onSubmit(),
+                  pspName,
+                  addr.lines(countryOptions),
+                  Radios.yesNo(formWithErrors("value"))
+                )))
               case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
             }
 

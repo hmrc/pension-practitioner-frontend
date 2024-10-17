@@ -37,15 +37,14 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
-import utils.TwirlMigration
+import viewmodels.Radios
 import utils.countryOptions.CountryOptions
 import views.html.ConfirmAddressView
 
 import scala.concurrent.Future
 
-class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar with
-  NunjucksSupport with JsonMatchers with OptionValues with TryValues with BeforeAndAfterEach {
+class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar
+   with JsonMatchers with OptionValues with TryValues with BeforeAndAfterEach {
 
   private def onwardRoute = Call("GET", "/foo")
 
@@ -78,7 +77,6 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockRenderer)
     reset(mockRegistrationConnector)
     reset(mockUserAnswersCacheConnector)
     reset(mockCountryOptions)
@@ -93,7 +91,6 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
 
         ).build()
 
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
       when(mockRegistrationConnector.registerWithIdOrganisation(any(), any(), any())(any(), any()))
         .thenReturn(Future.successful(organisationRegistration))
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
@@ -115,7 +112,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
         confirmAddressSubmitCall,
         "test-partnership",
         Seq("addr1", "addr2", "", "GB"),
-        TwirlMigration.toTwirlRadios(Radios.yesNo(form("value")))
+        Radios.yesNo(form("value"))
       )(request, messages)
 
       compareResultAndView(result, view)
@@ -144,7 +141,6 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
 
     "return a Bad Request and errors when invalid data is submitted" in {
 
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
       when(mockCountryOptions.getCountryNameFromCode(ArgumentMatchers.any[TolerantAddress])).thenReturn(Some("GB"))
 
       val userAnswersWithAddress = userAnswersWithRegistrationValues
@@ -168,7 +164,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
         confirmAddressSubmitCall,
         "test-partnership",
         Seq("addr1", "addr2", "", "GB"),
-        TwirlMigration.toTwirlRadios(Radios.yesNo(boundForm("value")))
+        Radios.yesNo(boundForm("value"))
       )(request, messages)
       compareResultAndView(result, view)
       application.stop()

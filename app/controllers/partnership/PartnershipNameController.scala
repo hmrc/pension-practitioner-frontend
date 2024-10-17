@@ -21,8 +21,6 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.Variation
 import controllers.actions._
 import forms.BusinessNameFormProvider
-
-import javax.inject.Inject
 import models.Mode
 import navigators.CompoundNavigator
 import pages.NameChange
@@ -30,14 +28,11 @@ import pages.partnership.BusinessNamePage
 import pages.register.AreYouUKCompanyPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import views.html.BusinessNameView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class PartnershipNameController @Inject()(override val messagesApi: MessagesApi,
@@ -49,66 +44,38 @@ class PartnershipNameController @Inject()(override val messagesApi: MessagesApi,
                                           formProvider: BusinessNameFormProvider,
                                           val controllerComponents: MessagesControllerComponents,
                                           config: FrontendAppConfig,
-                                          renderer: Renderer,
-                                          businessNameView: BusinessNameView,
-                                          twirlMigration: TwirlMigration
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController
-                                        with I18nSupport with NunjucksSupport with Variation {
+                                          businessNameView: BusinessNameView
+                                         )(implicit ec: ExecutionContext) extends FrontendBaseController
+  with I18nSupport with Variation {
 
   private def form: Form[String] = formProvider("partnershipName.error.required", "partnershipName.error.invalid", "partnershipName.error.length")
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData) {
     implicit request =>
-        val preparedForm = request.userAnswers.get(BusinessNamePage) match {
-          case None => form
-          case Some(value) => form.fill(value)
-        }
+      val preparedForm = request.userAnswers.get(BusinessNamePage) match {
+        case None => form
+        case Some(value) => form.fill(value)
+      }
 
-        val hint = request.userAnswers.get(AreYouUKCompanyPage) match {
-          case Some(true) => Some("businessName.hint")
-          case _ => None
-        }
-
-        val extraJson = hint.map { hint => Json.obj("hintMessageKey" -> hint)}.getOrElse(Json.obj())
-
-        val json = Json.obj(
-          "form" -> preparedForm,
-          "submitUrl" -> routes.PartnershipNameController.onSubmit(mode).url,
-          "entityName" -> "partnership"
-        ) ++ extraJson
-
-        val template = twirlMigration.duoTemplate(
-          renderer.render("businessName.njk", json),
-          businessNameView("partnership", preparedForm, routes.PartnershipNameController.onSubmit(mode), hint)
-        )
-
-        template.map(Ok(_))
+      val hint = request.userAnswers.get(AreYouUKCompanyPage) match {
+        case Some(true) => Some("businessName.hint")
+        case _ => None
+      }
+      Ok(businessNameView("partnership", preparedForm, routes.PartnershipNameController.onSubmit(mode), hint))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-        form.bindFromRequest().fold(
-          formWithErrors => {
-
-            val json = Json.obj(
-              "form" -> formWithErrors,
-              "submitUrl" -> routes.PartnershipNameController.onSubmit(mode).url,
-              "entityName" -> "partnership"
-            )
-
-            val template = twirlMigration.duoTemplate(
-              renderer.render("businessName.njk", json),
-              businessNameView("partnership", formWithErrors, routes.PartnershipNameController.onSubmit(mode), None)
-            )
-
-            template.map(BadRequest(_))
-          },
-          value =>
-            for {
-              ua <- Future.fromTry(request.userAnswers.set(BusinessNamePage, value))
-              updatedAnswers <- Future.fromTry(setChangeFlag(ua, NameChange))
-              _ <- userAnswersCacheConnector.save( updatedAnswers.data)
-            } yield Redirect(navigator.nextPage(BusinessNamePage, mode, updatedAnswers))
-        )
+      form.bindFromRequest().fold(
+        formWithErrors => {
+          Future.successful(BadRequest(businessNameView("partnership", formWithErrors, routes.PartnershipNameController.onSubmit(mode), None)))
+        },
+        value =>
+          for {
+            ua <- Future.fromTry(request.userAnswers.set(BusinessNamePage, value))
+            updatedAnswers <- Future.fromTry(setChangeFlag(ua, NameChange))
+            _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+          } yield Redirect(navigator.nextPage(BusinessNamePage, mode, updatedAnswers))
+      )
   }
 }

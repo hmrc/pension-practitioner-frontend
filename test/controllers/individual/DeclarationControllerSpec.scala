@@ -39,13 +39,12 @@ import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.KnownFactsRetrieval
 import views.html.individual.DeclarationView
 
 import scala.concurrent.Future
 
-class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
@@ -78,8 +77,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-    mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
+     mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
   }
 
   "Declaration Controller" must {

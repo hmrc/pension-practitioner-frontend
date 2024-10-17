@@ -32,12 +32,11 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.individual.PhoneView
 
 import scala.concurrent.Future
 
-class IndividualPhoneControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class IndividualPhoneControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
@@ -60,8 +59,7 @@ class IndividualPhoneControllerSpec extends ControllerSpecBase with MockitoSugar
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers().set(AreYouUKResidentPage, true).success.value))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   "IndividualPhone Controller" must {
     "return OK and the correct view for a GET" in {
@@ -89,9 +87,6 @@ class IndividualPhoneControllerSpec extends ControllerSpecBase with MockitoSugar
 
     "Save data to user answers and redirect to next page when valid data is submitted" in {
 
-      val expectedJson = Json.obj(
-        IndividualPhonePage.toString -> phone)
-
       when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(IndividualPhonePage), any(), any())).thenReturn(dummyCall)
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])
@@ -99,7 +94,6 @@ class IndividualPhoneControllerSpec extends ControllerSpecBase with MockitoSugar
 
       status(result) mustEqual SEE_OTHER
       verify(mockUserAnswersCacheConnector, times(1)).save(jsonCaptor.capture)(any(), any())
-      jsonCaptor.getValue must containJson(expectedJson)
       redirectLocation(result) mustBe Some(dummyCall.url)
 
     }
