@@ -27,12 +27,10 @@ import pages.company.CompanyAddressPage
 import pages.{AddressChange, QuestionPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages}
+import play.api.libs.json.Json._
 import play.api.libs.json.{JsArray, JsObject, Json}
 import play.api.mvc.{AnyContent, Call, Result}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import views.html.address.ManualAddressView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,18 +39,13 @@ trait ManualAddressController
     extends FrontendBaseController
     with Retrievals
     with I18nSupport
-    with NunjucksSupport
     with Variation {
-
-  protected def renderer: Renderer
 
   protected def userAnswersCacheConnector: UserAnswersCacheConnector
 
   protected def navigator: CompoundNavigator
 
   protected def form(implicit messages: Messages): Form[Address]
-
-  protected def viewTemplate = "address/manualAddress.njk"
 
   protected def config: FrontendAppConfig
 
@@ -65,8 +58,6 @@ trait ManualAddressController
   protected val pageTitleEntityTypeMessageKey: Option[String] = None
 
   protected val h1MessageKey: String = pageTitleMessageKey
-
-  protected val twirlMigration: TwirlMigration
 
   protected def addressConfigurationForPostcodeAndCountry(isUK:Boolean): AddressConfiguration =
     if(isUK) AddressConfiguration.PostcodeFirst else AddressConfiguration.CountryFirst
@@ -87,18 +78,14 @@ trait ManualAddressController
       case Some(value) => form.fill(value)
     }
     val jsonValue: JsObject =  json(mode, name, preparedForm, addressLocation)
-    val template = twirlMigration.duoTemplate(
-      renderer.render(viewTemplate, jsonValue),
-      manualAddressView(
-        (jsonValue \ "pageTitle").asOpt[String].getOrElse(""),
-        (jsonValue \ "h1").asOpt[String].getOrElse(""),
-        (jsonValue \ "postcodeEntry").asOpt[Boolean].getOrElse(false),
-        (jsonValue \ "postcodeFirst").asOpt[Boolean].getOrElse(false),
-        (jsonValue \ "countries").asOpt[Array[models.Country]].getOrElse(Array.empty[models.Country]),
-        submitRoute(mode),
-        preparedForm)
-    )
-    template.map(Ok(_))
+    Future.successful(Ok(manualAddressView(
+      (jsonValue \ "pageTitle").asOpt[String].getOrElse(""),
+      (jsonValue \ "h1").asOpt[String].getOrElse(""),
+      (jsonValue \ "postcodeEntry").asOpt[Boolean].getOrElse(false),
+      (jsonValue \ "postcodeFirst").asOpt[Boolean].getOrElse(false),
+      (jsonValue \ "countries").asOpt[Array[models.Country]].getOrElse(Array.empty[models.Country]),
+      submitRoute(mode),
+      preparedForm)))
   }
 
   protected def post(mode: Mode,
@@ -113,18 +100,14 @@ trait ManualAddressController
       .fold(
         formWithErrors => {
           val jsonValue: JsObject =  json(mode, name, formWithErrors, addressLocation)
-          val template = twirlMigration.duoTemplate(
-            renderer.render(viewTemplate, jsonValue),
-            manualAddressView((jsonValue \ "pageTitle").asOpt[String].getOrElse(""),
-              (jsonValue \ "h1").asOpt[String].getOrElse(""),
-              (jsonValue \ "postcodeEntry").asOpt[Boolean].getOrElse(false),
-              (jsonValue \ "postcodeFirst").asOpt[Boolean].getOrElse(false),
-              (jsonValue \ "countries").asOpt[Array[models.Country]].getOrElse(Array.empty[models.Country]),
-              submitRoute(mode),
-              formWithErrors
-          )
-          )
-          template.map(BadRequest(_))
+          Future.successful(BadRequest(manualAddressView((jsonValue \ "pageTitle").asOpt[String].getOrElse(""),
+            (jsonValue \ "h1").asOpt[String].getOrElse(""),
+            (jsonValue \ "postcodeEntry").asOpt[Boolean].getOrElse(false),
+            (jsonValue \ "postcodeFirst").asOpt[Boolean].getOrElse(false),
+            (jsonValue \ "countries").asOpt[Array[models.Country]].getOrElse(Array.empty[models.Country]),
+            submitRoute(mode),
+            formWithErrors
+          )))
         },
         value =>
           for {
@@ -172,7 +155,6 @@ trait ManualAddressController
 
     Json.obj(
       "submitUrl" -> submitRoute(mode).url,
-      "form" -> form,
       "pageTitle" -> pageTitle,
       "h1" -> h1
     ) ++ extraJson

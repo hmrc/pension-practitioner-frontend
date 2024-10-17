@@ -24,21 +24,17 @@ import controllers.actions._
 import controllers.address.ManualAddressController
 import controllers.company.routes.IsCompanyRegisteredInUkController
 import forms.address.UKAddressFormProvider
-
-import javax.inject.Inject
-import models.{Address, AddressConfiguration, Mode}
 import models.register.RegistrationLegalStatus
+import models.{Address, AddressConfiguration, Mode}
 import navigators.CompoundNavigator
-import pages.{QuestionPage, RegistrationInfoPage}
 import pages.company.{BusinessNamePage, CompanyAddressListPage, CompanyRegisteredAddressPage}
+import pages.{QuestionPage, RegistrationInfoPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
-import renderer.Renderer
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import views.html.address.ManualAddressView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi: MessagesApi,
@@ -50,12 +46,10 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
                                                         formProvider: UKAddressFormProvider,
                                                         val controllerComponents: MessagesControllerComponents,
                                                         val config: FrontendAppConfig,
-                                                        val renderer: Renderer,
                                                         registrationConnector:RegistrationConnector,
-                                                        manualAddressView: ManualAddressView,
-                                                        val twirlMigration: TwirlMigration
+                                                        manualAddressView: ManualAddressView
 )(implicit ec: ExecutionContext) extends ManualAddressController
-  with Retrievals with I18nSupport with NunjucksSupport {
+  with Retrievals with I18nSupport {
 
   def form(implicit messages: Messages): Form[Address] = formProvider()
 
@@ -79,8 +73,15 @@ class CompanyEnterRegisteredAddressController @Inject()(override val messagesApi
           .bindFromRequest()
           .fold(
             formWithErrors => {
-              renderer.render(viewTemplate,
-                json(mode, Some(companyName), formWithErrors, AddressConfiguration.CountryOnly)).map(BadRequest(_))
+              val jsonValue = json(mode, Some(companyName), formWithErrors, AddressConfiguration.CountryOnly)
+              Future.successful(BadRequest(manualAddressView(
+                (jsonValue \ "pageTitle").asOpt[String].getOrElse(""),
+                (jsonValue \ "h1").asOpt[String].getOrElse(""),
+                (jsonValue \ "postcodeEntry").asOpt[Boolean].getOrElse(false),
+                (jsonValue \ "postcodeFirst").asOpt[Boolean].getOrElse(false),
+                (jsonValue \ "countries").asOpt[Array[models.Country]].getOrElse(Array.empty[models.Country]),
+                submitRoute(mode),
+                formWithErrors)))
             },
             value => {
               val updatedUA = request.userAnswers.setOrException(addressPage, value)

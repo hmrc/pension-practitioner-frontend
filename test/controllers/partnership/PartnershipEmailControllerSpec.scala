@@ -33,13 +33,12 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import viewmodels.CommonViewModelTwirl
 import views.html.EmailView
 
 import scala.concurrent.Future
 
-class PartnershipEmailControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class PartnershipEmailControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
@@ -70,8 +69,7 @@ class PartnershipEmailControllerSpec extends ControllerSpecBase with MockitoSuga
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   "PartnershipEmail Controller" must {
     "return OK and the correct view for a GET" in {

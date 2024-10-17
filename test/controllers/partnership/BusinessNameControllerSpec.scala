@@ -30,12 +30,11 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.BusinessNameView
 
 import scala.concurrent.Future
 
-class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers with OptionValues with TryValues {
   def onwardRoute: Call = Call("GET", "/foo")
 
   private val formProvider = new BusinessNameFormProvider()
@@ -49,7 +48,6 @@ class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar wi
   "PartnershipName Controller" must {
 
     "return OK and the correct view for a GET" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(UserAnswers()))
         .overrides(
@@ -74,7 +72,6 @@ class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar wi
 
     "populate the view correctly on a GET when the question has previously been answered" in {
 
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(answers))
         .overrides(
@@ -122,7 +119,6 @@ class BusinessNameControllerSpec extends ControllerSpecBase with MockitoSugar wi
     }
 
     "return a Bad Request and errors when invalid data is submitted" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(UserAnswers()))
         .overrides(

@@ -25,20 +25,19 @@ import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
+import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import services.IndividualCYAService
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import uk.gov.hmrc.viewmodels.SummaryList.{Key, Row, Value}
-import uk.gov.hmrc.viewmodels.Text.Literal
-import utils.TwirlMigration
+import uk.gov.hmrc.govukfrontend.views.Aliases.{Key, SummaryListRow, Value}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import views.html.CheckYourAnswersView
 
 import scala.concurrent.Future
 
-class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
@@ -51,24 +50,22 @@ class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSuga
   private def onPageLoadUrl: String = routes.CheckYourAnswersController.onPageLoad().url
   private def redirectUrl: Call = controllers.individual.routes.DeclarationController.onPageLoad()
 
-  private val list: Seq[Row] = Seq(Row(
-    key = Key(msg"cya.name", classes = Seq("govuk-!-width-one-half")),
-    value = Value(Literal("first last"), classes = Seq("govuk-!-width-one-third"))
+  private val list: Seq[SummaryListRow] = Seq(SummaryListRow(
+    key = Key(Text(Messages("cya.name")), classes = "govuk-!-width-one-half"),
+    value = Value(Text("first last"), classes = "govuk-!-width-one-third")
   ))
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   "CheckYourAnswers Controller" must {
     "return OK and the correct view for a GET" in {
       val request = httpGETRequest(onPageLoadUrl)
       when(individualCYAService.individualCya(any())(any())).thenReturn(list)
 
-      val view = app.injector.instanceOf[CheckYourAnswersView].apply(redirectUrl,
-        TwirlMigration.summaryListRow(list))(request, messages)
+      val view = app.injector.instanceOf[CheckYourAnswersView].apply(redirectUrl, list)(request, messages)
 
       val result = route(app, request).value
 

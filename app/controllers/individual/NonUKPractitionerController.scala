@@ -19,13 +19,11 @@ package controllers.individual
 import controllers.Retrievals
 import controllers.actions._
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.individual.NonUKPractitionerView
+
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
@@ -34,19 +32,13 @@ class NonUKPractitionerController @Inject()(
                                            @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
                                            getData: DataRetrievalAction,
                                            val controllerComponents: MessagesControllerComponents,
-                                           renderer: Renderer,
-                                           nonUKPractitionerView: NonUKPractitionerView,
-                                           twirlMigration: TwirlMigration
+                                           nonUKPractitionerView: NonUKPractitionerView
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController
                                            with I18nSupport with Retrievals {
 
-  def onPageLoad: Action[AnyContent] = (authenticate andThen getData).async {
+  def onPageLoad: Action[AnyContent] = (authenticate andThen getData) {
     implicit request =>
       val emailHrefLink = s"mailto: ${request2Messages.messages("nonUKPractitioner.p2.emailHref")}"
-      val template = twirlMigration.duoTemplate(
-        renderer.render(template = "individual/nonUKPractitioner.njk", Json.obj()),
-        nonUKPractitionerView(emailHrefLink)
-      )
-      template.map(Ok(_))
-    }
+      Ok(nonUKPractitionerView(emailHrefLink))
+  }
 }

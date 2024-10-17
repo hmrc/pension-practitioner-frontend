@@ -18,14 +18,14 @@ package services
 
 import models.Address
 import play.api.i18n.Messages
-import uk.gov.hmrc.viewmodels.Html
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 trait CYAService {
 
-  def addressAnswer(addr: Address)(implicit messages: Messages): Html = {
+  def addressAnswer(addr: Address)(implicit messages: Messages): HtmlContent = {
     def addrLineToHtml(l: String): String = s"""<span class="govuk-!-display-block">$l</span>"""
 
-    Html(
+    HtmlContent(
       addrLineToHtml(addr.addressLine1) +
         addrLineToHtml(addr.addressLine2) +
         addr.addressLine3.fold("")(addrLineToHtml) +

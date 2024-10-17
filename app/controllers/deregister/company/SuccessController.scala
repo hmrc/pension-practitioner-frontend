@@ -21,16 +21,12 @@ import controllers.Retrievals
 import controllers.actions._
 import pages.PspNamePage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import views.html.deregister.company.SuccessView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class SuccessController @Inject()(override val messagesApi: MessagesApi,
                                   userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -38,29 +34,17 @@ class SuccessController @Inject()(override val messagesApi: MessagesApi,
                                   getData: DataRetrievalAction,
                                   requireData: DataRequiredAction,
                                   val controllerComponents: MessagesControllerComponents,
-                                  renderer: Renderer,
-                                  successView: SuccessView,
-                                  twirlMigration: TwirlMigration
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController
-  with Retrievals with I18nSupport with NunjucksSupport {
+                                  successView: SuccessView
+                                 )(implicit ec: ExecutionContext) extends FrontendBaseController
+  with Retrievals with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       PspNamePage.retrieve.map { name =>
-          val json: JsObject = Json.obj(
-            "pspName" -> name,
-            "submitUrl" -> controllers.routes.SignOutController.signOut().url
-          )
-          userAnswersCacheConnector.removeAll.flatMap { _ =>
-            twirlMigration.duoTemplate(
-              renderer.render("deregister/company/success.njk", json),
-              successView(
-                name,
-                controllers.routes.SignOutController.signOut().url
-              )
-            ).map(Ok(_))
-          }
+        Future.successful(Ok(successView(
+          name,
+          controllers.routes.SignOutController.signOut().url
+        )))
       }
   }
-
 }

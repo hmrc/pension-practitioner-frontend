@@ -130,7 +130,6 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
     "return a Bad Request and errors when invalid data is submitted" in {
 
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName))
         .overrides(

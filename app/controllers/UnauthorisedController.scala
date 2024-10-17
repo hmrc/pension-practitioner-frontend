@@ -16,30 +16,22 @@
 
 package controllers
 
-import javax.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.TwirlMigration
 import views.html.UnauthorisedView
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class UnauthorisedController @Inject()(
                                         val controllerComponents: MessagesControllerComponents,
-                                        renderer: Renderer,
-                                        unauthorisedView: UnauthorisedView,
-                                        twirlMigration: TwirlMigration
+                                        unauthorisedView: UnauthorisedView
                                       )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = Action.async { implicit request =>
-    val template = twirlMigration.duoTemplate(
-      renderer.render("unauthorised.njk"),
-      unauthorisedView()
-    )
-    template.map(Ok(_))
+  def onPageLoad: Action[AnyContent] = Action { implicit request =>
+    Ok(unauthorisedView())
   }
 }

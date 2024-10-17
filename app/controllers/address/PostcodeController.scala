@@ -28,35 +28,24 @@ import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.libs.json.{JsArray, JsObject, Json}
 import play.api.mvc.{AnyContent, Result}
-import renderer.Renderer
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import forms.FormsHelper.formWithError
 import play.twirl.api.Html
-import utils.TwirlMigration
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait PostcodeController extends FrontendBaseController with Retrievals {
 
-  protected def renderer: Renderer
   protected def userAnswersCacheConnector: UserAnswersCacheConnector
   protected def navigator: CompoundNavigator
   protected def form(implicit messages: Messages): Form[String]
   protected def addressLookupConnector: AddressLookupConnector
-  protected def viewTemplate = "address/postcode.njk"
-
-  protected def twirlMigration: TwirlMigration
 
   def get(json: Form[String] => JsObject, twirlTemplate: Option[Html] = None)
          (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
     twirlTemplate match {
-      case Some(template) =>
-        twirlMigration.duoTemplate(
-          renderer.render(viewTemplate, json(form)),
-          template
-        ).map(Ok(_))
-      case None => renderer.render(viewTemplate, json(form)).map(Ok(_))
+      case Some(template) => Future.successful(Ok(template))
     }
   }
 
@@ -67,11 +56,7 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
       formWithErrors =>
         formToTwirlTemplate match {
           case Some(formToTemplate) =>
-            twirlMigration.duoTemplate(
-              renderer.render(viewTemplate, formToJson(formWithErrors)),
-              formToTemplate(formWithErrors)
-            ).map(BadRequest(_))
-          case None => renderer.render(viewTemplate, formToJson(formWithErrors)).map(BadRequest(_))
+            Future.successful(BadRequest(formToTemplate(formWithErrors)))
         },
       value =>
           addressLookupConnector.addressLookupByPostCode(value).flatMap {
@@ -80,11 +65,7 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
               val json = formToJson(formWithErrors)
               formToTwirlTemplate match {
                 case Some(formToTemplate) =>
-                  twirlMigration.duoTemplate(
-                    renderer.render(viewTemplate, json),
-                    formToTemplate(formWithErrors)
-                  ).map(BadRequest(_))
-                case None => renderer.render(viewTemplate, json).map(BadRequest(_))
+                  Future.successful(BadRequest(formToTemplate(formWithErrors)))
               }
 
             case addresses =>
@@ -121,4 +102,3 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
       }
 
 }
-

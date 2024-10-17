@@ -38,13 +38,12 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.KnownFactsRetrieval
 import views.html.register.DeclarationView
 
 import scala.concurrent.Future
 
-class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()

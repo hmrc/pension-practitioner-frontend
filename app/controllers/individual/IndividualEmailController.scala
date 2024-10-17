@@ -21,18 +21,13 @@ import controllers.actions._
 import controllers.{Retrievals, Variation}
 import forms.EmailFormProvider
 import models.Mode
-import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.AddressChange
 import pages.individual.{AreYouUKResidentPage, IndividualEmailPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import renderer.Renderer
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import utils.annotations.AuthWithIV
 import views.html.individual.EmailView
 
@@ -47,11 +42,9 @@ class IndividualEmailController @Inject()(override val messagesApi: MessagesApi,
                                           requireData: DataRequiredAction,
                                           formProvider: EmailFormProvider,
                                           val controllerComponents: MessagesControllerComponents,
-                                          renderer: Renderer,
-                                          emailView: EmailView,
-                                          twirlMigration: TwirlMigration
+                                          emailView: EmailView
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController
-  with Retrievals with I18nSupport with NunjucksSupport with Variation {
+  with Retrievals with I18nSupport with Variation {
 
   private def form(implicit messages: Messages): Form[String] =
     formProvider(messages("individual.email.error.required"))
@@ -62,16 +55,10 @@ class IndividualEmailController @Inject()(override val messagesApi: MessagesApi,
         request.userAnswers.get(AreYouUKResidentPage) match {
           case Some(true) =>
             val formFilled = request.userAnswers.get(IndividualEmailPage).fold(form)(form.fill)
-            getJson(mode, formFilled) { json =>
-              val template = twirlMigration.duoTemplate(
-              renderer.render(template = "individual/email.njk", json),
-                emailView(
-                  routes.IndividualEmailController.onSubmit(mode),
-                  formFilled
-                )
-              )
-              template.map(Ok(_))
-            }
+              Future.successful(Ok(emailView(
+                routes.IndividualEmailController.onSubmit(mode),
+                formFilled
+              )))
           case _ => Future.successful(
             Redirect(controllers.individual.routes.AreYouUKResidentController.onPageLoad(mode))
           )
@@ -83,16 +70,11 @@ class IndividualEmailController @Inject()(override val messagesApi: MessagesApi,
       implicit request =>
         form.bindFromRequest().fold(
           formWithErrors =>
-            getJson(mode, formWithErrors) { json =>
-              val template = twirlMigration.duoTemplate(
-                renderer.render(template = "individual/email.njk", json),
-                emailView(
-                  routes.IndividualEmailController.onSubmit(mode),
-                  formWithErrors
-                )
-              )
-              template.map(BadRequest(_))
-            },
+            Future.successful(BadRequest(emailView(
+              routes.IndividualEmailController.onSubmit(mode),
+              formWithErrors
+            )))
+          ,
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(IndividualEmailPage, value))
@@ -102,11 +84,4 @@ class IndividualEmailController @Inject()(override val messagesApi: MessagesApi,
         )
 
     }
-
-  private def getJson(mode: Mode, form: Form[String])(block: JsObject => Future[Result])
-                     (implicit request: DataRequest[AnyContent]): Future[Result] =
-    block(Json.obj(
-      "form" -> form,
-      "submitUrl" -> routes.IndividualEmailController.onSubmit(mode).url
-    ))
 }

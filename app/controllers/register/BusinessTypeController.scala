@@ -24,12 +24,8 @@ import models.register.BusinessType
 import navigators.CompoundNavigator
 import pages.register.BusinessTypePage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.register.BusinessTypeView
 
@@ -44,37 +40,22 @@ class BusinessTypeController @Inject()(override val messagesApi: MessagesApi,
                                        requireData: DataRequiredAction,
                                        formProvider: BusinessTypeFormProvider,
                                        val controllerComponents: MessagesControllerComponents,
-                                       renderer: Renderer,
-                                       businessTypeView: BusinessTypeView,
-                                       twirlMigration: TwirlMigration
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
+                                       businessTypeView: BusinessTypeView
+                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   private val form = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (authenticate andThen getData andThen requireData) {
     implicit request =>
 
         val preparedForm = request.userAnswers.get(BusinessTypePage) match {
           case None => form
           case Some(value) => form.fill(value)
         }
-
-
-        val json = Json.obj(
-          "form" -> preparedForm,
-          "submitUrl" -> controllers.register.routes.BusinessTypeController.onSubmit().url,
-          "radios" -> BusinessType.radios(preparedForm)
-        )
-
-        val template = twirlMigration.duoTemplate(
-          renderer.render("register/businessType.njk", json),
-          businessTypeView(
-            controllers.register.routes.BusinessTypeController.onSubmit(),
-            preparedForm,
-            TwirlMigration.toTwirlRadios(BusinessType.radios(preparedForm))
-          )
-        )
-        template.map(Ok(_))
+        Ok(businessTypeView(
+          controllers.register.routes.BusinessTypeController.onSubmit(),
+          preparedForm,
+          BusinessType.radios(preparedForm)))
   }
 
   def onSubmit(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
@@ -82,23 +63,10 @@ class BusinessTypeController @Inject()(override val messagesApi: MessagesApi,
 
         form.bindFromRequest().fold(
           formWithErrors => {
-
-
-            val json = Json.obj(
-              "form" -> formWithErrors,
-              "submitUrl" -> controllers.register.routes.BusinessTypeController.onSubmit().url,
-              "radios" -> BusinessType.radios(formWithErrors)
-            )
-
-            val template = twirlMigration.duoTemplate(
-              renderer.render("register/businessType.njk", json),
-              businessTypeView(
-                controllers.register.routes.BusinessTypeController.onSubmit(),
-                formWithErrors,
-                TwirlMigration.toTwirlRadios(BusinessType.radios(formWithErrors))
-              )
-            )
-            template.map(BadRequest(_))
+            Future.successful(BadRequest(businessTypeView(
+              controllers.register.routes.BusinessTypeController.onSubmit(),
+              formWithErrors,
+              BusinessType.radios(formWithErrors))))
           },
           value =>
             for {

@@ -26,12 +26,8 @@ import pages.NameChange
 import pages.company.BusinessNamePage
 import pages.register.AreYouUKCompanyPage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import views.html.BusinessNameView
 
 import javax.inject.Inject
@@ -45,15 +41,13 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
                                       requireData: DataRequiredAction,
                                       formProvider: BusinessNameFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
-                                      renderer: Renderer,
-                                      businessNameView: BusinessNameView,
-                                      twirlMigration: TwirlMigration
+                                      businessNameView: BusinessNameView
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController
-                                      with I18nSupport with NunjucksSupport with Variation {
+                                      with I18nSupport with Variation {
 
   private val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData) {
     implicit request =>
         val preparedForm = request.userAnswers.get(BusinessNamePage) match {
           case None => form
@@ -65,39 +59,14 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
           case _ => None
         }
 
-        val extraJson = hint.map { hint => Json.obj("hintMessageKey" -> hint)}.getOrElse(Json.obj())
-
-        val json = Json.obj(
-          "form" -> preparedForm,
-          "submitUrl" -> routes.CompanyNameController.onSubmit(mode).url,
-          "entityName" -> "company"
-        ) ++ extraJson
-
-        val template = twirlMigration.duoTemplate(
-          renderer.render("businessName.njk", json),
-          businessNameView("company", preparedForm, routes.CompanyNameController.onSubmit(mode), hint)
-        )
-
-        template.map(Ok(_))
+      Ok(businessNameView("company", preparedForm, routes.CompanyNameController.onSubmit(mode), hint))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
         form.bindFromRequest().fold(
           formWithErrors => {
-
-            val json = Json.obj(
-              "form" -> formWithErrors,
-              "submitUrl" -> routes.CompanyNameController.onSubmit(mode).url,
-              "entityName" -> "company"
-            )
-
-            val template = twirlMigration.duoTemplate(
-              renderer.render("businessName.njk", json),
-              businessNameView("company", formWithErrors, routes.CompanyNameController.onSubmit(mode), None)
-            )
-
-            template.map(BadRequest(_))
+            Future.successful(BadRequest(businessNameView("company", formWithErrors, routes.CompanyNameController.onSubmit(mode), None)))
           },
           value =>
             for {

@@ -17,19 +17,16 @@
 package controllers
 
 import controllers.actions.{AuthAction, DataRetrievalAction}
-import models.{Address, CheckMode, UserAnswers}
 import models.register.RegistrationLegalStatus.{Individual, LimitedCompany, Partnership}
+import models.{Address, CheckMode, UserAnswers}
 import pages.RegistrationDetailsPage
 import pages.company.CompanyAddressPage
 import pages.individual.IndividualManualAddressPage
 import pages.partnership.PartnershipAddressPage
 import play.api.i18n.I18nSupport
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import services.PspDetailsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveEnrolmentWithNoIV
 import utils.countryOptions.CountryOptions
 import views.html.UpdateContactAddressView
@@ -39,13 +36,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class UpdateContactAddressController @Inject()(
                                                 val controllerComponents: MessagesControllerComponents,
-                                                renderer: Renderer,
                                                 @AuthMustHaveEnrolmentWithNoIV authenticate: AuthAction,
                                                 getData: DataRetrievalAction,
                                                 countryOptions: CountryOptions,
                                                 pspDetailsService: PspDetailsService,
-                                                updateContactAddressView: UpdateContactAddressView,
-                                                twirlMigration: TwirlMigration
+                                                updateContactAddressView: UpdateContactAddressView
                                               )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
@@ -55,15 +50,7 @@ class UpdateContactAddressController @Inject()(
       pspDetailsService.getUserAnswers(request.userAnswers, request.user.pspIdOrException) flatMap {
         retrieveRequiredValues(_) match {
           case Some(Tuple2(url, address)) =>
-            val json = Json.obj(
-              "continueUrl" -> url,
-              "address" -> address.lines(countryOptions)
-            )
-            val template = twirlMigration.duoTemplate(
-              renderer.render("updateContactAddress.njk", json),
-              updateContactAddressView(address.lines(countryOptions), url)
-            )
-            template.map(Ok(_))
+            Future.successful(Ok(updateContactAddressView(address.lines(countryOptions), url)))
           case None =>
             Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
         }

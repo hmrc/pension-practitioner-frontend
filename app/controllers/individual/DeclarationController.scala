@@ -29,14 +29,11 @@ import pages.individual.DeclarationPage
 import pages.register.ExistingPSPPage
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.http.HttpErrorFunctions.{is4xx, is5xx}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.{KnownFactsRetrieval, TwirlMigration}
+import utils.KnownFactsRetrieval
 import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import views.html.individual.DeclarationView
 
@@ -52,26 +49,18 @@ class DeclarationController @Inject()(
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
-                                       renderer: Renderer,
                                        declarationView: DeclarationView,
                                        emailConnector: EmailConnector,
                                        knownFactsRetrieval: KnownFactsRetrieval,
                                        enrolment: EnrolmentConnector,
-                                       config: FrontendAppConfig,
-                                       twirlMigration: TwirlMigration)(implicit ec: ExecutionContext)
+                                       config: FrontendAppConfig)(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with Retrievals
-    with I18nSupport
-    with NunjucksSupport {
+    with I18nSupport {
 
   def onPageLoad: Action[AnyContent] =
-    (authenticate andThen getData andThen requireData).async { implicit request =>
-      val template = twirlMigration.duoTemplate(
-        renderer.render("individual/declaration.njk",
-          Json.obj("submitUrl" -> routes.DeclarationController.onSubmit().url)),
-        declarationView(routes.DeclarationController.onSubmit())
-      )
-      template.map(Ok(_))
+    (authenticate andThen getData andThen requireData) { implicit request =>
+      Ok(declarationView(routes.DeclarationController.onSubmit()))
     }
 
   def onSubmit: Action[AnyContent] =

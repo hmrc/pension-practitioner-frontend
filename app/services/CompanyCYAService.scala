@@ -21,13 +21,13 @@ import pages.company._
 import pages.register.AreYouUKCompanyPage
 import play.api.i18n.Messages
 import play.api.mvc.Call
-import uk.gov.hmrc.viewmodels.SummaryList.{Key, Value, Row, Action}
-import uk.gov.hmrc.viewmodels.Text.Literal
-import uk.gov.hmrc.viewmodels._
+import uk.gov.hmrc.govukfrontend.views.Aliases.{Key, SummaryListRow, Value}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions}
 
 class CompanyCYAService extends CYAService {
 
-  def companyCya(ua: UserAnswers)(implicit messages: Messages): Seq[Row] = {
+  def companyCya(ua: UserAnswers)(implicit messages: Messages): Seq[SummaryListRow] = {
     ua.get(AreYouUKCompanyPage) match {
       case Some(true) =>
         (
@@ -68,57 +68,58 @@ class CompanyCYAService extends CYAService {
 
   }
 
-  private def companyName(name: String): Row =
-    Row(
-      key = Key(msg"cya.companyName", classes = Seq("govuk-!-width-one-half")),
-      value = Value(Literal(name), classes = Seq("govuk-!-width-one-third"))
+  private def companyName(name: String)(implicit messages: Messages): SummaryListRow =
+    SummaryListRow(
+      key = Key(Text(Messages("cya.companyName")), classes = "govuk-!-width-one-half"),
+      value = Value(Text(name), classes = "govuk-!-width-one-third")
     )
 
-  private def companyUtr(utr: String): Row =
-    Row(
-      key = Key(msg"cya.utr", classes = Seq("govuk-!-width-one-half")),
-      value = Value(Literal(utr), classes = Seq("govuk-!-width-one-third"))
+  private def companyUtr(utr: String)(implicit messages: Messages): SummaryListRow =
+    SummaryListRow(
+      key = Key(Text(Messages("cya.utr")), classes = "govuk-!-width-one-half"),
+      value = Value(Text(utr), classes = "govuk-!-width-one-third")
     )
 
   private def companyAddress(address: Address, href: Call)
-                            (implicit messages: Messages): Row =
-    Row(
-      key = Key(msg"cya.address", classes = Seq("govuk-!-width-one-half")),
-      value = Value(addressAnswer(address), classes = Seq("govuk-!-width-one-third")),
-      actions = List(
-        Action(
-          content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
-          href = href.url,
-          visuallyHiddenText = Some(msg"cya.change.address")
-        )
-      )
+                            (implicit messages: Messages): SummaryListRow =
+    SummaryListRow(
+      key = Key(Text(Messages("cya.address")), classes = "govuk-!-width-one-half"),
+      value = Value(addressAnswer(address), classes = "govuk-!-width-one-third"),
+      actions = Some(
+        Actions(
+          items = Seq(ActionItem(
+            content = HtmlContent(s"""<span aria-hidden="true">${Messages("site.edit")}</span>"""),
+            href = href.url,
+            visuallyHiddenText = Some(Text(Messages("cya.change.address")).value)))))
     )
 
   private def companyEmail(companyName: String, email: String)
-                          (implicit messages: Messages): Row =
-    Row(
-      key = Key(msg"cya.email".withArgs(companyName), classes = Seq("govuk-!-width-one-half")),
-      value = Value(Literal(email), classes = Seq("govuk-!-width-one-third")),
-      actions = List(
-        Action(
-          content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
+                          (implicit messages: Messages): SummaryListRow =
+    SummaryListRow(
+      key = Key(Text(Messages("cya.email",companyName)), classes = "govuk-!-width-one-half"),
+      value = Value(Text(email), classes = "govuk-!-width-one-third"),
+      actions = Some(
+        Actions(
+          items = Seq(ActionItem(
+          content = HtmlContent(s"""<span aria-hidden="true">${Messages("site.edit")}</span>"""),
           href = controllers.company.routes.CompanyEmailController.onPageLoad(CheckMode).url,
-          visuallyHiddenText = Some(msg"cya.change.email".withArgs(companyName))
+          visuallyHiddenText = Some(Text(Messages("cya.change.email",companyName)).value)
         )
-      )
+      )))
     )
 
   private def companyPhone(companyName: String, phone: String)
-                          (implicit messages: Messages): Row =
-    Row(
-      key = Key(msg"cya.phone".withArgs(companyName), classes = Seq("govuk-!-width-one-half")),
-      value = Value(Literal(phone), classes = Seq("govuk-!-width-one-third")),
-      actions = List(
-        Action(
-          content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
-          href = controllers.company.routes.CompanyPhoneController.onPageLoad(CheckMode).url,
-          visuallyHiddenText = Some(msg"cya.change.phone".withArgs(companyName))
-        )
-      )
-    )
+                          (implicit messages: Messages): SummaryListRow =
+    SummaryListRow(
+      key = Key(Text(Messages("cya.phone", companyName)), classes = "govuk-!-width-one-half"),
+      value = Value(Text(phone), classes = "govuk-!-width-one-third"),
+      actions = Some(
+        Actions(
+          items = Seq(ActionItem(
+            content = HtmlContent(s"""<span aria-hidden="true">${Messages("site.edit")}</span>"""),
+            href = controllers.company.routes.CompanyPhoneController.onPageLoad(CheckMode).url,
+            visuallyHiddenText = Some(Text(Messages("cya.change.phone", companyName)).value)
+          )
+          )
+        )))
 }

@@ -23,10 +23,10 @@ import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.viewmodels.NunjucksSupport
+
 import views.html.YourActionWasNotProcessedView
 
-class YourActionWasNotProcessedControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class YourActionWasNotProcessedControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
   private def getRoute: String = routes.YourActionWasNotProcessedController.onPageLoad().url

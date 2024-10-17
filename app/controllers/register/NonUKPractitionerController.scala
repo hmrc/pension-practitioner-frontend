@@ -19,11 +19,8 @@ package controllers.register
 import controllers.Retrievals
 import controllers.actions._
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.register.NonUKPractitionerView
 
@@ -35,19 +32,13 @@ class NonUKPractitionerController @Inject()(
                                              @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
                                              getData: DataRetrievalAction,
                                              val controllerComponents: MessagesControllerComponents,
-                                             renderer: Renderer,
-                                             nonUKPractitionerView: NonUKPractitionerView,
-                                             twirlMigration: TwirlMigration
+                                             nonUKPractitionerView: NonUKPractitionerView
                                            )(implicit ec: ExecutionContext) extends FrontendBaseController
   with I18nSupport with Retrievals {
 
-  def onPageLoad: Action[AnyContent] = (authenticate andThen getData).async {
+  def onPageLoad: Action[AnyContent] = (authenticate andThen getData) {
     implicit request =>
-      val template = twirlMigration.duoTemplate(
-        renderer.render("register/nonUKPractitioner.njk", Json.obj()),
-        nonUKPractitionerView()
-      )
 
-      template.map(Ok(_))
+      Ok(nonUKPractitionerView())
   }
 }

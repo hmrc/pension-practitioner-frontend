@@ -21,8 +21,6 @@ import controllers.Retrievals
 import controllers.actions._
 import controllers.address.{AddressListController, AddressPages}
 import forms.address.AddressListFormProvider
-
-import javax.inject.Inject
 import models.Mode
 import navigators.CompoundNavigator
 import pages.partnership.{BusinessNamePage, PartnershipAddressListPage, PartnershipAddressPage, PartnershipPostcodePage}
@@ -30,14 +28,12 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
 import viewmodels.{CommonViewModel, CommonViewModelTwirl}
 import views.html.address.AddressListView
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class PartnershipAddressListController @Inject()(override val messagesApi: MessagesApi,
@@ -49,11 +45,9 @@ class PartnershipAddressListController @Inject()(override val messagesApi: Messa
                                                  formProvider: AddressListFormProvider,
                                                  val controllerComponents: MessagesControllerComponents,
                                                  countryOptions: CountryOptions,
-                                                 val renderer: Renderer,
-                                                 addressListView: AddressListView,
-                                                 val twirlMigration: TwirlMigration
+                                                 addressListView: AddressListView
                                          )(implicit ec: ExecutionContext) extends AddressListController
-                                          with Retrievals with I18nSupport with NunjucksSupport {
+                                          with Retrievals with I18nSupport {
 
 
   def form(implicit messages: Messages): Form[Int] =
@@ -91,7 +85,6 @@ class PartnershipAddressListController @Inject()(override val messagesApi: Messa
       (BusinessNamePage and PartnershipPostcodePage).retrieve.map {
         case partnershipName ~ addresses =>
           form => Json.obj(
-            "form" -> form,
             "addresses" -> transformAddressesForTemplate(addresses, countryOptions),
             "viewmodel" -> CommonViewModel(
               "partnership",

@@ -17,7 +17,9 @@
 package models.register
 
 import play.api.data.Form
-import uk.gov.hmrc.viewmodels._
+import play.api.i18n.Messages
+import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import utils.{Enumerable, WithName}
 
 sealed trait BusinessRegistrationType
@@ -32,15 +34,14 @@ object BusinessRegistrationType extends Enumerable.Implicits {
     Partnership
   )
 
-  def radios(form: Form[_]): Seq[Radios.Item] = {
-
+  def radios(form: Form[_])(implicit messages: Messages): Seq[RadioItem] = {
     val field = form("value")
-    val items = Seq(
-      Radios.Radio(msg"businessRegistrationType.company", Company.toString),
-      Radios.Radio(msg"businessRegistrationType.partnership", Partnership.toString)
+    Seq(
+      RadioItem(content = Text(Messages("businessRegistrationType.company")),
+        value = Some(Company.toString), checked = field.value.contains(Company.toString), id = Some(field.id)),
+      RadioItem(content = Text(Messages("businessRegistrationType.partnership")),
+        value = Some(Partnership.toString), checked = field.value.contains(Partnership.toString), id = Some(field.id + "_1"))
     )
-
-    Radios(field, items)
   }
 
   implicit val enumerable: Enumerable[BusinessRegistrationType] =
