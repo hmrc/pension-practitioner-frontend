@@ -23,6 +23,7 @@ import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+
 import views.html.YourActionWasNotProcessedView
 
 class YourActionWasNotProcessedControllerSpec extends ControllerSpecBase with MockitoSugar

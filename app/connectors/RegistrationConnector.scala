@@ -25,7 +25,8 @@ import play.api.http.Status._
 import play.api.libs.json._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, NotFoundException}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException, StringContextOps}
 import utils.HttpResponseHelper
 
 import javax.inject.Singleton
@@ -48,47 +49,32 @@ trait RegistrationConnector {
 }
 
 @Singleton
-class RegistrationConnectorImpl @Inject()(
-                                           http: HttpClient,
-                                           config: FrontendAppConfig
-                                         )
-  extends RegistrationConnector
-    with HttpResponseHelper {
+class RegistrationConnectorImpl @Inject()(httpClientV2: HttpClientV2, config: FrontendAppConfig)
+  extends RegistrationConnector with HttpResponseHelper {
 
   private val logger = Logger(classOf[RegistrationConnectorImpl])
 
   private val readsSapNumber: Reads[String] = (JsPath \ "sapNumber").read[String]
 
-  override def registerWithIdOrganisation(
-                                           utr: String,
-                                           organisation: Organisation,
-                                           legalStatus: RegistrationLegalStatus
-                                         )(
-                                           implicit hc: HeaderCarrier,
-                                           ec: ExecutionContext
-                                         ): Future[OrganisationRegistration] = {
+  override def registerWithIdOrganisation(utr: String,
+                                          organisation: Organisation,
+                                          legalStatus: RegistrationLegalStatus
+                                         )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[OrganisationRegistration] = {
 
-    val url = config.registerWithIdOrganisationUrl
-    val extraHeaders = hc.withExtraHeaders("utr" -> utr)
+    val url = url"${config.registerWithIdOrganisationUrl}"
+    val extraHeaders = Seq("utr" -> utr)
     val body = Json.obj(
       "organisationName" -> organisation.organisationName,
       "organisationType" -> organisation.organisationType.toString
     )
 
-    http.POST[JsObject, HttpResponse](
-      url = url,
-      body = body
-    )(
-      wts = implicitly,
-      rds = implicitly,
-      hc = extraHeaders,
-      ec = implicitly
-    ) map { response =>
-
+    httpClientV2.post(url)
+      .withBody(body)
+      .setHeader(extraHeaders: _*)
+      .execute[HttpResponse] map { response =>
       response.status match {
         case OK =>
           val json = Json.parse(response.body)
-
           json.validate[OrganisationRegisterWithIdResponse] match {
             case JsSuccess(value, _) =>
               OrganisationRegistration(
@@ -104,7 +90,7 @@ class RegistrationConnectorImpl @Inject()(
             case JsError(errors) => throw JsResultException(errors)
           }
         case _ =>
-          handleErrorResponse("POST", url)(response)
+          handleErrorResponse("POST", url.toString)(response)
       }
     } andThen {
       case Failure(ex: NotFoundException) =>
@@ -119,28 +105,31 @@ class RegistrationConnectorImpl @Inject()(
   override def registerWithIdIndividual(nino: Nino)
                                        (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[IndividualRegistration] = {
 
-    val url = config.registerWithIdIndividualUrl
-    val extraHeaders = hc.withExtraHeaders("nino" -> nino.nino)
+    val url = url"${config.registerWithIdIndividualUrl}"
+    val extraHeaders = Seq("nino" -> nino.nino)
 
-    val postCall = http.POST[JsObject, HttpResponse](url, Json.obj())(implicitly, implicitly, extraHeaders, implicitly)
-
-    postCall map { response =>
-      require(response.status == OK, "The only valid response to registerWithIdIndividual is 200 OK")
-
-      val json = Json.parse(response.body)
-
-      json.validate[IndividualRegisterWithIdResponse] match {
-        case JsSuccess(value, _) =>
-          val info = registrationInfo(
-            json,
-            RegistrationLegalStatus.Individual,
-            RegistrationCustomerType.fromAddress(value.address),
-            Some(RegistrationIdType.Nino),
-            Some(nino.nino),
-            noIdentifier = false
-          )
-          IndividualRegistration(value, info)
-        case JsError(errors) => throw JsResultException(errors)
+    httpClientV2.post(url)
+      .withBody(Json.obj())
+      .setHeader(extraHeaders: _*)
+      .execute[HttpResponse] flatMap { response =>
+      response.status match {
+        case OK =>
+          val json = Json.parse(response.body)
+          json.validate[IndividualRegisterWithIdResponse] match {
+            case JsSuccess(value, _) =>
+              val info = registrationInfo(
+                json,
+                RegistrationLegalStatus.Individual,
+                RegistrationCustomerType.fromAddress(value.address),
+                Some(RegistrationIdType.Nino),
+                Some(nino.nino),
+                noIdentifier = false
+              )
+              Future.successful(IndividualRegistration(value, info))
+            case JsError(errors) => throw JsResultException(errors)
+          }
+        case _ =>
+          handleErrorResponse("POST", url.toString)(response)
       }
     } andThen {
       case Failure(ex: NotFoundException) =>
@@ -150,69 +139,80 @@ class RegistrationConnectorImpl @Inject()(
         logger.error("Unable to connect to registerWithIdIndividual", ex)
         ex
     }
-
   }
 
-  override def registerWithNoIdOrganisation(name: String, address: Address, legalStatus: RegistrationLegalStatus)
+    override def registerWithNoIdOrganisation(name: String, address: Address, legalStatus: RegistrationLegalStatus)
+                                             (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[RegistrationInfo] = {
+
+      val url = url"${config.registerWithNoIdOrganisationUrl}"
+      val organisationRegistrant = OrganisationRegistrant(OrganisationName(name), address)
+
+      httpClientV2.post(url)
+        .withBody(Json.toJson(organisationRegistrant))
+        .execute[HttpResponse] map { response =>
+        response.status match {
+          case OK =>
+            val json = Json.parse(response.body)
+            registrationInfo(
+              json,
+              legalStatus,
+              RegistrationCustomerType.NonUK,
+              None,
+              None,
+              noIdentifier = true
+            )
+          case _ =>
+            handleErrorResponse("POST", url.toString)(response)
+        }
+      } andThen {
+        case Failure(ex) =>
+          logger.error("Unable to connect to registerWithNoIdOrganisation", ex)
+          ex
+      }
+    }
+
+    override def registerWithNoIdIndividual(firstName: String, lastName: String, address: Address)
                                            (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[RegistrationInfo] = {
 
-    val organisationRegistrant = OrganisationRegistrant(OrganisationName(name), address)
+      val url = url"${config.registerWithNoIdIndividualUrl}"
+      val registrant = RegistrationNoIdIndividualRequest(firstName, lastName, address)
 
-    http.POST[JsValue, HttpResponse](config.registerWithNoIdOrganisationUrl, Json.toJson(organisationRegistrant)) map { response =>
-      require(response.status == OK, "The only valid response to registerWithNoIdOrganisation is 200 OK")
-      val jsValue = Json.parse(response.body)
-
-      registrationInfo(
-        jsValue,
-        legalStatus,
-        RegistrationCustomerType.NonUK,
-        None,
-        None,
-        noIdentifier = true
-      )
-    } andThen {
-      case Failure(ex) =>
-        logger.error("Unable to connect to registerWithNoIdOrganisation", ex)
-        ex
+      httpClientV2.post(url)
+        .withBody(Json.toJson(registrant))
+        .execute[HttpResponse] map { response =>
+        response.status match {
+          case OK =>
+            val json = Json.parse(response.body)
+            registrationInfo(
+              json,
+              RegistrationLegalStatus.Individual,
+              RegistrationCustomerType.NonUK,
+              None,
+              None,
+              noIdentifier = true
+            )
+          case _ =>
+            handleErrorResponse("POST", url.toString)(response)
+        }
+      } andThen {
+        case Failure(ex) =>
+          logger.error("Unable to connect to registerWithNoIdIndividual", ex)
+          ex
+      }
     }
+
+    private def registrationInfo(json: JsValue,
+                                 legalStatus: RegistrationLegalStatus,
+                                 customerType: RegistrationCustomerType,
+                                 idType: Option[RegistrationIdType],
+                                 idNumber: Option[String],
+                                 noIdentifier: Boolean): RegistrationInfo = {
+
+        json.validate[String](readsSapNumber) match {
+          case JsSuccess(sapNumber, _) =>
+            register.RegistrationInfo(legalStatus, sapNumber, noIdentifier = noIdentifier, customerType, idType, idNumber)
+          case JsError(errors) => throw JsResultException(errors)
+        }
+      }
+
   }
-
-  override def registerWithNoIdIndividual(firstName: String, lastName: String, address: Address)
-                                         (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[RegistrationInfo] = {
-
-    val registrant = RegistrationNoIdIndividualRequest(firstName, lastName, address)
-
-    http.POST[JsValue, HttpResponse](config.registerWithNoIdIndividualUrl, Json.toJson(registrant)) map { response =>
-      require(response.status == OK, "The only valid response to registerWithNoIdIndividual is 200 OK")
-      val jsValue = Json.parse(response.body)
-
-      registrationInfo(
-        jsValue,
-        RegistrationLegalStatus.Individual,
-        RegistrationCustomerType.NonUK,
-        None,
-        None,
-        noIdentifier = true
-      )
-    } andThen {
-      case Failure(ex) =>
-        logger.error("Unable to connect to registerWithNoIdIndividual", ex)
-        ex
-    }
-  }
-
-  private def registrationInfo(
-                                json: JsValue,
-                                legalStatus: RegistrationLegalStatus,
-                                customerType: RegistrationCustomerType,
-                                idType: Option[RegistrationIdType],
-                                idNumber: Option[String],
-                                noIdentifier: Boolean): RegistrationInfo = {
-
-    json.validate[String](readsSapNumber) match {
-      case JsSuccess(sapNumber, _) =>
-        register.RegistrationInfo(legalStatus, sapNumber, noIdentifier = noIdentifier, customerType, idType, idNumber)
-      case JsError(errors) => throw JsResultException(errors)
-    }
-  }
-}

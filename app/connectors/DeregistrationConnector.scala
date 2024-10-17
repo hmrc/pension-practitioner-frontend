@@ -22,7 +22,8 @@ import play.api.Logger
 import play.api.http.Status._
 import play.api.libs.json._
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import utils.HttpResponseHelper
 
 import java.time.LocalDate
@@ -31,14 +32,14 @@ import scala.util.Failure
 
 @ImplementedBy(classOf[DeregistrationConnectorImpl])
 trait DeregistrationConnector {
-  def deregister(pspId: String, date: LocalDate)
-                (implicit hc: HeaderCarrier, ec: ExecutionContext) : Future[HttpResponse]
+  def deregister(pspId: String, date: LocalDate
+                )(implicit hc: HeaderCarrier, ec: ExecutionContext) : Future[HttpResponse]
 
-  def canDeRegister(psaId: String)
-                   (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean]
+  def canDeRegister(psaId: String
+                   )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean]
 }
 
-class DeregistrationConnectorImpl @Inject()(http: HttpClient, config: FrontendAppConfig)
+class DeregistrationConnectorImpl @Inject()(httpClientV2: HttpClientV2, config: FrontendAppConfig)
   extends DeregistrationConnector
     with HttpResponseHelper {
 
@@ -46,28 +47,32 @@ class DeregistrationConnectorImpl @Inject()(http: HttpClient, config: FrontendAp
 
   override def deregister(pspId: String, date: LocalDate)
                          (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
-    val deregisterUrl = config.pspDeregistrationUrl.format(pspId)
+    val deregisterUrl = url"${config.pspDeregistrationUrl.format(pspId)}"
     val data: JsObject = Json.obj(
       "deregistrationDate"-> date.toString,
       "reason" -> "1"
     )
 
-      http.POST[JsObject, HttpResponse](deregisterUrl, data).map { response =>
+    httpClientV2.post(deregisterUrl)
+      .withBody(data)
+      .execute[HttpResponse] map { response =>
       response.status match {
         case OK => response
-        case _ => handleErrorResponse("POST", deregisterUrl)(response)
+        case _ => handleErrorResponse("POST", deregisterUrl.toString)(response)
       }
     } andThen {
-      case Failure(t: Throwable) => logger.warn("Unable to deregister PSP", t)
-    }
-  }
+        case Failure(t: Throwable) => logger.warn("Unable to deregister PSP", t)
+      }
+
+ }
 
   override def canDeRegister(pspId: String)
                             (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
 
-    val url = config.canDeregisterUrl.format(pspId)
+    val url = url"${config.canDeregisterUrl.format(pspId)}"
 
-    http.GET[HttpResponse](url).map { response =>
+    httpClientV2.get(url)
+      .execute[HttpResponse] map { response =>
       response.status match {
         case OK => response.json.validate[Boolean] match {
           case JsSuccess(value, _) => value
@@ -76,12 +81,11 @@ class DeregistrationConnectorImpl @Inject()(http: HttpClient, config: FrontendAp
         case NOT_FOUND =>
           logger.debug(s"CanDeregister call returned a NOT_FOUND response with body ${response.body}")
           true
-        case _ => handleErrorResponse("GET", url)(response)
+        case _ => handleErrorResponse("GET", url.toString)(response)
       }
-
-
-    } andThen {
+   } andThen {
       case Failure(t: Throwable) => logger.warn("Unable to get the response from can de register api", t)
     }
   }
+
 }
