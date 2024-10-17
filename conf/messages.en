@@ -561,7 +561,7 @@ individual.phone.hint = We will only use this to contact you about pension schem
 individual.phone.error.required = Enter your phone number
 
 individual.postcode.title = Which address can we use to contact you?
-individual.postcode.error.required = Enter a full UK postcode
+individual.postcode.error.required = Enter the postcode
 individual.postcode.error.invalid = Enter a full UK postcode
 
 individual.addressList.error.required = Select your contact address
