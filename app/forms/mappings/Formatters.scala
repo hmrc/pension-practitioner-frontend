@@ -27,7 +27,6 @@ import scala.util.{Failure, Success, Try}
 
 trait Formatters extends Transforms with Constraints {
   private[mappings] val decimalFormat = new DecimalFormat("0.00")
-  private[mappings] val postcodeRegexp = """^[A-Z]{1,2}[0-9][0-9A-Z]?\s?[0-9][A-Z]{2}$"""
   private[mappings] val numericRegexp = """^-?(\-?)(\d*)(\.?)(\d*)$"""
   private[mappings] val decimalRegexp = """^-?(\d*\.\d*)$"""
   private[mappings] val decimal2DPRegexp = """^-?(\d*\.\d{2})$"""
@@ -58,7 +57,7 @@ trait Formatters extends Transforms with Constraints {
       val maxLengthNonUKPostcode = 10
 
       (postCode, country, requiredKey) match {
-        case (Some(zip), Some("GB"), _) if zip.matches(postcodeRegexp) => Right(Some(postCodeValidTransform(zip)))
+        case (Some(zip), Some("GB"), _) if zip.matches(regexPostcode) => Right(Some(postCodeValidTransform(zip)))
         case (Some(_), Some("GB"), _) => Left(Seq(FormError(key, invalidKey)))
         case (Some(zip), Some(_), _) if zip.length <= maxLengthNonUKPostcode => Right(Some(zip))
         case (Some(_), Some(_), _) => Left(Seq(FormError(key, nonUkLengthKey)))
