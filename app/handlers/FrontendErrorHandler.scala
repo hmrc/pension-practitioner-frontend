@@ -19,8 +19,7 @@ package handlers
 import config.FrontendAppConfig
 import play.api.http.HeaderNames.CACHE_CONTROL
 import play.api.http.Status._
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.Results._
 import play.api.mvc.{Request, RequestHeader, Result}
 import play.api.{Logger, PlayException}
@@ -40,10 +39,14 @@ class FrontendErrorHandler @Inject()(
                                       internalServerErrorView: InternalServerErrorView,
                                       errorTemplate: ErrorTemplate,
                                       notFoundView: NotFoundView
-                                    )(implicit ec: ExecutionContext) extends uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler with I18nSupport {
+                                    )(implicit override val ec: ExecutionContext) extends uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler with I18nSupport {
 
-  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html = {
-    errorTemplate(pageTitle, heading, Some(message))
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)
+                                    (implicit request: RequestHeader): Future[Html] = {
+    def requestImplicit: Request[_] = Request(request, "")
+
+    def messages: Messages = messagesApi.preferred(request)
+    Future.successful(errorTemplate(pageTitle, heading, Some(message))(requestImplicit, messages))
   }
 
   override def onClientError(request: RequestHeader, statusCode: Int, message: String = ""): Future[Result] = {
