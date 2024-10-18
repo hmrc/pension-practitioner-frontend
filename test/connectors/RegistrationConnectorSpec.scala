@@ -28,7 +28,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsResultException, Json}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
-import utils.WireMockHelper
+import utils.{UnrecognisedHttpResponseException, WireMockHelper}
 
 class RegistrationConnectorSpec
   extends AsyncWordSpec
@@ -39,9 +39,7 @@ class RegistrationConnectorSpec
   import RegistrationConnectorSpec._
 
   override protected def portConfigKey: String = "microservice.services.pension-practitioner.port"
-
   private implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
-
 
   "registerWithIdOrganisation" must {
 
@@ -120,7 +118,7 @@ class RegistrationConnectorSpec
 
     }
 
-    "propagate exceptions from HttpClient" in {
+    "propagate exceptions from HttpClientV2" in {
 
       server.stubFor(
         post(urlEqualTo(organisationPath))
@@ -302,13 +300,13 @@ class RegistrationConnectorSpec
       )
 
       val connector = injector.instanceOf[RegistrationConnector]
-      recoverToSucceededIf[IllegalArgumentException] {
+      recoverToSucceededIf[UnrecognisedHttpResponseException] {
         connector.registerWithIdIndividual(nino)
       }
 
     }
 
-    "propagate exceptions from HttpClient" in {
+    "propagate exceptions from HttpClientV2" in {
 
       server.stubFor(
         post(urlEqualTo(individualPath))
@@ -319,7 +317,7 @@ class RegistrationConnectorSpec
       )
 
       val connector = injector.instanceOf[RegistrationConnector]
-      recoverToSucceededIf[IllegalArgumentException] {
+      recoverToSucceededIf[NotFoundException] {
         connector.registerWithIdIndividual(nino)
       }
 
@@ -421,13 +419,13 @@ class RegistrationConnectorSpec
       )
 
       val connector = injector.instanceOf[RegistrationConnector]
-      recoverToSucceededIf[IllegalArgumentException] {
+      recoverToSucceededIf[UnrecognisedHttpResponseException] {
         connector.registerWithNoIdOrganisation(organisation.organisationName, expectedAddress(uk = false).toPrepopAddress, legalStatus)
       }
 
     }
 
-    "propagate exceptions from HttpClient" in {
+    "propagate exceptions from HttpClientV2" in {
 
       server.stubFor(
         post(urlEqualTo(noIdOrganisationPath))
@@ -438,7 +436,7 @@ class RegistrationConnectorSpec
       )
 
       val connector = injector.instanceOf[RegistrationConnector]
-      recoverToSucceededIf[IllegalArgumentException] {
+      recoverToSucceededIf[NotFoundException] {
         connector.registerWithNoIdOrganisation(organisation.organisationName, expectedAddress(uk = false).toPrepopAddress, legalStatus)
       }
     }
@@ -496,14 +494,14 @@ class RegistrationConnectorSpec
       )
 
       val connector = injector.instanceOf[RegistrationConnector]
-      recoverToSucceededIf[IllegalArgumentException] {
+      recoverToSucceededIf[UnrecognisedHttpResponseException] {
         connector.registerWithNoIdIndividual(firstName, lastName, expectedAddress(uk = false).toPrepopAddress)
       }
 
     }
 
 
-    "propagate exceptions from HttpClient" in {
+    "propagate exceptions from HttpClientV2" in {
 
       server.stubFor(
         post(urlEqualTo(noIdIndividualPath))
@@ -514,7 +512,7 @@ class RegistrationConnectorSpec
       )
 
       val connector = injector.instanceOf[RegistrationConnector]
-      recoverToSucceededIf[IllegalArgumentException] {
+      recoverToSucceededIf[NotFoundException] {
         connector.registerWithNoIdIndividual(firstName, lastName, expectedAddress(uk = false).toPrepopAddress)
       }
 

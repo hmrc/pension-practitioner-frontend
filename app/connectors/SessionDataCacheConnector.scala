@@ -24,45 +24,49 @@ import play.api.mvc.Result
 import play.api.mvc.Results._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.client.HttpClientV2
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class SessionDataCacheConnector  @Inject()(
   config: FrontendAppConfig,
-  http: HttpClient
+  httpClientV2: HttpClientV2
 ) {
-  private def url(cacheId:String) = s"${config.pensionAdministratorUrl}/pension-administrator/journey-cache/session-data/$cacheId"
+
+  private def url(cacheId: String) =
+    url"${config.pensionAdministratorUrl}/pension-administrator/journey-cache/session-data/${cacheId}"
 
   def fetch(id: String)(implicit ec: ExecutionContext,
                         headerCarrier: HeaderCarrier): Future[Option[JsValue]] = {
     val headers: Seq[(String, String)] = Seq(("Content-Type", "application/json"))
-    val hc: HeaderCarrier = headerCarrier.withExtraHeaders(headers: _*)
 
-    http.GET[HttpResponse](url(id))(implicitly, hc, implicitly)
-      .recoverWith(mapExceptionsToStatus)
-      .map { response =>
-        response.status match {
-          case NOT_FOUND =>
-           None
-          case OK =>
-            Some(Json.parse(response.body))
-          case _ =>
-            throw new HttpException(response.body, response.status)
-        }
+    httpClientV2.get(url(id))
+      .setHeader(headers: _*)
+      .execute[HttpResponse] map { response =>
+      response.status match {
+        case NOT_FOUND =>
+          None
+        case OK =>
+          Some(Json.parse(response.body))
+        case _ =>
+          throw new HttpException(response.body, response.status)
       }
+    } recoverWith mapExceptionsToStatus
   }
 
   def removeAll(id: String)(implicit ec: ExecutionContext, headerCarrier: HeaderCarrier): Future[Result] = {
     val headers: Seq[(String, String)] = Seq(("Content-Type", "application/json"))
-    val hc: HeaderCarrier = headerCarrier.withExtraHeaders(headers: _*)
 
-    http.DELETE[HttpResponse](url(id))(implicitly, hc, implicitly).map { _ =>
-      Ok
-    }
+    httpClientV2.delete(url(id))
+      .setHeader(headers: _*)
+      .execute[HttpResponse] map { _ =>
+          Ok
+      }
   }
 
-  private def mapExceptionsToStatus: PartialFunction[Throwable, Future[HttpResponse]] = {
+  private def mapExceptionsToStatus: PartialFunction[Throwable, Future[Option[JsValue]]] = {
     case _: NotFoundException =>
-      Future.successful(HttpResponse(NOT_FOUND, "Not found"))
+      Future.successful(None)
   }
+
 }

@@ -68,7 +68,7 @@ class PspDetailsService @Inject()(
   }
 
   private def returnUrlAndLinkData(name: Option[String], rlsFlag: Boolean)
-                              (implicit messages: Messages) = {
+                              (implicit messages: Messages): Option[(String, String)] = {
     if(rlsFlag) None else {
       Some(appConfig.returnToPspDashboardUrl -> name.fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name)))
     }
