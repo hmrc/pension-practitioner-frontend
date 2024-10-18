@@ -33,9 +33,6 @@
             @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
         }
 
-        <h1 class="govuk-heading-xl">@messages("individual.phone.title")</h1>
-        <p class="govuk-body">@messages("individual.phone.hint")</p>
-
         @govukInput(
             Input(
                 id = field.id,
@@ -43,10 +40,11 @@
                 value = field.value,
                 inputType = "tel",
                 label = Label(
-                    isPageHeading = false,
-                    classes = "govuk-fieldset__legend--s govuk-visually-hidden",
+                    isPageHeading = true,
+                    classes = "govuk-label--xl",
                     content = Text(messages("individual.phone.title"))
                 ),
+                hint = Some(Hint(content = Text(messages("individual.phone.hint")))),
                 errorMessage = field.error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args:_*))))
             )
         )
