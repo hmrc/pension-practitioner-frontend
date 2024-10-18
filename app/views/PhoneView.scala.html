@@ -38,20 +38,19 @@
             @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
         }
 
-        <h1 class="govuk-heading-xl">@messages("phone.title", viewModel.entityName)</h1>
-
-        <p class="govuk-body">@messages("phone.hint", viewModel.entityName)</p>
-
         @govukInput(
             InputViewModel(
                 field = form("value"),
                 label = Label(
                     content = Text(messages("phone.title", viewModel.entityName)),
-                    isPageHeading = false,
-                    classes = "govuk-fieldset__legend--s govuk-visually-hidden"
+                    isPageHeading = true,
+                    classes = "govuk-label--xl"
                 ),
                 classes = "govuk-input--width-20",
-                inputType = "tel"
+                inputType = "tel",
+                hint = Some(Hint(
+                    content = Text(messages("phone.hint", viewModel.entityName))
+                ))
             )
         )
 

@@ -38,18 +38,20 @@
             @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
         }
 
-        <h1 class="govuk-heading-xl">@messages("email.title", viewModel.entityName)</h1>
-
-        <p class="govuk-body">@messages("email.hint", viewModel.entityName)</p>
-
         @govukInput(
             InputViewModel(
                 field = form("value"),
                 label = Label(
                     content = Text(messages("email.title", viewModel.entityName)),
-                    classes = "govuk-fieldset__legend--s govuk-visually-hidden"
+                    isPageHeading = true,
+                    classes = "govuk-label--xl"
                 ),
-                classes = "govuk-!-width-three-quarters"
+                classes = "govuk-!-width-three-quarters",
+                hint = Some(
+                    Hint(
+                        content = Text(messages("email.hint", viewModel.entityName))
+                    )
+                )
             ).asEmail()
         )
 
