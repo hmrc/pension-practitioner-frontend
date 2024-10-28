@@ -31,7 +31,6 @@ import play.api.Application
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import views.html.individual.EmailView
 
 import scala.concurrent.Future

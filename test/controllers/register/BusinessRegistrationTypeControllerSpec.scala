@@ -22,12 +22,12 @@ import forms.register.BusinessRegistrationTypeFormProvider
 import matchers.JsonMatchers
 import models.UserAnswers
 import models.register.BusinessRegistrationType
-import play.api.inject.bind
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.register.BusinessRegistrationTypePage
+import play.api.inject.bind
 import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest

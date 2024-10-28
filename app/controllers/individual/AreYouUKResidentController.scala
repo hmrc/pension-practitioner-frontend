@@ -25,8 +25,8 @@ import pages.individual.AreYouUKResidentPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.Radios
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import viewmodels.Radios
 import views.html.individual.AreYouUKResidentView
 
 import javax.inject.Inject

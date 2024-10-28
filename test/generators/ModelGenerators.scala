@@ -16,16 +16,11 @@
 
 package generators
 
-import java.time.ZoneOffset
-
-import org.scalacheck.Arbitrary
-import org.scalacheck.Gen
-import java.time.LocalDate
-import java.time.Instant
-
 import models.WhatTypeBusiness
-import models.register.BusinessRegistrationType
-import models.register.BusinessType
+import models.register.{BusinessRegistrationType, BusinessType}
+import org.scalacheck.{Arbitrary, Gen}
+
+import java.time.{Instant, LocalDate, ZoneOffset}
 
 trait ModelGenerators {
 

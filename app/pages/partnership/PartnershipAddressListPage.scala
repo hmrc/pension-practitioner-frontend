@@ -16,9 +16,9 @@
 
 package pages.partnership
 
+import models.TolerantAddress
 import pages.QuestionPage
 import play.api.libs.json.JsPath
-import models.TolerantAddress
 
 case object PartnershipAddressListPage extends QuestionPage[TolerantAddress] {
 

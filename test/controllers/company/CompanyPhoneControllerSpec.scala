@@ -31,7 +31,6 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import viewmodels.CommonViewModelTwirl
 import views.html.PhoneView
 

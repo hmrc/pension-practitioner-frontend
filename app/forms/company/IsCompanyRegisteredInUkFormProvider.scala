@@ -16,9 +16,10 @@
 
 package forms.company
 
-import javax.inject.Inject
 import forms.mappings.Mappings
 import play.api.data.Form
+
+import javax.inject.Inject
 
 class IsCompanyRegisteredInUkFormProvider @Inject() extends Mappings {
 

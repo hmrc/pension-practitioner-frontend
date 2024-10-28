@@ -16,20 +16,16 @@
 
 package forms.mappings
 
-import java.text.DecimalFormat
-
 import play.api.data.FormError
 import play.api.data.format.Formatter
 import utils.Enumerable
 
+import java.text.DecimalFormat
 import scala.util.control.Exception.nonFatalCatch
 import scala.util.{Failure, Success, Try}
 
 trait Formatters extends Transforms with Constraints {
-  private[mappings] val decimalFormat = new DecimalFormat("0.00")
-  private[mappings] val numericRegexp = """^-?(\-?)(\d*)(\.?)(\d*)$"""
   private[mappings] val decimalRegexp = """^-?(\d*\.\d*)$"""
-  private[mappings] val decimal2DPRegexp = """^-?(\d*\.\d{2})$"""
 
   private[mappings] val optionalStringFormatter: Formatter[Option[String]] =
     new Formatter[Option[String]] {
@@ -155,87 +151,6 @@ trait Formatters extends Transforms with Constraints {
 
       override def unbind(key: String, value: BigDecimal): Map[String, String] =
         baseFormatter.unbind(key, value.toString)
-    }
-
-  private[mappings] def bigDecimal2DPFormatter(requiredKey: String,
-                                               invalidKey: String,
-                                               decimalKey: String,
-                                               args: Seq[String] = Seq.empty): Formatter[BigDecimal] =
-    new Formatter[BigDecimal] {
-
-      private val baseFormatter = stringFormatter(requiredKey)
-
-      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], BigDecimal] =
-        baseFormatter
-          .bind(key, data)
-          .map(_.replace(",", "").replace(" ", ""))
-          .flatMap {
-          case s if !s.matches(numericRegexp) =>
-            Left(Seq(FormError(key, invalidKey, args)))
-          case s if !s.matches(decimal2DPRegexp) =>
-            Left(Seq(FormError(key, decimalKey, args)))
-          case s =>
-            Try(BigDecimal(s)) match {
-              case Success(x) => Right(x)
-              case Failure(_) => Left(Seq(FormError(key, invalidKey, args)))
-            }
-        }
-
-      override def unbind(key: String, value: BigDecimal): Map[String, String] =
-        baseFormatter.unbind(key, decimalFormat.format(value))
-    }
-
-  private[mappings] def optionBigDecimal2DPFormatter(requiredKey: String,
-                                                     invalidKey: String,
-                                                     decimalKey: String,
-                                                     args: Seq[String] = Seq.empty): Formatter[Option[BigDecimal]] =
-    new Formatter[Option[BigDecimal]] {
-
-      private val baseFormatter: Formatter[String] = stringFormatter(requiredKey)
-
-      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Option[BigDecimal]] =
-        baseFormatter
-          .bind(key, data)
-          .map(_.replace(",", "").replace(" ", ""))
-          .flatMap {
-          case s if s.isEmpty =>
-            Right(None)
-          case s if !s.matches(numericRegexp) =>
-            Left(Seq(FormError(key, invalidKey, args)))
-          case s if !s.matches(decimal2DPRegexp) =>
-            Left(Seq(FormError(key, decimalKey, args)))
-          case s =>
-            Try(Option(BigDecimal(s))) match {
-              case Success(x) => Right(x)
-              case Failure(_) => Left(Seq(FormError(key, invalidKey, args)))
-            }
-        }
-
-      override def unbind(key: String, value: Option[BigDecimal]): Map[String, String] =
-        value match {
-          case Some(str) =>
-            baseFormatter.unbind(key, decimalFormat.format(str))
-          case _ =>
-            Map.empty
-        }
-    }
-
-  private[mappings] def bigDecimalTotalFormatter(itemsToTotal: String*): Formatter[BigDecimal] =
-    new Formatter[BigDecimal] {
-      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], BigDecimal] = {
-        val total =
-          itemsToTotal.foldLeft[BigDecimal](BigDecimal(0)) { (acc, next) =>
-            data.get(next) match {
-              case Some(str) =>
-                Try(BigDecimal(str)).getOrElse(BigDecimal(0.00)) + acc
-              case None =>
-                acc
-            }
-          }
-        Right(total)
-      }
-
-      override def unbind(key: String, value: BigDecimal): Map[String, String] = Map(key -> decimalFormat.format(value))
     }
 
   private[mappings] def enumerableFormatter[A](requiredKey: String, invalidKey: String)

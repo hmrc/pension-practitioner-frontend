@@ -37,7 +37,6 @@ import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import utils.KnownFactsRetrieval
 import views.html.individual.DeclarationView

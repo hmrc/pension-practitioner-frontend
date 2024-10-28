@@ -18,10 +18,10 @@ package navigators
 
 import com.google.inject.Inject
 import connectors.cache.UserAnswersCacheConnector
-import models.{NormalMode, WhatTypeBusiness, UserAnswers}
 import models.register.{BusinessRegistrationType, BusinessType}
+import models.{NormalMode, UserAnswers, WhatTypeBusiness}
 import pages.register._
-import pages.{WhatTypeBusinessPage, Page}
+import pages.{Page, WhatTypeBusinessPage}
 import play.api.mvc.Call
 
 class PractitionerNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector)

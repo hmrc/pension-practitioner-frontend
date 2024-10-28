@@ -35,8 +35,8 @@ import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import viewmodels.Radios
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import viewmodels.Radios
 import views.html.individual.AreYouUKResidentView
 
 import scala.concurrent.Future

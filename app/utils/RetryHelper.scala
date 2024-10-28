@@ -16,9 +16,9 @@
 
 package utils
 
+import config.FrontendAppConfig
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.pattern.Patterns.after
-import config.FrontendAppConfig
 import play.api.Logger
 import uk.gov.hmrc.http.UpstreamErrorResponse
 

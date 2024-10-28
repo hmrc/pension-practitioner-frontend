@@ -16,11 +16,12 @@
 
 package forms.individual
 
-import forms.mappings.{Transforms, Mappings}
-import javax.inject.Inject
+import forms.mappings.{Mappings, Transforms}
 import models.register.TolerantIndividual
 import play.api.data.Form
 import play.api.data.Forms.mapping
+
+import javax.inject.Inject
 
 class IndividualNameFormProvider @Inject() extends Mappings with Transforms {
   val nameLength: Int = 35

@@ -30,7 +30,6 @@ import play.api.Application
 import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import views.html.individual.ConfirmationView
 
 import scala.concurrent.Future

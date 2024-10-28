@@ -16,11 +16,11 @@
 
 package utils
 
-import models.register.RegistrationCustomerType.{UK, NonUK}
+import models.register.RegistrationCustomerType.{NonUK, UK}
 import models.register.RegistrationLegalStatus
 import models.register.RegistrationLegalStatus.{Individual, LimitedCompany, Partnership}
 import models.requests.DataRequest
-import models.{KnownFacts, KnownFact, Address}
+import models.{Address, KnownFact, KnownFacts}
 import pages.RegistrationInfoPage
 import pages.company.CompanyRegisteredAddressPage
 import pages.individual.IndividualAddressPage

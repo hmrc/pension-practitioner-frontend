@@ -29,8 +29,8 @@ import pages.{PspEmailPage, PspNamePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.Radios
 import utils.annotations.AuthMustHaveEnrolmentWithNoIV
+import viewmodels.Radios
 import views.html.deregister.individual.ConfirmDeregistrationView
 
 import javax.inject.Inject

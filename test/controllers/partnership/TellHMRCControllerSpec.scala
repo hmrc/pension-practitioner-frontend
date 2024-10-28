@@ -19,16 +19,12 @@ package controllers.partnership
 import controllers.base.ControllerSpecBase
 import data.SampleData
 import matchers.JsonMatchers
-import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import views.html.TellHMRCView
-
-import scala.concurrent.Future
 
 class TellHMRCControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers {
 

@@ -19,12 +19,12 @@ package controllers
 import config.FrontendAppConfig
 import connectors.SessionDataCacheConnector
 import connectors.cache.UserAnswersCacheConnector
-
-import javax.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.auth.core.{AuthorisedFunctions, MissingBearerToken, AuthConnector}
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, MissingBearerToken}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class SignOutController @Inject()(

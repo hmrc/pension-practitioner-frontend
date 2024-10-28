@@ -17,18 +17,11 @@
 package navigators
 
 import data.SampleData
-import models.NormalMode
-import models.UserAnswers
-import models.WhatTypeBusiness
-import models.register.BusinessRegistrationType
-import models.register.BusinessType
+import models.{NormalMode, UserAnswers, WhatTypeBusiness}
+import models.register.{BusinessRegistrationType, BusinessType}
 import org.scalatest.prop.TableFor3
 import pages._
-import pages.register.BusinessTypePage
-import pages.register.AreYouUKCompanyPage
-import pages.register.BusinessDetailsNotFoundPage
-import pages.register.BusinessRegistrationTypePage
-import pages.register.WhatYouWillNeedPage
+import pages.register._
 import play.api.mvc.Call
 
 class PractitionerNavigatorSpec extends NavigatorBehaviour {

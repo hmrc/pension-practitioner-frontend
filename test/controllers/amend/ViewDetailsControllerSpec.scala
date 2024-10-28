@@ -24,7 +24,6 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.test.Helpers.{route, status, _}
-import play.twirl.api.Html
 import services.PspDetailsService
 
 import scala.concurrent.Future
