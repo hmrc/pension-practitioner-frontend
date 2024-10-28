@@ -24,9 +24,9 @@ import forms.ConfirmAddressFormProvider
 import matchers.JsonMatchers
 import models.register._
 import models.{TolerantAddress, UserAnswers}
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.mockito.ArgumentMatchers
 import org.scalatest.{BeforeAndAfterEach, OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.partnership.{BusinessNamePage, BusinessUTRPage, ConfirmAddressPage}
@@ -36,9 +36,8 @@ import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
-import viewmodels.Radios
 import utils.countryOptions.CountryOptions
+import viewmodels.Radios
 import views.html.ConfirmAddressView
 
 import scala.concurrent.Future

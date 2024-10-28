@@ -31,7 +31,6 @@ import play.api.Application
 import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import viewmodels.CommonViewModel
 import views.html.register.ConfirmationView
 

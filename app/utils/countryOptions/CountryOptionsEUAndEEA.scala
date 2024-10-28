@@ -18,9 +18,10 @@ package utils.countryOptions
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import javax.inject.Singleton
 import play.api.Environment
 import utils.InputOption
+
+import javax.inject.Singleton
 
 @Singleton
 class CountryOptionsEUAndEEA @Inject()(

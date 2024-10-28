@@ -59,22 +59,22 @@ class IndividualPostcodeController @Inject()(override val messagesApi: MessagesA
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      get(getFormToJson(mode), Some(postCodeView(
+      get(postCodeView(
         routes.IndividualPostcodeController.onSubmit(mode),
         routes.IndividualContactAddressController.onPageLoad(mode).url,
         form
-      )))
+      ))
   }
 
 
   def onSubmit(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      val twirlTemplate = Some(postCodeView(
+      val twirlTemplate = postCodeView(
         routes.IndividualPostcodeController.onSubmit(mode),
         routes.IndividualContactAddressController.onPageLoad(mode).url,
         _
-      ))
-      post(mode, getFormToJson(mode), IndividualPostcodePage, "error.postcode.noResults", twirlTemplate)
+      )
+      post(mode, IndividualPostcodePage, "error.postcode.noResults", twirlTemplate)
   }
 
   def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Form[String] => JsObject = {

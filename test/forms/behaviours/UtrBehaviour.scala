@@ -20,8 +20,7 @@ import forms.FormSpec
 import forms.mappings.UtrMapping
 import generators.Generators
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.data.Form
-import play.api.data.FormError
+import play.api.data.{Form, FormError}
 
 trait UtrBehaviour extends FormSpec with UtrMapping with ScalaCheckPropertyChecks with Generators with StringFieldBehaviours {
 

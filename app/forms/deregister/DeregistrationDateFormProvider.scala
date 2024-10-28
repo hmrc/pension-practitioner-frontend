@@ -16,13 +16,13 @@
 
 package forms.deregister
 
-import java.time.LocalDate
-
 import forms.mappings.{Constraints, Mappings}
 import helpers.FormatHelper.dateContentFormatter
-import javax.inject.Inject
 import play.api.data.Form
 import play.api.i18n.Messages
+
+import java.time.LocalDate
+import javax.inject.Inject
 class DeregistrationDateFormProvider @Inject() extends Mappings with Constraints {
 
   def apply(pspType: String, registrationDate: LocalDate)(implicit messages: Messages): Form[LocalDate] =

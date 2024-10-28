@@ -16,7 +16,7 @@
 
 package models
 
-import utils.{WithName, Enumerable}
+import utils.{Enumerable, WithName}
 
 sealed trait SubscriptionType
 

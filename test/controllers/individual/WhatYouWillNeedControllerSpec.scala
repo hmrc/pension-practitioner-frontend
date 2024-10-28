@@ -30,11 +30,8 @@ import play.api.inject.guice.GuiceableModule
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.individual.WhatYouWillNeedView
-
-import scala.concurrent.Future
 
 class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar {
   private def onwardRoute = Call("GET", "/foo")

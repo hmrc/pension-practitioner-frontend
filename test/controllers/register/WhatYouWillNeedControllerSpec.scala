@@ -28,7 +28,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import views.html.register.WhatYouWillNeedView
-import navigators.CompoundNavigator
 
 class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers {
 

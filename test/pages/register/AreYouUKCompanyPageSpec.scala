@@ -17,8 +17,7 @@
 package pages.register
 
 import data.SampleData
-import pages.PageConstants
-import pages.WhatTypeBusinessPage
+import pages.{PageConstants, WhatTypeBusinessPage}
 import pages.behaviours.PageBehaviours
 
 

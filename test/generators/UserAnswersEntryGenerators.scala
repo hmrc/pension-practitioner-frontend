@@ -17,19 +17,13 @@
 package generators
 
 import models.WhatTypeBusiness
-import models.register.BusinessRegistrationType
-import models.register.BusinessType
-import org.scalacheck.Arbitrary.arbitrary
+import models.register.{BusinessRegistrationType, BusinessType}
 import org.scalacheck.Arbitrary
+import org.scalacheck.Arbitrary.arbitrary
 import pages.WhatTypeBusinessPage
-import pages.register.BusinessTypePage
-import pages.register.AreYouUKCompanyPage
-import pages.company.ConfirmAddressPage
-import pages.company.IsCompanyRegisteredInUkPage
-import pages.company.{BusinessUTRPage, BusinessNamePage, ConfirmNamePage}
-import pages.register.BusinessRegistrationTypePage
-import play.api.libs.json.JsValue
-import play.api.libs.json.Json
+import pages.company._
+import pages.register.{AreYouUKCompanyPage, BusinessRegistrationTypePage, BusinessTypePage}
+import play.api.libs.json.{JsValue, Json}
 
 
 trait UserAnswersEntryGenerators extends PageGenerators with ModelGenerators {

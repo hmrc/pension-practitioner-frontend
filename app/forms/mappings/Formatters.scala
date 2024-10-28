@@ -16,12 +16,11 @@
 
 package forms.mappings
 
-import java.text.DecimalFormat
-
 import play.api.data.FormError
 import play.api.data.format.Formatter
 import utils.Enumerable
 
+import java.text.DecimalFormat
 import scala.util.control.Exception.nonFatalCatch
 import scala.util.{Failure, Success, Try}
 

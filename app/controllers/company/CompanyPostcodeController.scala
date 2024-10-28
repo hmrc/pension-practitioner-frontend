@@ -59,13 +59,13 @@ class CompanyPostcodeController @Inject()(override val messagesApi: MessagesApi,
       implicit request =>
         getFormToJson(mode).retrieve.map {func =>
           val jsObject: JsObject = func(form)
-        get(func, Some(postCodeView(
+        get(postCodeView(
           routes.CompanyPostcodeController.onSubmit(mode),
           routes.CompanyContactAddressController.onPageLoad(mode).url,
           "company",
           (jsObject \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
           form
-        )))}
+        ))}
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
@@ -73,14 +73,14 @@ class CompanyPostcodeController @Inject()(override val messagesApi: MessagesApi,
       implicit request =>
         getFormToJson(mode).retrieve.map { formFunc =>
           val jsObject = formFunc(form)
-          val twirlTemplate = Some(postCodeView(
+          val twirlTemplate = postCodeView(
             routes.CompanyPostcodeController.onSubmit(mode),
             routes.CompanyContactAddressController.onPageLoad(mode).url,
             "company",
             (jsObject \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
             _
-          ))
-          post(mode, formFunc, CompanyPostcodePage, Messages("error.postcode.noResults"), twirlTemplate)
+          )
+          post(mode, CompanyPostcodePage, Messages("error.postcode.noResults"), twirlTemplate)
         }
     }
 

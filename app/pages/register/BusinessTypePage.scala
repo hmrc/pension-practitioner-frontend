@@ -18,7 +18,7 @@ package pages.register
 
 import models.UserAnswers
 import models.register.BusinessType
-import models.register.BusinessType.{LimitedCompany, BusinessPartnership, LimitedLiabilityPartnership, LimitedPartnership, UnlimitedCompany}
+import models.register.BusinessType.{BusinessPartnership, LimitedCompany, LimitedLiabilityPartnership, LimitedPartnership, UnlimitedCompany}
 import pages.{PageConstants, QuestionPage}
 import play.api.libs.json.JsPath
 import queries.Gettable

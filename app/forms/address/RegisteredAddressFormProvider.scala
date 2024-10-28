@@ -17,11 +17,12 @@
 package forms.address
 
 import forms.mappings.AddressMappings
-import javax.inject.Inject
 import models.Address
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import utils.countryOptions.CountryOptions
+
+import javax.inject.Inject
 
 class RegisteredAddressFormProvider @Inject()(countryOptions: CountryOptions) extends AddressMappings {
 

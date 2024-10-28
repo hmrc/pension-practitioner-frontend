@@ -18,13 +18,14 @@ package utils.countryOptions
 
 import com.typesafe.config.ConfigException
 import config.FrontendAppConfig
-import javax.inject.{Inject, Singleton}
 import models.register.InternationalRegion
-import models.register.InternationalRegion.{RestOfTheWorld, EuEea, UK}
-import models.{TolerantAddress, Address}
+import models.register.InternationalRegion.{EuEea, RestOfTheWorld, UK}
+import models.{Address, TolerantAddress}
 import play.api.Environment
 import play.api.libs.json.Json
 import utils.InputOption
+
+import javax.inject.{Inject, Singleton}
 
 @Singleton
 class CountryOptions @Inject()(environment: Environment, config: FrontendAppConfig) {

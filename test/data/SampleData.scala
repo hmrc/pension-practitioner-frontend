@@ -16,30 +16,12 @@
 
 package data
 
-import models.Address
-import models.TolerantAddress
-import models.UserAnswers
-import models.WhatTypeBusiness.Companyorpartnership
-import models.WhatTypeBusiness.Yourselfasindividual
-import models.register.BusinessRegistrationType
-import models.register.BusinessType
-import models.register.RegistrationCustomerType
-import models.register.RegistrationInfo
-import models.register.RegistrationLegalStatus
-import models.register.TolerantIndividual
-import pages.RegistrationInfoPage
-import pages.WhatTypeBusinessPage
-import pages.individual.AreYouUKResidentPage
-import pages.individual.IndividualAddressListPage
-import pages.individual.IndividualAddressPage
-import pages.individual.IndividualDetailsPage
-import pages.individual.IndividualManualAddressPage
-import pages.individual.IndividualPostcodePage
-import pages.individual.IsThisYouPage
-import pages.individual.UseAddressForContactPage
-import pages.register.AreYouUKCompanyPage
-import pages.register.BusinessRegistrationTypePage
-import pages.register.BusinessTypePage
+import models.{Address, TolerantAddress, UserAnswers}
+import models.WhatTypeBusiness.{Companyorpartnership, Yourselfasindividual}
+import models.register._
+import pages.{RegistrationInfoPage, WhatTypeBusinessPage}
+import pages.individual._
+import pages.register.{AreYouUKCompanyPage, BusinessRegistrationTypePage, BusinessTypePage}
 
 
 object SampleData {

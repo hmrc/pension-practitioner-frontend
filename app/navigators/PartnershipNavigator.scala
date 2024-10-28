@@ -20,10 +20,10 @@ import com.google.inject.Inject
 import connectors.cache.UserAnswersCacheConnector
 import controllers.partnership.routes._
 import models.SubscriptionType.Variation
-import models.{NormalMode, CheckMode, UserAnswers}
+import models.{CheckMode, NormalMode, UserAnswers}
 import pages.partnership._
 import pages.register.AreYouUKCompanyPage
-import pages.{SubscriptionTypePage, Page}
+import pages.{Page, SubscriptionTypePage}
 import play.api.mvc.Call
 
 class PartnershipNavigator @Inject()(val dataCacheConnector: UserAnswersCacheConnector)

@@ -16,8 +16,8 @@
 
 package models.register
 
-import models.register.BusinessType.{LimitedCompany, BusinessPartnership, LimitedLiabilityPartnership, LimitedPartnership, UnlimitedCompany}
-import play.api.libs.json.{Json, _}
+import models.register.BusinessType.{BusinessPartnership, LimitedCompany, LimitedLiabilityPartnership, LimitedPartnership, UnlimitedCompany}
+import play.api.libs.json._
 import utils.EnumUtils
 
 object OrganisationTypeEnum extends Enumeration {

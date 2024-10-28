@@ -26,8 +26,8 @@ import play.api.http.Status._
 import play.api.libs.json.{Json, Writes}
 import play.api.mvc.{AnyContent, RequestHeader}
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.client.HttpClientV2
 import utils.{HttpResponseHelper, RetryHelper}
 
 import javax.inject.Inject

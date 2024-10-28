@@ -16,7 +16,7 @@
 
 package models.register
 
-import utils.{WithName, Enumerable}
+import utils.{Enumerable, WithName}
 
 sealed trait RegistrationLegalStatus
 

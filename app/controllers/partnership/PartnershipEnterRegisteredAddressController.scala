@@ -23,11 +23,11 @@ import controllers.Retrievals
 import controllers.actions._
 import controllers.address.ManualAddressController
 import forms.address.UKAddressFormProvider
-import models.{Address, AddressConfiguration, Mode}
 import models.register.RegistrationLegalStatus
+import models.{Address, AddressConfiguration, Mode}
 import navigators.CompoundNavigator
-import pages.{QuestionPage, RegistrationInfoPage}
 import pages.partnership.{BusinessNamePage, PartnershipAddressListPage, PartnershipRegisteredAddressPage}
+import pages.{QuestionPage, RegistrationInfoPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
