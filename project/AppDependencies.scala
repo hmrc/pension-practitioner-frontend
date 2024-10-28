@@ -19,7 +19,6 @@ object AppDependencies {
     "org.scalatestplus.play"      %% "scalatestplus-play"      % "7.0.1",
     "org.scalatestplus"           %% "mockito-4-6"             % "3.2.15.0",
     "org.scalatestplus"           %% "scalacheck-1-17"         % "3.2.18.0",
-    "org.pegdown"                 %  "pegdown"                 % "1.6.0",
     "org.scalacheck"              %% "scalacheck"              % "1.18.0",
     "org.mockito"                 %% "mockito-scala"           % "1.17.37",
     "io.github.wolfendale"        %% "scalacheck-gen-regexp"   % "1.1.0"
