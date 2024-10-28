@@ -17,7 +17,6 @@
 package forms.mappings
 
 import play.api.data.validation.{Constraint, Invalid, Valid}
-import uk.gov.hmrc.domain.Nino
 import utils.countryOptions.CountryOptions
 
 import java.time.LocalDate
@@ -25,10 +24,8 @@ import java.time.LocalDate
 trait Constraints {
   private val regexPostcode = """^[A-Z]{1,2}[0-9][0-9A-Z]?\s?[0-9][A-Z]{2}$"""
   protected val nameRegex = """^[a-zA-Z &`\-\'\.^]{1,35}$"""
-  private val regexCrn = "^[A-Za-z0-9 -]{8}$"
   val addressLineRegex = """^[A-Za-z0-9 \-,.&'\/]{1,35}$"""
   protected val utrRegex = """^\d{10}$"""
-  protected val businessNameRegex = """^[a-zA-Z0-9- '&\\/]{1,105}$"""
   protected val emailRestrictiveRegex: String = "^(?:[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"" +
     "(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")" +
     "@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?|" +
@@ -48,59 +45,6 @@ trait Constraints {
 
   protected def postCode(errorKey: String): Constraint[String] = regexp(regexPostcode, errorKey)
 
-  protected def minimumValue[A](minimum: A, errorKey: String)(implicit ev: Ordering[A]): Constraint[A] =
-    Constraint {
-      input =>
-
-        import ev._
-
-        if (input >= minimum) {
-          Valid
-        } else {
-          Invalid(errorKey, minimum)
-        }
-    }
-
-  protected def minimumValueOption[A](minimum: A, errorKey: String)(implicit ev: Ordering[A]): Constraint[Option[A]] =
-    Constraint {
-      case Some(input) =>
-        import ev._
-
-        if (input >= minimum) {
-          Valid
-        } else {
-          Invalid(errorKey, minimum)
-        }
-      case None =>
-        Valid
-    }
-
-  protected def maximumValue[A](maximum: A, errorKey: String)(implicit ev: Ordering[A]): Constraint[A] =
-    Constraint {
-      input =>
-
-        import ev._
-
-        if (input <= maximum) {
-          Valid
-        } else {
-          Invalid(errorKey, maximum)
-        }
-    }
-
-  protected def maximumValueOption[A](minimum: A, errorKey: String)(implicit ev: Ordering[A]): Constraint[Option[A]] =
-    Constraint {
-      case Some(input) =>
-        import ev._
-
-        if (input <= minimum) {
-          Valid
-        } else {
-          Invalid(errorKey, minimum)
-        }
-      case None =>
-        Valid
-    }
 
   protected def inRange[A](minimum: A, maximum: A, errorKey: String)(implicit ev: Ordering[A]): Constraint[A] =
     Constraint {
@@ -140,14 +84,6 @@ trait Constraints {
         Invalid(errorKey, maximum)
     }
 
-  protected def exactLength(length: Int, errorKey: String): Constraint[String] =
-    Constraint {
-      case str if str.length == length =>
-        Valid
-      case _ =>
-        Invalid(errorKey, length)
-    }
-
   protected def maxDate(maximum: LocalDate, errorKey: String, args: Any*): Constraint[LocalDate] =
     Constraint {
       case date if date.isAfter(maximum) =>
@@ -164,12 +100,6 @@ trait Constraints {
         Valid
     }
 
-  protected def yearHas4Digits(errorKey: String): Constraint[LocalDate] =
-    Constraint {
-      case date if date.getYear >= 1000 => Valid
-      case _ => Invalid(errorKey)
-    }
-
   protected def nonEmptySet(errorKey: String): Constraint[Set[_]] =
     Constraint {
       case set if set.nonEmpty =>
@@ -182,17 +112,6 @@ trait Constraints {
 
   protected def phoneNumber(errorKey: String): Constraint[String] = regexp(phoneNumberRegex, errorKey)
 
-  protected def validNino(invalidKey: String): Constraint[String] =
-    Constraint {
-      case nino if Nino.isValid(nino) => Valid
-      case _ => Invalid(invalidKey)
-    }
-
-  protected def validCrn(invalidKey: String): Constraint[String] =
-    Constraint {
-      case crn if crn.matches(regexCrn) => Valid
-      case _ => Invalid(invalidKey)
-    }
 
   protected def validAddressLine(invalidKey: String): Constraint[String] = regexp(addressLineRegex, invalidKey)
 
@@ -205,9 +124,6 @@ trait Constraints {
   }
 
   protected def uniqueTaxReference(errorKey: String): Constraint[String] = regexp(utrRegex, errorKey)
-
-  protected def businessName(errorKey: String): Constraint[String] = regexp(businessNameRegex, errorKey)
-
   protected def country(countryOptions: CountryOptions, errorKey: String): Constraint[String] =
     Constraint {
       input =>
