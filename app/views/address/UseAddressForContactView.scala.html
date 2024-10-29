@@ -51,30 +51,20 @@ case _ => {}
     }
 </p>
 
-        @govukRadios(
-            Radios(
-                name = field.name,
-                classes = "govuk-radios--inline",
-                fieldset = Some(
-                    Fieldset(
-                    legend = Some(Legend(
-                        content = Text(messages("useAddressForContact.title", messages(entityName))),
-                        isPageHeading = true,
-                        classes = "govuk-fieldset__legend--xl govuk-!-margin-bottom-8"
-                    ))
-                )
-            ),
-            hint = Some(Hint(
-                content = HtmlContent(s"""
-                    <p class="govuk-body">
-                        ${address.map(item => s"<span class='govuk-!-display-block'>$item</span>").mkString}
-                    </p>
-                """)
-            )),
-            items = radios,
-            errorMessage = field.error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args:_*))))
-        )
-    )
+@govukRadios(
+RadiosViewModel(
+form("value"),
+radios,
+Fieldset(
+legend = Some(Legend(
+content = Text(messages("useAddressForContact.title")),
+isPageHeading = false,
+classes = " govuk-visually-hidden govuk-!-margin-bottom-8"
+))
+),
+classes = "govuk-radios--inline"
+)
+)
 
         @govukButton(
                 ButtonViewModel(Text(messages("site.save_and_continue"))).asFormSubmit
