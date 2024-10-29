@@ -42,13 +42,13 @@
                     classes = "govuk-label--xl",
                     content = Text(messages("postcode.title", entityName))
                 ),
-                hint = Some(Hint(
-                    content = HtmlContent(
-                        s"${messages("postcode.youCan")} <a href='$enterManuallyUrl' class='govuk-link'>${messages("address.linkText.enterManually")}</a>"
-                    )
-                ))
             )
         )
+
+    <p class="govuk-body">
+        @messages("postcode.youCan")
+        <a href="@enterManuallyUrl" class="govuk-link">@messages("address.linkText.enterManually")</a>.
+    </p>
 
         @govukButton(
             ButtonViewModel(Text(messages("findAddress"))).asFormSubmit
