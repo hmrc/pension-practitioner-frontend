@@ -32,6 +32,25 @@
             @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
         }
 
+<h1 class="govuk-heading-xl">
+    @messages("useAddressForContact.title", messages(entityName))
+</h1>
+
+@messages("entity") match {
+case "Partnership" | "Company" => {
+<p class="govuk-body">
+    @Messages("useAddressForContact.confirm.text")
+</p>
+}
+case _ => {}
+}
+
+<p class="govuk-body">
+    @for(addressItem <- address) {
+    <span class="govuk-!-display-block">@addressItem</span>
+    }
+</p>
+
         @govukRadios(
             Radios(
                 name = field.name,
