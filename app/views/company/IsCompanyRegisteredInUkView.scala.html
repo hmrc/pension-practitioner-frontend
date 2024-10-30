@@ -25,6 +25,7 @@
 @(submitCall: Call, form: Form[Boolean], radios: Seq[RadioItem])(implicit request: Request[_], messages: Messages)
 
 @field = @{form("value")}
+
 @layout(messages("isCompanyRegisteredInUk.title"), formHasErrors = form.hasErrors) {
     @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
         @if(form.errors.nonEmpty) {
@@ -45,7 +46,7 @@
                         legend = Some(Legend(
                             content = Text(messages("isCompanyRegisteredInUk.heading")),
                             isPageHeading = true,
-                            classes = " govuk-visually-hidden govuk-!-margin-bottom-8"
+                            classes = "govuk-visually-hidden govuk-!-margin-bottom-8"
                         ))
                     ),
                 ),
@@ -60,3 +61,6 @@
 
     }
 }
+
+
+

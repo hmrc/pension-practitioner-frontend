@@ -24,45 +24,45 @@
 
 @(submitCall: Call, form: Form[Boolean], radios: Seq[RadioItem], name: String, address: Seq[String])(implicit request: Request[_], messages: Messages)
 
-
 @field = @{form("value")}
 
 @layout(messages("isThisYou.title"), formHasErrors = form.hasErrors) {
 
- @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
-   @if(form.errors.nonEmpty) {
-    @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
-   }
+    @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
+        }
 
-   <h1 class="govuk-heading-xl">@messages("isThisYou.heading")</h1>
-
-   <p id="individual-value" class="govuk-body">@name</p>
-   <p class="govuk-body">
-       @for(addressItem <- address) {
-         <span class="govuk-!-display-block">@addressItem</span>
-       }
-   </p>
-  @govukRadios(
-   Radios(
-    name = field.name,
-    classes = "govuk-radios--inline",
-    fieldset = Some(
-     Fieldset(
-      legend = Some(Legend(
-       content = Text(messages("isThisYou.title")),
-       isPageHeading = true,
-       classes = "govuk-visually-hidden"
-      ))
-     ),
-    ),
-    items = radios,
-    errorMessage = field.error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args:_*))))
-   )
-  )
-
-    @govukButton(
-        ButtonViewModel(Text(messages("site.save_and_continue"))).asFormSubmit
+        @govukRadios(
+            Radios(
+                name = field.name,
+                classes = "govuk-radios--inline",
+                fieldset = Some(
+                    Fieldset(
+                        legend = Some(Legend(
+                        content = Text(messages("isThisYou.title")),
+                        isPageHeading = true,
+                        classes = "govuk-fieldset__legend--xl govuk-!-margin-bottom-8"
+                    ))
+                )
+            ),
+            hint = Some(Hint(
+                content = HtmlContent(s"""
+                    <p id="individual-value" class="govuk-body">$name</p>
+                    <p class="govuk-body">
+                    ${address.map(item => s"<span class='govuk-!-display-block'>$item</span>").mkString}
+                    </p>
+                    """
+                )
+            )),
+            items = radios,
+            errorMessage = field.error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args:_*))))
+        )
     )
 
- }
+        @govukButton(
+            ButtonViewModel(Text(messages("site.save_and_continue"))).asFormSubmit
+        )
+    }
 }
+

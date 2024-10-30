@@ -28,18 +28,10 @@
 
 @layout(messages("areYouUKResident.title"), formHasErrors = form.hasErrors) {
 
-
- @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
-  @if(form.errors.nonEmpty) {
-   @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
-  }
-
-  <h1 class="govuk-heading-xl">@messages("areYouUKResident.title")</h1>
-
-   @if(isCheckMode) {
-        <p class="govuk-body">@messages("areYouUKResident.check.p1")</p>
-        <p class="govuk-body">@messages("areYouUKResident.check.p2")</p>
-   }
+@formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
+@if(form.errors.nonEmpty) {
+@govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
+}
 
   @govukRadios(
    Radios(
@@ -47,10 +39,10 @@
     classes = "govuk-radios--inline",
     fieldset = Some(
      Fieldset(
-      legend = Some(Legend(
-       content = Text(messages("areYouUKResident.title")),
-       isPageHeading = true,
-       classes = "govuk-visually-hidden"
+        legend = Some(Legend(
+        content = Text(messages("areYouUKResident.title")),
+        isPageHeading = true,
+        classes = "govuk-fieldset__legend--xl govuk-!-margin-bottom-8"
       ))
      ),
     ),
@@ -65,3 +57,5 @@
 
  }
 }
+
+
