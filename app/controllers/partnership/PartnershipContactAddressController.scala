@@ -54,7 +54,7 @@ class PartnershipContactAddressController @Inject()(
   def form(implicit messages: Messages): Form[Address] = formProvider()
 
   override protected def addressPage: QuestionPage[Address] = PartnershipAddressPage
-
+  private val isUkHintText = true
   override protected val pageTitleEntityTypeMessageKey: Option[String] = Some("partnership")
 
   override protected val submitRoute: Mode => Call = mode => routes.PartnershipContactAddressController.onSubmit(mode)
@@ -63,7 +63,7 @@ class PartnershipContactAddressController @Inject()(
     (authenticate andThen getData andThen requireData).async { implicit request =>
       (AreYouUKCompanyPage and BusinessNamePage).retrieve.map {
         case areYouUKCompany ~ companyName =>
-          get(mode, Some(companyName), PartnershipAddressListPage, addressConfigurationForPostcodeAndCountry(areYouUKCompany), manualAddressView)
+          get(mode, Some(companyName), PartnershipAddressListPage, addressConfigurationForPostcodeAndCountry(areYouUKCompany), manualAddressView, isUkHintText)
       }
     }
 
@@ -71,7 +71,7 @@ class PartnershipContactAddressController @Inject()(
     (authenticate andThen getData andThen requireData).async { implicit request =>
       (AreYouUKCompanyPage and BusinessNamePage).retrieve.map {
         case areYouUKCompany ~ partnershipName =>
-          post(mode, Some(partnershipName), addressConfigurationForPostcodeAndCountry(areYouUKCompany), manualAddressView)
+          post(mode, Some(partnershipName), addressConfigurationForPostcodeAndCountry(areYouUKCompany), manualAddressView, isUkHintText)
       }
     }
 }

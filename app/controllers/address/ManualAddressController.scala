@@ -66,7 +66,8 @@ trait ManualAddressController
                     name: Option[String],
                     selectedAddress: QuestionPage[TolerantAddress],
                     addressLocation: AddressConfiguration,
-                    manualAddressView: ManualAddressView)(
+                    manualAddressView: ManualAddressView,
+                    isUkHintText: Boolean = false)(
                      implicit request: DataRequest[AnyContent],
                      ec: ExecutionContext
                    ): Future[Result] = {
@@ -85,13 +86,15 @@ trait ManualAddressController
       (jsonValue \ "postcodeFirst").asOpt[Boolean].getOrElse(false),
       (jsonValue \ "countries").asOpt[Array[models.Country]].getOrElse(Array.empty[models.Country]),
       submitRoute(mode),
-      preparedForm)))
+      preparedForm,
+      isUkHintText)))
   }
 
   protected def post(mode: Mode,
                      name: Option[String],
                      addressLocation: AddressConfiguration,
-                     manualAddressView: ManualAddressView)(
+                     manualAddressView: ManualAddressView,
+                     isUkHintText: Boolean = false)(
                       implicit request: DataRequest[AnyContent],
                       ec: ExecutionContext
                     ): Future[Result] = {
@@ -106,7 +109,8 @@ trait ManualAddressController
             (jsonValue \ "postcodeFirst").asOpt[Boolean].getOrElse(false),
             (jsonValue \ "countries").asOpt[Array[models.Country]].getOrElse(Array.empty[models.Country]),
             submitRoute(mode),
-            formWithErrors
+            formWithErrors,
+            isUkHintText
           )))
         },
         value =>
