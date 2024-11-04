@@ -55,7 +55,7 @@ class IndividualContactAddressController @Inject()(
   def form(implicit messages: Messages): Form[Address] = formProvider()
 
   override protected def addressPage: QuestionPage[Address] = IndividualManualAddressPage
-
+  private val isUkHintText = false
   override protected val pageTitleMessageKey: String = "individual.address.title"
   override protected val h1MessageKey: String = "individual.address.title"
 
@@ -64,14 +64,14 @@ class IndividualContactAddressController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
       AreYouUKResidentPage.retrieve.map { areYouUKResident =>
-        get(mode, None, IndividualAddressListPage, addressConfigurationForPostcodeAndCountry(areYouUKResident), manualAddressView)
+        get(mode, None, IndividualAddressListPage, addressConfigurationForPostcodeAndCountry(areYouUKResident), manualAddressView,isUkHintText)
       }
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
       AreYouUKResidentPage.retrieve.map { areYouUKResident =>
-        post(mode, None, addressConfigurationForPostcodeAndCountry(areYouUKResident), manualAddressView)
+        post(mode, None, addressConfigurationForPostcodeAndCountry(areYouUKResident), manualAddressView, isUkHintText)
       }
     }
 }

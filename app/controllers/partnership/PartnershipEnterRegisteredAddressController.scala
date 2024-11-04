@@ -53,7 +53,7 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
   def form(implicit messages: Messages): Form[Address] = formProvider()
 
   override protected def addressPage: QuestionPage[Address] = PartnershipRegisteredAddressPage
-
+  private val isUkHintText = true
   override protected val pageTitleEntityTypeMessageKey: Option[String] = Some("partnership")
 
   override protected val submitRoute: Mode => Call = mode => routes.PartnershipEnterRegisteredAddressController.onSubmit(mode)
@@ -61,7 +61,7 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
       BusinessNamePage.retrieve.map { companyName =>
-        get(mode, Some(companyName), PartnershipAddressListPage, AddressConfiguration.CountryOnly, manualAddressView)
+        get(mode, Some(companyName), PartnershipAddressListPage, AddressConfiguration.CountryOnly, manualAddressView, isUkHintText)
       }
     }
 
@@ -80,7 +80,8 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
                 (jsonValue \ "postcodeFirst").asOpt[Boolean].getOrElse(false),
                 (jsonValue \ "countries").asOpt[Array[models.Country]].getOrElse(Array.empty[models.Country]),
                 submitRoute(mode),
-                formWithErrors)))
+                formWithErrors,
+                isUkHintText)))
             },
             value => {
               val updatedUA = request.userAnswers.setOrException(addressPage, value)

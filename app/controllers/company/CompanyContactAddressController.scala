@@ -52,7 +52,7 @@ class CompanyContactAddressController @Inject()(
     with I18nSupport {
 
   def form(implicit messages: Messages): Form[Address] = formProvider()
-
+  private val isUkHintText = true
   override protected def addressPage: QuestionPage[Address] = CompanyAddressPage
 
   override protected val pageTitleEntityTypeMessageKey: Option[String] = Some("company")
@@ -63,7 +63,7 @@ class CompanyContactAddressController @Inject()(
     (authenticate andThen getData andThen requireData).async { implicit request =>
       (AreYouUKCompanyPage and BusinessNamePage).retrieve.map {
         case areYouUKCompany ~ companyName =>
-          get(mode, Some(companyName), CompanyAddressListPage, addressConfigurationForPostcodeAndCountry(areYouUKCompany), manualAddressView)
+          get(mode, Some(companyName), CompanyAddressListPage, addressConfigurationForPostcodeAndCountry(areYouUKCompany), manualAddressView, isUkHintText)
       }
     }
 
@@ -71,7 +71,7 @@ class CompanyContactAddressController @Inject()(
     (authenticate andThen getData andThen requireData).async { implicit request =>
       (AreYouUKCompanyPage and BusinessNamePage).retrieve.map {
         case areYouUKCompany ~ companyName =>
-          post(mode, Some(companyName), addressConfigurationForPostcodeAndCountry(areYouUKCompany), manualAddressView)
+          post(mode, Some(companyName), addressConfigurationForPostcodeAndCountry(areYouUKCompany), manualAddressView, isUkHintText)
       }
     }
 }

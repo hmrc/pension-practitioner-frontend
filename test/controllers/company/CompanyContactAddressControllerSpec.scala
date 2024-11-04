@@ -61,7 +61,7 @@ class CompanyContactAddressControllerSpec extends ControllerSpecBase with Mockit
   private def submitUrl: String = submitCall.url
   private val dummyCall: Call = Call("GET", "/foo")
   private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("ZZ1 1ZZ"), "GB")
-
+  private val isUkHintText = true
   private val valuesValid: Map[String, Seq[String]] = Map(
     "line1" -> Seq("line1"),
     "line2" -> Seq("line2"),
@@ -96,7 +96,8 @@ class CompanyContactAddressControllerSpec extends ControllerSpecBase with Mockit
         postcodeFirst = true,
         Array(Country("", ""), Country("GB", "United Kingdom")),
         submitCall,
-        form
+        form,
+        isUkHintText
       )(request, messages)
 
       compareResultAndView(result, view)

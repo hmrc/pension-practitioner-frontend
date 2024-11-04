@@ -55,7 +55,7 @@ class IndividualContactAddressControllerSpec extends ControllerSpecBase with Moc
   private def submitUrl: String = routes.IndividualContactAddressController.onSubmit(NormalMode).url
   private val dummyCall: Call = Call("GET", "/foo")
   private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("ZZ1 1ZZ"), "UK")
-
+  private val isUkHintText = false
   private val valuesValid: Map[String, Seq[String]] = Map(
     "line1" -> Seq("line1"),
     "line2" -> Seq("line2"),
@@ -87,7 +87,7 @@ class IndividualContactAddressControllerSpec extends ControllerSpecBase with Moc
         messages("individual.address.title"),
         messages("individual.address.title"),
         true, true, countries, routes.IndividualContactAddressController.onSubmit(NormalMode),
-        form)(request, messages)
+        form, isUkHintText)(request, messages)
 
       status(result) mustEqual OK
       compareResultAndView(result, view)
