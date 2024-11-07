@@ -34,7 +34,7 @@
             @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
         }
 
-        <h1 class="govuk-heading-xl">@messages("addressList.h1", viewModel.entityName)</h1>
+        <h1 class="govuk-heading-l">@messages("addressList.h1", viewModel.entityName)</h1>
 
         <p class="govuk-body">
             @messages("addressList.select")
@@ -49,7 +49,7 @@
                     legend = Some(Legend(
                         content = Text(messages("addressList.h1", viewModel.entityName)),
                         isPageHeading = false,
-                        classes = "govuk-fieldset__legend--xl govuk-visually-hidden"
+                        classes = "govuk-fieldset__legend--l govuk-visually-hidden"
                     ))
                 )
             )
