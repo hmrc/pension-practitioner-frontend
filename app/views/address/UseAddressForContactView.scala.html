@@ -30,39 +30,41 @@
             @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
         }
 
-        <h1 class="govuk-heading-xl">
-        @messages("useAddressForContact.title", messages(entityName))
-        </h1>
-
-        @messages("entity") match {
-            case "Partnership" | "Company" => {
-                <p class="govuk-body">
-                    @Messages("useAddressForContact.confirm.text")
-                </p>
-            }
-            case _ => {}
-        }
-
-        <p class="govuk-body">
-            @for(addressItem <- address) {
-            <span class="govuk-!-display-block">@addressItem</span>
-            }
-        </p>
-
         @govukRadios(
-            RadiosViewModel(
-                form("value"),
-                radios,
-                Fieldset(
+            Radios(
+                name = form("value").name,
+                classes = "govuk-radios--inline",
+                fieldset = Some(
+                    Fieldset(
                     legend = Some(Legend(
-                        content = Text(messages("useAddressForContact.title")),
-                        isPageHeading = false,
-                        classes = " govuk-visually-hidden govuk-!-margin-bottom-8"
+                        content = Text(messages("useAddressForContact.title", messages(entityName))),
+                        isPageHeading = true,
+                        classes = "govuk-fieldset__legend--l govuk-!-margin-bottom-4"
                     ))
-                ),
-                classes = "govuk-radios--inline"
-            )
+                )
+            ),
+            hint = Some(Hint(
+                content = HtmlContent {
+                    val conditionalMessage = messages("entity") match {
+                        case "Partnership" | "Company" =>
+                            s"<p class='govuk-body'>${Messages("useAddressForContact.confirm.text")}</p>"
+                        case _ => ""
+                }
+
+                val addressContent = address.map(item => s"<span class='govuk-!-display-block'>$item</span>").mkString
+
+                s"""
+                    $conditionalMessage
+                    <p class='govuk-body'>$addressContent</p>
+                    """
+                }
+            )),
+            items = radios.map { radio =>
+                radio.copy(checked = form("value").value.contains(radio.value.getOrElse("")))
+            },
+            errorMessage = form("value").error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args:_*))))
         )
+    )
 
         @govukButton(
                 ButtonViewModel(Text(messages("site.save_and_continue"))).asFormSubmit

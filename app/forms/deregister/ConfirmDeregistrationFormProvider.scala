@@ -17,8 +17,9 @@
 package forms.deregister
 
 import forms.mappings.Mappings
-import javax.inject.Inject
 import play.api.data.Form
+
+import javax.inject.Inject
 
 class ConfirmDeregistrationFormProvider @Inject() extends Mappings {
 

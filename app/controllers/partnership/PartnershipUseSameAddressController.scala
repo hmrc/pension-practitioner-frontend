@@ -19,59 +19,38 @@ package controllers.partnership
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
-import controllers.partnership.routes
 import forms.address.UseAddressForContactFormProvider
-
-import javax.inject.Inject
 import models.requests.DataRequest
-import models.Address
-import models.NormalMode
-import models.TolerantAddress
-import models.UserAnswers
+import models.{Address, NormalMode, TolerantAddress, UserAnswers}
 import navigators.CompoundNavigator
 import pages.company.CompanyAddressPage
-import pages.partnership.BusinessNamePage
-import pages.partnership.ConfirmAddressPage
-import pages.partnership.PartnershipRegisteredAddressPage
-import pages.partnership.PartnershipUseSameAddressPage
+import pages.partnership.{BusinessNamePage, ConfirmAddressPage, PartnershipRegisteredAddressPage, PartnershipUseSameAddressPage}
 import pages.register.AreYouUKCompanyPage
 import play.api.data.Form
-import play.api.i18n.I18nSupport
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesControllerComponents
-import play.api.mvc.Result
-import renderer.Renderer
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import uk.gov.hmrc.viewmodels.Radios
-import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
-import viewmodels.CommonViewModel
+import viewmodels.{CommonViewModel, Radios}
 import views.html.address.UseAddressForContactView
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 class PartnershipUseSameAddressController @Inject()(override val messagesApi: MessagesApi,
-  userAnswersCacheConnector: UserAnswersCacheConnector,
-  navigator: CompoundNavigator,
-  authenticate: AuthAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: UseAddressForContactFormProvider,
-  val controllerComponents: MessagesControllerComponents,
-  countryOptions: CountryOptions,
-  renderer: Renderer,
-  useAddressForContactView: UseAddressForContactView,
-  twirlMigration: TwirlMigration
-)(implicit ec: ExecutionContext) extends FrontendBaseController
-  with I18nSupport with NunjucksSupport with Retrievals {
+                                                    userAnswersCacheConnector: UserAnswersCacheConnector,
+                                                    navigator: CompoundNavigator,
+                                                    authenticate: AuthAction,
+                                                    getData: DataRetrievalAction,
+                                                    requireData: DataRequiredAction,
+                                                    formProvider: UseAddressForContactFormProvider,
+                                                    val controllerComponents: MessagesControllerComponents,
+                                                    countryOptions: CountryOptions,
+                                                    useAddressForContactView: UseAddressForContactView
+                                                   )(implicit ec: ExecutionContext) extends FrontendBaseController
+  with I18nSupport with Retrievals {
 
   private def form(implicit messages: Messages): Form[Boolean] =
     formProvider(messages("useAddressForContact.error.required", messages("company")))
@@ -80,18 +59,15 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
     implicit request =>
       val preparedForm = request.userAnswers.get(PartnershipUseSameAddressPage).fold(form)(form.fill)
       getJson(preparedForm) { json =>
-        val template = twirlMigration.duoTemplate(
-          renderer.render("address/useAddressForContact.njk", json),
-          useAddressForContactView(
-            routes.PartnershipUseSameAddressController.onSubmit(),
-            preparedForm,
-            TwirlMigration.toTwirlRadios(Radios.yesNo(preparedForm("value"))),
-            (json \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
-            (json \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
-            (json  \ "address").asOpt[Seq[String]].getOrElse(Seq.empty[String])
-          )
-        )
-        template.map(Ok(_))      }
+        Future.successful(Ok(useAddressForContactView(
+          routes.PartnershipUseSameAddressController.onSubmit(),
+          preparedForm,
+          Radios.yesNo(preparedForm("value")),
+          (json \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
+          (json \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
+          (json \ "address").asOpt[Seq[String]].getOrElse(Seq.empty[String])
+        )))
+      }
   }
 
   def onSubmit: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
@@ -99,18 +75,13 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
       form.bindFromRequest().fold(
         formWithErrors => {
           getJson(formWithErrors) { json =>
-            val template = twirlMigration.duoTemplate(
-              renderer.render("address/useAddressForContact.njk", json),
-              useAddressForContactView(
-                routes.PartnershipUseSameAddressController.onSubmit(),
-                formWithErrors,
-                TwirlMigration.toTwirlRadios(Radios.yesNo(formWithErrors("value"))),
-                (json \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
-                (json \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
-                (json  \ "address").asOpt[Seq[String]].getOrElse(Seq.empty[String])
-              )
-            )
-            template.map(BadRequest(_))
+            Future.successful(BadRequest(useAddressForContactView(
+              routes.PartnershipUseSameAddressController.onSubmit(),
+              formWithErrors,
+              Radios.yesNo(formWithErrors("value")),
+              (json \ "viewmodel" \ "entityType").asOpt[String].getOrElse(""),
+              (json \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
+              (json \ "address").asOpt[Seq[String]].getOrElse(Seq.empty[String]))))
           }
         },
         value => {
@@ -138,7 +109,7 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
       )
   }
 
-  private def retrieveTolerantAddress(implicit request:DataRequest[_]):Option[TolerantAddress] = {
+  private def retrieveTolerantAddress(implicit request: DataRequest[_]): Option[TolerantAddress] = {
     (request.userAnswers.get(AreYouUKCompanyPage),
       request.userAnswers.get(ConfirmAddressPage),
       request.userAnswers.get(PartnershipRegisteredAddressPage)) match {
@@ -153,9 +124,8 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
   private def getJson(form: Form[Boolean])(block: JsObject => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
     retrieveTolerantAddress match {
       case Some(tolerantAddress) =>
-        BusinessNamePage.retrieve.map{ companyName =>
+        BusinessNamePage.retrieve.map { companyName =>
           val json = Json.obj(
-            "form" -> form,
             "viewmodel" -> CommonViewModel("partnership", companyName, routes.PartnershipUseSameAddressController.onSubmit().url),
             "radios" -> Radios.yesNo(form("value")),
             "address" -> tolerantAddress.lines(countryOptions),

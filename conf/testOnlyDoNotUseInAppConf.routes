@@ -12,7 +12,6 @@
 # Add all the application routes to the prod.routes file
 ->         /                          prod.Routes
 
-GET        /test-only/twirl/:state              controllers.testonly.TwirlController.trigger(state: String)
 GET        /test-only/bad-request              controllers.testonly.ErrorHandlingController.clientBadRequest
 GET        /test-only/not-found              controllers.testonly.ErrorHandlingController.clientNotFound
 GET        /test-only/client/:status              controllers.testonly.ErrorHandlingController.clientOther(status: Int)

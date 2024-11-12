@@ -16,10 +16,10 @@
 
 package forms.deregister
 
-import java.time.LocalDate
-
 import forms.behaviours._
 import play.api.data.FormError
+
+import java.time.LocalDate
 
 class DeregistrationDateFormProviderSpec extends DateBehaviours {
 

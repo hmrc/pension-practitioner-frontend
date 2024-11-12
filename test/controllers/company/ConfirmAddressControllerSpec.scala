@@ -35,7 +35,6 @@ import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import uk.gov.hmrc.govukfrontend.views.html.components
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import utils.countryOptions.CountryOptions
@@ -77,7 +76,6 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockRenderer)
     reset(mockRegistrationConnector)
     reset(mockUserAnswersCacheConnector)
     reset(mockCountryOptions)
@@ -92,7 +90,6 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
 
         ).build()
 
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
       when(mockRegistrationConnector.registerWithIdOrganisation(any(), any(), any())(any(), any()))
         .thenReturn(Future.successful(organisationRegistration))
       when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
@@ -147,7 +144,6 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar 
 
     "return a Bad Request and errors when invalid data is submitted" in {
 
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
       when(mockCountryOptions.getCountryNameFromCode(ArgumentMatchers.any[TolerantAddress])).thenReturn(Some("GB"))
 
       val userAnswersWithAddress = userAnswersWithRegistrationValues

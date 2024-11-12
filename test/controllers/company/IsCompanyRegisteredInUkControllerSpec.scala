@@ -30,7 +30,6 @@ import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import uk.gov.hmrc.govukfrontend.views.html.components
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import views.html.company.IsCompanyRegisteredInUkView
@@ -53,7 +52,6 @@ class IsCompanyRegisteredInUkControllerSpec extends ControllerSpecBase with Mock
   "IsCompanyRegisteredInUk Controller" must {
 
     "return OK and the correct view for a GET" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(SampleData.userAnswersWithCompanyName))
         .overrides(
@@ -79,7 +77,6 @@ class IsCompanyRegisteredInUkControllerSpec extends ControllerSpecBase with Mock
     }
 
     "populate the view correctly on a GET when the question has previously been answered" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(answers))
         .overrides(
@@ -131,7 +128,6 @@ class IsCompanyRegisteredInUkControllerSpec extends ControllerSpecBase with Mock
 
     "return a Bad Request and errors when invalid data is submitted" in {
 
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(SampleData.userAnswersWithCompanyName))
         .overrides(

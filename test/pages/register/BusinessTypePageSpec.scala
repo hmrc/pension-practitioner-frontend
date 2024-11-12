@@ -18,8 +18,7 @@ package pages.register
 
 import data.SampleData
 import models.register._
-import pages.PageConstants
-import pages.WhatTypeBusinessPage
+import pages.{PageConstants, WhatTypeBusinessPage}
 import pages.behaviours.PageBehaviours
 import queries.Gettable
 

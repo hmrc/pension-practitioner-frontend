@@ -21,18 +21,13 @@ import controllers.actions._
 import controllers.{Retrievals, Variation}
 import forms.PhoneFormProvider
 import models.Mode
-import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.AddressChange
 import pages.individual.{AreYouUKResidentPage, IndividualPhonePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import renderer.Renderer
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import utils.annotations.AuthWithIV
 import views.html.individual.PhoneView
 
@@ -47,11 +42,9 @@ class IndividualPhoneController @Inject()(override val messagesApi: MessagesApi,
                                           requireData: DataRequiredAction,
                                           formProvider: PhoneFormProvider,
                                           val controllerComponents: MessagesControllerComponents,
-                                          renderer: Renderer,
-                                          phoneView: PhoneView,
-                                          twirlMigration: TwirlMigration
+                                          phoneView: PhoneView
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController
-  with Retrievals with I18nSupport with NunjucksSupport with Variation {
+  with Retrievals with I18nSupport with Variation {
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
@@ -59,16 +52,10 @@ class IndividualPhoneController @Inject()(override val messagesApi: MessagesApi,
         request.userAnswers.get(AreYouUKResidentPage) match {
           case Some(true) =>
             val formFilled = request.userAnswers.get(IndividualPhonePage).fold(form)(form.fill)
-            getJson(mode, formFilled) { json =>
-              val template = twirlMigration.duoTemplate(
-                renderer.render(template = "individual/phone.njk", json),
-                phoneView(
-                  routes.IndividualPhoneController.onSubmit(mode),
-                  formFilled
-                )
-              )
-              template.map(Ok(_))
-            }
+            Future.successful(Ok(phoneView(
+              routes.IndividualPhoneController.onSubmit(mode),
+              formFilled
+            )))
           case _ => Future.successful(
             Redirect(controllers.individual.routes.AreYouUKResidentController.onPageLoad(mode))
           )
@@ -80,16 +67,10 @@ class IndividualPhoneController @Inject()(override val messagesApi: MessagesApi,
       implicit request =>
         form.bindFromRequest().fold(
           formWithErrors =>
-            getJson(mode, formWithErrors) { json =>
-              val template = twirlMigration.duoTemplate(
-                renderer.render("individual/phone.njk", json),
-                phoneView(
-                  routes.IndividualPhoneController.onSubmit(mode),
-                  formWithErrors
-                )
-              )
-              template.map(BadRequest(_))
-            },
+            Future.successful(BadRequest(phoneView(
+              routes.IndividualPhoneController.onSubmit(mode),
+              formWithErrors
+            ))),
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(IndividualPhonePage, value))
@@ -102,11 +83,4 @@ class IndividualPhoneController @Inject()(override val messagesApi: MessagesApi,
 
   private def form(implicit messages: Messages): Form[String] =
     formProvider(messages("individual.phone.error.required"))
-
-  private def getJson(mode: Mode, form: Form[String])(block: JsObject => Future[Result])
-                     (implicit request: DataRequest[AnyContent]): Future[Result] =
-    block(Json.obj(
-      "form" -> form,
-      "submitUrl" -> routes.IndividualPhoneController.onSubmit(mode).url
-    ))
 }

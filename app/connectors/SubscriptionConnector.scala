@@ -23,24 +23,27 @@ import play.api.Logger
 import play.api.http.Status.{BAD_REQUEST, NOT_FOUND, OK}
 import play.api.libs.json._
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import utils.HttpResponseHelper
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Failure
 
-class SubscriptionConnector @Inject()(http: HttpClient, config: FrontendAppConfig)
+class SubscriptionConnector @Inject()(httpClientV2: HttpClientV2, config: FrontendAppConfig)
   extends HttpResponseHelper {
 
   private val logger = Logger(classOf[SubscriptionConnector])
 
-  def subscribePsp(answers: UserAnswers, journeyType: JourneyType.Name)
-                  (implicit ec: ExecutionContext, hc: HeaderCarrier): Future[String] = {
+  def subscribePsp(answers: UserAnswers, journeyType: JourneyType.Name
+                  )(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[String] = {
 
-    val url = config.pspSubscriptionUrl.format(journeyType.toString)
-    http.POST[JsObject, HttpResponse](url, answers.data).map {
-      response =>
+    val url = url"${config.pspSubscriptionUrl.format(journeyType.toString)}"
+
+    httpClientV2.post(url)
+      .withBody(answers.data)
+      .execute[HttpResponse].map { response =>
         response.status match {
           case OK =>
             (response.json \ "pspid").validate[String] match {
@@ -49,18 +52,20 @@ class SubscriptionConnector @Inject()(http: HttpClient, config: FrontendAppConfi
             }
           case _ =>
             logger.warn("Unable to post psp subscription")
-            handleErrorResponse("POST", url)(response)
+            handleErrorResponse("POST", url.toString)(response)
         }
-    }
+      }
   }
 
-  def getSubscriptionDetails(pspId: String)
-                            (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
+  def getSubscriptionDetails(pspId: String
+                            )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
 
-    val pspIdHC = hc.withExtraHeaders("pspId" -> pspId)
-    val url = config.subscriptionDetailsUrl
+    val headers = Seq("pspId" -> pspId)
+    val url = url"${config.subscriptionDetailsUrl}"
 
-    http.GET[HttpResponse](url)(implicitly, pspIdHC, implicitly) map { response =>
+    httpClientV2.get(url)
+      .setHeader(headers: _*)
+      .execute[HttpResponse].map { response =>
       response.status match {
         case OK =>
           response.json
@@ -78,8 +83,8 @@ class SubscriptionConnector @Inject()(http: HttpClient, config: FrontendAppConfi
     }
   }
 
-  def getPspApplicationDate(pspId: String)
-                           (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[LocalDate] =
+  def getPspApplicationDate(pspId: String
+                           )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[LocalDate] =
 
     getSubscriptionDetails(pspId).map { jsValue =>
       (jsValue \ "applicationDate").validate[String] match {

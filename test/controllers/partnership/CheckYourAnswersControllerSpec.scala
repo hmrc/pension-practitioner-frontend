@@ -29,18 +29,13 @@ import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import services.PartnershipCYAService
+import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryListRow
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, SummaryListRow, Value}
-import uk.gov.hmrc.viewmodels.SummaryList.Row
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, SummaryList}
-import uk.gov.hmrc.viewmodels.Text.Literal
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, Value}
 import views.html.CheckYourAnswersView
 
-import scala.concurrent.Future
-
-class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
@@ -53,16 +48,15 @@ class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSuga
 
   private def onPageLoadUrl: String = routes.CheckYourAnswersController.onPageLoad().url
 
-  private val list: Seq[Row] = Seq(Row(
-    key = SummaryList.Key(msg"cya.partnershipName", classes = Seq("govuk-!-width-one-half")),
-    value = SummaryList.Value(Literal(partnershipName), classes = Seq("govuk-!-width-one-third"))
+  private val list = Seq(SummaryListRow(
+    key = Key(Text(Messages("cya.partnershipName")), classes = "govuk-!-width-one-half"),
+    value = Value(Text(partnershipName), classes = "govuk-!-width-one-third")
   ))
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   "CheckYourAnswers Controller" must {
     "return OK and the correct view for a GET" in {

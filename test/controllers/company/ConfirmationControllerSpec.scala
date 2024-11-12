@@ -29,7 +29,6 @@ import play.api.Application
 import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import viewmodels.CommonViewModel
 import views.html.register.ConfirmationView
 
@@ -56,8 +55,7 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar {
   override def beforeEach(): Unit = {
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   "Confirmation Controller" must {
     "return OK and the correct view for a GET" in {

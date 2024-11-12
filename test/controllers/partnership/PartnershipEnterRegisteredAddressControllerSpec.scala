@@ -37,15 +37,13 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.InputOption
 import utils.countryOptions.CountryOptions
 import views.html.address.ManualAddressView
 
 import scala.concurrent.Future
 
-class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase with MockitoSugar
                                 with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
@@ -74,7 +72,7 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
   private def submitUrl: String = submitCall.url
   private val dummyCall: Call = Call("GET", "/foo")
   private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("ZZ1 1ZZ"), "GB")
-
+  private val isUkHintText = true
   private val valuesValid: Map[String, Seq[String]] = Map(
     "line1" -> Seq("line1"),
     "line2" -> Seq("line2"),
@@ -90,8 +88,7 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-    when(countryOptions.options).thenReturn(Seq(InputOption("GB", "United Kingdom")))
+     when(countryOptions.options).thenReturn(Seq(InputOption("GB", "United Kingdom")))
     when(mockAppConfig.validCountryCodes).thenReturn(Seq("GB"))
   }
 
@@ -110,7 +107,8 @@ class PartnershipEnterRegisteredAddressControllerSpec extends ControllerSpecBase
         postcodeFirst = false,
         Array(Country("", ""), Country("GB", "United Kingdom")),
         submitCall,
-        form
+        form,
+        isUkHintText
       )(request, messages)
 
       compareResultAndView(result, view)

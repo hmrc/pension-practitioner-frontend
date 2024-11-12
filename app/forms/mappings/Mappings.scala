@@ -16,11 +16,11 @@
 
 package forms.mappings
 
-import java.time.LocalDate
-
 import play.api.data.FieldMapping
 import play.api.data.Forms.of
 import utils.Enumerable
+
+import java.time.LocalDate
 
 trait Mappings extends Formatters with Constraints with Transforms {
 
@@ -42,21 +42,6 @@ trait Mappings extends Formatters with Constraints with Transforms {
                            invalidKey: String = "error.invalid"
                           ): FieldMapping[BigDecimal] =
     of(bigDecimalFormatter(requiredKey, invalidKey))
-
-  protected def bigDecimal2DP(requiredKey: String = "error.required",
-                              invalidKey: String = "error.invalid",
-                              decimalKey: String = "error.decimal"
-                             ): FieldMapping[BigDecimal] =
-    of(bigDecimal2DPFormatter(requiredKey, invalidKey, decimalKey))
-
-  protected def optionBigDecimal2DP(requiredKey: String = "error.required",
-                                    invalidKey: String = "error.invalid",
-                                    decimalKey: String = "error.decimal"
-                                   ): FieldMapping[Option[BigDecimal]] =
-    of(optionBigDecimal2DPFormatter(requiredKey, invalidKey, decimalKey))
-
-  protected def bigDecimalTotal(itemsToTotal: String*): FieldMapping[BigDecimal] =
-    of(bigDecimalTotalFormatter(itemsToTotal: _*))
 
   protected def boolean(requiredKey: String = "error.required",
                         invalidKey: String = "error.boolean"): FieldMapping[Boolean] =

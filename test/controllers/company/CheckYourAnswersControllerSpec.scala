@@ -29,16 +29,10 @@ import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import services.CompanyCYAService
+import uk.gov.hmrc.govukfrontend.views.Aliases.{Key, SummaryListRow, Value}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, SummaryListRow, Value}
-import uk.gov.hmrc.viewmodels.SummaryList.Row
-import uk.gov.hmrc.viewmodels.Text.Literal
-import uk.gov.hmrc.viewmodels.{MessageInterpolators, SummaryList}
 import views.html.CheckYourAnswersView
-
-import scala.concurrent.Future
 
 class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSugar with TryValues with JsonMatchers {
 
@@ -51,16 +45,15 @@ class CheckYourAnswersControllerSpec extends ControllerSpecBase with MockitoSuga
       extraModules = Seq(bind[CompanyCYAService].toInstance(companyCYAService))).build()
   private def onPageLoadUrl: String = routes.CheckYourAnswersController.onPageLoad().url
 
-  private val list: Seq[Row] = Seq(Row(
-    key = SummaryList.Key(msg"cya.companyName", classes = Seq("govuk-!-width-one-half")),
-    value = SummaryList.Value(Literal(companyName), classes = Seq("govuk-!-width-one-third"))
+  private val list: Seq[SummaryListRow] = Seq(SummaryListRow(
+    key = Key(Text(Messages("cya.companyName")), classes = "govuk-!-width-one-half"),
+    value = Value(Text(companyName), classes = "govuk-!-width-one-third")
   ))
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   "CheckYourAnswers Controller" must {
     "return OK and the correct view for a GET" in {

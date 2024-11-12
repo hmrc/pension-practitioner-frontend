@@ -33,7 +33,6 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import utils.InputOption
 import utils.countryOptions.CountryOptions
 import views.html.address.ManualAddressView
@@ -62,7 +61,7 @@ class CompanyContactAddressControllerSpec extends ControllerSpecBase with Mockit
   private def submitUrl: String = submitCall.url
   private val dummyCall: Call = Call("GET", "/foo")
   private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("ZZ1 1ZZ"), "GB")
-
+  private val isUkHintText = true
   private val valuesValid: Map[String, Seq[String]] = Map(
     "line1" -> Seq("line1"),
     "line2" -> Seq("line2"),
@@ -78,8 +77,7 @@ class CompanyContactAddressControllerSpec extends ControllerSpecBase with Mockit
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-    when(countryOptions.options).thenReturn(Seq(InputOption("GB", "United Kingdom")))
+     when(countryOptions.options).thenReturn(Seq(InputOption("GB", "United Kingdom")))
     when(mockAppConfig.validCountryCodes).thenReturn(Seq("GB"))
   }
 
@@ -98,7 +96,8 @@ class CompanyContactAddressControllerSpec extends ControllerSpecBase with Mockit
         postcodeFirst = true,
         Array(Country("", ""), Country("GB", "United Kingdom")),
         submitCall,
-        form
+        form,
+        isUkHintText
       )(request, messages)
 
       compareResultAndView(result, view)

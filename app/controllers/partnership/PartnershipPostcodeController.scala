@@ -21,10 +21,7 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import controllers.address.PostcodeController
-import controllers.partnership.routes
 import forms.address.PostcodeFormProvider
-
-import javax.inject.Inject
 import models.Mode
 import navigators.CompoundNavigator
 import pages.partnership.{BusinessNamePage, PartnershipPostcodePage}
@@ -32,12 +29,10 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import viewmodels.CommonViewModel
 import views.html.address.PostcodeView
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class PartnershipPostcodeController @Inject()(override val messagesApi: MessagesApi,
@@ -49,11 +44,9 @@ class PartnershipPostcodeController @Inject()(override val messagesApi: Messages
                                               formProvider: PostcodeFormProvider,
                                               val addressLookupConnector: AddressLookupConnector,
                                               val controllerComponents: MessagesControllerComponents,
-                                              val renderer: Renderer,
-                                              postCodeView: PostcodeView,
-                                              val twirlMigration: TwirlMigration
+                                              postCodeView: PostcodeView
                                          )(implicit ec: ExecutionContext) extends PostcodeController
-                                          with Retrievals with I18nSupport with NunjucksSupport {
+                                          with Retrievals with I18nSupport {
 
   def form(implicit messages: Messages): Form[String] =
     formProvider(
@@ -66,13 +59,13 @@ class PartnershipPostcodeController @Inject()(override val messagesApi: Messages
       implicit request =>
         getFormToJson(mode).retrieve.map{ formFunction =>
           val  jsObject: JsObject = formFunction(form)
-          get(formFunction,   Some(postCodeView(
+          get(postCodeView(
           routes.PartnershipPostcodeController.onSubmit(mode),
             routes.PartnershipContactAddressController.onPageLoad(mode).url,
           "partnership",
            (jsObject \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
           form
-        )))}
+        ))}
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
@@ -81,14 +74,14 @@ class PartnershipPostcodeController @Inject()(override val messagesApi: Messages
 
         getFormToJson(mode).retrieve.map{formFunction =>
           val  jsObject: JsObject = formFunction(form)
-          val twirlTemplate = Some(postCodeView(
+          val twirlTemplate = postCodeView(
             routes.PartnershipPostcodeController.onSubmit(mode),
             routes.PartnershipContactAddressController.onPageLoad(mode).url,
             "partnersihp",
              (jsObject \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
             _
-          ))
-          post(mode, formFunction, PartnershipPostcodePage, "error.postcode.noResults", twirlTemplate)
+          )
+          post(mode, PartnershipPostcodePage, "error.postcode.noResults", twirlTemplate)
         }
     }
 
@@ -97,7 +90,6 @@ class PartnershipPostcodeController @Inject()(override val messagesApi: Messages
       implicit request =>
         BusinessNamePage.retrieve.map { partnershipName =>
             form => Json.obj(
-              "form" -> form,
               "viewmodel" -> CommonViewModel(
                 "partnership",
                 partnershipName,

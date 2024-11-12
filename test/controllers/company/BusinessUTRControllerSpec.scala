@@ -30,7 +30,6 @@ import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import views.html.BusinessUTRView
 
 import scala.concurrent.Future
@@ -77,7 +76,6 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar {
 
     "populate the view correctly on a GET when the question has previously been answered" in {
 
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName.setOrException(BusinessTypePage, businessType).
         setOrException(BusinessUTRPage, validUTR)))
@@ -126,7 +124,6 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar {
     }
 
     "return a Bad Request and errors when invalid data is submitted" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(userAnswersWithCompanyName.setOrException(BusinessTypePage, businessType)))
         .overrides(

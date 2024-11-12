@@ -30,14 +30,12 @@ import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
-import utils.TwirlMigration
+import viewmodels.Radios
 import views.html.ConfirmNameView
 
 import scala.concurrent.Future
 
-class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers with OptionValues with TryValues {
 
   def onwardRoute = Call("GET", "/foo")
 
@@ -54,7 +52,6 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
   "ConfirmName Controller" must {
 
     "return OK and the correct view for a GET" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(UserAnswers().setOrException(BusinessNamePage, pspName)))
         .build()
@@ -69,7 +66,7 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
         form,
         confirmNameSubmitCall,
         pspName,
-        TwirlMigration.toTwirlRadios(Radios.yesNo(form("value")))
+        Radios.yesNo(form("value"))
       )(request, messages)
 
       compareResultAndView(result, view)
@@ -77,7 +74,6 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
     }
 
     "populate the view correctly on a GET when the question has previously been answered" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(answers))
         .overrides(
@@ -96,7 +92,7 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
         filledForm,
         confirmNameSubmitCall,
         pspName,
-        TwirlMigration.toTwirlRadios(Radios.yesNo(filledForm("value")))
+        Radios.yesNo(filledForm("value"))
       )(request, messages)
 
       compareResultAndView(result, view)
@@ -127,7 +123,6 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
     "return a Bad Request and errors when invalid data is submitted" in {
 
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(UserAnswers().setOrException(BusinessNamePage, pspName)))
         .overrides(
@@ -145,7 +140,7 @@ class ConfirmNameControllerSpec extends ControllerSpecBase with MockitoSugar wit
         boundForm,
         confirmNameSubmitCall,
         pspName,
-        TwirlMigration.toTwirlRadios(Radios.yesNo(boundForm("value")))
+        Radios.yesNo(boundForm("value"))
       )(request, messages)
 
       compareResultAndView(result, view)

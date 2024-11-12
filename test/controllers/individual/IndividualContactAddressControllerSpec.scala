@@ -32,15 +32,13 @@ import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.Helpers._
-import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import utils.InputOption
 import utils.countryOptions.CountryOptions
 import views.html.address.ManualAddressView
 
 import scala.concurrent.Future
 
-class IndividualContactAddressControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class IndividualContactAddressControllerSpec extends ControllerSpecBase with MockitoSugar
                                 with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
@@ -57,7 +55,7 @@ class IndividualContactAddressControllerSpec extends ControllerSpecBase with Moc
   private def submitUrl: String = routes.IndividualContactAddressController.onSubmit(NormalMode).url
   private val dummyCall: Call = Call("GET", "/foo")
   private val address: Address = Address("line1", "line2", Some("line3"), Some("line4"), Some("ZZ1 1ZZ"), "UK")
-
+  private val isUkHintText = false
   private val valuesValid: Map[String, Seq[String]] = Map(
     "line1" -> Seq("line1"),
     "line2" -> Seq("line2"),
@@ -75,8 +73,7 @@ class IndividualContactAddressControllerSpec extends ControllerSpecBase with Moc
       UserAnswers().setOrException(AreYouUKResidentPage, true)
     ))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-    when(countryOptions.options).thenReturn(Seq(InputOption("UK", "United Kingdom")))
+     when(countryOptions.options).thenReturn(Seq(InputOption("UK", "United Kingdom")))
     when(mockAppConfig.validCountryCodes).thenReturn(Seq("UK"))
   }
 
@@ -90,7 +87,7 @@ class IndividualContactAddressControllerSpec extends ControllerSpecBase with Moc
         messages("individual.address.title"),
         messages("individual.address.title"),
         true, true, countries, routes.IndividualContactAddressController.onSubmit(NormalMode),
-        form)(request, messages)
+        form, isUkHintText)(request, messages)
 
       status(result) mustEqual OK
       compareResultAndView(result, view)

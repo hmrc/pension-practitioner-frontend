@@ -20,10 +20,8 @@ import com.google.inject.Inject
 import controllers.actions.{AuthAction, DataRetrievalAction}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import services.PspDetailsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveEnrolmentWithNoIV
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -31,28 +29,22 @@ import scala.concurrent.{ExecutionContext, Future}
 class ViewDetailsController @Inject()(@AuthMustHaveEnrolmentWithNoIV authenticate: AuthAction,
                                       getData: DataRetrievalAction,
                                       pspDetailsService: PspDetailsService,
-                                      renderer: Renderer,
                                       val controllerComponents: MessagesControllerComponents,
-                                      viewDetailsView: views.html.amend.ViewDetailsView,
-                                      twirlMigration: TwirlMigration
+                                      viewDetailsView: views.html.amend.ViewDetailsView
                                     )(implicit val executionContext: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData).async {
     implicit request =>
       request.user.alreadyEnrolledPspId.map { pspId =>
           pspDetailsService.getData(request.userAnswers, pspId).flatMap { data =>
-            val template = twirlMigration.duoTemplate(
-              renderer.render("amend/viewDetails.njk", data.toJson),
-              viewDetailsView(
-                data.pageTitle,
-                data.heading,
-                TwirlMigration.summaryListRow(data.list),
-                data.displayContinueButton,
-                data.nextPage,
-                data.returnLinkAndUrl
-              )
-            )
-            template.map(Ok(_))
+            Future.successful(Ok(viewDetailsView(
+              data.pageTitle,
+              data.heading,
+              data.list,
+              data.displayContinueButton,
+              data.nextPage,
+              data.returnLinkAndUrl
+            )))
         }
       }.getOrElse(
         Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))

@@ -30,13 +30,11 @@ import play.api.Application
 import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.individual.ConfirmationView
 
 import scala.concurrent.Future
 
-class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar
   with JsonMatchers with OptionValues with TryValues {
 
   private val mutableFakeDataRetrievalAction: MutableFakeDataRetrievalAction = new MutableFakeDataRetrievalAction()
@@ -57,8 +55,7 @@ class ConfirmationControllerSpec extends ControllerSpecBase with MockitoSugar wi
   override def beforeEach(): Unit = {
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   "Confirmation Controller" must {
     "return OK and the correct view for a GET" in {

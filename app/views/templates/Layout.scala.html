@@ -45,7 +45,7 @@
 
 @headScripts = {
     @if(includeAutoLocation) {
-        <link href="@controllers.routes.Assets.versioned("stylesheets/location-autocomplete.min.css")" media="screen" rel="stylesheet" type="text/css" />
+        <link href='@controllers.routes.Assets.versioned("stylesheets/location-autocomplete.min.css")' media="screen" rel="stylesheet" type="text/css" />
     }
     @if(timeoutEnabled) {
         @hmrcTimeoutDialogHelper(
@@ -69,13 +69,9 @@
     @if(includeAutoLocation) {
         <script @CSPNonce.attr src='@controllers.routes.Assets.versioned("javascripts/autocomplete/location-autocomplete.min.js")'></script>
     }
-    <script @CSPNonce.attr src='@controllers.routes.Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
+    <script @CSPNonce.attr src='@controllers.routes.Assets.versioned("lib/govuk-frontend/dist/govuk/all.bundle.js")'></script>
     <script @CSPNonce.attr src='@controllers.routes.Assets.versioned("lib/hmrc-frontend/hmrc/all.js")'></script>
-    <script @CSPNonce.attr src='@routes.Assets.versioned("javascripts/psp.js")'></script> @*Combined in build.sbt*@
-    <script @CSPNonce.attr>
-            window.GOVUKFrontend.initAll();
-            window.HMRCFrontend.initAll()
-    </script>
+    <script @CSPNonce.attr src='@routes.Assets.versioned("javascripts/psp.js")'></script>
 }
 
 @mainContentWithGetHelp = {

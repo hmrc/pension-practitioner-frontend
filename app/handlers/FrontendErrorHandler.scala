@@ -19,14 +19,11 @@ package handlers
 import config.FrontendAppConfig
 import play.api.http.HeaderNames.CACHE_CONTROL
 import play.api.http.Status._
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.Results._
 import play.api.mvc.{Request, RequestHeader, Result}
 import play.api.{Logger, PlayException}
 import play.twirl.api.Html
-import renderer.Renderer
-import utils.TwirlMigration
 import views.html.templates.ErrorTemplate
 import views.html.{BadRequestView, InternalServerErrorView, NotFoundView}
 
@@ -36,18 +33,20 @@ import scala.concurrent.{ExecutionContext, Future}
 // NOTE: There should be changes to bootstrap to make this easier, the API in bootstrap should allow a `Future[Html]` rather than just an `Html`
 @Singleton
 class FrontendErrorHandler @Inject()(
-                                      renderer: Renderer,
                                       val messagesApi: MessagesApi,
                                       config: FrontendAppConfig,
                                       badRequestView: BadRequestView,
                                       internalServerErrorView: InternalServerErrorView,
                                       errorTemplate: ErrorTemplate,
-                                      notFoundView: NotFoundView,
-                                      twirlMigration: TwirlMigration
-                                    )(implicit ec: ExecutionContext) extends uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler with I18nSupport {
+                                      notFoundView: NotFoundView
+                                    )(implicit override val ec: ExecutionContext) extends uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler with I18nSupport {
 
-  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html = {
-    errorTemplate(pageTitle, heading, Some(message))
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)
+                                    (implicit request: RequestHeader): Future[Html] = {
+    def requestImplicit: Request[_] = Request(request, "")
+
+    def messages: Messages = messagesApi.preferred(request)
+    Future.successful(errorTemplate(pageTitle, heading, Some(message))(requestImplicit, messages))
   }
 
   override def onClientError(request: RequestHeader, statusCode: Int, message: String = ""): Future[Result] = {
@@ -56,20 +55,9 @@ class FrontendErrorHandler @Inject()(
 
     statusCode match {
       case BAD_REQUEST =>
-        def template = twirlMigration.duoTemplate(
-          renderer.render("badRequest.njk"),
-          badRequestView()
-        )
-        template.map(BadRequest(_))
+        Future.successful(BadRequest(badRequestView()))
       case NOT_FOUND =>
-        val json = Json.obj(
-          "yourPensionSchemesUrl" -> config.pspListSchemesUrl
-        )
-        val template = twirlMigration.duoTemplate(
-          renderer.render("notFound.njk", json),
-          notFoundView(config.pspListSchemesUrl)
-        )
-        template.map(NotFound(_))
+        Future.successful(NotFound(notFoundView(config.pspListSchemesUrl)))
       case _ => super.onClientError(request, statusCode, message)
     }
   }
@@ -83,14 +71,7 @@ class FrontendErrorHandler @Inject()(
       case ApplicationException(result, _) =>
         Future.successful(result)
       case _ =>
-        def template = twirlMigration.duoTemplate(
-          renderer.render("internalServerError.njk"),
-          internalServerErrorView()
-        )
-        template.map {
-          content =>
-            InternalServerError(content).withHeaders(CACHE_CONTROL -> "no-cache")
-        }
+        Future.successful(InternalServerError(internalServerErrorView()).withHeaders(CACHE_CONTROL -> "no-cache"))
     }
   }
 

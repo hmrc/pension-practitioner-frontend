@@ -22,7 +22,7 @@
 @(entityType:String, companiesHouseUrl: String, hmrcUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(messages("tellHMRC.title", messages(entityType))) {
-    <h1 class="govuk-heading-xl">
+    <h1 class="govuk-heading-l">
         @messages("tellHMRC.heading", messages(entityType))
     </h1>
 
@@ -30,6 +30,6 @@
     <p class="govuk-body">@messages("tellHMRC.p1")</p>
     <ul class="govuk-list govuk-list--bullet">
         <li><a class="govuk-link" href="@companiesHouseUrl">@messages("tellHMRC.aboutBusiness")</a>@messages("tellHMRC.p2")</li>
-        <li><a class="govuk-link" href="@hmrcUrl">@messages("tellHMRC.companiesHouse")</a>@messages("tellHMRC.p3")</li>
+        <li><a class="govuk-link" href="@hmrcUrl">@messages("tellHMRC.companiesHouse")</a> @messages("tellHMRC.p3")</li>
     </ul>
 }

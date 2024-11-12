@@ -26,6 +26,7 @@
 
 @(entityName: String, form: Form[Boolean], submitUrl: Call, pspName: String, address: Seq[String], radios: Seq[RadioItem])(implicit request: Request[_], messages: Messages)
 
+@field = @{form("value")}
 
 @layout(messages("confirmAddress.title", messages(entityName)), formHasErrors = form.hasErrors) {
     @formHelper(action = submitUrl, Symbol("autoComplete") -> "off") {
@@ -34,28 +35,30 @@
             @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
         }
 
-        <h1 class="govuk-heading-xl">@messages("confirmAddress.heading", pspName)</h1>
-
-        <p class="govuk-body">
-            @address.map { line =>
-                <span class="govuk-!-display-block">@line</span>
-            }
-        </p>
-
         @govukRadios(
-            RadiosViewModel(
-                form("value"),
-                radios,
-                Fieldset(
-                    legend = Some(Legend(
-                        content = Text(messages("confirmAddress.heading", pspName)),
-                        isPageHeading = false,
-                        classes = "govuk-visually-hidden"
-                    ))
+            Radios(
+                name = field.name,
+                classes = "govuk-radios--inline",
+                fieldset = Some(
+                    Fieldset(
+                        legend = Some(Legend(
+                            content = Text(messages("confirmAddress.heading", pspName)),
+                            isPageHeading = true,
+                            classes = "govuk-fieldset__legend--l govuk-!-margin-bottom-4"
+                        ))
+                    )
                 ),
-                classes = "govuk-radios--inline"
-            )
+                hint = Some(Hint(
+                    content = HtmlContent(s"""
+                        <p class="govuk-body">
+                            ${address.map(item => s"<span class='govuk-!-display-block'>$item</span>").mkString}
+                        </p>
+                    """)
+                )),
+            items = radios,
+            errorMessage = field.error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args:_*))))
         )
+    )
 
         @govukButton(
             ButtonViewModel(Text(messages("site.save_and_continue"))).asFormSubmit

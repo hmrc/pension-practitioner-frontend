@@ -31,7 +31,6 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import viewmodels.CommonViewModelTwirl
 import views.html.PhoneView
 
@@ -63,8 +62,7 @@ class CompanyPhoneControllerSpec extends ControllerSpecBase with MockitoSugar wi
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   "CompanyPhone Controller" must {
     "return OK and the correct view for a GET" in {

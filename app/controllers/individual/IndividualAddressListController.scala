@@ -28,10 +28,7 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
 import viewmodels.{CommonViewModel, CommonViewModelTwirl}
 
@@ -47,17 +44,13 @@ class IndividualAddressListController @Inject()(override val messagesApi: Messag
                                                 formProvider: AddressListFormProvider,
                                                 val controllerComponents: MessagesControllerComponents,
                                                 countryOptions: CountryOptions,
-                                                val renderer: Renderer,
-                                                addressListView: views.html.individual.AddressListView,
-                                                val twirlMigration: TwirlMigration
+                                                addressListView: views.html.individual.AddressListView
                                                )(implicit ec: ExecutionContext) extends AddressListController
-  with Retrievals with I18nSupport with NunjucksSupport {
+  with Retrievals with I18nSupport {
 
 
   def form(implicit messages: Messages): Form[Int] =
     formProvider(messages("individual.addressList.error.required"))
-
-  override def viewTemplate: String = "individual/addressList.njk"
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async {
@@ -78,7 +71,8 @@ class IndividualAddressListController @Inject()(override val messagesApi: Messag
             addressPages,
             manualUrlCall = routes.IndividualContactAddressController.onPageLoad(mode),
             routes.IndividualAddressListController.onSubmit(mode),
-            (model: CommonViewModelTwirl, radios: Seq[RadioItem], formWithErrors: Form[Int]) => addressListView(model, formWithErrors, radios)(implicitly, implicitly))
+            (model: CommonViewModelTwirl, radios: Seq[RadioItem], formWithErrors: Form[Int]) => addressListView(model,
+              formWithErrors, radios)(implicitly, implicitly))
         )
 }
 
@@ -89,7 +83,6 @@ class IndividualAddressListController @Inject()(override val messagesApi: Messag
           case individualName ~ addresses =>
           form =>
             Json.obj(
-              "form" -> form,
               "addresses" -> transformAddressesForTemplate(addresses, countryOptions),
               "viewmodel" -> CommonViewModel(
                 "individual",
@@ -99,5 +92,4 @@ class IndividualAddressListController @Inject()(override val messagesApi: Messag
             )
         }
     )
-
 }

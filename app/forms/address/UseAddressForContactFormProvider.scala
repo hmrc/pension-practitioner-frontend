@@ -17,8 +17,9 @@
 package forms.address
 
 import forms.mappings.Mappings
-import javax.inject.Inject
 import play.api.data.Form
+
+import javax.inject.Inject
 
 class UseAddressForContactFormProvider @Inject() extends Mappings {
 

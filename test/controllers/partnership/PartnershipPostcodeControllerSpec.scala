@@ -34,13 +34,11 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.address.PostcodeView
 
 import scala.concurrent.Future
 
-class PartnershipPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport
+class PartnershipPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar
                                 with JsonMatchers with OptionValues with TryValues {
 
   private val mockAddressLookupConnector = mock[AddressLookupConnector]
@@ -73,8 +71,7 @@ class PartnershipPostcodeControllerSpec extends ControllerSpecBase with MockitoS
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   "PartnershipPostcode Controller" must {
     "return OK and the correct view for a GET" in {

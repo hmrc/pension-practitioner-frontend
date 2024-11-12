@@ -22,16 +22,12 @@ import models.NormalMode
 import navigators.CompoundNavigator
 import pages.register.BusinessDetailsNotFoundPage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.register.BusinessDetailsNotFound
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class BusinessDetailsNotFoundController @Inject()(
                                                    override val messagesApi: MessagesApi,
@@ -41,32 +37,17 @@ class BusinessDetailsNotFoundController @Inject()(
                                                    navigator: CompoundNavigator,
                                                    config: FrontendAppConfig,
                                                    val controllerComponents: MessagesControllerComponents,
-                                                   renderer: Renderer,
-                                                   businessDetailsNotFoundView: BusinessDetailsNotFound,
-                                                   twirlMigration: TwirlMigration
-                                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                                   businessDetailsNotFoundView: BusinessDetailsNotFound
+                                                 ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
+  def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData) {
     implicit request =>
       val enterDetailsUrl = navigator.nextPage(BusinessDetailsNotFoundPage, NormalMode, request.userAnswers).url
-      val json = Json.obj(
-        "companiesHouseUrl" -> config.companiesHouseFileChangesUrl,
-        "hmrcUrl" -> config.hmrcChangesMustReportUrl,
-        "hmrcTaxHelplineUrl" -> config.hmrcTaxHelplineUrl,
-        "enterDetailsAgainUrl" -> enterDetailsUrl,
-        "yourPensionSchemesUrl" -> config.pspListSchemesUrl
-      )
-
-      val template = twirlMigration.duoTemplate(
-        renderer.render("register/businessDetailsNotFound.njk", json),
-        businessDetailsNotFoundView(
-          config.companiesHouseFileChangesUrl,
-          config.hmrcChangesMustReportUrl,
-          config.hmrcTaxHelplineUrl,
-          enterDetailsUrl
-        )
-      )
-
-      template.map(Ok(_))
+      Ok(businessDetailsNotFoundView(
+        config.companiesHouseFileChangesUrl,
+        config.hmrcChangesMustReportUrl,
+        config.hmrcTaxHelplineUrl,
+        enterDetailsUrl
+      ))
   }
 }

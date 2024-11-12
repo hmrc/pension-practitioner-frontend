@@ -28,7 +28,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import views.html.register.WhatYouWillNeedView
-import navigators.CompoundNavigator
 
 class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers {
 
@@ -39,7 +38,6 @@ class WhatYouWillNeedControllerSpec extends ControllerSpecBase with MockitoSugar
     "return OK and the correct view for a GET" in {
 
       val view = mock[WhatYouWillNeedView]
-      val mockNavigator = mock[CompoundNavigator]
 
       when(view.apply(any())(any(), any())).thenReturn(Html(""))
 

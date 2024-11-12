@@ -33,28 +33,25 @@
             @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
         }
 
-        <h1 class="govuk-heading-xl">@messages("individual.postcode.title")</h1>
-
-        <p class="govuk-body">
-            @messages("postcode.youCan")
-            <a href="@enterManuallyUrl" class="govuk-link">@messages("address.linkText.enterManually")</a>.
-        </p>
-
         @govukInput(
             InputViewModel(
-                field = field,
+                field = form("value"),
                 classes = "govuk-input--width-10",
                 label = Label(
-                    isPageHeading = false,
-                    classes = "govuk-fieldset__legend--s govuk-visually-hidden",
-                    content = Text(messages("postcode.label"))
-                )
+                    isPageHeading = true,
+                    classes = "govuk-label--l",
+                    content = Text(messages("individual.postcode.title"))
+                ),
             )
         )
+
+    <p class="govuk-body">
+        @messages("postcode.youCan")
+        <a href="@enterManuallyUrl" class="govuk-link">@messages("address.linkText.enterManually")</a>.
+    </p>
 
         @govukButton(
             ButtonViewModel(Text(messages("findAddress"))).asFormSubmit
         )
-
     }
 }

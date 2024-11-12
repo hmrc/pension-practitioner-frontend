@@ -31,13 +31,11 @@ import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
-import uk.gov.hmrc.viewmodels.NunjucksSupport
 import views.html.BusinessUTRView
 
 import scala.concurrent.Future
 
-class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar with NunjucksSupport with JsonMatchers with OptionValues with TryValues {
+class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar with JsonMatchers with OptionValues with TryValues {
   private def onwardRoute = Call("GET", "/foo")
 
   private val formProvider = new BusinessUTRFormProvider
@@ -79,7 +77,6 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
     "populate the view correctly on a GET when the question has previously been answered" in {
 
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(UserAnswers().setOrException(BusinessTypePage, businessType).
         setOrException(BusinessUTRPage, validUTR)))
@@ -128,7 +125,6 @@ class BusinessUTRControllerSpec extends ControllerSpecBase with MockitoSugar wit
     }
 
     "return a Bad Request and errors when invalid data is submitted" in {
-      when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
 
       val application = applicationBuilder(userAnswers = Some(UserAnswers().setOrException(BusinessTypePage, businessType)))
         .overrides(

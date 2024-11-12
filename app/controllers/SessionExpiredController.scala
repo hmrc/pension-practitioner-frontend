@@ -16,30 +16,22 @@
 
 package controllers
 
-import javax.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.TwirlMigration
 import views.html.SessionExpiredView
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class SessionExpiredController @Inject()(
-    val controllerComponents: MessagesControllerComponents,
-    renderer: Renderer,
-    sessionExpiredView: SessionExpiredView,
-    twirlMigration: TwirlMigration
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+                                          val controllerComponents: MessagesControllerComponents,
+                                          sessionExpiredView: SessionExpiredView
+                                        )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = Action.async { implicit request =>
-    val template = twirlMigration.duoTemplate(
-      renderer.render("session-expired.njk"),
-      sessionExpiredView()
-    )
-    template.map(Ok(_))
+  def onPageLoad: Action[AnyContent] = Action { implicit request =>
+    Ok(sessionExpiredView())
   }
 }

@@ -19,48 +19,34 @@ package controllers
 import config.FrontendAppConfig
 import controllers.actions.{AuthAction, DataRetrievalAction}
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import services.PspDetailsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.TwirlMigration
 import views.html.YourActionWasNotProcessedView
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class YourActionWasNotProcessedController @Inject()(appConfig: FrontendAppConfig,
-                                                     override val messagesApi: MessagesApi,
-                                                     val controllerComponents: MessagesControllerComponents,
-                                                     authenticate: AuthAction,
-                                                     getData: DataRetrievalAction,
-                                                     pspDetailsService: PspDetailsService,
-                                                     renderer: Renderer,
-                                                    yourActionWasNotProcessedView: YourActionWasNotProcessedView,
-                                                    twirlMigration: TwirlMigration
+                                                    override val messagesApi: MessagesApi,
+                                                    val controllerComponents: MessagesControllerComponents,
+                                                    authenticate: AuthAction,
+                                                    getData: DataRetrievalAction,
+                                                    pspDetailsService: PspDetailsService,
+                                                    yourActionWasNotProcessedView: YourActionWasNotProcessedView
                                                    )(implicit val executionContext: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] =
-    (authenticate andThen getData).async {
+    (authenticate andThen getData) {
       implicit request =>
 
         val pspName: Option[String] = request.userAnswers.flatMap(pspDetailsService.getPspName)
 
-        val json: JsObject = if(request.user.alreadyEnrolledPspId.nonEmpty && pspName.nonEmpty) {
-          Json.obj("returnLink" -> appConfig.returnToPspDashboardUrl, "pspName" -> pspName.get)
-        } else {
-          Json.obj()
-        }
-        val template = twirlMigration.duoTemplate(
-          renderer.render("yourActionWasNotProcessed.njk", json),
-          yourActionWasNotProcessedView(
-            appConfig.returnToPspDashboardUrl,
-            if(request.user.alreadyEnrolledPspId.nonEmpty && pspName.nonEmpty) Some(pspName.get) else None
-          )
-        )
-        template.map(Ok(_))
+        Ok(yourActionWasNotProcessedView(
+          appConfig.returnToPspDashboardUrl,
+          if (request.user.alreadyEnrolledPspId.nonEmpty && pspName.nonEmpty) Some(pspName.get) else None
+        ))
     }
 }

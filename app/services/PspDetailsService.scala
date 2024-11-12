@@ -35,12 +35,12 @@ import pages.partnership._
 import pages.register._
 import pages.{PspIdPage, RegistrationDetailsPage, SubscriptionTypePage, UnchangedPspDetailsPage, company => comp}
 import play.api.i18n.Messages
-import play.api.libs.json.{JsObject, JsValue, Json, OWrites}
+import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc.Call
+import uk.gov.hmrc.govukfrontend.views.Aliases.{SummaryListRow, Value}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions, Key}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.viewmodels.SummaryList.{Action, Key, Row, Value}
-import uk.gov.hmrc.viewmodels.Text.{Literal, Message}
-import uk.gov.hmrc.viewmodels._
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -52,8 +52,8 @@ class PspDetailsService @Inject()(
                                    minimalConnector: MinimalConnector
                                  ) extends CYAService {
 
-  val halfWidth: Seq[String] = Seq("govuk-!-width-one-half")
-  val thirdWidth: Seq[String] = Seq("govuk-!-width-one-third")
+  val halfWidth: String = "govuk-!-width-one-half"
+  val thirdWidth: String = "govuk-!-width-one-third"
 
   private def returnUrlAndLink(name: Option[String], rlsFlag: Boolean)
                               (implicit messages: Messages): JsObject = {
@@ -68,7 +68,7 @@ class PspDetailsService @Inject()(
   }
 
   private def returnUrlAndLinkData(name: Option[String], rlsFlag: Boolean)
-                              (implicit messages: Messages) = {
+                              (implicit messages: Messages): Option[(String, String)] = {
     if(rlsFlag) None else {
       Some(appConfig.returnToPspDashboardUrl -> name.fold(messages("site.return_to_dashboard"))(name => messages("site.return_to", name)))
     }
@@ -92,21 +92,21 @@ class PspDetailsService @Inject()(
                 )
                 regInfo.legalStatus match {
                   case Individual =>
-                    val title: String = individualMessage("viewDetails.title").resolve
+                    val title: String = individualMessage("viewDetails.title").value
                     pspDetailsData(ua.get(IndividualDetailsPage).map(_.fullName))(
                       title,
                       ua.get(IndividualDetailsPage).fold(title)(name => heading(name.fullName)),
                       individualDetails(ua, pspId)
                     )
                   case LimitedCompany =>
-                    val title: String = companyMessage("viewDetails.title").resolve
+                    val title: String = companyMessage("viewDetails.title").value
                     pspDetailsData(ua.get(BusinessNamePage))(
                       title,
                       ua.get(comp.BusinessNamePage).fold(title)(name => heading(name)),
                       companyDetails(ua, pspId)
                     )
                   case Partnership =>
-                    val title: String = partnershipMessage("viewDetails.title").resolve
+                    val title: String = partnershipMessage("viewDetails.title").value
                     pspDetailsData(ua.get(BusinessNamePage))(
                       title,
                       ua.get(BusinessNamePage).fold(title)(name => heading(name)),
@@ -157,33 +157,38 @@ class PspDetailsService @Inject()(
                      (implicit messages: Messages): String = messages("viewDetails.heading", name)
 
   private def nameLink(href: Call, regInfo: RegistrationDetails, name: String)
-                      (implicit messages: Messages): Seq[Action] =
+                      (implicit messages: Messages): Option[Actions] =
     if (regInfo.customerType == UK) {
-      Seq.empty
+      None
     } else {
-      Seq(Action(
-        content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
+      Some(
+        Actions(
+          items = Seq(ActionItem(
+        content = HtmlContent(s"""<span aria-hidden="true">${Messages("site.edit")}</span>"""),
         href = href.url,
-        visuallyHiddenText = Some(msg"cya.viewDetails.name".withArgs(name))
-      ))
+        visuallyHiddenText = Some(Text(Messages("cya.viewDetails.name",name)).value)
+      ))))
     }
 
-  private def actions(href: Call, msg: Message)
-                     (implicit messages: Messages): Seq[Action] =
-    Seq(Action(
-      content = Html(s"""<span aria-hidden="true">${msg"site.edit".resolve}</span>"""),
+  private def actions(href: Call, msg: String)
+                     (implicit messages: Messages): Some[Actions] =
+    Some(
+      Actions(
+        items = Seq(ActionItem(
+      content = HtmlContent(s"""<span aria-hidden="true">${Messages("site.edit")}</span>"""),
       href = href.url,
       visuallyHiddenText = Some(msg)
+    ))))
+
+  private def practitionerIdRow(pspId: String)(implicit messages: Messages): Seq[SummaryListRow] =
+    Seq(SummaryListRow(
+      key = Key(Text(Messages("viewDetails.practitioner.id")), halfWidth),
+      value = Value(Text(pspId), thirdWidth),
+      actions = None
     ))
 
-  private def practitionerIdRow(pspId: String): Seq[Row] =
-    Seq(Row(
-      key = Key(msg"viewDetails.practitioner.id", halfWidth),
-      value = Value(Literal(pspId), thirdWidth),
-      actions = Seq.empty
-    ))
-
-  private def individualMessage(message: String): Text = msg"$message".withArgs(msg"viewDetails.individual")
+  private def individualMessage(message: String)(implicit messages: Messages): Text =
+    Text(Messages(message, Text(Messages("viewDetails.individual")).value))
 
   def amendmentsExist(ua: UserAnswers): Boolean = {
     val originalPspDetails = ua.get(UnchangedPspDetailsPage).getOrElse(Json.obj())
@@ -199,7 +204,7 @@ class PspDetailsService @Inject()(
   }
 
   private def individualDetails(ua: UserAnswers, pspId: String)
-                               (implicit messages: Messages): Seq[Row] =
+                               (implicit messages: Messages): Seq[SummaryListRow] =
     (
       ua.get(IndividualDetailsPage),
       ua.get(RegistrationDetailsPage),
@@ -210,9 +215,9 @@ class PspDetailsService @Inject()(
       case (Some(name), Some(regInfo), Some(address), Some(email), Some(phone)) =>
         practitionerIdRow(pspId) ++
           Seq(
-            Row(
+            SummaryListRow(
               key = Key(individualMessage("viewDetails.name"), halfWidth),
-              value = Value(Literal(name.fullName), thirdWidth),
+              value = Value(Text(name.fullName), thirdWidth),
               actions = nameLink(
                 href = indRoutes.IsThisYouController.onPageLoad(CheckMode),
                 regInfo = regInfo,
@@ -222,35 +227,35 @@ class PspDetailsService @Inject()(
           ) ++
           regDetailsRow(regInfo) ++
           Seq(
-            Row(
+            SummaryListRow(
               key = Key(individualMessage("viewDetails.address"), halfWidth),
               value = Value(addressAnswer(address), thirdWidth),
               actions = actions(
                 href = indRoutes.IndividualPostcodeController.onPageLoad(CheckMode),
-                msg = msg"cya.change.address"
+                msg = Text(Messages("cya.change.address")).value
               )
             ),
-            Row(
+            SummaryListRow(
               key = Key(individualMessage("viewDetails.email"), halfWidth),
-              value = Value(Literal(email), thirdWidth),
+              value = Value(Text(email), thirdWidth),
               actions = actions(
                 href = indRoutes.IndividualEmailController.onPageLoad(CheckMode),
-                msg = msg"cya.change.email".withArgs(name.fullName)
+                msg = Text(Messages("cya.change.email", name.fullName)).value
               )
             ),
-            Row(
+            SummaryListRow(
               key = Key(individualMessage("viewDetails.phone"), halfWidth),
-              value = Value(Literal(phone), thirdWidth),
+              value = Value(Text(phone), thirdWidth),
               actions = actions(
                 href = indRoutes.IndividualPhoneController.onPageLoad(CheckMode),
-                msg = msg"cya.change.phone".withArgs(name.fullName)
+                msg = Text(Messages("cya.change.phone",name.fullName)).value
               )
             )
           )
       case _ => Seq.empty
     }
 
-  private def regDetailsRow(registrationDetails: RegistrationDetails): Seq[Row] =
+  private def regDetailsRow(registrationDetails: RegistrationDetails)(implicit messages: Messages): Seq[SummaryListRow] =
     (
       registrationDetails.idType,
       registrationDetails.idNumber
@@ -258,17 +263,18 @@ class PspDetailsService @Inject()(
       case (Some(RegistrationIdType.Nino), Some(nino)) =>
         Seq()
       case (Some(RegistrationIdType.UTR), Some(utr)) =>
-        Seq(Row(
-          key = Key(msg"viewDetails.practitioner.utr", halfWidth),
-          value = Value(Literal(utr), thirdWidth), actions = Seq.empty)
+        Seq(SummaryListRow(
+          key = Key(Text(Messages("viewDetails.practitioner.utr")), halfWidth),
+          value = Value(Text(utr), thirdWidth), actions = None)
         )
       case _ => Seq.empty
     }
 
-  private def companyMessage(message: String): Text = msg"$message".withArgs(msg"viewDetails.company")
+  private def companyMessage(message: String)(implicit messages: Messages): Text =
+    Text(Messages(message, Text(Messages("viewDetails.company")).value))
 
   private def companyDetails(ua: UserAnswers, pspId: String)
-                            (implicit messages: Messages): Seq[Row] =
+                            (implicit messages: Messages): Seq[SummaryListRow] =
     (
       ua.get(comp.BusinessNamePage),
       ua.get(RegistrationDetailsPage),
@@ -280,9 +286,9 @@ class PspDetailsService @Inject()(
         practitionerIdRow(pspId) ++
           regDetailsRow(regInfo) ++
           Seq(
-            Row(
+            SummaryListRow(
               key = Key(companyMessage("viewDetails.name"), halfWidth),
-              value = Value(Literal(name), thirdWidth),
+              value = Value(Text(name), thirdWidth),
               actions = nameLink(
                 href = compRoutes.CompanyNameController.onPageLoad(CheckMode),
                 regInfo = regInfo,
@@ -291,38 +297,39 @@ class PspDetailsService @Inject()(
             )
           ) ++
           Seq(
-            Row(
+            SummaryListRow(
               key = Key(companyMessage("viewDetails.address"), halfWidth),
               value = Value(addressAnswer(address), thirdWidth),
               actions = actions(
                 href = compRoutes.CompanyPostcodeController.onPageLoad(CheckMode),
-                msg = msg"cya.change.address"
+                msg = Text(Messages("cya.change.address")).value
               )
             ),
-            Row(
+            SummaryListRow(
               key = Key(companyMessage("viewDetails.email"), halfWidth),
-              value = Value(Literal(email), thirdWidth),
+              value = Value(Text(email), thirdWidth),
               actions = actions(
                 href = compRoutes.CompanyEmailController.onPageLoad(CheckMode),
-                msg = msg"cya.change.email".withArgs(name)
+                msg = Text(Messages("cya.change.email",name)).value
               )
             ),
-            Row(
+            SummaryListRow(
               key = Key(companyMessage("viewDetails.phone"), halfWidth),
-              value = Value(Literal(phone), thirdWidth),
+              value = Value(Text(phone), thirdWidth),
               actions = actions(
                 href = compRoutes.CompanyPhoneController.onPageLoad(CheckMode),
-                msg = msg"cya.change.phone".withArgs(name)
+                msg = Text(Messages("cya.change.phone",name)).value
               )
             )
           )
       case _ => Seq.empty
     }
 
-  private def partnershipMessage(message: String): Text = msg"$message".withArgs(msg"viewDetails.partnership")
+  private def partnershipMessage(message: String)(implicit messages: Messages): Text =
+    Text(Messages(message, Text(Messages("viewDetails.partnership")).value))
 
   private def partnershipDetails(ua: UserAnswers, pspId: String)
-                                (implicit messages: Messages): Seq[Row] =
+                                (implicit messages: Messages): Seq[SummaryListRow] =
     (
       ua.get(BusinessNamePage),
       ua.get(RegistrationDetailsPage),
@@ -334,9 +341,9 @@ class PspDetailsService @Inject()(
         practitionerIdRow(pspId) ++
           regDetailsRow(regInfo) ++
           Seq(
-            Row(
+            SummaryListRow(
               key = Key(partnershipMessage("viewDetails.name"), halfWidth),
-              value = Value(Literal(name), thirdWidth),
+              value = Value(Text(name), thirdWidth),
               actions = nameLink(
                 href = partRoutes.PartnershipNameController.onPageLoad(CheckMode),
                 regInfo = regInfo,
@@ -345,28 +352,28 @@ class PspDetailsService @Inject()(
             )
           ) ++
           Seq(
-            Row(
+            SummaryListRow(
               key = Key(partnershipMessage("viewDetails.address"), halfWidth),
               value = Value(addressAnswer(address), thirdWidth),
               actions = actions(
                 href = partRoutes.PartnershipPostcodeController.onPageLoad(CheckMode),
-                msg = msg"cya.change.address"
+                msg = Text(Messages("cya.change.address")).value
               )
             ),
-            Row(
+            SummaryListRow(
               key = Key(partnershipMessage("viewDetails.email"), halfWidth),
-              value = Value(Literal(email), thirdWidth),
+              value = Value(Text(email), thirdWidth),
               actions = actions(
                 href = partRoutes.PartnershipEmailController.onPageLoad(CheckMode),
-                msg = msg"cya.change.email".withArgs(name)
+                msg = Text(Messages("cya.change.email",name)).value
               )
             ),
-            Row(
+            SummaryListRow(
               key = Key(partnershipMessage("viewDetails.phone"), halfWidth),
-              value = Value(Literal(phone), thirdWidth),
+              value = Value(Text(phone), thirdWidth),
               actions = actions(
                 href = partRoutes.PartnershipPhoneController.onPageLoad(CheckMode),
-                msg = msg"cya.change.phone".withArgs(name)
+                msg = Text(Messages("cya.change.phone",name)).value
               )
             )
           )

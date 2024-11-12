@@ -18,20 +18,16 @@ package controllers.individual
 
 import controllers.Retrievals
 import controllers.actions._
-
-import javax.inject.Inject
 import pages.individual.IndividualAddressPage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import utils.countryOptions.CountryOptions
 import views.html.individual.OutsideEuEeaView
 
-import scala.concurrent.ExecutionContext
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class OutsideEuEeaController @Inject()(
                                            override val messagesApi: MessagesApi,
@@ -39,21 +35,14 @@ class OutsideEuEeaController @Inject()(
                                            requireData: DataRequiredAction,
                                            val controllerComponents: MessagesControllerComponents,
                                            countryOptions: CountryOptions,
-                                           renderer: Renderer,
-                                           outsideEuEeaView: OutsideEuEeaView,
-                                           twirlMigration: TwirlMigration
+                                           outsideEuEeaView: OutsideEuEeaView
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController
                                            with I18nSupport with Retrievals {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
       IndividualAddressPage.retrieve.map { address =>
-        val json = Json.obj("country" -> countryOptions.getCountryNameFromCode(address))
-        val template = twirlMigration.duoTemplate(
-          renderer.render(template = "individual/outsideEuEea.njk", json),
-          outsideEuEeaView(countryOptions.getCountryNameFromCode(address))
-        )
-      template.map(Ok(_))
+      Future.successful(Ok(outsideEuEeaView(countryOptions.getCountryNameFromCode(address))))
     }
   }
 }

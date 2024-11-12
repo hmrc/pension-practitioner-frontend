@@ -33,7 +33,6 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import views.html.address.PostcodeView
 
 import scala.concurrent.Future
@@ -70,8 +69,7 @@ class CompanyPostcodeControllerSpec extends ControllerSpecBase with MockitoSugar
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   "CompanyPostcode Controller" must {
     "return OK and the correct view for a GET" in {

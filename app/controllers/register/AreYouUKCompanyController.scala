@@ -23,87 +23,55 @@ import models.NormalMode
 import navigators.CompoundNavigator
 import pages.register.AreYouUKCompanyPage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.{NunjucksSupport, Radios}
-import utils.TwirlMigration
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
+import viewmodels.Radios
 import views.html.register.AreYouUkCompanyView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class AreYouUKCompanyController @Inject()(override val messagesApi: MessagesApi,
-                                      userAnswersCacheConnector: UserAnswersCacheConnector,
-                                      navigator: CompoundNavigator,
-                                      @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
-                                      getData: DataRetrievalAction,
-                                      requireData: DataRequiredAction,
-                                      formProvider: AreYouUKCompanyFormProvider,
-                                      val controllerComponents: MessagesControllerComponents,
-                                      renderer: Renderer,
-                                      areYouUkCompanyView: AreYouUkCompanyView,
-                                      twirlMigration: TwirlMigration
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with NunjucksSupport {
+                                          userAnswersCacheConnector: UserAnswersCacheConnector,
+                                          navigator: CompoundNavigator,
+                                          @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
+                                          getData: DataRetrievalAction,
+                                          requireData: DataRequiredAction,
+                                          formProvider: AreYouUKCompanyFormProvider,
+                                          val controllerComponents: MessagesControllerComponents,
+                                          areYouUkCompanyView: AreYouUkCompanyView
+                                         )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   private val form = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (authenticate andThen getData andThen requireData) {
     implicit request =>
-        val preparedForm = request.userAnswers.get(AreYouUKCompanyPage) match {
-          case None => form
-          case Some (value) => form.fill (value)
-        }
-
-        val json = Json.obj(
-          "form" -> preparedForm,
-          "submitUrl" -> routes.AreYouUKCompanyController.onSubmit().url,
-          "radios" -> Radios.yesNo (preparedForm("value"))
-        )
-
-      val template = twirlMigration.duoTemplate(
-        renderer.render(
-          "register/areYouUKCompany.njk", json
-        ),
-        areYouUkCompanyView(
-          routes.AreYouUKCompanyController.onSubmit(),
-          preparedForm,
-          TwirlMigration.toTwirlRadios(Radios.yesNo (preparedForm("value")))
-        )
-      )
-      template.map(Ok(_))
+      val preparedForm = request.userAnswers.get(AreYouUKCompanyPage) match {
+        case None => form
+        case Some(value) => form.fill(value)
+      }
+      Ok(areYouUkCompanyView(
+        routes.AreYouUKCompanyController.onSubmit(),
+        preparedForm,
+        Radios.yesNo(preparedForm("value"))
+      ))
   }
 
   def onSubmit(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-        form.bindFromRequest().fold(
-          formWithErrors => {
-
-            val json = Json.obj(
-              "form"   -> formWithErrors,
-              "submitUrl"   -> routes.AreYouUKCompanyController.onSubmit().url,
-              "radios" -> Radios.yesNo(formWithErrors("value"))
-            )
-
-            val template = twirlMigration.duoTemplate(
-              renderer.render(
-                "register/areYouUKCompany.njk", json
-              ),
-              areYouUkCompanyView(
-                routes.AreYouUKCompanyController.onSubmit(),
-                formWithErrors,
-                TwirlMigration.toTwirlRadios(Radios.yesNo (formWithErrors("value")))
-              )
-            )
-            template.map(BadRequest(_))
-          },
-          value =>
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(AreYouUKCompanyPage, value))
-                _ <- userAnswersCacheConnector.save( updatedAnswers.data)
-              } yield Redirect(navigator.nextPage(AreYouUKCompanyPage, NormalMode, updatedAnswers))
-        )
+      form.bindFromRequest().fold(
+        formWithErrors => {
+          Future.successful(BadRequest(areYouUkCompanyView(
+            routes.AreYouUKCompanyController.onSubmit(),
+            formWithErrors,
+            Radios.yesNo(formWithErrors("value")))))
+        },
+        value =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(AreYouUKCompanyPage, value))
+            _ <- userAnswersCacheConnector.save(updatedAnswers.data)
+          } yield Redirect(navigator.nextPage(AreYouUKCompanyPage, NormalMode, updatedAnswers))
+      )
   }
 }

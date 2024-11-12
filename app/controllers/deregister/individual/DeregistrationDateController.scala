@@ -16,7 +16,6 @@
 
 package controllers.deregister.individual
 
-import java.time.LocalDate
 import audit.{AuditService, PSPDeregistration, PSPDeregistrationEmail}
 import config.FrontendAppConfig
 import connectors._
@@ -25,24 +24,20 @@ import controllers.Retrievals
 import controllers.actions._
 import forms.deregister.DeregistrationDateFormProvider
 import helpers.FormatHelper.dateContentFormatter
-
-import javax.inject.Inject
-import models.{JourneyType, NormalMode}
 import models.requests.DataRequest
+import models.{JourneyType, NormalMode}
 import navigators.CompoundNavigator
-import pages.{PspEmailPage, PspNamePage}
 import pages.deregister.DeregistrationDatePage
+import pages.{PspEmailPage, PspNamePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.viewmodels.{DateInput, NunjucksSupport}
-import utils.TwirlMigration
 import views.html.deregister.individual.DeregistrationDateView
 
+import java.time.LocalDate
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeregistrationDateController @Inject()(config: FrontendAppConfig,
@@ -57,13 +52,11 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
                                              enrolmentConnector: EnrolmentConnector,
                                              subscriptionConnector: SubscriptionConnector,
                                              val controllerComponents: MessagesControllerComponents,
-                                             renderer: Renderer,
                                              emailConnector: EmailConnector,
                                              auditService: AuditService,
-                                             deregistrationDateView: DeregistrationDateView,
-                                             twirlMigration: TwirlMigration
-                                               )(implicit ec: ExecutionContext)
-  extends FrontendBaseController with Retrievals with I18nSupport with NunjucksSupport {
+                                             deregistrationDateView: DeregistrationDateView
+                                            )(implicit ec: ExecutionContext)
+  extends FrontendBaseController with Retrievals with I18nSupport {
 
   private def form(date: LocalDate)(implicit messages: Messages): Form[LocalDate] = formProvider("individual", date)
 
@@ -71,21 +64,10 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
     implicit request =>
       getDate.flatMap { date =>
         val preparedForm = request.userAnswers.get(DeregistrationDatePage).fold(form(date))(form(date).fill)
-        val json = Json.obj(
-          "form" -> preparedForm,
-          "submitUrl" -> routes.DeregistrationDateController.onSubmit().url,
-          "date" -> DateInput.localDate(preparedForm("deregistrationDate")),
-          "applicationDate" -> getDateString(date),
-          "returnUrl" -> config.returnToPspDashboardUrl
-        )
-        twirlMigration.duoTemplate(
-          renderer.render("deregister/individual/deregistrationDate.njk", json),
-          deregistrationDateView(routes.DeregistrationDateController.onSubmit(),
-            preparedForm,
-            config.returnToPspDashboardUrl,
-            getDateString(date),
-            DateInput.localDate(preparedForm("deregistrationDate")))
-        ).map(Ok(_))
+        Future.successful(Ok(deregistrationDateView(routes.DeregistrationDateController.onSubmit(),
+          preparedForm,
+          config.returnToPspDashboardUrl,
+          getDateString(date))))
       }
   }
 
@@ -96,22 +78,10 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
         (PspNamePage and PspEmailPage).retrieve.map { case pspName ~ email =>
           form(date).bindFromRequest().fold(
             formWithErrors => {
-
-              val json = Json.obj(
-                "form" -> formWithErrors,
-                "submitUrl" -> routes.DeregistrationDateController.onSubmit().url,
-                "date" -> DateInput.localDate(formWithErrors("deregistrationDate")),
-                "applicationDate" -> getDateString(date)
-              )
-
-              twirlMigration.duoTemplate(
-                renderer.render("deregister/individual/deregistrationDate.njk", json),
-                deregistrationDateView(routes.DeregistrationDateController.onSubmit(),
-                  formWithErrors,
-                  config.returnToPspDashboardUrl,
-                  getDateString(date),
-                  DateInput.localDate(formWithErrors("deregistrationDate")))
-              ).map(BadRequest(_))
+              Future.successful(BadRequest(deregistrationDateView(routes.DeregistrationDateController.onSubmit(),
+                formWithErrors,
+                config.returnToPspDashboardUrl,
+                getDateString(date))))
             },
             value =>
               for {

@@ -16,76 +16,45 @@
 
 package controllers.address
 
-import config.FrontendAppConfig
 import connectors.AddressLookupConnector
 import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
+import forms.FormsHelper.formWithError
 import models.requests.DataRequest
 import models.{Mode, TolerantAddress}
 import navigators.CompoundNavigator
 import pages.QuestionPage
 import play.api.data.Form
 import play.api.i18n.Messages
-import play.api.libs.json.{JsArray, JsObject, Json}
 import play.api.mvc.{AnyContent, Result}
-import renderer.Renderer
+import play.twirl.api.Html
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import forms.FormsHelper.formWithError
-import play.twirl.api.Html
-import utils.TwirlMigration
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait PostcodeController extends FrontendBaseController with Retrievals {
 
-  protected def renderer: Renderer
   protected def userAnswersCacheConnector: UserAnswersCacheConnector
   protected def navigator: CompoundNavigator
   protected def form(implicit messages: Messages): Form[String]
   protected def addressLookupConnector: AddressLookupConnector
-  protected def viewTemplate = "address/postcode.njk"
 
-  protected def twirlMigration: TwirlMigration
-
-  def get(json: Form[String] => JsObject, twirlTemplate: Option[Html] = None)
-         (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
-    twirlTemplate match {
-      case Some(template) =>
-        twirlMigration.duoTemplate(
-          renderer.render(viewTemplate, json(form)),
-          template
-        ).map(Ok(_))
-      case None => renderer.render(viewTemplate, json(form)).map(Ok(_))
-    }
+  def get(twirlTemplate: Html): Future[Result] = {
+    Future.successful(Ok(twirlTemplate))
   }
 
-  def post(mode: Mode, formToJson: Form[String] => JsObject, postcodePage: QuestionPage[Seq[TolerantAddress]],
-           errorMessage: String, formToTwirlTemplate: Option[Form[String] => Html] = None)
+  def post(mode: Mode, postcodePage: QuestionPage[Seq[TolerantAddress]],
+           errorMessage: String, formToTemplate: Form[String] => Html)
           (implicit request: DataRequest[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
     form.bindFromRequest().fold(
       formWithErrors =>
-        formToTwirlTemplate match {
-          case Some(formToTemplate) =>
-            twirlMigration.duoTemplate(
-              renderer.render(viewTemplate, formToJson(formWithErrors)),
-              formToTemplate(formWithErrors)
-            ).map(BadRequest(_))
-          case None => renderer.render(viewTemplate, formToJson(formWithErrors)).map(BadRequest(_))
-        },
+        Future.successful(BadRequest(formToTemplate(formWithErrors))),
       value =>
           addressLookupConnector.addressLookupByPostCode(value).flatMap {
             case Nil =>
               val formWithErrors = formWithError(form, errorMessage)
-              val json = formToJson(formWithErrors)
-              formToTwirlTemplate match {
-                case Some(formToTemplate) =>
-                  twirlMigration.duoTemplate(
-                    renderer.render(viewTemplate, json),
-                    formToTemplate(formWithErrors)
-                  ).map(BadRequest(_))
-                case None => renderer.render(viewTemplate, json).map(BadRequest(_))
-              }
+              Future.successful(BadRequest(formToTemplate(formWithErrors)))
 
             case addresses =>
               for {
@@ -97,28 +66,4 @@ trait PostcodeController extends FrontendBaseController with Retrievals {
     )
   }
 
-  private def countryJsonElement(tuple: (String, String), isSelected: Boolean): JsArray = Json.arr(
-    if (isSelected) {
-      Json.obj(
-        "value" -> tuple._1,
-        "text" -> tuple._2,
-        "selected" -> true
-      )
-    } else {
-      Json.obj(
-        "value" -> tuple._1,
-        "text" -> tuple._2
-      )
-    }
-  )
-
-  def jsonCountries(countrySelected: Option[String], config: FrontendAppConfig)(implicit messages: Messages): JsArray =
-    config.validCountryCodes
-      .map(countryCode => (countryCode, messages(s"country.$countryCode")))
-      .sortWith(_._2 < _._2)
-      .foldLeft(JsArray(Seq(Json.obj("value" -> "", "text" -> "")))) { (acc, nextCountryTuple) =>
-        acc ++ countryJsonElement(nextCountryTuple, countrySelected.contains(nextCountryTuple._1))
-      }
-
 }
-

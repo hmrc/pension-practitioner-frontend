@@ -26,7 +26,8 @@ import play.api.http.Status._
 import play.api.libs.json.{Json, Writes}
 import play.api.mvc.{AnyContent, RequestHeader}
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HttpClient, _}
+import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.client.HttpClientV2
 import utils.{HttpResponseHelper, RetryHelper}
 
 import javax.inject.Inject
@@ -44,38 +45,41 @@ trait EnrolmentConnector {
 }
 
 @Singleton
-class EnrolmentConnectorImpl @Inject()(val http: HttpClient,
-                                       config: FrontendAppConfig,
-                                       auditService: AuditService)
-  extends EnrolmentConnector
-    with RetryHelper
-    with HttpResponseHelper {
+class EnrolmentConnectorImpl @Inject()(
+  val httpClientV2: HttpClientV2,
+  config: FrontendAppConfig,
+  auditService: AuditService
+) extends EnrolmentConnector with RetryHelper with HttpResponseHelper {
 
   private val logger = Logger(classOf[EnrolmentConnectorImpl])
 
-  override def enrol(enrolmentKey: String, knownFacts: KnownFacts)
-                    (implicit w: Writes[KnownFacts],
-                     hc: HeaderCarrier,
-                     executionContext: ExecutionContext,
-                     request: DataRequest[AnyContent]): Future[HttpResponse] =
+  override def enrol(enrolmentKey: String, knownFacts: KnownFacts
+                    )(implicit w: Writes[KnownFacts],
+                      hc: HeaderCarrier,
+                      executionContext: ExecutionContext,
+                      request: DataRequest[AnyContent]): Future[HttpResponse] =
     retryOnFailure(() => enrolmentRequest(enrolmentKey, knownFacts), config) andThen
       logExceptions(knownFacts)
 
-  private def enrolmentRequest(enrolmentKey: String, knownFacts: KnownFacts)
-                              (implicit w: Writes[KnownFacts], hc: HeaderCarrier, executionContext: ExecutionContext,
-                               request: DataRequest[AnyContent]): Future[HttpResponse] = {
-    val url: String = config.taxEnrolmentsUrl.format("HMRC-PODSPP-ORG")
-    http.PUT[KnownFacts, HttpResponse](url, knownFacts) flatMap {
-      response =>
-        response.status match {
-          case NO_CONTENT =>
-            auditService.sendEvent(PSPEnrolmentSuccess(request.externalId, enrolmentKey))
-            Future.successful(response)
-          case statusCode =>
-            auditService.sendEvent(PSPEnrolmentFailure(request.externalId, enrolmentKey, statusCode))
-            if (response.body.contains("INVALID_JSON")) logger.warn(s"INVALID_JSON returned from call to $url")
-            handleErrorResponse("PUT", url)(response)
-        }
+  private def enrolmentRequest(enrolmentKey: String, knownFacts: KnownFacts
+                              )(implicit w: Writes[KnownFacts],
+                                hc: HeaderCarrier,
+                                executionContext: ExecutionContext,
+                                request: DataRequest[AnyContent]): Future[HttpResponse] = {
+    val url = url"""${config.taxEnrolmentsUrl.format("HMRC-PODSPP-ORG")}"""
+
+    httpClientV2.put(url)
+      .withBody(knownFacts)
+      .execute[HttpResponse] flatMap { response =>
+      response.status match {
+        case NO_CONTENT =>
+          auditService.sendEvent(PSPEnrolmentSuccess(request.externalId, enrolmentKey))
+          Future.successful(response)
+        case statusCode =>
+          auditService.sendEvent(PSPEnrolmentFailure(request.externalId, enrolmentKey, statusCode))
+          if (response.body.contains("INVALID_JSON")) logger.warn(s"INVALID_JSON returned from call to $url")
+          handleErrorResponse("PUT", url.toString)(response)
+      }
     }
   }
 
@@ -85,8 +89,8 @@ class EnrolmentConnectorImpl @Inject()(val http: HttpClient,
       logger.debug(s"Known Facts: ${Json.toJson(knownFacts)}")
   }
 
-  override def deEnrol(groupId: String, pspId: String, userId: String)
-                      (implicit hc: HeaderCarrier, ec: ExecutionContext, rh: RequestHeader): Future[HttpResponse] = {
+  override def deEnrol(groupId: String, pspId: String, userId: String
+                      )(implicit hc: HeaderCarrier, ec: ExecutionContext, rh: RequestHeader): Future[HttpResponse] = {
     retryOnFailure(
       f = () => deEnrolmentRequest(groupId, pspId, userId),
       config = config
@@ -95,12 +99,14 @@ class EnrolmentConnectorImpl @Inject()(val http: HttpClient,
     logDeEnrolmentExceptions
   }
 
-  private def deEnrolmentRequest(groupId: String, pspId: String, userId: String)
-                                (implicit hc: HeaderCarrier, ec: ExecutionContext, rh: RequestHeader): Future[HttpResponse] = {
+  private def deEnrolmentRequest(groupId: String, pspId: String, userId: String
+                                )(implicit hc: HeaderCarrier, ec: ExecutionContext, rh: RequestHeader): Future[HttpResponse] = {
 
     val enrolmentKey = s"HMRC-PODSPP-ORG~PSPID~$pspId"
-    val deEnrolmentUrl = config.taxDeEnrolmentUrl.format(groupId, enrolmentKey)
-    http.DELETE[HttpResponse](deEnrolmentUrl) flatMap {
+    val deEnrolmentUrl = url"${config.taxDeEnrolmentUrl.format(groupId, enrolmentKey)}"
+
+    httpClientV2.delete(deEnrolmentUrl)
+    .execute[HttpResponse] flatMap {
       case response if response.status equals NO_CONTENT =>
         auditService.sendEvent(PSPDeenrolment(userId, pspId))
         Future.successful(response)

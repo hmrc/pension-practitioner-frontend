@@ -18,11 +18,8 @@ package generators
 
 import org.scalacheck.Arbitrary
 import pages.WhatTypeBusinessPage
-import pages.company.IsCompanyRegisteredInUkPage
-import pages.company.{ConfirmAddressPage, BusinessUTRPage, BusinessNamePage, ConfirmNamePage}
-import pages.register.AreYouUKCompanyPage
-import pages.register.BusinessRegistrationTypePage
-import pages.register.BusinessTypePage
+import pages.company._
+import pages.register.{AreYouUKCompanyPage, BusinessRegistrationTypePage, BusinessTypePage}
 
 trait PageGenerators {
 

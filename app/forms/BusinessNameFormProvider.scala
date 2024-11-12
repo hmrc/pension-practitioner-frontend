@@ -17,8 +17,9 @@
 package forms
 
 import forms.mappings.BusinessNameMapping
-import javax.inject.Inject
 import play.api.data.Form
+
+import javax.inject.Inject
 
 class BusinessNameFormProvider @Inject() extends BusinessNameMapping {
   def apply(

@@ -25,13 +25,14 @@
 @(submitCall: Call, form: Form[Boolean], radios: Seq[RadioItem])(implicit request: Request[_], messages: Messages)
 
 @field = @{form("value")}
+
 @layout(messages("isCompanyRegisteredInUk.title"), formHasErrors = form.hasErrors) {
     @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
         }
 
-        <h1 class="govuk-heading-xl">@messages("isCompanyRegisteredInUk.heading")</h1>
+        <h1 class="govuk-heading-l">@messages("isCompanyRegisteredInUk.heading")</h1>
 
         <p class="govuk-body">@messages("isCompanyRegisteredInUk.p1")</p>
         <p class="govuk-body">@messages("isCompanyRegisteredInUk.p2")</p>
@@ -45,7 +46,7 @@
                         legend = Some(Legend(
                             content = Text(messages("isCompanyRegisteredInUk.heading")),
                             isPageHeading = true,
-                            classes = " govuk-visually-hidden govuk-!-margin-bottom-8"
+                            classes = "govuk-visually-hidden govuk-!-margin-bottom-4"
                         ))
                     ),
                 ),
@@ -60,3 +61,6 @@
 
     }
 }
+
+
+

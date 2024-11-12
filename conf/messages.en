@@ -153,13 +153,13 @@ whatTypeBusiness.unlimitedCompany = Unlimited company
 
 businessUTR.title = What is the Unique Taxpayer Reference (UTR) of the {0} you want to register?
 businessUTR.heading = What is the Unique Taxpayer Reference (UTR) of the {0} you want to register?
-businessUTR.p1 = This is a 10-digit or 13-digit number. You can find it on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
-businessUTR.p2 = If the UTR is 13 numbers, only enter the last 10.
+businessUTR.p1 = This is a 10-digit or 13-digit number. For example, 12345 67890. It may also start or end with the letter ‘k’.
+businessUTR.p2 = You can find it on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
 businessUTR.p3 = If there is a letter ‘K’ at the end of the number, do not enter it.
-businessUTR.company.error.required = Enter the UTR of the company you want to register
-businessUTR.company.error.invalid = Enter the company’s UTR in the correct format
-businessUTR.partnership.error.required = Enter the UTR of the partnership you want to register
-businessUTR.partnership.error.invalid = Enter the partnership’s UTR in the correct format
+businessUTR.company.error.required = Enter the Unique Taxpayer Reference (UTR) of the company you want to register
+businessUTR.company.error.invalid = Enter the company’s Unique Taxpayer Reference (UTR) in the correct format
+businessUTR.partnership.error.required = Enter the Unique Taxpayer Reference (UTR) of the partnership you want to register
+businessUTR.partnership.error.invalid = Enter the partnership’s Unique Taxpayer Reference (UTR) in the correct format
 
 businessName.title = What is {0}’s name?
 businessName.heading = What is {0}’s name?
@@ -217,7 +217,7 @@ error.address_line_4.invalid = The fourth line of the address must only include 
 error.country.required = Enter a country
 error.country.invalid = Enter a valid country
 error.country.invalid.eueea = Pension Scheme Practitioners must be resident in the UK, EU or EEA
-error.country.invalid.uk = The address must be based in the UK
+error.country.invalid.uk = The address must be in the UK
 
 error.postcode.required = Enter the postcode
 error.postcode.length = The postcode cannot be more than 8 characters
@@ -561,8 +561,8 @@ individual.phone.hint = We will only use this to contact you about pension schem
 individual.phone.error.required = Enter your phone number
 
 individual.postcode.title = Which address can we use to contact you?
-individual.postcode.error.required = Enter a postcode
-individual.postcode.error.invalid = Enter a postcode in the correct format.
+individual.postcode.error.required = Enter the postcode
+individual.postcode.error.invalid = Enter a full UK postcode
 
 individual.addressList.error.required = Select your contact address
 individual.addressList.title = Select the contact address for the individual

@@ -35,30 +35,22 @@
             @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
         }
 
-        @govukFieldset(
-            Fieldset(
-                legend = Some(
-                    Legend(
-                        content = Text(messages("businessUTR.heading", messages(businessType).toLowerCase())),
-                        classes = "govuk-fieldset__legend--l",
-                        isPageHeading = true
-                    )
-                )
-            )
-        )
-
-        <p class="govuk-body">@messages("businessUTR.p1")</p>
-        <p class="govuk-body">@messages("businessUTR.p2")</p>
-        <p class="govuk-body">@messages("businessUTR.p3")</p>
-
         @govukInput(
             InputViewModel(
                 field = form("value"),
                 label = Label(
-                    content = HtmlContent("<span >" + messages("businessUTR.heading", messages(businessType).toLowerCase()) + "</span>"),
-                    classes = "govuk-visually-hidden"
+                    content = Text(messages("businessUTR.heading", messages(businessType).toLowerCase())),
+                    isPageHeading = true,
+                    classes = "govuk-label--l"
                 ),
-                classes = "govuk-input--width-10"
+                classes = if (form("value").hasErrors) "govuk-input--width-10 govuk-input--error" else "govuk-input--width-10",
+                inputType = "text",
+                hint = Some(Hint(
+                    content = HtmlContent(
+                        s"<p>${messages("businessUTR.p1")}</p>" +
+                        s"<p>${messages("businessUTR.p2")}</p>"
+                    )
+                ))
             )
         )
 

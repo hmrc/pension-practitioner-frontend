@@ -17,13 +17,13 @@
 package navigators
 
 import com.google.inject.Inject
-import models.{NormalMode, CheckMode, UserAnswers}
-import pages.{SubscriptionTypePage, Page}
-import pages.individual._
-import play.api.mvc.Call
 import controllers.individual.routes._
 import models.SubscriptionType.Variation
-import models.register.InternationalRegion.{RestOfTheWorld, EuEea, UK}
+import models.register.InternationalRegion.{EuEea, RestOfTheWorld, UK}
+import models.{CheckMode, NormalMode, UserAnswers}
+import pages.individual._
+import pages.{Page, SubscriptionTypePage}
+import play.api.mvc.Call
 import utils.countryOptions.CountryOptions
 
 class IndividualNavigator @Inject()(countryOptions: CountryOptions) extends Navigator {

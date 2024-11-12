@@ -17,19 +17,13 @@
 package generators
 
 import models.UserAnswers
-import org.scalacheck.Arbitrary
 import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.Gen
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.TryValues
 import pages._
-import pages.register.BusinessTypePage
-import pages.register.AreYouUKCompanyPage
-import pages.company.ConfirmAddressPage
-import pages.company.IsCompanyRegisteredInUkPage
-import pages.company.{BusinessUTRPage, BusinessNamePage, ConfirmNamePage}
-import pages.register.BusinessRegistrationTypePage
-import play.api.libs.json.JsValue
-import play.api.libs.json.Json
+import pages.company._
+import pages.register.{AreYouUKCompanyPage, BusinessRegistrationTypePage, BusinessTypePage}
+import play.api.libs.json.{JsValue, Json}
 
 trait UserAnswersGenerator extends TryValues {
   self: Generators =>

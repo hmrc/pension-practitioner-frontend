@@ -19,11 +19,11 @@ package navigators
 import controllers.partnership.routes._
 import controllers.register.routes._
 import data.SampleData
-import models.{NormalMode, CheckMode, UserAnswers}
+import models.{CheckMode, NormalMode, UserAnswers}
 import org.scalatest.prop.TableFor3
 import pages.partnership._
 import pages.register.AreYouUKCompanyPage
-import pages.{partnership, _}
+import pages._
 import play.api.mvc.Call
 
 class PartnershipNavigatorSpec extends NavigatorBehaviour {

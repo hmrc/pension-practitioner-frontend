@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import cats.syntax.eq._
 @this(
         layout: templates.Layout,
         formHelper: FormWithCSRF,
@@ -25,7 +24,7 @@
 )
 
 
-@(pageTitle: String, H1: String, postcodeEntry: Boolean, postcodeFirst: Boolean, countries: Array[models.Country], submitUrl: Call, form: Form[_])(implicit request: Request[_], messages: Messages)
+@(pageTitle: String, H1: String, postcodeEntry: Boolean, postcodeFirst: Boolean, countries: Array[models.Country], submitUrl: Call, form: Form[_], isUkHintText: Boolean)(implicit request: Request[_], messages: Messages)
 
 
 @layout(pageTitle, formHasErrors = form.hasErrors, includeAutoLocation = true) {
@@ -35,7 +34,7 @@
             @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
         }
 
-        <h1 class="govuk-heading-xl"> @H1 </h1>
+        <h1 class="govuk-heading-l"> @H1 </h1>
 
         @govukInput(
             InputViewModel(
@@ -103,27 +102,39 @@
     }
 
 
+
     @if(countries.size > 0){
-    <div class="govuk-form-group autocomplete-wrapper govuk-body govuk-input--width-20">
-        @govukSelect(
-            Select(
-                id = "country",
-                name = "country",
-                items = countries.sortBy(_.value).map {c =>
-                    SelectItem(
-                        value = Some(c.value),
-                        text = c.text,
-                        selected = Some(c.value) == form.data.get("country")
-                        )
-                    },
-                classes = "autocomplete",
-                label = Label(
-                    content = Text(messages("address.country")),
-                    classes = "govuk-label--s"
+        @if(isUkHintText == true){
+            <p class="govuk-body">@messages("error.country.invalid.uk")</p>
+            <p class="govuk-body">
+                @messages("nonUKPractitioner.p2.1")
+                <a href = "mailto: @messages("nonUKPractitioner.p2.emailHref")">
+                    @messages("nonUKPractitioner.p2.email")
+                </a>
+                @messages("nonUKPractitioner.p2.2")
+            </p>
+        }
+        <div class="govuk-form-group autocomplete-wrapper govuk-body govuk-input--width-20">
+            @govukSelect(
+                Select(
+                    id = "country",
+                    name = "country",
+                    items = countries.sortBy(_.value).map {c =>
+                        SelectItem(
+                            value = Some(c.value),
+                            text = c.text,
+                            selected = Some(c.value) == form.data.get("country")
+                            )
+                        },
+                    classes = "autocomplete",
+                    label = Label(
+                        content = Text(messages("address.country")),
+                        classes = "govuk-label--s"
+                    ),
+                    errorMessage = form("country").error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args:_*))))
                 )
             )
-        )
-    </div>
+        </div>
     }
 
     @if(postcodeEntry){

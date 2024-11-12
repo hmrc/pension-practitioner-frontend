@@ -36,7 +36,6 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import utils.KnownFactsRetrieval
 import views.html.register.DeclarationView
@@ -74,8 +73,7 @@ class DeclarationControllerSpec extends ControllerSpecBase with MockitoSugar wit
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-    mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
+     mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
   }
 
   "Declaration Controller" must {

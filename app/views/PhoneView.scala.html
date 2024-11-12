@@ -32,10 +32,6 @@
 
 @layout(messages("phone.title", messages(viewModel.entityType)), formHasErrors = form.hasErrors) {
 
-    <h1 class="govuk-heading-xl">@messages("phone.title", viewModel.entityName)</h1>
-
-    <p class="govuk-body">@messages("phone.hint", viewModel.entityName)</p>
-
     @formHelper(action = viewModel.submitUrl, Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
@@ -47,11 +43,14 @@
                 field = form("value"),
                 label = Label(
                     content = Text(messages("phone.title", viewModel.entityName)),
-                    isPageHeading = false,
-                    classes = "govuk-fieldset__legend--s govuk-visually-hidden"
+                    isPageHeading = true,
+                    classes = "govuk-label--l"
                 ),
                 classes = "govuk-input--width-20",
-                inputType = "tel"
+                inputType = "tel",
+                hint = Some(Hint(
+                    content = Text(messages("phone.hint", viewModel.entityName))
+                ))
             )
         )
 

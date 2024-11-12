@@ -33,9 +33,6 @@
             @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
         }
 
-        <h1 class="govuk-heading-xl">@messages("individual.email.title")</h1>
-        <p class="govuk-body">@messages("individual.email.hint")</p>
-
         @govukInput(
             Input(
                 id = field.id,
@@ -44,10 +41,11 @@
                 inputType = "email",
                 classes = "govuk-!-width-three-quarters",
                 label = Label(
-                    isPageHeading = false,
-                    classes = "govuk-fieldset__legend--s govuk-visually-hidden",
+                    isPageHeading = true,
+                    classes = "govuk-label--l",
                     content = Text(messages("individual.email.title"))
                 ),
+                hint = Some(Hint(content = Text(messages("individual.email.hint")))),
                 errorMessage = field.error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args:_*))))
             )
         )

@@ -31,7 +31,6 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import viewmodels.CommonViewModelTwirl
 import views.html.EmailView
 
@@ -64,8 +63,7 @@ class CompanyEmailControllerSpec extends ControllerSpecBase with MockitoSugar wi
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   private val request = FakeRequest(GET, onPageLoadUrl)
 

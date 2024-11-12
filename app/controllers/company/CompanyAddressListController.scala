@@ -28,10 +28,7 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import renderer.Renderer
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
 import utils.countryOptions.CountryOptions
 import viewmodels.{CommonViewModel, CommonViewModelTwirl}
 import views.html.address.AddressListView
@@ -48,11 +45,9 @@ class CompanyAddressListController @Inject()(override val messagesApi: MessagesA
                                              formProvider: AddressListFormProvider,
                                              val controllerComponents: MessagesControllerComponents,
                                              countryOptions: CountryOptions,
-                                             val renderer: Renderer,
-                                             addressListView: AddressListView,
-                                             val twirlMigration: TwirlMigration
+                                             addressListView: AddressListView
                                          )(implicit ec: ExecutionContext) extends AddressListController
-                                          with Retrievals with I18nSupport with NunjucksSupport {
+                                          with Retrievals with I18nSupport {
 
 
   def form(implicit messages: Messages): Form[Int] =
@@ -87,7 +82,6 @@ class CompanyAddressListController @Inject()(override val messagesApi: MessagesA
       (BusinessNamePage and CompanyPostcodePage).retrieve.map {
         case companyName ~ addresses =>
           form => Json.obj(
-            "form" -> form,
             "addresses" -> transformAddressesForTemplate(addresses, countryOptions),
             "viewmodel" -> CommonViewModel(
               "company",
@@ -97,5 +91,4 @@ class CompanyAddressListController @Inject()(override val messagesApi: MessagesA
             ))
       }
   )
-
 }

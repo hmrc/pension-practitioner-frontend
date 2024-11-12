@@ -23,7 +23,8 @@ import play.api.Logger
 import play.api.http.Status._
 import play.api.libs.json.{JsError, JsResultException, JsSuccess, Json}
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HttpClient, _}
+import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.client.HttpClientV2
 import utils.HttpResponseHelper
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -31,11 +32,12 @@ import scala.util.Failure
 
 @ImplementedBy(classOf[MinimalConnectorImpl])
 trait MinimalConnector {
-  def getMinimalPspDetails(pspId: String)
-                          (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[MinimalPSP]
+
+  def getMinimalPspDetails(pspId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[MinimalPSP]
+
 }
 
-class MinimalConnectorImpl @Inject()(http: HttpClient, config: FrontendAppConfig)
+class MinimalConnectorImpl @Inject()(httpClientV2: HttpClientV2, config: FrontendAppConfig)
   extends MinimalConnector
     with HttpResponseHelper {
 
@@ -44,22 +46,24 @@ class MinimalConnectorImpl @Inject()(http: HttpClient, config: FrontendAppConfig
   override def getMinimalPspDetails(pspId: String)
                                    (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[MinimalPSP] = {
 
-    val psaHc = hc.withExtraHeaders("pspId" -> pspId)
+    val url = url"${config.minimalDetailsUrl}"
+    val headers = Seq("pspId" -> pspId)
 
-    http.GET[HttpResponse](config.minimalDetailsUrl)(implicitly, psaHc, implicitly) map { response =>
+    httpClientV2.get(url)
+      .setHeader(headers: _*)
+      .execute[HttpResponse].map { response =>
+        response.status match {
+          case OK =>
+            Json.parse(response.body).validate[MinimalPSP] match {
+              case JsSuccess(value, _) => value
+              case JsError(errors) => throw JsResultException(errors)
+            }
 
-      response.status match {
-        case OK =>
-          Json.parse(response.body).validate[MinimalPSP] match {
-            case JsSuccess(value, _) => value
-            case JsError(errors) => throw JsResultException(errors)
-          }
-
-        case _ => handleErrorResponse("GET", config.minimalDetailsUrl)(response)
-      }
-    } andThen {
-      case Failure(t: Throwable) => logger.warn("Unable get minimal details", t)
-    }
+          case _ => handleErrorResponse("GET", config.minimalDetailsUrl)(response)
+        }
+      }  andThen {
+           case Failure(t: Throwable) => logger.warn("Unable get minimal details", t)
+         }
   }
 
 }

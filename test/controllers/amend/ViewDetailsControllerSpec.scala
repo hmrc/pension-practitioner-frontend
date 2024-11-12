@@ -24,7 +24,6 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.test.Helpers.{route, status, _}
-import play.twirl.api.Html
 import services.PspDetailsService
 
 import scala.concurrent.Future
@@ -44,8 +43,7 @@ class ViewDetailsControllerSpec extends ControllerSpecBase {
     super.beforeEach()
     when(pspDetailsService.getData(any(), any())(any(), any(), any())).thenReturn(Future.successful
     (PspDetailsData("title", "heading", Seq(), None, false, routes.DeclarationController.onPageLoad().url)))
-    when(mockRenderer.render(any(), any())(any())).thenReturn(Future.successful(Html("")))
-  }
+   }
 
   "ViewDetails Controller" must {
     "return OK and the correct view for a GET" in {

@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package controllers.testonly
+package viewmodels
 
-import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
+import play.api.data.Field
+import play.api.i18n.Messages
+import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
-import javax.inject.Inject
+object Radios {
 
-class TwirlController @Inject() (val controllerComponents: ControllerComponents) extends BaseController {
-  def trigger(state: String): Action[AnyContent] = Action { implicit req =>
-    Ok(s"Assigned twirl state to $state").addingToSession("twirl" -> state)
-  }
+  def yesNo(field: Field)(implicit messages: Messages): Seq[RadioItem] = Seq(
+    RadioItem(id = Some(field.id), content = Text(Messages("site.yes")), value = Some("true"), checked = field.value.contains("true")),
+    RadioItem(id = Some(s"${field.id}-no"), content = Text(Messages("site.no")), value = Some("false"), checked = field.value.contains("false"))
+  )
 }

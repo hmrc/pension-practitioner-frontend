@@ -23,32 +23,18 @@ import controllers.Retrievals
 import controllers.actions._
 import controllers.address.ManualAddressController
 import forms.address.UKAddressFormProvider
-
-import javax.inject.Inject
-import models.Address
-import models.AddressConfiguration
-import models.Mode
 import models.register.RegistrationLegalStatus
+import models.{Address, AddressConfiguration, Mode}
 import navigators.CompoundNavigator
-import pages.QuestionPage
-import pages.RegistrationInfoPage
-import pages.partnership.BusinessNamePage
-import pages.partnership.{PartnershipAddressListPage, PartnershipRegisteredAddressPage}
+import pages.partnership.{BusinessNamePage, PartnershipAddressListPage, PartnershipRegisteredAddressPage}
+import pages.{QuestionPage, RegistrationInfoPage}
 import play.api.data.Form
-import play.api.i18n.I18nSupport
-import play.api.i18n.Messages
-import play.api.i18n.MessagesApi
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.Call
-import play.api.mvc.MessagesControllerComponents
-import renderer.Renderer
-import uk.gov.hmrc.viewmodels.NunjucksSupport
-import utils.TwirlMigration
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import views.html.address.ManualAddressView
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class PartnershipEnterRegisteredAddressController @Inject()(override val messagesApi: MessagesApi,
                                                             val userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -59,17 +45,15 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
                                                             formProvider: UKAddressFormProvider,
                                                             val controllerComponents: MessagesControllerComponents,
                                                             val config: FrontendAppConfig,
-                                                            val renderer: Renderer,
                                                             registrationConnector:RegistrationConnector,
-                                                            manualAddressView: ManualAddressView,
-                                                            val twirlMigration: TwirlMigration
+                                                            manualAddressView: ManualAddressView
 )(implicit ec: ExecutionContext) extends ManualAddressController
-  with Retrievals with I18nSupport with NunjucksSupport {
+  with Retrievals with I18nSupport {
 
   def form(implicit messages: Messages): Form[Address] = formProvider()
 
   override protected def addressPage: QuestionPage[Address] = PartnershipRegisteredAddressPage
-
+  private val isUkHintText = true
   override protected val pageTitleEntityTypeMessageKey: Option[String] = Some("partnership")
 
   override protected val submitRoute: Mode => Call = mode => routes.PartnershipEnterRegisteredAddressController.onSubmit(mode)
@@ -77,7 +61,7 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (authenticate andThen getData andThen requireData).async { implicit request =>
       BusinessNamePage.retrieve.map { companyName =>
-        get(mode, Some(companyName), PartnershipAddressListPage, AddressConfiguration.CountryOnly, manualAddressView)
+        get(mode, Some(companyName), PartnershipAddressListPage, AddressConfiguration.CountryOnly, manualAddressView, isUkHintText)
       }
     }
 
@@ -88,8 +72,16 @@ class PartnershipEnterRegisteredAddressController @Inject()(override val message
           .bindFromRequest()
           .fold(
             formWithErrors => {
-              renderer.render(viewTemplate,
-                json(mode, Some(partnershipName), formWithErrors, AddressConfiguration.CountryOnly)).map(BadRequest(_))
+              val jsonValue = json(mode, Some(partnershipName), formWithErrors, AddressConfiguration.CountryOnly)
+              Future.successful(BadRequest(manualAddressView(
+                (jsonValue \ "pageTitle").asOpt[String].getOrElse(""),
+                (jsonValue \ "h1").asOpt[String].getOrElse(""),
+                (jsonValue \ "postcodeEntry").asOpt[Boolean].getOrElse(false),
+                (jsonValue \ "postcodeFirst").asOpt[Boolean].getOrElse(false),
+                (jsonValue \ "countries").asOpt[Array[models.Country]].getOrElse(Array.empty[models.Country]),
+                submitRoute(mode),
+                formWithErrors,
+                isUkHintText)))
             },
             value => {
               val updatedUA = request.userAnswers.setOrException(addressPage, value)
