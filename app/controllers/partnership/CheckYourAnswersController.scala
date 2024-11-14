@@ -25,8 +25,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.CheckYourAnswersView
 
-import scala.concurrent.ExecutionContext
-
 class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi,
                                            @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
                                            getData: DataRetrievalAction,
@@ -34,7 +32,7 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
                                            val controllerComponents: MessagesControllerComponents,
                                            partnershipCYAService: PartnershipCYAService,
                                            checkYourAnswersView: CheckYourAnswersView
-                                          )(implicit ec: ExecutionContext)
+                                          )
   extends FrontendBaseController
     with I18nSupport {
 

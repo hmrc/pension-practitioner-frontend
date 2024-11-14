@@ -20,7 +20,6 @@ import connectors.cache.UserAnswersCacheConnector
 import controllers.Retrievals
 import controllers.actions._
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.deregister.individual.SuccessView
@@ -40,9 +39,6 @@ class SuccessController @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-          val json: JsObject = Json.obj(
-            "submitUrl" -> controllers.routes.SignOutController.signOut().url
-          )
           userAnswersCacheConnector.removeAll.flatMap { _ =>
             Future.successful(Ok(successView(
               controllers.routes.SignOutController.signOut().url

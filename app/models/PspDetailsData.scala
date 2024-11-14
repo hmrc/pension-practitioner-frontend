@@ -16,8 +16,6 @@
 
 package models
 
-import play.api.i18n.Messages
-import play.api.libs.json.{JsObject, Json, OWrites}
 import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryListRow
 
 case class PspDetailsData(
@@ -27,21 +25,7 @@ case class PspDetailsData(
                            returnLinkAndUrl: Option[(String, String)],
                            displayContinueButton: Boolean,
                            nextPage: String
-                         ) {
-  def toJson(implicit messages: Messages): JsObject = {
-    implicit val rowWrites: OWrites[SummaryListRow] = SummaryListRow.jsonFormats.writes
-    implicit val pspJsonFormat: OWrites[PspDetailsDataJsonObject] = Json.writes[PspDetailsDataJsonObject]
-    Json.toJson(PspDetailsDataJsonObject(
-      pageTitle,
-      heading,
-      list,
-      returnLinkAndUrl.map(_._1),
-      returnLinkAndUrl.map(_._2),
-      displayContinueButton,
-      nextPage
-    )).as[JsObject]
-  }
-}
+                         )
 
 private case class PspDetailsDataJsonObject(
                                              pageTitle: String,

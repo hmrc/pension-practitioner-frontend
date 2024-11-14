@@ -67,10 +67,7 @@ trait ManualAddressController
                     selectedAddress: QuestionPage[TolerantAddress],
                     addressLocation: AddressConfiguration,
                     manualAddressView: ManualAddressView,
-                    isUkHintText: Boolean = false)(
-                     implicit request: DataRequest[AnyContent],
-                     ec: ExecutionContext
-                   ): Future[Result] = {
+                    isUkHintText: Boolean = false)(implicit request: DataRequest[AnyContent]): Future[Result] = {
     val preparedForm = request.userAnswers.get(addressPage) match {
       case None => request.userAnswers.get(selectedAddress) match {
         case Some(value) => form.fill(value.toPrepopAddress)

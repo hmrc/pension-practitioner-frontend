@@ -25,7 +25,6 @@ import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.register.NonUKPractitionerView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class NonUKPractitionerController @Inject()(
                                              override val messagesApi: MessagesApi,
@@ -33,7 +32,7 @@ class NonUKPractitionerController @Inject()(
                                              getData: DataRetrievalAction,
                                              val controllerComponents: MessagesControllerComponents,
                                              nonUKPractitionerView: NonUKPractitionerView
-                                           )(implicit ec: ExecutionContext) extends FrontendBaseController
+                                           ) extends FrontendBaseController
   with I18nSupport with Retrievals {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData) {

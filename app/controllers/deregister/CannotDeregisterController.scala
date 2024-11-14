@@ -23,12 +23,11 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.deregister.CannotDeregisterView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class CannotDeregisterController @Inject()(config: FrontendAppConfig,
                                            val controllerComponents: MessagesControllerComponents,
                                            cannotDeregisterView: CannotDeregisterView
-                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                          ) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = Action { implicit request =>
     Ok(cannotDeregisterView(config.pspListSchemesUrl))
