@@ -1,5 +1,17 @@
 # Pension Practitioner Frontend
 
+## Contents
+- [Overview](#overview)
+- [Requirements](#requirements)
+- [Running the Service](#running-the-service)
+- [Enrolments](#enrolments)
+- [Compile & Test](#compile--test)
+- [Identity Verification Testing](#identity-verification-testing)
+- [Navigation and Dependent Services](#navigation-and-dependent-services)
+- [Service Documentation](#service-documentation)
+- [Endpoints Used](#endpoints-used)
+- [License](#license)
+
 ## Overview
 
 This is the repository for Pension Practitioner Frontend. This service allows a user to register and perform duties as a pension practitioner. The pension practitioner is a person or organisation that the pension scheme administrator authorises to manage a pension scheme on their behalf.
@@ -15,9 +27,9 @@ This service has a corresponding back-end microservice, namely pension-practitio
 ## Requirements
 This service is written in Scala and Play, so needs at least a [JRE] to run.
 
-**Node version:** 20.18.0
+**Node version:** 16.20.2
 
-**Java version:** 19
+**Java version:** 11
 
 **Scala version:** 2.13.14
 
