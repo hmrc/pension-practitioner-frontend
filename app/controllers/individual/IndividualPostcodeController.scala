@@ -23,12 +23,10 @@ import controllers.actions._
 import controllers.address.PostcodeController
 import forms.address.PostcodeFormProvider
 import models.Mode
-import models.requests.DataRequest
 import navigators.CompoundNavigator
 import pages.individual.IndividualPostcodePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import utils.annotations.AuthWithIV
 import views.html.individual.PostcodeView
@@ -75,13 +73,5 @@ class IndividualPostcodeController @Inject()(override val messagesApi: MessagesA
         _
       )
       post(mode, IndividualPostcodePage, "error.postcode.noResults", twirlTemplate)
-  }
-
-  def getFormToJson(mode: Mode)(implicit request: DataRequest[AnyContent]): Form[String] => JsObject = {
-    form =>
-      Json.obj(
-        "submitUrl" -> routes.IndividualPostcodeController.onSubmit(mode).url,
-        "enterManuallyUrl" -> Some(routes.IndividualContactAddressController.onPageLoad(mode).url)
-      )
   }
 }

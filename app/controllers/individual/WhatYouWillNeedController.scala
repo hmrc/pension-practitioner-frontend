@@ -27,7 +27,6 @@ import utils.annotations.AuthMustHaveNoEnrolmentWithNoIV
 import views.html.individual.WhatYouWillNeedView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class WhatYouWillNeedController @Inject()(
                                            override val messagesApi: MessagesApi,
@@ -37,7 +36,7 @@ class WhatYouWillNeedController @Inject()(
                                            navigator: CompoundNavigator,
                                            val controllerComponents: MessagesControllerComponents,
                                            whatYouWillNeedView: WhatYouWillNeedView
-                                         )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                         ) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData) {
     implicit request =>

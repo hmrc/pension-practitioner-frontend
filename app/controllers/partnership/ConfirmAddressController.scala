@@ -24,13 +24,13 @@ import forms.ConfirmAddressFormProvider
 import models.register.RegistrationLegalStatus.Partnership
 import models.register.{BusinessType, Organisation}
 import models.requests.DataRequest
-import models.{NormalMode, TolerantAddress, UserAnswers}
+import models.{NormalMode, UserAnswers}
 import navigators.CompoundNavigator
 import pages.RegistrationInfoPage
 import pages.partnership.{BusinessNamePage, BusinessUTRPage, ConfirmAddressPage}
 import pages.register.BusinessTypePage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.JsObject
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -66,9 +66,6 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
       case _  => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
     }
   }
-
-  private def formattedAddress(tolerantAddress:TolerantAddress) =
-    Json.toJson(tolerantAddress.lines(countryOptions))
 
   def onPageLoad(): Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>

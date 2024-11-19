@@ -26,7 +26,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.deregister.company.SuccessView
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class SuccessController @Inject()(override val messagesApi: MessagesApi,
                                   userAnswersCacheConnector: UserAnswersCacheConnector,
@@ -35,7 +35,7 @@ class SuccessController @Inject()(override val messagesApi: MessagesApi,
                                   requireData: DataRequiredAction,
                                   val controllerComponents: MessagesControllerComponents,
                                   successView: SuccessView
-                                 )(implicit ec: ExecutionContext) extends FrontendBaseController
+                                 ) extends FrontendBaseController
   with Retrievals with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {

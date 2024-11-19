@@ -22,12 +22,11 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.AssistantNoAccessView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class AssistantNoAccessController @Inject()(
                                         val controllerComponents: MessagesControllerComponents,
                                         assistantNoAccessView: AssistantNoAccessView
-                                      )(implicit ec: ExecutionContext)
+                                      )
   extends FrontendBaseController
     with I18nSupport {
 

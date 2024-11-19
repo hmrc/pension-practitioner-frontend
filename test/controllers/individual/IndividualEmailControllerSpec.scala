@@ -84,8 +84,6 @@ class IndividualEmailControllerSpec extends ControllerSpecBase with MockitoSugar
 
     "Save data to user answers and redirect to next page when valid data is submitted" in {
 
-      val expectedJson = Json.obj(IndividualEmailPage.toString -> email)
-
       when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(IndividualEmailPage), any(), any())).thenReturn(dummyCall)
 
       val jsonCaptor = ArgumentCaptor.forClass(classOf[JsObject])

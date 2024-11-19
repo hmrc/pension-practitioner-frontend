@@ -162,12 +162,6 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
       val templateId = "dummyTemplateId"
       val pspId = "test psp id"
 
-      val expectedJson = Json.obj(
-        PspNamePage.toString -> name,
-        DeregistrationDatePage.toString -> "2020-04-03",
-        PspEmailPage.toString -> email
-      )
-
       mutableFakeDataRetrievalAction.setDataToReturn(Some(ua))
       when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(DeregistrationDatePage), any(), any())).thenReturn(dummyCall)
       when(mockEmailConnector.sendEmail(any(), any(), any(), any(), any(),any())(any(),any()))
