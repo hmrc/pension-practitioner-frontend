@@ -85,15 +85,7 @@ For access to the **Pension Administrator dashboard** for local development, ent
 
 **Identifier Value -** A2100005
 
-
-[Identity verification testing](#identity-verification-testing)
-
-## Overview
-
-
-This service allows a user to register as a pension practitioner.
-
-This service has a corresponding back-end service, namely pension-practitioner which integrates with HOD i.e DES/ETMP.
+---
 
 **Dual enrolment** as both a Pension Administrator and Practitioner is also possible and can be accessed by entering:
 
