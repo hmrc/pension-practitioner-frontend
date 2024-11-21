@@ -6,9 +6,9 @@
 - [Enrolments](#enrolments)
 - [Compile & Test](#compile--test)
 - [Identity Verification Testing](#identity-verification-testing)
-- [Navigation and Dependent Services](#navigation-and-dependent-services)
+- [Navigation](#navigation-and-dependent-services)
 - [Service Documentation](#service-documentation)
-- [Endpoints](#endpoints)
+- [Dependencies](#dependencies)
 - [License](#license)
 
 ## Overview
@@ -148,36 +148,12 @@ Eventually we might want to move to iv-stubs, but currently they don't support o
 ## Navigation and Dependent Services
 The Pension Practitioner Frontend integrates with the Manage Pension Schemes (MPS) service and uses various stubs available on [GitHub](https://github.com/hmrc/pensions-scheme-stubs). From the Authority Wizard page you will be redirected to the dashboard. Navigate to the appropriate area by accessing items listed within the service-specific tiles on the dashboard. On the Pension Practitioner frontend, a practitioner can change their details, stop being a practitioner, or search for and view a pension scheme.
 
-
-There are numerous APIs implemented throughout the MPS architecture, and the relevant endpoints are illustrated below. For an overview of all PODS APIs, refer to the [PODS API Documentation](https://confluence.tools.tax.service.gov.uk/display/PODSP/PODS+API+Latest+Version).
-
-
 ## Service Documentation
 [To Do]
 Include relevant links or details to any additional, service-specific documents (e.g., stubs, testing protocols) when available. 
 
-
-## Endpoints
-[To Do]
-
-| Service                     | HTTP Method | Route                                                                                     | Purpose                                                                                                   |
-|-----------------------------|-------------|-------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
-| Pension Practitioner        | POST        | ```/pension-practitioner/register-with-id/individual                                  ``` | Registers an individual based on the NINO from ETMP                                                       |
-| Pension Practitioner        | POST        | ```/pension-practitioner/register-with-no-id/organisation                             ``` | Registers an organisation on ETMP who does not have a UTR. Typically this will be a non- UK organisation  |
-| Pension Practitioner        | POST        | ```/pension-practitioner/register-with-no-id/individual                               ``` | Registers an individual on ETMP who does not have a UTR/NINO. Typically this will be a non- UK individual |
-| Pension Practitioner        | POST        | ```/pension-practitioner/subscribePsp/:journeyType                                    ``` | Subscribe a pension scheme practitioner                                                                   |
-| Pension Practitioner        | GET         | ```/pension-practitioner/getPsp                                                       ``` | Get Psp subscription details                                                                              |
-| Pension Practitioner        | POST        | ```/pension-practitioner/deregisterPsp/:pspId                                         ``` | De-register a Psp                                                                                         |
-| Pension Practitioner        | POST        | ```/pension-practitioner/authorise-psp                                                ``` | Authorise a Psp                                                                                           |
-| Pension Practitioner        | POST        | ```/pension-practitioner/de-authorise-psp                                             ``` | De-authorise a Psp                                                                                        |
-| Pension Practitioner        | GET         | ```/pension-practitioner/get-minimal-details                                    ```       | Get minimal Psp details                                                                                   |
-| Pension Practitioner        | GET         | ```/pension-practitioner/can-deregister/:id                                     ```       | Can de-register a Psp                                                                                     |
-| Address Lookup              | GET         | ```/v2/uk/addresses ```                                                                   | Returns a list of addresses that match a given postcode                                                   | 
-| Email                       | POST        | ```/hmrc/email```                                                                         | Sends an email to an email address                                                                        | 
-| Tax Enrolments              | POST        | ```/tax-enrolments/service/:serviceName/enrolment ```                                     | Enrols a user synchronously for a given service name                                                      | 
-
-
-### Dependencies
+## Dependencies
+There are multiple microservices that this service depends on. These are:
 
 | Service                     | Link                                                |
 |-----------------------------|-----------------------------------------------------|
@@ -187,9 +163,6 @@ Include relevant links or details to any additional, service-specific documents 
 | Email                       | https://github.com/hmrc/email                       |
 | Auth                        | https://github.com/hmrc/auth                        |
 | Tax Enrolments              | https://github.com/hmrc/tax-enrolments              |
-
-
-
 
 ## License
 This code is open source software Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at:
