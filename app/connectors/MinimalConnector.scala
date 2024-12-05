@@ -33,7 +33,7 @@ import scala.util.Failure
 @ImplementedBy(classOf[MinimalConnectorImpl])
 trait MinimalConnector {
 
-  def getMinimalPspDetails(pspId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[MinimalPSP]
+  def getMinimalPspDetails(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[MinimalPSP]
 
 }
 
@@ -43,7 +43,7 @@ class MinimalConnectorImpl @Inject()(httpClientV2: HttpClientV2, config: Fronten
 
   private val logger = Logger(classOf[MinimalConnectorImpl])
 
-  override def getMinimalPspDetails(pspId: String)
+  override def getMinimalPspDetails
                                    (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[MinimalPSP] = {
 
     val url = url"${config.minimalDetailsUrl}"
