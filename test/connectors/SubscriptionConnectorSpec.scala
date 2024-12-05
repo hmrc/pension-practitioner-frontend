@@ -40,7 +40,7 @@ class SubscriptionConnectorSpec
 
   private lazy val connector: SubscriptionConnector = injector.instanceOf[SubscriptionConnector]
   private val pspSubscriptionUrl = "/pension-practitioner/subscribePsp/PSPSubscription"
-  private val subscriptionDetailsUrl = "/pension-practitioner/getPsp"
+  private val subscriptionDetailsUrl = "/pension-practitioner/getPsp-self"
   private val pspId: String = "12345678"
   private val validResponse = Json.obj(
     "processingDate" -> LocalDate.now,
