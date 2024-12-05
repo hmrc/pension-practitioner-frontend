@@ -57,14 +57,11 @@ class SubscriptionConnector @Inject()(httpClientV2: HttpClientV2, config: Fronte
       }
   }
 
-  def getSubscriptionDetails(pspId: String
-                            )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
+  def getSubscriptionDetails(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
 
-    val headers = Seq("pspId" -> pspId)
     val url = url"${config.subscriptionDetailsUrl}"
 
     httpClientV2.get(url)
-      .setHeader(headers: _*)
       .execute[HttpResponse].map { response =>
       response.status match {
         case OK =>
@@ -83,10 +80,9 @@ class SubscriptionConnector @Inject()(httpClientV2: HttpClientV2, config: Fronte
     }
   }
 
-  def getPspApplicationDate(pspId: String
-                           )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[LocalDate] =
+  def getPspApplicationDate(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[LocalDate] =
 
-    getSubscriptionDetails(pspId).map { jsValue =>
+    getSubscriptionDetails.map { jsValue =>
       (jsValue \ "applicationDate").validate[String] match {
         case JsSuccess(value, _) =>
           value

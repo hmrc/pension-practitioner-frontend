@@ -112,7 +112,7 @@ class PspDetailsService @Inject()(
         Future.successful(ua)
       case _ =>
         for {
-          pspDetails <- subscriptionConnector.getSubscriptionDetails(pspId)
+          pspDetails <- subscriptionConnector.getSubscriptionDetails
           ua1 <- Future.fromTry(uaWithUkAnswer(uaFromJsValue(pspDetails), pspId))
           ua2 <- Future.fromTry(ua1.set(SubscriptionTypePage, Variation).flatMap(_.set(UnchangedPspDetailsPage, pspDetails)))
           _ <- userAnswersCacheConnector.save(ua2.data)

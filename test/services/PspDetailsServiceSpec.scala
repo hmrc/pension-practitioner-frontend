@@ -147,7 +147,7 @@ class PspDetailsServiceSpec
 
     "return appropriate json for nonUk Partnership" in {
       when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
-      when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
+      when(mockSubscriptionConnector.getSubscriptionDetails(any(), any()))
         .thenReturn(Future.successful(uaPartnershipNonUK))
 
       whenReady(service.getData(None, pspId)) { result => {
@@ -165,7 +165,7 @@ class PspDetailsServiceSpec
     }
 
     "return appropriate json for Individual" in {
-      when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
+      when(mockSubscriptionConnector.getSubscriptionDetails(any(), any()))
         .thenReturn(Future.successful(uaIndividualUK))
       when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
 
@@ -180,7 +180,7 @@ class PspDetailsServiceSpec
     }
 
     "return appropriate json for Company" in {
-      when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
+      when(mockSubscriptionConnector.getSubscriptionDetails(any(), any()))
         .thenReturn(Future.successful(uaCompanyUk))
       when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
       whenReady(service.getData(Some(UserAnswers(uaCompanyUk)), pspId)) { result =>
@@ -194,7 +194,7 @@ class PspDetailsServiceSpec
     }
 
     "have no return link if rls flag set in min details" in {
-      when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
+      when(mockSubscriptionConnector.getSubscriptionDetails(any(), any()))
         .thenReturn(Future.successful(uaIndividualUK))
       when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = true)))
 
@@ -213,7 +213,7 @@ class PspDetailsServiceSpec
 
   "getUserAnswers" must {
     "return appropriate user answers for Individual" in {
-      when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
+      when(mockSubscriptionConnector.getSubscriptionDetails(any(), any()))
         .thenReturn(Future.successful(uaIndividualUK))
       when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
 
@@ -228,7 +228,7 @@ class PspDetailsServiceSpec
     }
 
     "return appropriate user answers for Company" in {
-      when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
+      when(mockSubscriptionConnector.getSubscriptionDetails(any(), any()))
         .thenReturn(Future.successful(uaCompanyUk))
       when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
       whenReady(service.getUserAnswers(None, pspId)) { result =>
@@ -242,7 +242,7 @@ class PspDetailsServiceSpec
     }
 
     "return appropriate user answers for Partnership" in {
-      when(mockSubscriptionConnector.getSubscriptionDetails(eqTo(pspId))(any(), any()))
+      when(mockSubscriptionConnector.getSubscriptionDetails(any(), any()))
         .thenReturn(Future.successful(uaPartnershipNonUK))
       when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
       whenReady(service.getUserAnswers(None, pspId)) { result =>

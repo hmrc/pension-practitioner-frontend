@@ -123,25 +123,24 @@ class SubscriptionConnectorSpec
     "return 200" in {
 
       server.stubFor(
-        get(urlEqualTo(subscriptionDetailsUrl)).withHeader("pspId", equalTo(pspId))
+        get(urlEqualTo(subscriptionDetailsUrl))
           .willReturn(
             aResponse()
               .withStatus(OK).withBody(getPspDetailsResponse.toString())
           )
       )
 
-      connector.getSubscriptionDetails(pspId).map {
+      connector.getSubscriptionDetails.map {
         result =>
           result mustBe getPspDetailsResponse
-          server.findAll(getRequestedFor(urlEqualTo(subscriptionDetailsUrl))
-            .withHeader("pspId", equalTo(pspId))).size() mustBe 1
+          server.findAll(getRequestedFor(urlEqualTo(subscriptionDetailsUrl))).size() mustBe 1
       }
 
     }
 
     "throw badrequest if INVALID_IDVALUE" in {
       server.stubFor(
-        get(urlEqualTo(subscriptionDetailsUrl)).withHeader("pspId", equalTo(pspId))
+        get(urlEqualTo(subscriptionDetailsUrl))
           .willReturn(
             aResponse()
               .withStatus(BAD_REQUEST).withBody("INVALID_IDVALUE")
@@ -149,17 +148,16 @@ class SubscriptionConnectorSpec
       )
 
       recoverToExceptionIf[PspIdInvalidSubscriptionException] {
-        connector.getSubscriptionDetails(pspId)
+        connector.getSubscriptionDetails
       } map {
         _ =>
-          server.findAll(getRequestedFor(urlEqualTo(subscriptionDetailsUrl))
-            .withHeader("pspId", equalTo(pspId))).size() mustBe 1
+          server.findAll(getRequestedFor(urlEqualTo(subscriptionDetailsUrl))).size() mustBe 1
       }
     }
 
     "throw badrequest if INVALID_CORRELATIONID" in {
       server.stubFor(
-        get(urlEqualTo(subscriptionDetailsUrl)).withHeader("pspId", equalTo(pspId))
+        get(urlEqualTo(subscriptionDetailsUrl))
           .willReturn(
             aResponse()
               .withStatus(BAD_REQUEST).withBody("INVALID_CORRELATIONID")
@@ -167,62 +165,58 @@ class SubscriptionConnectorSpec
       )
 
       recoverToExceptionIf[CorrelationIdInvalidSubscriptionException] {
-        connector.getSubscriptionDetails(pspId)
+        connector.getSubscriptionDetails
       } map {
         _ =>
-          server.findAll(getRequestedFor(urlEqualTo(subscriptionDetailsUrl))
-            .withHeader("pspId", equalTo(pspId))).size() mustBe 1
+          server.findAll(getRequestedFor(urlEqualTo(subscriptionDetailsUrl))).size() mustBe 1
       }
     }
 
     "throw Not Found" in {
       server.stubFor(
-        get(urlEqualTo(subscriptionDetailsUrl)).withHeader("pspId", equalTo(pspId))
+        get(urlEqualTo(subscriptionDetailsUrl))
           .willReturn(
             notFound()
           )
       )
 
       recoverToExceptionIf[PspIdNotFoundSubscriptionException] {
-        connector.getSubscriptionDetails(pspId)
+        connector.getSubscriptionDetails
       } map {
         _ =>
-          server.findAll(getRequestedFor(urlEqualTo(subscriptionDetailsUrl))
-            .withHeader("pspId", equalTo(pspId))).size() mustBe 1
+          server.findAll(getRequestedFor(urlEqualTo(subscriptionDetailsUrl))).size() mustBe 1
       }
     }
 
     "throw UpstreamErrorResponse for internal server error" in {
       server.stubFor(
-        get(urlEqualTo(subscriptionDetailsUrl)).withHeader("pspId", equalTo(pspId))
+        get(urlEqualTo(subscriptionDetailsUrl))
           .willReturn(
             serverError()
           )
       )
 
       recoverToExceptionIf[UpstreamErrorResponse] {
-        connector.getSubscriptionDetails(pspId)
+        connector.getSubscriptionDetails
       } map {
         _ =>
-          server.findAll(getRequestedFor(urlEqualTo(subscriptionDetailsUrl))
-            .withHeader("pspId", equalTo(pspId))).size() mustBe 1
+          server.findAll(getRequestedFor(urlEqualTo(subscriptionDetailsUrl))).size() mustBe 1
       }
     }
 
     "throw Generic exception for all others" in {
       server.stubFor(
-        get(urlEqualTo(subscriptionDetailsUrl)).withHeader("pspId", equalTo(pspId))
+        get(urlEqualTo(subscriptionDetailsUrl))
           .willReturn(
             serverError()
           )
       )
 
       recoverToExceptionIf[Exception] {
-        connector.getSubscriptionDetails(pspId)
+        connector.getSubscriptionDetails
       } map {
         _ =>
-          server.findAll(getRequestedFor(urlEqualTo(subscriptionDetailsUrl))
-            .withHeader("pspId", equalTo(pspId))).size() mustBe 1
+          server.findAll(getRequestedFor(urlEqualTo(subscriptionDetailsUrl))).size() mustBe 1
       }
     }
   }

@@ -86,7 +86,7 @@ class DeclarationController @Inject()(
         }
     }
   private def getOriginalPspDetails(ua: UserAnswers, pspId: String)(implicit hc: HeaderCarrier): Future[JsValue] =
-    ua.get(UnchangedPspDetailsPage).fold(subscriptionConnector.getSubscriptionDetails(pspId))(Future.successful(_))
+    ua.get(UnchangedPspDetailsPage).fold(subscriptionConnector.getSubscriptionDetails)(Future.successful(_))
 
   private def audit(
                      pspId: String,
