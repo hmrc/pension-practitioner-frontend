@@ -56,7 +56,9 @@ class MinimalConnectorImpl @Inject()(httpClientV2: HttpClientV2, config: Fronten
           case OK =>
             Json.parse(response.body).validate[MinimalPSP] match {
               case JsSuccess(value, _) => value
-              case JsError(errors) => throw JsResultException(errors)
+              case JsError(errors) =>
+                logger.error(s"JSON validation failed: $errors, response body: ${response.body}")
+                throw JsResultException(errors)
             }
 
           case _ => handleErrorResponse("GET", config.minimalDetailsUrl)(response)
