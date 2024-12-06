@@ -73,7 +73,7 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
     when(mockMinimalConnector.getMinimalPspDetails(any(), any())).thenReturn(Future.successful(minPsp))
-    when(mockDeregistrationConnector.canDeRegister(any())(any(), any())).thenReturn(Future.successful(true))
+    when(mockDeregistrationConnector.canDeRegister(any(), any())).thenReturn(Future.successful(true))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
   }
 

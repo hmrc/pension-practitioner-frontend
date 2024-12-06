@@ -57,7 +57,7 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
     implicit request =>
 
       request.user.alreadyEnrolledPspId.map { pspId =>
-        deregistrationConnector.canDeRegister(pspId).flatMap {
+        deregistrationConnector.canDeRegister.flatMap {
           case true =>
             minimalConnector.getMinimalPspDetails.flatMap { minimalDetails =>
               (minimalDetails.name, minimalDetails.email) match {
