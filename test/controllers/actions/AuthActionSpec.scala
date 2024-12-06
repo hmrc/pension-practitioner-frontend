@@ -59,7 +59,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
         .set(AdministratorOrPractitionerPage, AdministratorOrPractitioner.Practitioner)
         .toOption.map(_.data)
 
-      when(mockSessionDataCacheConnector.fetch(any())(any(), any())).thenReturn(Future.successful(optionUAJson))
+      when(mockSessionDataCacheConnector.fetch()(any(), any())).thenReturn(Future.successful(optionUAJson))
 
       when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = bothEnrolments))
       when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
@@ -72,7 +72,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
         .set(AdministratorOrPractitionerPage, AdministratorOrPractitioner.Practitioner)
         .toOption.map(_.data)
 
-      when(mockSessionDataCacheConnector.fetch(any())(any(), any())).thenReturn(Future.successful(optionUAJson))
+      when(mockSessionDataCacheConnector.fetch()(any(), any())).thenReturn(Future.successful(optionUAJson))
 
       when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(
         authRetrievals(affinityGroup = Some(AffinityGroup.Organisation),
@@ -89,7 +89,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
       val optionUAJson = UserAnswers()
         .set(AdministratorOrPractitionerPage, AdministratorOrPractitioner.Administrator)
         .toOption.map(_.data)
-      when(mockSessionDataCacheConnector.fetch(any())(any(), any())).thenReturn(Future.successful(optionUAJson))
+      when(mockSessionDataCacheConnector.fetch()(any(), any())).thenReturn(Future.successful(optionUAJson))
 
       when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = bothEnrolments))
       when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
@@ -100,7 +100,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
 
     "redirect to administrator or practitioner page when trying to access PSA page when not chosen a role" in {
       val optionUAJson = Some(Json.obj())
-      when(mockSessionDataCacheConnector.fetch(any())(any(), any())).thenReturn(Future.successful(optionUAJson))
+      when(mockSessionDataCacheConnector.fetch()(any(), any())).thenReturn(Future.successful(optionUAJson))
 
       when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = bothEnrolments))
       when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))

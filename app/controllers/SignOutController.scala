@@ -40,8 +40,8 @@ class SignOutController @Inject()(
   def signOut(): Action[AnyContent] = Action.async {
     implicit request =>
       authorised().retrieve(uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.externalId) {
-        case Some(id) =>
-          sessionDataCacheConnector.removeAll(id).flatMap { _ =>
+        case Some(_) =>
+          sessionDataCacheConnector.removeAll().flatMap { _ =>
             userAnswersCacheConnector.removeAll.map { _ =>
               Redirect(config.signOutUrl).withNewSession
             }

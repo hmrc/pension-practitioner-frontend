@@ -33,14 +33,14 @@ class SessionDataCacheConnector  @Inject()(
   httpClientV2: HttpClientV2
 ) {
 
-  private def url(cacheId: String) =
-    url"${config.pensionAdministratorUrl}/pension-administrator/journey-cache/session-data/${cacheId}"
+  private def url() =
+    url"${config.pensionAdministratorUrl}/pension-administrator/journey-cache/session-data-self"
 
-  def fetch(id: String)(implicit ec: ExecutionContext,
+  def fetch()(implicit ec: ExecutionContext,
                         headerCarrier: HeaderCarrier): Future[Option[JsValue]] = {
     val headers: Seq[(String, String)] = Seq(("Content-Type", "application/json"))
 
-    httpClientV2.get(url(id))
+    httpClientV2.get(url())
       .setHeader(headers: _*)
       .execute[HttpResponse] map { response =>
       response.status match {
@@ -54,10 +54,10 @@ class SessionDataCacheConnector  @Inject()(
     } recoverWith mapExceptionsToStatus
   }
 
-  def removeAll(id: String)(implicit ec: ExecutionContext, headerCarrier: HeaderCarrier): Future[Result] = {
+  def removeAll()(implicit ec: ExecutionContext, headerCarrier: HeaderCarrier): Future[Result] = {
     val headers: Seq[(String, String)] = Seq(("Content-Type", "application/json"))
 
-    httpClientV2.delete(url(id))
+    httpClientV2.delete(url())
       .setHeader(headers: _*)
       .execute[HttpResponse] map { _ =>
           Ok
