@@ -126,8 +126,8 @@ protected class AuthenticatedAuthAction(
                                                 block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
     authRequest.user.alreadyEnrolledPspId match {
       case None => block(authRequest)
-      case Some(pspId) =>
-        minimalConnector.getMinimalPspDetails(pspId).flatMap { minimalDetails =>
+      case Some(_) =>
+        minimalConnector.getMinimalPspDetails().flatMap { minimalDetails =>
           if (minimalDetails.deceasedFlag) {
             Future.successful(Redirect(config.youMustContactHMRCUrl))
           } else {

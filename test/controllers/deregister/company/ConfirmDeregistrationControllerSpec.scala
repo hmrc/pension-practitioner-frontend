@@ -72,8 +72,8 @@ class ConfirmDeregistrationControllerSpec extends ControllerSpecBase with Mockit
   override def beforeEach(): Unit = {
     super.beforeEach()
     mutableFakeDataRetrievalAction.setDataToReturn(Some(userAnswers))
-    when(mockMinimalConnector.getMinimalPspDetails(any())(any(), any())).thenReturn(Future.successful(minPsp))
-    when(mockDeregistrationConnector.canDeRegister(any())(any(), any())).thenReturn(Future.successful(true))
+    when(mockMinimalConnector.getMinimalPspDetails()(any(), any())).thenReturn(Future.successful(minPsp))
+    when(mockDeregistrationConnector.canDeRegister(any(), any())).thenReturn(Future.successful(true))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
   }
 

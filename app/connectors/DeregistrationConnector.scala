@@ -32,11 +32,10 @@ import scala.util.Failure
 
 @ImplementedBy(classOf[DeregistrationConnectorImpl])
 trait DeregistrationConnector {
-  def deregister(pspId: String, date: LocalDate
+  def deregister(date: LocalDate
                 )(implicit hc: HeaderCarrier, ec: ExecutionContext) : Future[HttpResponse]
 
-  def canDeRegister(psaId: String
-                   )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean]
+  def canDeRegister(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean]
 }
 
 class DeregistrationConnectorImpl @Inject()(httpClientV2: HttpClientV2, config: FrontendAppConfig)
@@ -45,9 +44,9 @@ class DeregistrationConnectorImpl @Inject()(httpClientV2: HttpClientV2, config: 
 
   private val logger = Logger(classOf[DeregistrationConnectorImpl])
 
-  override def deregister(pspId: String, date: LocalDate)
+  override def deregister(date: LocalDate)
                          (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
-    val deregisterUrl = url"${config.pspDeregistrationUrl.format(pspId)}"
+    val deregisterUrl = url"${config.pspDeregistrationUrl}"
     val data: JsObject = Json.obj(
       "deregistrationDate"-> date.toString,
       "reason" -> "1"
@@ -66,10 +65,10 @@ class DeregistrationConnectorImpl @Inject()(httpClientV2: HttpClientV2, config: 
 
  }
 
-  override def canDeRegister(pspId: String)
+  override def canDeRegister
                             (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
 
-    val url = url"${config.canDeregisterUrl.format(pspId)}"
+    val url = url"${config.canDeregisterUrl}"
 
     httpClientV2.get(url)
       .execute[HttpResponse] map { response =>
