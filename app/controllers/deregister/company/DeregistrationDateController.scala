@@ -120,8 +120,6 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
 
   private def getDate(implicit request: DataRequest[AnyContent]): Future[LocalDate] =
     subscriptionConnector.getPspApplicationDate
-  //(hc: HeaderCarrier, ec: ExecutionContext)
-  //(request.user.pspIdOrException)
 
   private def getDateString(date: LocalDate) = date.format(dateContentFormatter)
 }
