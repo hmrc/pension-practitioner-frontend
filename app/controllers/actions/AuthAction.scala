@@ -128,7 +128,7 @@ protected class AuthenticatedAuthAction(
     authRequest.user.alreadyEnrolledPspId match {
       case None => block(authRequest)
       case Some(_) =>
-        minimalConnector.getMinimalPspDetails.flatMap { minimalDetails =>
+        minimalConnector.getMinimalPspDetails().flatMap { minimalDetails =>
           if (minimalDetails.deceasedFlag) {
             Future.successful(Redirect(config.youMustContactHMRCUrl))
           } else {

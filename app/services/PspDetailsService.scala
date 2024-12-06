@@ -68,7 +68,7 @@ class PspDetailsService @Inject()(
       ua =>
         ua.get(RegistrationDetailsPage).map {
           regInfo =>
-            minimalConnector.getMinimalPspDetails.map {
+            minimalConnector.getMinimalPspDetails().map {
               minDetails =>
                 val pspDetailsData = (name: Option[String]) => PspDetailsData(
                   _,

@@ -55,10 +55,10 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData).async {
     implicit request =>
-      request.user.alreadyEnrolledPspId.map { pspId =>
+      request.user.alreadyEnrolledPspId.map { _ =>
         deregistrationConnector.canDeRegister.flatMap {
           case true =>
-            minimalConnector.getMinimalPspDetails.flatMap { minimalDetails =>
+            minimalConnector.getMinimalPspDetails().flatMap { minimalDetails =>
                 (minimalDetails.name, minimalDetails.email) match {
                   case (Some(name), email) =>
                     val updatedAnswers = UserAnswers()

@@ -50,7 +50,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
     reset(mockUserAnswersCacheConnector)
     reset(authConnector)
     reset(mockMinimalConnector)
-    when(mockMinimalConnector.getMinimalPspDetails(any(), any())).thenReturn(Future(minimalPspDeceased()))
+    when(mockMinimalConnector.getMinimalPspDetails()(any(), any())).thenReturn(Future(minimalPspDeceased()))
   }
 
   "the user has enrolled in PODS as both a PSA AND a PSP" must {
@@ -126,7 +126,7 @@ class AuthActionSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach 
         "deceasedFlag is true" in {
           when(authConnector.authorise[authRetrievalsType](any(), any())(any(), any())).thenReturn(authRetrievals(enrolments = enrolmentPODS))
           when(mockUserAnswersCacheConnector.fetch(any(), any())).thenReturn(Future(None))
-          when(mockMinimalConnector.getMinimalPspDetails(any(), any())).thenReturn(Future(minimalPspDeceased(true)))
+          when(mockMinimalConnector.getMinimalPspDetails()(any(), any())).thenReturn(Future(minimalPspDeceased(true)))
           val result = controllerWithIVEnrolment.onPageLoad()(fakeRequest)
           status(result) mustBe SEE_OTHER
           redirectLocation(result) mustBe Some(frontendAppConfig.youMustContactHMRCUrl)

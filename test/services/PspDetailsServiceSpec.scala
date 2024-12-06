@@ -146,7 +146,7 @@ class PspDetailsServiceSpec
   "getJson" must {
 
     "return appropriate json for nonUk Partnership" in {
-      when(mockMinimalConnector.getMinimalPspDetails(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
+      when(mockMinimalConnector.getMinimalPspDetails()(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
       when(mockSubscriptionConnector.getSubscriptionDetails(any(), any()))
         .thenReturn(Future.successful(uaPartnershipNonUK))
 
@@ -167,7 +167,7 @@ class PspDetailsServiceSpec
     "return appropriate json for Individual" in {
       when(mockSubscriptionConnector.getSubscriptionDetails(any(), any()))
         .thenReturn(Future.successful(uaIndividualUK))
-      when(mockMinimalConnector.getMinimalPspDetails(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
+      when(mockMinimalConnector.getMinimalPspDetails()(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
 
       whenReady(service.getData(None, pspId)) { result =>
         val res = result
@@ -182,7 +182,7 @@ class PspDetailsServiceSpec
     "return appropriate json for Company" in {
       when(mockSubscriptionConnector.getSubscriptionDetails(any(), any()))
         .thenReturn(Future.successful(uaCompanyUk))
-      when(mockMinimalConnector.getMinimalPspDetails(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
+      when(mockMinimalConnector.getMinimalPspDetails()(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
       whenReady(service.getData(Some(UserAnswers(uaCompanyUk)), pspId)) { result =>
         val res = result
         res.pageTitle must include("Company")
@@ -196,7 +196,7 @@ class PspDetailsServiceSpec
     "have no return link if rls flag set in min details" in {
       when(mockSubscriptionConnector.getSubscriptionDetails(any(), any()))
         .thenReturn(Future.successful(uaIndividualUK))
-      when(mockMinimalConnector.getMinimalPspDetails(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = true)))
+      when(mockMinimalConnector.getMinimalPspDetails()(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = true)))
 
       whenReady(service.getData(None, pspId)) { result =>
         val res = result
@@ -215,7 +215,7 @@ class PspDetailsServiceSpec
     "return appropriate user answers for Individual" in {
       when(mockSubscriptionConnector.getSubscriptionDetails(any(), any()))
         .thenReturn(Future.successful(uaIndividualUK))
-      when(mockMinimalConnector.getMinimalPspDetails(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
+      when(mockMinimalConnector.getMinimalPspDetails()(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
 
       whenReady(service.getUserAnswers(None, pspId)) { result =>
         result mustBe
@@ -230,7 +230,7 @@ class PspDetailsServiceSpec
     "return appropriate user answers for Company" in {
       when(mockSubscriptionConnector.getSubscriptionDetails(any(), any()))
         .thenReturn(Future.successful(uaCompanyUk))
-      when(mockMinimalConnector.getMinimalPspDetails(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
+      when(mockMinimalConnector.getMinimalPspDetails()(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
       whenReady(service.getUserAnswers(None, pspId)) { result =>
         result mustBe
           UserAnswers(uaCompanyUk)
@@ -244,7 +244,7 @@ class PspDetailsServiceSpec
     "return appropriate user answers for Partnership" in {
       when(mockSubscriptionConnector.getSubscriptionDetails(any(), any()))
         .thenReturn(Future.successful(uaPartnershipNonUK))
-      when(mockMinimalConnector.getMinimalPspDetails(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
+      when(mockMinimalConnector.getMinimalPspDetails()(any(), any())).thenReturn(Future.successful(minPsp(rlsFlag = false)))
       whenReady(service.getUserAnswers(None, pspId)) { result =>
         result mustBe
           UserAnswers(uaPartnershipNonUK)
