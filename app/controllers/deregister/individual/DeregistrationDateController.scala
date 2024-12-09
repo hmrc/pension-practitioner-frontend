@@ -87,7 +87,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
               for {
                 updatedAnswers <- Future.fromTry(request.userAnswers.set(DeregistrationDatePage, value))
                 _ <- userAnswersCacheConnector.save(updatedAnswers.data)
-                _ <- deregistrationConnector.deregister(request.user.pspIdOrException, value)
+                _ <- deregistrationConnector.deregister(value)
                 _ <- Future(auditService.sendEvent(PSPDeregistration(pspId)))
                 _ <- enrolmentConnector.deEnrol(request.user.groupIdentifier, request.user.pspIdOrException, request.externalId)
                 _ <- sendEmail(email, pspId, pspName)
@@ -112,7 +112,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
     }
 
   private def getDate(implicit request: DataRequest[AnyContent]): Future[LocalDate] =
-    subscriptionConnector.getPspApplicationDate(request.user.pspIdOrException)
+    subscriptionConnector.getPspApplicationDate
 
   private def getDateString(date: LocalDate) = date.format(dateContentFormatter)
 

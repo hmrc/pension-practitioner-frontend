@@ -71,7 +71,7 @@ class DeclarationController @Inject()(
       implicit request =>
         DataRetrievals.retrievePspNameAndEmail { (pspName, email) =>
           for {
-            originalSubscriptionDetails <- getOriginalPspDetails(request.userAnswers, request.user.pspIdOrException)
+            originalSubscriptionDetails <- getOriginalPspDetails(request.userAnswers)
             pspId <- subscriptionConnector.subscribePsp(request.userAnswers, JourneyType.PSP_AMENDMENT)
             updatedAnswers <- Future.fromTry(request.userAnswers.set(PspIdPage, pspId))
             _ <- userAnswersCacheConnector.save(updatedAnswers.data)
@@ -85,8 +85,8 @@ class DeclarationController @Inject()(
           case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
         }
     }
-  private def getOriginalPspDetails(ua: UserAnswers, pspId: String)(implicit hc: HeaderCarrier): Future[JsValue] =
-    ua.get(UnchangedPspDetailsPage).fold(subscriptionConnector.getSubscriptionDetails(pspId))(Future.successful(_))
+  private def getOriginalPspDetails(ua: UserAnswers)(implicit hc: HeaderCarrier): Future[JsValue] =
+    ua.get(UnchangedPspDetailsPage).fold(subscriptionConnector.getSubscriptionDetails)(Future.successful(_))
 
   private def audit(
                      pspId: String,
