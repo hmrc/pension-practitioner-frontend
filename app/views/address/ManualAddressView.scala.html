@@ -14,6 +14,8 @@
  * limitations under the License.
  *@
 
+@import scala.collection.immutable.ArraySeq
+
 @this(
         layout: templates.Layout,
         formHelper: FormWithCSRF,
@@ -119,7 +121,7 @@
                 Select(
                     id = "country",
                     name = "country",
-                    items = countries.sortBy(_.value).map {c =>
+                    items = ArraySeq.unsafeWrapArray(countries).sortBy(_.value).map { c =>
                         SelectItem(
                             value = Some(c.value),
                             text = c.text,

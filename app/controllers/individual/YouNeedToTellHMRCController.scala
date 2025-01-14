@@ -25,7 +25,6 @@ import utils.annotations.AuthMustHaveNoEnrolmentWithIV
 import views.html.individual.YouNeedToTellHMRCView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class YouNeedToTellHMRCController @Inject()(override val messagesApi: MessagesApi,
                                             @AuthMustHaveNoEnrolmentWithIV authenticate: AuthAction,
@@ -34,7 +33,7 @@ class YouNeedToTellHMRCController @Inject()(override val messagesApi: MessagesAp
                                             val controllerComponents: MessagesControllerComponents,
                                             config: FrontendAppConfig,
                                             youNeedToTellHMRCView: YouNeedToTellHMRCView
-                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                           ) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData) {
     implicit request =>

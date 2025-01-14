@@ -28,8 +28,6 @@
 
 @(viewModel: CommonViewModelTwirl, form: Form[_])(implicit request: Request[_], messages: Messages)
 
-
-
 @layout(messages("email.title", messages(viewModel.entityType)), formHasErrors = form.hasErrors) {
 
     @formHelper(action = viewModel.submitUrl, Symbol("autoComplete") -> "off") {

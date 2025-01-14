@@ -33,7 +33,7 @@ import scala.util.Failure
 @ImplementedBy(classOf[MinimalConnectorImpl])
 trait MinimalConnector {
 
-  def getMinimalPspDetails(pspId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[MinimalPSP]
+  def getMinimalPspDetails()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[MinimalPSP]
 
 }
 
@@ -43,11 +43,11 @@ class MinimalConnectorImpl @Inject()(httpClientV2: HttpClientV2, config: Fronten
 
   private val logger = Logger(classOf[MinimalConnectorImpl])
 
-  override def getMinimalPspDetails(pspId: String)
+  override def getMinimalPspDetails()
                                    (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[MinimalPSP] = {
 
     val url = url"${config.minimalDetailsUrl}"
-    val headers = Seq("pspId" -> pspId)
+    val headers: Seq[(String, String)] = Seq(("loggedInAsPsp", "true"))
 
     httpClientV2.get(url)
       .setHeader(headers: _*)
@@ -56,7 +56,9 @@ class MinimalConnectorImpl @Inject()(httpClientV2: HttpClientV2, config: Fronten
           case OK =>
             Json.parse(response.body).validate[MinimalPSP] match {
               case JsSuccess(value, _) => value
-              case JsError(errors) => throw JsResultException(errors)
+              case JsError(errors) =>
+                logger.error(s"JSON validation failed: $errors, response body: ${response.body}")
+                throw JsResultException(errors)
             }
 
           case _ => handleErrorResponse("GET", config.minimalDetailsUrl)(response)

@@ -62,8 +62,7 @@ class EnrolmentConnectorImpl @Inject()(
       logExceptions(knownFacts)
 
   private def enrolmentRequest(enrolmentKey: String, knownFacts: KnownFacts
-                              )(implicit w: Writes[KnownFacts],
-                                hc: HeaderCarrier,
+                              )(implicit hc: HeaderCarrier,
                                 executionContext: ExecutionContext,
                                 request: DataRequest[AnyContent]): Future[HttpResponse] = {
     val url = url"""${config.taxEnrolmentsUrl.format("HMRC-PODSPP-ORG")}"""

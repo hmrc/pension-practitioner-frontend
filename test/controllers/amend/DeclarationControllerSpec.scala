@@ -112,7 +112,7 @@ class DeclarationControllerSpec
       val expectedJson = Json.obj(PspIdPage.toString -> pspId)
       val uaCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
-      when(mockSubscriptionConnector.getSubscriptionDetails(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
+      when(mockSubscriptionConnector.getSubscriptionDetails(any(), any())).thenReturn(Future.successful(Json.obj()))
       when(mockSubscriptionConnector.subscribePsp(uaCaptor.capture(), any())(any(), any())).thenReturn(Future.successful(pspId))
       when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
 

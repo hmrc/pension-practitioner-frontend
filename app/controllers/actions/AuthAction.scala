@@ -80,7 +80,7 @@ protected class AuthenticatedAuthAction(
 
         checkForBothEnrolments(id, request, enrolments).flatMap {
           case None =>
-            allowAccess(id,
+            allowAccess(
               affinityGroup,
               credentialRole,
               enrolments,
@@ -96,7 +96,6 @@ protected class AuthenticatedAuthAction(
   }
 
   protected def allowAccess[A](
-                                externalId: String,
                                 affinityGroup: AffinityGroup,
                                 role: CredentialRole,
                                 enrolments: Enrolments,
@@ -127,8 +126,8 @@ protected class AuthenticatedAuthAction(
                                                 block: AuthenticatedRequest[A] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
     authRequest.user.alreadyEnrolledPspId match {
       case None => block(authRequest)
-      case Some(pspId) =>
-        minimalConnector.getMinimalPspDetails(pspId).flatMap { minimalDetails =>
+      case Some(_) =>
+        minimalConnector.getMinimalPspDetails().flatMap { minimalDetails =>
           if (minimalDetails.deceasedFlag) {
             Future.successful(Redirect(config.youMustContactHMRCUrl))
           } else {
@@ -142,7 +141,7 @@ protected class AuthenticatedAuthAction(
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     (enrolments.getEnrolment("HMRC-PODS-ORG"), enrolments.getEnrolment("HMRC-PODSPP-ORG")) match {
       case (Some(_), Some(_)) =>
-        sessionDataCacheConnector.fetch(id).flatMap { optionJsValue =>
+        sessionDataCacheConnector.fetch().flatMap { optionJsValue =>
           optionJsValue.map(a => UserAnswers(a.as[JsObject])).flatMap(_.get(AdministratorOrPractitionerPage)) match {
             case None => Future.successful(Some(Redirect(config.administratorOrPractitionerUrl)))
             case Some(Administrator) =>

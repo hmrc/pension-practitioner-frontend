@@ -23,13 +23,12 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.NeedAnOrganisationAccountView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class NeedAnOrganisationAccountController @Inject()(
                                                      val controllerComponents: MessagesControllerComponents,
                                                      config: FrontendAppConfig,
                                                      needAnOrganisationAccountView: NeedAnOrganisationAccountView
-                                                   )(implicit ec: ExecutionContext)
+                                                   )
   extends FrontendBaseController
     with I18nSupport {
 

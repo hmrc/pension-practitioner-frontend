@@ -23,13 +23,12 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.AgentCannotRegisterView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class AgentCannotRegisterController @Inject()(
                                                val controllerComponents: MessagesControllerComponents,
                                                config: FrontendAppConfig,
                                                agentCannotRegisterView: AgentCannotRegisterView
-                                             )(implicit ec: ExecutionContext)
+                                             )
   extends FrontendBaseController
     with I18nSupport {
 

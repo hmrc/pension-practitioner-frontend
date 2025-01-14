@@ -43,7 +43,7 @@ trait AddressListController extends FrontendBaseController with Retrievals with 
   protected def form(implicit messages: Messages): Form[Int]
 
   def get(json: Form[Int] => JsObject, onSubmitCall: Call, manualUrl: String, twirlView: (CommonViewModelTwirl, Seq[RadioItem]) => Html)
-         (implicit request: DataRequest[AnyContent], ec: ExecutionContext, messages: Messages): Future[Result] = {
+         (implicit messages: Messages): Future[Result] = {
     val jsonValue: JsObject = json(form)
 
     val model = CommonViewModelTwirl(

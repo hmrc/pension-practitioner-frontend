@@ -24,28 +24,27 @@
 
 @(submitCall: Call, form: Form[String])(implicit request: Request[_], messages: Messages)
 
-@field = @{form("value")}
-
 @layout(messages("individual.phone.title")) {
 
     @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
+
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummary().withFormErrorsAsText(form))
         }
 
         @govukInput(
-            Input(
-                id = field.id,
-                name = field.name,
-                value = field.value,
-                inputType = "tel",
+            InputViewModel(
+                field = form("value"),
                 label = Label(
+                    content = Text(messages("individual.phone.title")),
                     isPageHeading = true,
-                    classes = "govuk-label--l",
-                    content = Text(messages("individual.phone.title"))
+                    classes = "govuk-label--l"
                 ),
-                hint = Some(Hint(content = Text(messages("individual.phone.hint")))),
-                errorMessage = field.error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args:_*))))
+                classes = "govuk-input--width-20",
+                inputType = "tel",
+                hint = Some(Hint(
+                    content = Text(messages("individual.phone.hint"))
+                ))
             )
         )
 

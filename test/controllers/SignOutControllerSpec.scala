@@ -59,7 +59,7 @@ class SignOutControllerSpec extends ControllerSpecBase with MockitoSugar with Js
   "SignOut Controller" must {
     "redirect and remove all items from mongo caches" in {
       when(mockUserAnswersCacheConnector.removeAll(any(), any())).thenReturn(Future.successful(Ok))
-      when(mockSessionDataCacheConnector.removeAll(any())(any(), any())).thenReturn(Future.successful(Ok))
+      when(mockSessionDataCacheConnector.removeAll()(any(), any())).thenReturn(Future.successful(Ok))
       when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any())).thenReturn(Future.successful(Some("id")))
       when(mockAppConfig.signOutUrl).thenReturn(signoutUrl)
 

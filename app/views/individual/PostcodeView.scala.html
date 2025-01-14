@@ -24,8 +24,6 @@
 
 @(submitCall: Call, enterManuallyUrl: String, form: Form[String])(implicit request: Request[_], messages: Messages)
 
-@field = @{form("value")}
-
 @layout(messages("individual.postcode.title"), formHasErrors = form.hasErrors) {
 
     @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {

@@ -55,18 +55,6 @@ class PspDetailsService @Inject()(
   val halfWidth: String = "govuk-!-width-one-half"
   val thirdWidth: String = "govuk-!-width-one-third"
 
-  private def returnUrlAndLink(name: Option[String], rlsFlag: Boolean)
-                              (implicit messages: Messages): JsObject = {
-    returnUrlAndLinkData(name, rlsFlag) match {
-      case Some((returnUrl, returnLink)) =>
-        Json.obj(
-          "returnUrl" -> returnUrl,
-          "returnLink" -> returnLink
-        )
-      case None => Json.obj()
-    }
-  }
-
   private def returnUrlAndLinkData(name: Option[String], rlsFlag: Boolean)
                               (implicit messages: Messages): Option[(String, String)] = {
     if(rlsFlag) None else {
@@ -80,7 +68,7 @@ class PspDetailsService @Inject()(
       ua =>
         ua.get(RegistrationDetailsPage).map {
           regInfo =>
-            minimalConnector.getMinimalPspDetails(pspId).map {
+            minimalConnector.getMinimalPspDetails().map {
               minDetails =>
                 val pspDetailsData = (name: Option[String]) => PspDetailsData(
                   _,
@@ -124,7 +112,7 @@ class PspDetailsService @Inject()(
         Future.successful(ua)
       case _ =>
         for {
-          pspDetails <- subscriptionConnector.getSubscriptionDetails(pspId)
+          pspDetails <- subscriptionConnector.getSubscriptionDetails
           ua1 <- Future.fromTry(uaWithUkAnswer(uaFromJsValue(pspDetails), pspId))
           ua2 <- Future.fromTry(ua1.set(SubscriptionTypePage, Variation).flatMap(_.set(UnchangedPspDetailsPage, pspDetails)))
           _ <- userAnswersCacheConnector.save(ua2.data)

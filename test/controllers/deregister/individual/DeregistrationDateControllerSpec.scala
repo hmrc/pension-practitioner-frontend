@@ -101,9 +101,9 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
     mutableFakeDataRetrievalAction.setDataToReturn(Some(UserAnswers()))
     when(mockEnrolmentConnector.deEnrol(any(), any(), any())(any(), any(), any()))
       .thenReturn(Future.successful(HttpResponse(OK, "")))
-    when(mockSubscriptionConnector.getPspApplicationDate(any())(any(), any()))
+    when(mockSubscriptionConnector.getPspApplicationDate(any(), any()))
       .thenReturn(Future.successful(LocalDate.parse("2020-02-01")))
-    when(mockDeregistrationConnector.deregister(any(), any())(any(), any()))
+    when(mockDeregistrationConnector.deregister(any())(any(), any()))
       .thenReturn(Future.successful(HttpResponse(OK, "")))
     when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(Json.obj()))
     doNothing().when(mockAuditService).sendEvent(any())(any(), any())
@@ -161,12 +161,6 @@ class DeregistrationDateControllerSpec extends ControllerSpecBase with MockitoSu
     "Save data to user answers, redirect to next page when valid data is submitted and send email, audit event and email audit event" in {
       val templateId = "dummyTemplateId"
       val pspId = "test psp id"
-
-      val expectedJson = Json.obj(
-        PspNamePage.toString -> name,
-        DeregistrationDatePage.toString -> "2020-04-03",
-        PspEmailPage.toString -> email
-      )
 
       mutableFakeDataRetrievalAction.setDataToReturn(Some(ua))
       when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(DeregistrationDatePage), any(), any())).thenReturn(dummyCall)

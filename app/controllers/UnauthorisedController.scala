@@ -22,12 +22,11 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.UnauthorisedView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class UnauthorisedController @Inject()(
                                         val controllerComponents: MessagesControllerComponents,
                                         unauthorisedView: UnauthorisedView
-                                      )(implicit ec: ExecutionContext)
+                                      )
   extends FrontendBaseController
     with I18nSupport {
 

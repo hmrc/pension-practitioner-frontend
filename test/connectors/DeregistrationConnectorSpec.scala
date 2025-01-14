@@ -39,8 +39,8 @@ class DeregistrationConnectorSpec
 
   private lazy val connector: DeregistrationConnector = injector.instanceOf[DeregistrationConnector]
   private val pspId: String = "12345678"
-  private val deregistrationUrl = s"/pension-practitioner/deregisterPsp/$pspId"
-  private val canDeregisterUrl = s"/pension-practitioner/can-deregister/$pspId"
+  private val deregistrationUrl = s"/pension-practitioner/deregisterPsp-self"
+  private val canDeregisterUrl = s"/pension-practitioner/can-deregister-self"
   private val date = LocalDate.parse("2020-01-01")
   private val validResponse = Json.obj(
     "processingDate" -> LocalDate.now,
@@ -67,7 +67,7 @@ class DeregistrationConnectorSpec
           )
       )
 
-      connector.deregister(pspId, date) map {
+      connector.deregister(date) map {
         response => response.status mustBe OK
       }
     }
@@ -83,7 +83,7 @@ class DeregistrationConnectorSpec
       )
 
       recoverToExceptionIf[BadRequestException] {
-        connector.deregister(pspId, date)
+        connector.deregister(date)
       } map {
         _.responseCode mustEqual Status.BAD_REQUEST
       }
@@ -100,7 +100,7 @@ class DeregistrationConnectorSpec
       )
 
       recoverToExceptionIf[NotFoundException] {
-        connector.deregister(pspId, date)
+        connector.deregister(date)
       } map {
         _.responseCode mustEqual Status.NOT_FOUND
       }
@@ -116,7 +116,7 @@ class DeregistrationConnectorSpec
           )
       )
 
-      recoverToExceptionIf[UpstreamErrorResponse](connector.deregister(pspId, date)) map {
+      recoverToExceptionIf[UpstreamErrorResponse](connector.deregister(date)) map {
         _.statusCode mustBe Status.INTERNAL_SERVER_ERROR
       }
     }
@@ -133,7 +133,7 @@ class DeregistrationConnectorSpec
           )
       )
 
-      connector.canDeRegister(pspId).map {
+      connector.canDeRegister.map {
         result =>
           result mustBe true
           server.findAll(getRequestedFor(urlEqualTo(canDeregisterUrl))).size() mustBe 1
@@ -151,7 +151,7 @@ class DeregistrationConnectorSpec
       )
 
       recoverToExceptionIf[BadRequestException] {
-        connector.canDeRegister(pspId)
+        connector.canDeRegister
       } map {
         _ =>
           server.findAll(getRequestedFor(urlEqualTo(canDeregisterUrl))).size() mustBe 1
@@ -168,7 +168,7 @@ class DeregistrationConnectorSpec
       )
 
       recoverToExceptionIf[BadRequestException] {
-        connector.canDeRegister(pspId)
+        connector.canDeRegister
       } map {
         _ =>
           server.findAll(getRequestedFor(urlEqualTo(canDeregisterUrl))).size() mustBe 1
@@ -183,7 +183,7 @@ class DeregistrationConnectorSpec
           )
       )
 
-      connector.canDeRegister(pspId).map {
+      connector.canDeRegister.map {
         result =>
           result mustBe true
           server.findAll(getRequestedFor(urlEqualTo(canDeregisterUrl))).size() mustBe 1
@@ -199,7 +199,7 @@ class DeregistrationConnectorSpec
       )
 
       recoverToExceptionIf[UpstreamErrorResponse] {
-        connector.canDeRegister(pspId)
+        connector.canDeRegister
       } map {
         _ =>
           server.findAll(getRequestedFor(urlEqualTo(canDeregisterUrl))).size() mustBe 1
@@ -215,7 +215,7 @@ class DeregistrationConnectorSpec
       )
 
       recoverToExceptionIf[Exception] {
-        connector.canDeRegister(pspId)
+        connector.canDeRegister
       } map {
         _ =>
           server.findAll(getRequestedFor(urlEqualTo(canDeregisterUrl))).size() mustBe 1

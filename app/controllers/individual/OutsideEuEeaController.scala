@@ -27,7 +27,7 @@ import utils.countryOptions.CountryOptions
 import views.html.individual.OutsideEuEeaView
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class OutsideEuEeaController @Inject()(
                                            override val messagesApi: MessagesApi,
@@ -36,7 +36,7 @@ class OutsideEuEeaController @Inject()(
                                            val controllerComponents: MessagesControllerComponents,
                                            countryOptions: CountryOptions,
                                            outsideEuEeaView: OutsideEuEeaView
-                                         )(implicit ec: ExecutionContext) extends FrontendBaseController
+                                         ) extends FrontendBaseController
                                            with I18nSupport with Retrievals {
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
