@@ -28,7 +28,7 @@ This service is written in Scala and Play, so needs at least a [JRE] to run.
 
 **Node version:** 16.20.2
 
-**Java version:** 11
+**Java version:** 21
 
 **Scala version:** 2.13.14
 
@@ -37,8 +37,6 @@ This service is written in Scala and Play, so needs at least a [JRE] to run.
 **Service Manager Profile:** PODS_ALL
 
 **Port:** 8208
-
-**Link:** http://localhost:8208/pension-scheme-practitioner/practitioner-details
 
 
 In order to run the service, ensure Service Manager is installed (see [MDTP guidance](https://docs.tax.service.gov.uk/mdtp-handbook/documentation/developer-set-up/set-up-service-manager.html) if needed) and launch the relevant configuration by typing into the terminal:
