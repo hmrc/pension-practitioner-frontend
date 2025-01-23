@@ -22,7 +22,6 @@ import connectors.cache.UserAnswersCacheConnector
 import connectors.{MinimalConnector, SessionDataCacheConnector}
 import models.WhatTypeBusiness.Companyorpartnership
 import models.{AdministratorOrPractitioner, MinimalPSP, UserAnswers}
-import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach

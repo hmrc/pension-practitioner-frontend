@@ -23,7 +23,7 @@ import connectors.{MinimalConnector, SubscriptionConnector}
 import models.SubscriptionType.Variation
 import models.register.TolerantIndividual
 import models.{Address, CheckMode, MinimalPSP, UserAnswers}
-import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
