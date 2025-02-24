@@ -105,8 +105,8 @@
 
 
 
-    @if(countries.size > 0){
-        @if(isUkHintText == true){
+    @if(countries.length > 0){
+        @if(isUkHintText){
             <p class="govuk-body">@messages("error.country.invalid.uk")</p>
             <p class="govuk-body">
                 @messages("nonUKPractitioner.p2.1")
@@ -125,7 +125,7 @@
                         SelectItem(
                             value = Some(c.value),
                             text = c.text,
-                            selected = Some(c.value) == form.data.get("country")
+                            selected = form.data.get("country").contains(c.value)
                             )
                         },
                     classes = "autocomplete",
