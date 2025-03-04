@@ -601,7 +601,7 @@ outsideEuEea.p2 = Only people based inside the European Union and European Econo
 nonUKPractitioner.title            = You cannot register as a scheme practitioner
 nonUKPractitioner.heading          = You cannot register as a scheme practitioner
 nonUKPractitioner.p1               = You must be a UK resident.
-nonUKPractitioner.p2.1             = To register, email
+nonUKPractitioner.p2.1             = Please email
 nonUKPractitioner.p2.email         = administrationpensions@hmrc.gov.uk
 nonUKPractitioner.p2.emailHref     = administrationpensions@hmrc.gov.uk?subject=Non-UK
 nonUKPractitioner.p2.2             = and include ‘Non-UK’ in the title.
