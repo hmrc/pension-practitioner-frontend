@@ -32,17 +32,21 @@ import views.html.company.IsCompanyRegisteredInUkView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-class IsCompanyRegisteredInUkController @Inject()(override val messagesApi: MessagesApi,
-                                                  userAnswersCacheConnector: UserAnswersCacheConnector,
-                                                  navigator: CompoundNavigator,
-                                                  @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
-                                                  getData: DataRetrievalAction,
-                                                  requireData: DataRequiredAction,
-                                                  formProvider: IsCompanyRegisteredInUkFormProvider,
-                                                  val controllerComponents: MessagesControllerComponents,
-                                                  isCompanyRegisteredInUkView: IsCompanyRegisteredInUkView
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with
-  I18nSupport with Retrievals {
+class IsCompanyRegisteredInUkController @Inject()(
+                                                   override val messagesApi: MessagesApi,
+                                                   userAnswersCacheConnector: UserAnswersCacheConnector,
+                                                   navigator: CompoundNavigator,
+                                                   @AuthMustHaveNoEnrolmentWithNoIV authenticate: AuthAction,
+                                                   getData: DataRetrievalAction,
+                                                   requireData: DataRequiredAction,
+                                                   formProvider: IsCompanyRegisteredInUkFormProvider,
+                                                   val controllerComponents: MessagesControllerComponents,
+                                                   isCompanyRegisteredInUkView: IsCompanyRegisteredInUkView
+                                                 )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
+    with I18nSupport
+    with Retrievals{
+
 
   private val form = formProvider()
 

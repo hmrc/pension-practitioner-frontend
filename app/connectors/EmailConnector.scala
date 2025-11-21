@@ -78,7 +78,7 @@ class EmailConnector @Inject()(
             logger.warn(s"Sending Email failed for $journeyType with response status $status")
             EmailNotSent
         }
-      } recoverWith logExceptions
+      }.recoverWith (logExceptions)
 
   }
 

@@ -19,7 +19,7 @@
     govukButton: GovukButton
 )
 
-@(companiesHouseUrl: String, hmrcUrl: String, hmrcTaxHelplineUrl: String, enterDetailsUrl: String)(implicit request: Request[_], messages: Messages)
+@(companiesHouseUrl: String, hmrcUrl: String, hmrcTaxHelplineUrl: String, enterDetailsUrl: String)(implicit request: Request[?], messages: Messages)
 
 @layout(
     pageTitle    = messages("businessDetailsNotFound.title")

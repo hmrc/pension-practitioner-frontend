@@ -22,7 +22,7 @@
     govukButton: GovukButton
 )
 
-@(submitCall: Call, form: Form[Boolean], radios: Seq[RadioItem])(implicit request: Request[_], messages: Messages)
+@(submitCall: Call, form: Form[Boolean], radios: Seq[RadioItem])(implicit request: Request[?], messages: Messages)
 
 @field = @{form("value")}
 
@@ -41,7 +41,7 @@
             Radios(
                 name = field.name,
                 items = radios,
-                errorMessage = field.error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args:_*)))),
+                errorMessage = field.error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args*)))),
                 classes = "govuk-radios--inline"
             )
         )

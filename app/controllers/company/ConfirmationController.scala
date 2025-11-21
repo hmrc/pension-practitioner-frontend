@@ -42,7 +42,7 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      (BusinessNamePage and CompanyEmailPage and PspIdPage).retrieve.map {
+      (BusinessNamePage.and(CompanyEmailPage).and(PspIdPage)).retrieve.map {
         case name ~ email ~ pspid =>
           val commonViewModel = CommonViewModel("company.capitalised", name, controllers.routes.SignOutController.signOut().url)
 

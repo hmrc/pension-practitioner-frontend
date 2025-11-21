@@ -40,7 +40,7 @@ case class TolerantAddress(
       this.addressLine4,
       this.postcode,
       countryOptions.getCountryNameFromCode(this)
-    ).flatten(s => s)
+    ).flatten
   }
 
   def print(countryOptions: CountryOptions): String = {
@@ -156,7 +156,7 @@ object TolerantAddress {
           (addresses, currentAddress) => {
             for {
               sequenceOfAddressess <- addresses
-              address <- currentAddress.validate[TolerantAddress](postCodeLookupAddressReads)
+              address <- currentAddress.validate[TolerantAddress](using postCodeLookupAddressReads)
             } yield sequenceOfAddressess :+ address
           }
         }

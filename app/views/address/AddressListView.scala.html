@@ -24,7 +24,7 @@
         govukButton: GovukButton
 )
 
-@(form: Form[Int], radios: Seq[RadioItem], model: CommonViewModelTwirl)(implicit request: Request[_], messages: Messages)
+@(form: Form[Int], radios: Seq[RadioItem], model: CommonViewModelTwirl)(implicit request: Request[?], messages: Messages)
 
 
 @layout(messages("addressList.title", messages(model.entityType)), formHasErrors = form.hasErrors) {

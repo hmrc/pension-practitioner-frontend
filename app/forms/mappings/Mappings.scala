@@ -25,10 +25,10 @@ import java.time.LocalDate
 trait Mappings extends Formatters with Constraints with Transforms {
 
   protected def optionalText(): FieldMapping[Option[String]] =
-    of(optionalStringFormatter)
+    of(using optionalStringFormatter)
 
   protected def text(errorKey: String = "error.required"): FieldMapping[String] =
-    of(stringFormatter(errorKey))
+    of(using stringFormatter(errorKey))
 
   protected def int(requiredKey: String = "error.required",
                     wholeNumberKey: String = "error.wholeNumber",
@@ -36,21 +36,21 @@ trait Mappings extends Formatters with Constraints with Transforms {
                     min: Option[(String, Int)] = None,
                     max: Option[(String, Int)] = None
                    ): FieldMapping[Int] =
-    of(intFormatter(requiredKey, wholeNumberKey, nonNumericKey, min, max))
+    of(using intFormatter(requiredKey, wholeNumberKey, nonNumericKey, min, max))
 
   protected def bigDecimal(requiredKey: String = "error.required",
                            invalidKey: String = "error.invalid"
                           ): FieldMapping[BigDecimal] =
-    of(bigDecimalFormatter(requiredKey, invalidKey))
+    of(using bigDecimalFormatter(requiredKey, invalidKey))
 
   protected def boolean(requiredKey: String = "error.required",
                         invalidKey: String = "error.boolean"): FieldMapping[Boolean] =
-    of(booleanFormatter(requiredKey, invalidKey))
+    of(using booleanFormatter(requiredKey, invalidKey))
 
 
   protected def enumerable[A](requiredKey: String = "error.required",
                               invalidKey: String = "error.invalid")(implicit ev: Enumerable[A]): FieldMapping[A] =
-    of(enumerableFormatter[A](requiredKey, invalidKey))
+    of(using enumerableFormatter[A](requiredKey, invalidKey)(using ev))
 
   protected def localDate(invalidKey: String,
                           allRequiredKey: String,
@@ -58,5 +58,5 @@ trait Mappings extends Formatters with Constraints with Transforms {
                           oneRequiredKey: String,
                           requiredKey: String,
                           args: Seq[String] = Seq.empty): FieldMapping[LocalDate] =
-    of(new LocalDateFormatter(invalidKey, allRequiredKey, twoRequiredKey,oneRequiredKey, requiredKey, args))
+    of(using new LocalDateFormatter(invalidKey, allRequiredKey, twoRequiredKey, oneRequiredKey, requiredKey, args))
 }

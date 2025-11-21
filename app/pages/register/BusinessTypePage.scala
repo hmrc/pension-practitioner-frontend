@@ -32,7 +32,7 @@ case object BusinessTypePage extends QuestionPage[BusinessType] {
   override def toString: String = "businessType"
 
   private val pagesNotToRemove =
-    Set[Gettable[_]](AreYouUKCompanyPage, BusinessTypePage)
+    Set[Gettable[?]](AreYouUKCompanyPage, BusinessTypePage)
 
   override def cleanup(value: Option[BusinessType],
                        userAnswers: UserAnswers): Try[UserAnswers] = {

@@ -44,8 +44,10 @@ class IsPartnershipRegisteredInUkController @Inject()(override val messagesApi: 
                                       val controllerComponents: MessagesControllerComponents,
                                       config: FrontendAppConfig,
                                       isPartnershipRegisteredInUkView: IsPartnershipRegisteredInUkView
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with
-  I18nSupport with Retrievals {
+                                                     )(implicit ec: ExecutionContext)
+  extends FrontendBaseController
+    with I18nSupport
+    with Retrievals{
 
   private val form = formProvider()
 

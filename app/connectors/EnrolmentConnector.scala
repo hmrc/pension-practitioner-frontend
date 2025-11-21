@@ -106,7 +106,7 @@ class EnrolmentConnectorImpl @Inject()(
 
     httpClientV2.delete(deEnrolmentUrl)
     .execute[HttpResponse] flatMap {
-      case response if response.status equals NO_CONTENT =>
+      case response if response.status.equals (NO_CONTENT) =>
         auditService.sendEvent(PSPDeenrolment(userId, pspId))
         Future.successful(response)
       case response =>

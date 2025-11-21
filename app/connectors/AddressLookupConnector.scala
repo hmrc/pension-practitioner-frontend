@@ -25,6 +25,7 @@ import play.api.libs.json.{Json, Reads}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpException, HttpResponse, StringContextOps}
+import play.api.libs.ws.WSBodyWritables.writeableOf_JsValue
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -41,7 +42,7 @@ class AddressLookupConnector @Inject()(httpClientV2: HttpClientV2, config: Front
 
     httpClientV2.post(addressLookupUrl)
       .withBody(lookupAddressByPostcode)
-      .setHeader(headers: _*)
+      .setHeader(headers*)
       .execute[HttpResponse].map { response =>
         response.status match {
           case OK =>

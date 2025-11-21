@@ -43,15 +43,15 @@ class FrontendErrorHandler @Inject()(
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)
                                     (implicit request: RequestHeader): Future[Html] = {
-    def requestImplicit: Request[_] = Request(request, "")
+    def requestImplicit: Request[?] = Request(request, "")
 
     def messages: Messages = messagesApi.preferred(request)
-    Future.successful(errorTemplate(pageTitle, heading, Some(message))(requestImplicit, messages))
+    Future.successful(errorTemplate(pageTitle, heading, Some(message))(using requestImplicit, messages))
   }
 
   override def onClientError(request: RequestHeader, statusCode: Int, message: String = ""): Future[Result] = {
 
-    implicit def requestImplicit: Request[_] = Request(request, "")
+    implicit def requestImplicit: Request[?] = Request(request, "")
 
     statusCode match {
       case BAD_REQUEST =>
@@ -64,7 +64,7 @@ class FrontendErrorHandler @Inject()(
 
   override def onServerError(request: RequestHeader, exception: Throwable): Future[Result] = {
 
-    implicit def requestImplicit: Request[_] = Request(request, "")
+    implicit def requestImplicit: Request[?] = Request(request, "")
 
     logError(request, exception)
     exception match {

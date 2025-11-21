@@ -24,7 +24,7 @@
 )
 
 
-@(entityName: String, form: Form[Boolean], submitUrl: Call, pspName: String, address: Seq[String], radios: Seq[RadioItem])(implicit request: Request[_], messages: Messages)
+@(entityName: String, form: Form[Boolean], submitUrl: Call, pspName: String, address: Seq[String], radios: Seq[RadioItem])(implicit request: Request[?], messages: Messages)
 
 @field = @{form("value")}
 
@@ -56,7 +56,7 @@
                     """)
                 )),
             items = radios,
-            errorMessage = field.error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args:_*))))
+            errorMessage = field.error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args*))))
         )
     )
 

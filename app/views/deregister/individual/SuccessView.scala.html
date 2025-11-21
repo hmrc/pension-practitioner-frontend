@@ -21,7 +21,7 @@ govukErrorSummary: GovukErrorSummary,
 govukPanel: GovukPanel
 )
 
-@(submitUrl: String)(implicit request: Request[_], messages: Messages)
+@(submitUrl: String)(implicit request: Request[?], messages: Messages)
 
 @layout(messages("deregistrationSuccess.individual.title"), showBackLink = false) {
 

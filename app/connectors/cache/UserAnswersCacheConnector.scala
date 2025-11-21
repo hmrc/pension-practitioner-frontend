@@ -39,7 +39,7 @@ class UserAnswersCacheConnectorImpl @Inject()(
                      headerCarrier: HeaderCarrier): Future[Option[JsValue]] = {
     val headers: Seq[(String, String)] = Seq(("Content-Type", "application/json"))
     httpClientV2.get(url)
-      .setHeader(headers: _*)
+      .setHeader(headers*)
       .execute[HttpResponse] map { response =>
       response.status match {
         case NOT_FOUND =>
@@ -57,7 +57,7 @@ class UserAnswersCacheConnectorImpl @Inject()(
     val headers: Seq[(String, String)] = Seq(("Content-Type", "application/json"))
     httpClientV2.post(url)
       .withBody(value)
-      .setHeader(headers: _*)
+      .setHeader(headers*)
       .execute[HttpResponse] map { response =>
       response.status match {
         case CREATED =>
@@ -71,7 +71,7 @@ class UserAnswersCacheConnectorImpl @Inject()(
   override def removeAll(implicit ec: ExecutionContext, headerCarrier: HeaderCarrier): Future[Result] = {
     val headers: Seq[(String, String)] = Seq(("Content-Type", "application/json"))
     httpClientV2.delete(url)
-      .setHeader(headers: _*)
+      .setHeader(headers*)
       .execute[HttpResponse] map { _ =>
       Ok
     }

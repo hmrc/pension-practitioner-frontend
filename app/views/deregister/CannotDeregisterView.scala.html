@@ -21,7 +21,7 @@ govukErrorSummary: GovukErrorSummary,
 govukPanel: GovukPanel
 )
 
-@(returnUrl: String)(implicit request: Request[_], messages: Messages)
+@(returnUrl: String)(implicit request: Request[?], messages: Messages)
 
 @layout(messages("cannotDeregister.title")) {
 

@@ -19,9 +19,15 @@ package models.register
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{Format, JsPath}
 
-case class TolerantIndividual(firstName: Option[String], middleName: Option[String], lastName: Option[String]) {
-  def fullName: String = Seq(firstName, middleName, lastName).flatten(s => s).mkString(" ")
+case class TolerantIndividual(
+                               firstName: Option[String],
+                               middleName: Option[String],
+                               lastName: Option[String]
+                             ) {
+  def fullName: String =
+    Seq(firstName, middleName, lastName).flatten.mkString(" ")
 }
+
 
 object TolerantIndividual {
 

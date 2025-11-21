@@ -133,15 +133,15 @@ trait ManualAddressController
         Json.obj(
           "postcodeFirst" -> true,
           "postcodeEntry" -> true,
-          "countries" -> jsonCountries(form.data.get("country"), config)(messages)
+          "countries" -> jsonCountries(form.data.get("country"), config)(using messages)
         )
       case AddressConfiguration.CountryFirst =>
         Json.obj(
           "postcodeEntry" -> true,
-          "countries" -> jsonCountries(form.data.get("country"), config)(messages)
+          "countries" -> jsonCountries(form.data.get("country"), config)(using messages)
         )
       case AddressConfiguration.CountryOnly =>
-        Json.obj("countries" -> jsonCountries(form.data.get("country"), config)(messages))
+        Json.obj("countries" -> jsonCountries(form.data.get("country"), config)(using messages))
       case _ => Json.obj()
     }
 

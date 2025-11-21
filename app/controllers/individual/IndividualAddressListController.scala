@@ -58,7 +58,7 @@ class IndividualAddressListController @Inject()(override val messagesApi: Messag
         getFormToJson(mode).retrieve.map(
           get(_,routes.IndividualAddressListController.onSubmit(mode),
             routes.IndividualContactAddressController.onSubmit(mode).url,
-            (model: CommonViewModelTwirl, radios: Seq[RadioItem]) => addressListView(model, form, radios)(implicitly, implicitly))
+            (model: CommonViewModelTwirl, radios: Seq[RadioItem]) => addressListView(model, form, radios))
         )
     }
 
@@ -72,14 +72,14 @@ class IndividualAddressListController @Inject()(override val messagesApi: Messag
             manualUrlCall = routes.IndividualContactAddressController.onPageLoad(mode),
             routes.IndividualAddressListController.onSubmit(mode),
             (model: CommonViewModelTwirl, radios: Seq[RadioItem], formWithErrors: Form[Int]) => addressListView(model,
-              formWithErrors, radios)(implicitly, implicitly))
+              formWithErrors, radios)
         )
 }
 
   private def getFormToJson(mode: Mode): Retrieval[Form[Int] => JsObject] =
     Retrieval(
       implicit request =>
-        (IndividualDetailsPage and IndividualPostcodePage).retrieve.map {
+        (IndividualDetailsPage.and(IndividualPostcodePage)).retrieve.map {
           case individualName ~ addresses =>
           form =>
             Json.obj(

@@ -19,7 +19,7 @@
 )
 
 
-@(pageTitle: String, heading: String, message: Option[String])(implicit request: Request[_], messages: Messages)
+@(pageTitle: String, heading: String, message: Option[String])(implicit request: Request[?], messages: Messages)
 
 @layout(messages(pageTitle)) {
     <h1 class="govuk-heading-l">@messages(heading)</h1>

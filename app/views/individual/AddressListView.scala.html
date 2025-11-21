@@ -24,7 +24,7 @@
         govukRadios: GovukRadios
 )
 
-@(viewModel: CommonViewModelTwirl, form: Form[_], addresses: Seq[RadioItem])(implicit request: Request[_], messages: Messages)
+@(viewModel: CommonViewModelTwirl, form: Form[?], addresses: Seq[RadioItem])(implicit request: Request[?], messages: Messages)
 
 
 @layout(messages("individual.addressList.title"), formHasErrors = form.hasErrors) {

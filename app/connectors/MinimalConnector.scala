@@ -50,7 +50,7 @@ class MinimalConnectorImpl @Inject()(httpClientV2: HttpClientV2, config: Fronten
     val headers: Seq[(String, String)] = Seq(("loggedInAsPsp", "true"))
 
     httpClientV2.get(url)
-      .setHeader(headers: _*)
+      .setHeader(headers*)
       .execute[HttpResponse].map { response =>
         response.status match {
           case OK =>

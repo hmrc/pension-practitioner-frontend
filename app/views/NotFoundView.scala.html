@@ -19,7 +19,7 @@
         govukButton: GovukButton
 )
 
-@(yourPensionSchemesUrl: String)(implicit request: Request[_], messages: Messages)
+@(yourPensionSchemesUrl: String)(implicit request: Request[?], messages: Messages)
 
 @layout(messages("needAnOrganisationAccount.title")) {
     <h1 class="govuk-heading-l">@messages("pageNotFound404.heading")</h1>

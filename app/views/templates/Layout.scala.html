@@ -41,7 +41,7 @@
     fullWidthLayout: Boolean = false,
     formHasErrors: Boolean = false,
     includeAutoLocation: Boolean = false
-)(mainContent: Html)(implicit request: Request[_], messages: Messages)
+)(mainContent: Html)(implicit request: Request[?], messages: Messages)
 
 @headScripts = {
     @if(includeAutoLocation) {

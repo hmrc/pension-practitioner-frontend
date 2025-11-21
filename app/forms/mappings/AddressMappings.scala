@@ -82,7 +82,7 @@ trait AddressMappings extends Mappings with Constraints with Transforms {
 
   protected def optionalPostcode(requiredKey: Option[String],
     invalidKey: String, nonUkLengthKey: String, countryFieldName: String): FieldMapping[Option[String]] =
-    of(optionalPostcodeFormatter(requiredKey, invalidKey, nonUkLengthKey, countryFieldName))
+    of(using optionalPostcodeFormatter(requiredKey, invalidKey, nonUkLengthKey, countryFieldName))
 
 
   def countryMapping(countryOptions: CountryOptions, keyRequired: String, keyInvalid: String): Mapping[String] = {

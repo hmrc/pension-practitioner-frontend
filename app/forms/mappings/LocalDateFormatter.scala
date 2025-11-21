@@ -82,10 +82,10 @@ private[mappings] class LocalDateFormatter(
       .map(_._1)
       .toList
 
-   val missingCase= Left(missingFields.flatMap {
-      field =>
-        List(FormError(errorKeyChange(key,Seq(field)), oneRequiredKey, Seq(field)))
-    })
+     val missingCase= Left(missingFields.flatMap {
+        field =>
+          List(FormError(errorKeyChange(key,Seq(field)), oneRequiredKey, Seq(field)))
+      })
 
     fields.count(_._2.isDefined) match {
       case 3 =>

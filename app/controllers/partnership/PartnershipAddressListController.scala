@@ -59,7 +59,7 @@ class PartnershipAddressListController @Inject()(override val messagesApi: Messa
         getFormToJson(mode).retrieve.map(x => get(x,
           routes.PartnershipAddressListController.onSubmit(mode),
           routes.PartnershipContactAddressController.onPageLoad(mode).url,
-          (model: CommonViewModelTwirl, radios: Seq[RadioItem]) => addressListView(form, radios, model)(implicitly, implicitly))
+          (model: CommonViewModelTwirl, radios: Seq[RadioItem]) => addressListView(form, radios, model)
       )
     }
 
@@ -74,7 +74,7 @@ class PartnershipAddressListController @Inject()(override val messagesApi: Messa
             addressPages,
             manualUrlCall = routes.PartnershipContactAddressController.onPageLoad(mode),
             routes.PartnershipAddressListController.onSubmit(mode),
-            (model: CommonViewModelTwirl, radios: Seq[RadioItem], formWithErrors: Form[Int]) => addressListView(formWithErrors, radios, model)(implicitly, implicitly)
+            (model: CommonViewModelTwirl, radios: Seq[RadioItem], formWithErrors: Form[Int]) => addressListView(formWithErrors, radios, model)
           )
         )
     }
@@ -82,7 +82,7 @@ class PartnershipAddressListController @Inject()(override val messagesApi: Messa
   def getFormToJson(mode: Mode): Retrieval[Form[Int] => JsObject] =
     Retrieval(
       implicit request =>
-      (BusinessNamePage and PartnershipPostcodePage).retrieve.map {
+      (BusinessNamePage.and(PartnershipPostcodePage)).retrieve.map {
         case partnershipName ~ addresses =>
           form => Json.obj(
             "addresses" -> transformAddressesForTemplate(addresses, countryOptions),

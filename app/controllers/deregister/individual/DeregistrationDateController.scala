@@ -75,7 +75,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
     implicit request =>
       val pspId = request.user.pspIdOrException
       getDate.flatMap { date =>
-        (PspNamePage and PspEmailPage).retrieve.map { case pspName ~ email =>
+        (PspNamePage.and(PspEmailPage).retrieve.map { case pspName ~ email =>
           form(date).bindFromRequest().fold(
             formWithErrors => {
               Future.successful(BadRequest(deregistrationDateView(routes.DeregistrationDateController.onSubmit(),
@@ -98,7 +98,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
   }
 
   private def sendEmail(email: String, pspId: String, pspName: String)
-    (implicit request: DataRequest[_], hc: HeaderCarrier ): Future[EmailStatus] =
+    (implicit request: DataRequest[?], hc: HeaderCarrier ): Future[EmailStatus] =
     emailConnector.sendEmail(
       requestId = hc.requestId .map(_.value) .getOrElse(request.headers.get("X-Session-ID").getOrElse("")),
       pspId,

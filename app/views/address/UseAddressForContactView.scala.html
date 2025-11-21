@@ -22,7 +22,7 @@
         govukButton: GovukButton
 )
 
-@(submitCall: Call, form: Form[Boolean], radios: Seq[RadioItem], entityType: String, entityName: String, address: Seq[String])(implicit request: Request[_], messages: Messages)
+@(submitCall: Call, form: Form[Boolean], radios: Seq[RadioItem], entityType: String, entityName: String, address: Seq[String])(implicit request: Request[?], messages: Messages)
 
 @layout(messages("useAddressForContact.title", messages(entityType)), formHasErrors = form.hasErrors) {
     @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
@@ -45,24 +45,26 @@
             ),
             hint = Some(Hint(
                 content = HtmlContent {
-                    val conditionalMessage = messages("entity") match {
-                        case "Partnership" | "Company" =>
-                            s"<p class='govuk-body'>${Messages("useAddressForContact.confirm.text")}</p>"
-                        case _ => ""
-                }
+                    val conditionalMessage =
+                        messages("entity") match {
+                            case "Partnership" | "Company" =>
+                                s"<p class='govuk-body'>${Messages("useAddressForContact.confirm.text")}</p>"
+                            case _ => ""
+                        }
 
-                val addressContent = address.map(item => s"<span class='govuk-!-display-block'>$item</span>").mkString
+                    val addressContent =
+                        address.map(item => s"<span class='govuk-!-display-block'>$item</span>").mkString
 
-                s"""
-                    $conditionalMessage
-                    <p class='govuk-body'>$addressContent</p>
+                    s"""
+                        $conditionalMessage
+                        <p class='govuk-body'>$addressContent</p>
                     """
                 }
             )),
             items = radios.map { radio =>
                 radio.copy(checked = form("value").value.contains(radio.value.getOrElse("")))
             },
-            errorMessage = form("value").error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args:_*))))
+            errorMessage = form("value").error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args*))))
         )
     )
 

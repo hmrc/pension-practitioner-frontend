@@ -21,7 +21,7 @@ import pages.register.{AreYouUKCompanyPage, BusinessRegistrationTypePage, Busine
 import queries.Gettable
 
 object PageConstants {
-  def pagesFullJourneyIndividualUK: Set[Gettable[_]] = Set[Gettable[_]](
+  def pagesFullJourneyIndividualUK: Set[Gettable[?]] = Set[Gettable[?]](
     AreYouUKResidentPage,
     IsThisYouPage,
     RegistrationInfoPage,
@@ -34,7 +34,7 @@ object PageConstants {
     pages.individual.IndividualPhonePage
   )
 
-  def pagesFullJourneyIndividualNonUK: Set[Gettable[_]] = Set[Gettable[_]](
+  def pagesFullJourneyIndividualNonUK: Set[Gettable[?]] = Set[Gettable[?]](
     AreYouUKResidentPage,
     IndividualDetailsPage,
     IndividualAddressPage,
@@ -46,7 +46,7 @@ object PageConstants {
     pages.individual.IndividualPhonePage
   )
 
-  def pagesFullJourneyCompanyUK: Set[Gettable[_]] = Set[Gettable[_]](
+  def pagesFullJourneyCompanyUK: Set[Gettable[?]] = Set[Gettable[?]](
     AreYouUKCompanyPage,
     BusinessTypePage,
     pages.company.BusinessUTRPage,
@@ -62,7 +62,7 @@ object PageConstants {
     pages.company.CompanyPhonePage
   )
 
-  def pagesFullJourneyCompanyNonUK: Set[Gettable[_]] = Set[Gettable[_]](
+  def pagesFullJourneyCompanyNonUK: Set[Gettable[?]] = Set[Gettable[?]](
     AreYouUKCompanyPage,
     BusinessRegistrationTypePage,
     pages.company.BusinessNamePage,
@@ -74,7 +74,7 @@ object PageConstants {
     pages.company.CompanyPhonePage
   )
 
-  def pagesFullJourneyPartnershipUK: Set[Gettable[_]] = Set[Gettable[_]](
+  def pagesFullJourneyPartnershipUK: Set[Gettable[?]] = Set[Gettable[?]](
     AreYouUKCompanyPage,
     BusinessTypePage,
     pages.partnership.BusinessUTRPage,
@@ -90,7 +90,7 @@ object PageConstants {
     pages.partnership.PartnershipPhonePage
   )
 
-  def pagesFullJourneyPartnershipNonUK: Set[Gettable[_]] = Set[Gettable[_]](
+  def pagesFullJourneyPartnershipNonUK: Set[Gettable[?]] = Set[Gettable[?]](
     AreYouUKCompanyPage,
     BusinessRegistrationTypePage,
     pages.partnership.BusinessNamePage,
@@ -102,17 +102,17 @@ object PageConstants {
     pages.partnership.PartnershipPhonePage
   )
 
-  def pagesFullJourneyCompanyAndPartnership: Set[Gettable[_]] =
+  def pagesFullJourneyCompanyAndPartnership: Set[Gettable[?]] =
     pagesFullJourneyCompanyUK ++
       pagesFullJourneyCompanyNonUK ++
       pagesFullJourneyPartnershipUK ++
       pagesFullJourneyPartnershipNonUK
 
-  def pagesFullJourneyIndividual: Set[Gettable[_]] =
+  def pagesFullJourneyIndividual: Set[Gettable[?]] =
     pagesFullJourneyIndividualUK ++
     pagesFullJourneyIndividualNonUK
 
-  def pagesFullJourneyAll: Set[Gettable[_]] =
+  def pagesFullJourneyAll: Set[Gettable[?]] =
     pagesFullJourneyCompanyUK ++
     pagesFullJourneyCompanyNonUK ++
     pagesFullJourneyPartnershipUK ++

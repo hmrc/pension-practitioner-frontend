@@ -26,7 +26,7 @@
 )
 
 
-@(pageTitle: String, H1: String, postcodeEntry: Boolean, postcodeFirst: Boolean, countries: Array[models.Country], submitUrl: Call, form: Form[_], isUkHintText: Boolean)(implicit request: Request[_], messages: Messages)
+@(pageTitle: String, H1: String, postcodeEntry: Boolean, postcodeFirst: Boolean, countries: Array[models.Country], submitUrl: Call, form: Form[?], isUkHintText: Boolean)(implicit request: Request[?], messages: Messages)
 
 
 @layout(pageTitle, formHasErrors = form.hasErrors, includeAutoLocation = true) {
@@ -133,7 +133,7 @@
                         content = Text(messages("address.country")),
                         classes = "govuk-label--s"
                     ),
-                    errorMessage = form("country").error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args:_*))))
+                    errorMessage = form("country").error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args*))))
                 )
             )
         </div>

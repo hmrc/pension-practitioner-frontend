@@ -21,7 +21,7 @@ govukErrorSummary: GovukErrorSummary,
 govukPanel: GovukPanel
 )
 
-@(pspName: String, submitUrl: String)(implicit request: Request[_], messages: Messages)
+@(pspName: String, submitUrl: String)(implicit request: Request[?], messages: Messages)
 
 @layout(pageTitle = messages("deregistrationSuccess.company.title"), showBackLink = false) {
 

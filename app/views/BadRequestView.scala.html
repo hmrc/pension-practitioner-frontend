@@ -19,6 +19,6 @@
         errorTemplate: templates.ErrorTemplate
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@()(implicit request: Request[?], messages: Messages)
 
 @errorTemplate("global.error.badRequest400.title", "global.error.badRequest400.heading", Some("global.error.badRequest400.message"))

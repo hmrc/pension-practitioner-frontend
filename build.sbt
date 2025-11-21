@@ -20,7 +20,11 @@ lazy val root = (project in file("."))
     ScoverageKeys.coverageMinimumStmtTotal := 80,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true,
-    scalacOptions ++= Seq("-feature"),
+    scalacOptions ++= Seq(
+      "-feature",
+      "-Wconf:src=routes/.*:s",
+      "-Wconf:msg=Flag.*repeatedly:silent"         // Suppress warnings for repeated flags //
+    ),
     TwirlKeys.templateImports ++= Seq(
       "play.twirl.api.HtmlFormat",
       "play.twirl.api.HtmlFormat._",
@@ -38,7 +42,7 @@ lazy val root = (project in file("."))
     // Suspected cause minification of already minified location-autocomplete.min.js -Pavel Vjalicin
     Assets / pipelineStages := Seq(concat)
   )
-  .settings(scalaVersion := "2.13.12")
+  .settings(scalaVersion := "3.7.1")
   .settings(inConfig(Test)(testSettings): _*)
   .settings(resolvers += Resolver.jcenterRepo)
 
