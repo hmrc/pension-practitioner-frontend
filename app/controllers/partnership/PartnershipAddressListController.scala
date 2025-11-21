@@ -59,7 +59,7 @@ class PartnershipAddressListController @Inject()(override val messagesApi: Messa
         getFormToJson(mode).retrieve.map(x => get(x,
           routes.PartnershipAddressListController.onSubmit(mode),
           routes.PartnershipContactAddressController.onPageLoad(mode).url,
-          (model: CommonViewModelTwirl, radios: Seq[RadioItem]) => addressListView(form, radios, model)
+          (model: CommonViewModelTwirl, radios: Seq[RadioItem]) => addressListView(form, radios, model))
       )
     }
 

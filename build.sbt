@@ -23,7 +23,7 @@ lazy val root = (project in file("."))
     scalacOptions ++= Seq(
       "-feature",
       "-Wconf:src=routes/.*:s",
-      "-Wconf:msg=Flag.*repeatedly:silent"         // Suppress warnings for repeated flags //
+      "-Wconf:msg=Flag.*repeatedly:silent"
     ),
     TwirlKeys.templateImports ++= Seq(
       "play.twirl.api.HtmlFormat",
@@ -36,8 +36,6 @@ lazy val root = (project in file("."))
       "uk.gov.hmrc.hmrcfrontend.views.config._",
     ),
     uglifyCompressOptions := Seq("unused=false", "dead_code=false"),
-    scalacOptions += "-Wconf:src=routes/.*:s",
-    scalacOptions += "-Wconf:cat=unused-imports&src=html/.*:s",
     // Removed uglify due to node 20 compile issues.
     // Suspected cause minification of already minified location-autocomplete.min.js -Pavel Vjalicin
     Assets / pipelineStages := Seq(concat)

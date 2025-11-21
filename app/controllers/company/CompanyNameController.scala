@@ -49,15 +49,15 @@ class CompanyNameController @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (authenticate andThen getData andThen requireData) {
     implicit request =>
-        val preparedForm = request.userAnswers.get(BusinessNamePage) match {
-          case None => form
-          case Some(value) => form.fill(value)
-        }
+      val preparedForm = request.userAnswers.get(BusinessNamePage) match {
+        case None => form
+        case Some(value) => form.fill(value)
+      }
 
-        val hint = request.userAnswers.get(AreYouUKCompanyPage) match {
-          case Some(true) => Some("businessName.hint")
-          case _ => None
-        }
+      val hint = request.userAnswers.get(AreYouUKCompanyPage) match {
+        case Some(true) => Some("businessName.hint")
+        case _ => None
+      }
 
       Ok(businessNameView("company", preparedForm, routes.CompanyNameController.onSubmit(mode), hint))
   }

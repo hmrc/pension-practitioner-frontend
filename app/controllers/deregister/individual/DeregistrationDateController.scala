@@ -75,7 +75,7 @@ class DeregistrationDateController @Inject()(config: FrontendAppConfig,
     implicit request =>
       val pspId = request.user.pspIdOrException
       getDate.flatMap { date =>
-        (PspNamePage.and(PspEmailPage).retrieve.map { case pspName ~ email =>
+        (PspNamePage.and(PspEmailPage)).retrieve.map { case pspName ~ email =>
           form(date).bindFromRequest().fold(
             formWithErrors => {
               Future.successful(BadRequest(deregistrationDateView(routes.DeregistrationDateController.onSubmit(),

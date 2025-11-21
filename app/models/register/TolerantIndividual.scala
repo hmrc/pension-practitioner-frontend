@@ -31,6 +31,12 @@ case class TolerantIndividual(
 
 object TolerantIndividual {
 
+  def apply(firstName: Option[String], middleName: Option[String], lastName: Option[String]): TolerantIndividual =
+    new TolerantIndividual(firstName, middleName, lastName)
+
+  def unapply(t: TolerantIndividual): Option[(Option[String], Option[String], Option[String])] =
+    Some((t.firstName, t.middleName, t.lastName))
+
   implicit val formatsTolerantIndividual: Format[TolerantIndividual] = (
     (JsPath \ "firstName").formatNullable[String] and
       (JsPath \ "middleName").formatNullable[String] and

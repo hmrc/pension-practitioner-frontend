@@ -97,7 +97,7 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
     implicit request =>
       form.bindFromRequest().fold(
         formWithErrors => {
-          (IndividualDetailsPage.and(IndividualAddressPage).retrieve.map {
+          (IndividualDetailsPage.and(IndividualAddressPage)).retrieve.map {
             case individual ~ address =>
               Future.successful(BadRequest(isThisYouView(
                 routes.IsThisYouController.onSubmit(mode),
