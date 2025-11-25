@@ -106,7 +106,7 @@ class IsThisYouController @Inject()(override val messagesApi: MessagesApi,
                 individual.fullName,
                 address.lines(countryOptions)
               )))
-            case _ =>
+            case null =>
               Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
           }
         },

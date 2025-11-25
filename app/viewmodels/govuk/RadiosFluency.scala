@@ -42,7 +42,4 @@ trait RadiosFluency {
         classes = classes
       )
   }
-
-  implicit class FluentRadios(radios: Radios) {
-  }
 }

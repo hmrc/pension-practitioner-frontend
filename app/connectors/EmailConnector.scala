@@ -22,7 +22,9 @@ import models.{JourneyType, SendEmailRequest}
 import play.api.Logger
 import play.api.http.Status._
 import play.api.libs.json.Json
-import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
+import uk.gov.hmrc.crypto.{PlainText}
+import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.ApplicationCrypto
+
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}

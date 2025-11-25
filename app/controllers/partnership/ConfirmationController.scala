@@ -52,7 +52,7 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
               commonViewModel
             )))
           }
-        case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+        case null => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
       }
   }
 }

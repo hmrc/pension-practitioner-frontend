@@ -49,7 +49,7 @@ case class IndividualRegistration(response: IndividualRegisterWithIdResponse, in
 object RegisterWithIdResponse {
 
   implicit lazy val readsOrganizationRegisterWithIdResponse: Reads[OrganisationRegisterWithIdResponse] =
-    ((JsPath \ "organisation").read[Organisation] ~ (JsPath \ "address").read[TolerantAddress]).apply(OrganisationRegisterWithIdResponse)
+    ((JsPath \ "organisation").read[Organisation] ~ (JsPath \ "address").read[TolerantAddress]).apply((organisation, address) => OrganisationRegisterWithIdResponse(organisation, address))
 
   implicit lazy val writesOrganizationRegisterWithIdResponse: Writes[OrganisationRegisterWithIdResponse] =
     Writes[OrganisationRegisterWithIdResponse] { response =>

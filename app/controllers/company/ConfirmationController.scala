@@ -49,7 +49,7 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
           userAnswersCacheConnector.removeAll.flatMap { _ =>
             Future.successful(Ok(confirmationView(pspid, email, commonViewModel)))
           }
-        case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+        case null => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
       }
   }
 }

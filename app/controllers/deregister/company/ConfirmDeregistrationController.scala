@@ -59,18 +59,21 @@ class ConfirmDeregistrationController @Inject()(config: FrontendAppConfig,
       request.user.alreadyEnrolledPspId.map { _ =>
         deregistrationConnector.canDeRegister.flatMap {
           case true =>
-            minimalConnector.getMinimalPspDetails().flatMap { minimalDetails =>
-              (minimalDetails.name, minimalDetails.email) match {
-                case (Some(name), email) =>
+              minimalConnector.getMinimalPspDetails().flatMap { minimalDetails =>
+                (minimalDetails.name, minimalDetails.email) match {
+                  case (Some(name), email) =>
                     val updatedAnswers = UserAnswers()
                       .setOrException(PspNamePage, name)
                       .setOrException(PspEmailPage, email)
-                  userAnswersCacheConnector.save(updatedAnswers.data).map(_ =>
-                    Ok(confirmDeregistrationView(routes.ConfirmDeregistrationController.onSubmit(),
-                      form,
-                      Radios.yesNo(form("value")),
-                      name,
-                      config.returnToPspDashboardUrl)))
+
+                    userAnswersCacheConnector.save(updatedAnswers.data).map(_ =>
+                      Ok(confirmDeregistrationView(
+                        routes.ConfirmDeregistrationController.onSubmit(),
+                        form,
+                        Radios.yesNo(form("value")),
+                        name,
+                        config.returnToPspDashboardUrl
+                      )))
 
                 case _ => sessionExpired
               }

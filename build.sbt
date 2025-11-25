@@ -22,10 +22,17 @@ lazy val root = (project in file("."))
     ScoverageKeys.coverageHighlighting := true,
     scalacOptions ++= Seq(
       "-feature",
-      "-Wconf:src=routes/.*:s",
-      "-Wconf:msg=Flag.*repeatedly:silent"
+      "-Xfatal-warnings",
+      "-Wconf:msg=Flag.*repeatedly:silent",
+      "-Wconf:src=routes/.*:silent",
+      "-Wconf:src=twirl/.*:silent",
+      "-Wconf:src=target/.*:silent",
+      "-Wconf:msg=.*unused.*:silent",
+      "-Wconf:msg=Implicit.*:s"
     ),
-    TwirlKeys.templateImports ++= Seq(
+
+
+      TwirlKeys.templateImports ++= Seq(
       "play.twirl.api.HtmlFormat",
       "play.twirl.api.HtmlFormat._",
       "uk.gov.hmrc.govukfrontend.views.html.components._",

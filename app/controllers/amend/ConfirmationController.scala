@@ -49,7 +49,7 @@ class ConfirmationController @Inject()(appConfig: FrontendAppConfig,
           userAnswersCacheConnector.removeAll.flatMap { _ =>
             Future.successful(Ok(confirmationView(email, confirmationPanelText(pspid).toString(), appConfig.returnToPspDashboardUrl)))
           }
-        case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+        case null => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
       }
   }
 
