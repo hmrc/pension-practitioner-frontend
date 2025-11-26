@@ -111,7 +111,7 @@ class PartnershipPhoneControllerSpec extends ControllerSpecBase with MockitoSuga
       val expectedJson = Json.obj(
         BusinessNamePage.toString -> PartnershipName,
         PartnershipPhonePage.toString -> phone)
-      when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(expectedJson)
+      when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(expectedJson))
       when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(PartnershipPhonePage), any(), any())).thenReturn(dummyCall)
 
       val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value

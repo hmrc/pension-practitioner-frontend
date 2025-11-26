@@ -23,7 +23,7 @@ import queries.Gettable
 
 class AreYouUKResidentPageSpec extends PageBehaviours {
 
-  private val pagesNotToRemove = Set[Gettable[_]](WhatTypeBusinessPage, AreYouUKResidentPage)
+  private val pagesNotToRemove = Set[Gettable[?]](WhatTypeBusinessPage, AreYouUKResidentPage)
 
   "AreYouUKResidentPage" - {
     "must clean up when set to false when have completed an individual UK journey" in {

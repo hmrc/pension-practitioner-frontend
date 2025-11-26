@@ -79,7 +79,7 @@ trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with BeforeAnd
       .overrides(
         modules ++ extraModules ++ Seq[GuiceableModule](
           bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
-        ): _*
+        )*
       )
 
   protected def applicationBuilderMutableRetrievalAction(
@@ -95,7 +95,7 @@ trait ControllerSpecBase extends SpecBase with BeforeAndAfterEach with BeforeAnd
       .overrides(
         modules ++ extraModules ++ Seq[GuiceableModule](
           bind[DataRetrievalAction].toInstance(mutableFakeDataRetrievalAction)
-        ): _*
+        )*
       )
 
   protected def compareResultAndView(

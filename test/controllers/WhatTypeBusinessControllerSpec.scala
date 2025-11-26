@@ -104,7 +104,7 @@ class WhatTypeBusinessControllerSpec extends ControllerSpecBase with TryValues {
     }
 
     "redirect to the next page when valid data is submitted" in {
-      when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
+      when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn (Future.successful(Json.obj()))
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
       val pspId = "test-id"

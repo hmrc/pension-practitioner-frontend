@@ -24,7 +24,7 @@ import utils.countryOptions.CountryOptions
 
 trait AddressBehaviours extends FormSpec with StringFieldBehaviours with OptionFieldBehaviours with Constraints with AddressMappings {
 
-  def formWithPostCode(form: Form[_], fieldName: String, keyRequired: String, keyInvalid: String): Unit = {
+  def formWithPostCode(form: Form[?], fieldName: String, keyRequired: String, keyInvalid: String): Unit = {
 
     "behave like a form with a Post Code" should {
 
@@ -52,7 +52,7 @@ trait AddressBehaviours extends FormSpec with StringFieldBehaviours with OptionF
   }
 
   def formWithAddressField(
-                            form: Form[_],
+                            form: Form[?],
                             fieldName: String,
                             keyAddressRequired: String,
                             keyAddressLength: String,
@@ -170,7 +170,7 @@ trait AddressBehaviours extends FormSpec with StringFieldBehaviours with OptionF
   }
 
   def formWithCountry(
-                       form: Form[_],
+                       form: Form[?],
                        fieldName: String,
                        keyRequired: String,
                        keyInvalid: String,

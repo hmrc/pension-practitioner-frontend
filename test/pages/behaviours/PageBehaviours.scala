@@ -30,11 +30,11 @@ import queries.Gettable
 
 trait PageBehaviours extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with Generators with OptionValues with TryValues {
 
-  def areAllPagesEmpty(userAnswers: UserAnswers, pages: Set[Gettable[_]]): Boolean = {
+  def areAllPagesEmpty(userAnswers: UserAnswers, pages: Set[Gettable[?]]): Boolean = {
     pages.flatMap(_.path.asSingleJsResult(userAnswers.data).asOpt.toSeq).isEmpty
   }
 
-  def areAllPagesNonEmpty(userAnswers: UserAnswers, pages: Set[Gettable[_]]): Boolean = {
+  def areAllPagesNonEmpty(userAnswers: UserAnswers, pages: Set[Gettable[?]]): Boolean = {
     pages.flatMap(_.path.asSingleJsResult(userAnswers.data).asOpt.toSeq).size == pages.size
   }
 

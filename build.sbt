@@ -31,8 +31,7 @@ lazy val root = (project in file("."))
       "-Wconf:msg=Implicit.*:s"
     ),
 
-
-      TwirlKeys.templateImports ++= Seq(
+    TwirlKeys.templateImports ++= Seq(
       "play.twirl.api.HtmlFormat",
       "play.twirl.api.HtmlFormat._",
       "uk.gov.hmrc.govukfrontend.views.html.components._",

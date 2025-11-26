@@ -24,7 +24,7 @@ import play.api.data.validation.{Constraint, Invalid, Valid}
 
 trait RegexBehaviourSpec extends TableDrivenPropertyChecks {
 
-  this: AnyWordSpec with Matchers =>
+  this: AnyWordSpec & Matchers =>
 
   def regexWithValidAndInvalidExamples(
                                         constraint: String => Constraint[String],
@@ -32,20 +32,20 @@ trait RegexBehaviourSpec extends TableDrivenPropertyChecks {
                                         invalidMsg: String,
                                         regexString: String): Unit = {
     "Accept all valid examples" in {
-      forAll(valid) { value: String =>
+      forAll(valid) { (value: String) =>
         constraint(invalidMsg)(value) shouldBe Valid
       }
     }
 
     "Reject all invalid examples" in {
-      forAll(invalid) { value: String =>
+      forAll(invalid) { (value: String) =>
         constraint(invalidMsg)(value) shouldBe Invalid(invalidMsg, regexString)
       }
     }
   }
 
   def formWithRegex(
-                     form: Form[_],
+                     form: Form[?],
                      valid: TableFor1[Map[String, String]],
                      invalid: TableFor1[Map[String, String]]
                    ): Unit = {
