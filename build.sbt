@@ -14,12 +14,6 @@ lazy val root = (project in file("."))
     majorVersion := 0,
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     PlayKeys.playDefaultPort := 8208,
-    ScoverageKeys.coverageExcludedFiles := "<empty>;Reverse.*;.*handlers.*;.*repositories.*;" +
-      ".*BuildInfo.*;.*javascript.*;.*Routes.*;.*GuiceInjector;" +
-      ".*ControllerConfiguration;.*TestController;.*LanguageSwitchController",
-    ScoverageKeys.coverageMinimumStmtTotal := 80,
-    ScoverageKeys.coverageFailOnMinimum := true,
-    ScoverageKeys.coverageHighlighting := true,
     scalacOptions ++= Seq(
       "-feature",
       "-Xfatal-warnings",
@@ -46,6 +40,7 @@ lazy val root = (project in file("."))
     // Suspected cause minification of already minified location-autocomplete.min.js -Pavel Vjalicin
     Assets / pipelineStages := Seq(concat)
   )
+  .settings(new CodeCoverageSettings().apply(): _*)
   .settings(scalaVersion := "3.7.1")
   .settings(inConfig(Test)(testSettings): _*)
   .settings(resolvers += Resolver.jcenterRepo)
