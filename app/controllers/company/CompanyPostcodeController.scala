@@ -59,12 +59,12 @@ class CompanyPostcodeController @Inject()(override val messagesApi: MessagesApi,
       implicit request =>
         getFormToJson(mode).retrieve.map {func =>
           val jsObject: JsObject = func(form)
-        get(postCodeView(
-          routes.CompanyPostcodeController.onSubmit(mode),
-          routes.CompanyContactAddressController.onPageLoad(mode).url,
-          "company",
-          (jsObject \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
-          form
+          get(postCodeView(
+            routes.CompanyPostcodeController.onSubmit(mode),
+            routes.CompanyContactAddressController.onPageLoad(mode).url,
+            "company",
+            (jsObject \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
+            form
         ))}
     }
 

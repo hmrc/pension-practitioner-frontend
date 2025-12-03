@@ -19,6 +19,6 @@
         errorTemplate: templates.ErrorTemplate
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@()(implicit request: Request[?], messages: Messages)
 
 @errorTemplate("global.error.InternalServerError500.title", "global.error.InternalServerError500.heading", Some("global.error.InternalServerError500.message"))

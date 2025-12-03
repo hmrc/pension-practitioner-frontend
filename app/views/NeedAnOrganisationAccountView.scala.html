@@ -19,7 +19,7 @@
         govukButton: GovukButton
 )
 
-@(govUkUrl: String, registerAsPensionAdministratorUrl: String, createGovGatewayUrl: String)(implicit request: Request[_], messages: Messages)
+@(govUkUrl: String, registerAsPensionAdministratorUrl: String, createGovGatewayUrl: String)(implicit request: Request[?], messages: Messages)
 
 @layout(messages("needAnOrganisationAccount.title")) {
     <h1 class="govuk-heading-xl">

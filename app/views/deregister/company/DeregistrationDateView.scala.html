@@ -23,7 +23,7 @@
         govukButton: GovukButton
 )
 
-@(submitCall: Call, pspName: String, form: Form[java.time.LocalDate], returnUrl: String, applicationDate: String)(implicit request: Request[_], messages: Messages)
+@(submitCall: Call, pspName: String, form: Form[java.time.LocalDate], returnUrl: String, applicationDate: String)(implicit request: Request[?], messages: Messages)
 
 @layout(messages("deregistrationDate.company.title") , formHasErrors = form.hasErrors) {
 

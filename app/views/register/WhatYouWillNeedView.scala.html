@@ -20,7 +20,7 @@
     govukInsetText: GovukInsetText,
 )
 
-@(nextPage: String)(implicit request: Request[_], messages: Messages)
+@(nextPage: String)(implicit request: Request[?], messages: Messages)
 
 @layout(
     pageTitle = messages("whatYouWillNeed.title")

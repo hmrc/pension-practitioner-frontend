@@ -21,7 +21,7 @@
         govukButton: GovukButton
 )
 
-@(submitCallUrl: String)(implicit request: Request[_], messages: Messages)
+@(submitCallUrl: String)(implicit request: Request[?], messages: Messages)
 
 @layout(messages("whatYouWillNeed.title")) {
 

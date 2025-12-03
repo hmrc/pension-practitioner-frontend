@@ -27,20 +27,19 @@ import java.time.format.DateTimeFormatter
 
 trait FieldBehaviours extends FormSpec with ScalaCheckPropertyChecks with Generators {
 
-  def fieldThatBindsValidData(form: Form[_],
+  def fieldThatBindsValidData(form: Form[?],
                               fieldName: String,
                               validDataGenerator: Gen[String]): Unit = {
 
     "bind valid data" in {
-      forAll(validDataGenerator.retryUntil(!_.matches("""^\s+$""")) -> "validDataItem") {
-        dataItem: String =>
+      forAll(validDataGenerator.retryUntil(!_.matches("""^\s+$""")) -> "validDataItem") { (dataItem: String) =>
           val result = form.bind(Map(fieldName -> dataItem)).apply(fieldName)
           result.errors shouldBe empty
       }
     }
   }
 
-  def mandatoryField(form: Form[_],
+  def mandatoryField(form: Form[?],
                      fieldName: String,
                      requiredError: FormError): Unit = {
 
@@ -57,7 +56,7 @@ trait FieldBehaviours extends FormSpec with ScalaCheckPropertyChecks with Genera
     }
   }
 
-  def dateFieldThatBindsValidData(form: Form[_], fieldName: String, generator: Gen[String]): Unit = {
+  def dateFieldThatBindsValidData(form: Form[?], fieldName: String, generator: Gen[String]): Unit = {
     "bind valid dates to day/month/year" in {
       val dayFieldName = s"$fieldName.day"
       val monthFieldName = s"$fieldName.month"
@@ -69,8 +68,7 @@ trait FieldBehaviours extends FormSpec with ScalaCheckPropertyChecks with Genera
         form.bind(Map(fieldName -> data)).apply(fieldName).errors shouldBe empty
       }
 
-      forAll(generator -> "date") {
-        dateAsText: String =>
+      forAll(generator -> "date") { (dateAsText: String) =>
           val date = LocalDate.parse(dateAsText, formatter)
           testField(dayFieldName, date.getDayOfMonth.toString)
           testField(monthFieldName, date.getMonthValue.toString)
@@ -79,7 +77,7 @@ trait FieldBehaviours extends FormSpec with ScalaCheckPropertyChecks with Genera
     }
   }
 
-  def mandatoryDateField(form: Form[_], fieldName: String, requiredError: FormError): Unit = {
+  def mandatoryDateField(form: Form[?], fieldName: String, requiredError: FormError): Unit = {
     val dayFieldName = s"$fieldName.day"
     val monthFieldName = s"$fieldName.month"
     val yearFieldName = s"$fieldName.year"

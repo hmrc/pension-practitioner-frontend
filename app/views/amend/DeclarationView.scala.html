@@ -20,7 +20,7 @@
     govukButton: GovukButton
 )
 
-@(submitUrl: Call)(implicit request: Request[_], messages: Messages)
+@(submitUrl: Call)(implicit request: Request[?], messages: Messages)
 
 @layout(messages("declaration.title")) {
 

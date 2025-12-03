@@ -42,7 +42,7 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      (PspIdPage and IndividualEmailPage).retrieve.map {
+      (PspIdPage.and(IndividualEmailPage)).retrieve.map {
         case pspId ~ email =>
         userAnswersCacheConnector.removeAll.flatMap { _ =>
           Future.successful(Ok(confirmationView(
@@ -51,7 +51,7 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
             controllers.routes.SignOutController.signOut().url
           )))
         }
-        case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+        case null => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
       }
   }
 }

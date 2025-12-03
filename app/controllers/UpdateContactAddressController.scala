@@ -79,7 +79,7 @@ class UpdateContactAddressController @Inject()(
               ua.getOrException(PartnershipAddressPage)
             )
           )
-          case _ => None
+          case null => None
         }
     }
   }

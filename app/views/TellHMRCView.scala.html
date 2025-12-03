@@ -19,7 +19,7 @@
         govukButton: GovukButton
 )
 
-@(entityType:String, companiesHouseUrl: String, hmrcUrl: String)(implicit request: Request[_], messages: Messages)
+@(entityType:String, companiesHouseUrl: String, hmrcUrl: String)(implicit request: Request[?], messages: Messages)
 
 @layout(messages("tellHMRC.title", messages(entityType))) {
     <h1 class="govuk-heading-l">

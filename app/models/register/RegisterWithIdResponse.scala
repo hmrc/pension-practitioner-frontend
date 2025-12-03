@@ -49,7 +49,7 @@ case class IndividualRegistration(response: IndividualRegisterWithIdResponse, in
 object RegisterWithIdResponse {
 
   implicit lazy val readsOrganizationRegisterWithIdResponse: Reads[OrganisationRegisterWithIdResponse] =
-    ((JsPath \ "organisation").read[Organisation] ~ (JsPath \ "address").read[TolerantAddress]).apply(OrganisationRegisterWithIdResponse)
+    ((JsPath \ "organisation").read[Organisation] ~ (JsPath \ "address").read[TolerantAddress]).apply((organisation, address) => OrganisationRegisterWithIdResponse(organisation, address))
 
   implicit lazy val writesOrganizationRegisterWithIdResponse: Writes[OrganisationRegisterWithIdResponse] =
     Writes[OrganisationRegisterWithIdResponse] { response =>
@@ -59,9 +59,19 @@ object RegisterWithIdResponse {
       )
     }
 
-  implicit lazy val formatsIndividualRegisterWithIdResponse: Format[IndividualRegisterWithIdResponse] = (
-    (JsPath \ "individual").format[TolerantIndividual] and
-      (JsPath \ "address").format[TolerantAddress]
-    ) (IndividualRegisterWithIdResponse.apply, unlift(IndividualRegisterWithIdResponse.unapply))
+  implicit lazy val readsIndividualRegisterWithIdResponse: Reads[IndividualRegisterWithIdResponse] =
+    for {
+      individual <- (JsPath \ "individual").read[TolerantIndividual]
+      address <- (JsPath \ "address").read[TolerantAddress]
+    } yield IndividualRegisterWithIdResponse(individual, address)
+
+  implicit lazy val writesIndividualRegisterWithIdResponse: Writes[IndividualRegisterWithIdResponse] = Writes { response =>
+    Json.obj(
+      "individual" -> response.individual,
+      "address" -> response.address
+    )
+  }
+
+  implicit lazy val formatsIndividualRegisterWithIdResponse: Format[IndividualRegisterWithIdResponse] = Format(readsIndividualRegisterWithIdResponse, writesIndividualRegisterWithIdResponse)
 
 }

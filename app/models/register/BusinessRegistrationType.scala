@@ -34,7 +34,7 @@ object BusinessRegistrationType extends Enumerable.Implicits {
     Partnership
   )
 
-  def radios(form: Form[_])(implicit messages: Messages): Seq[RadioItem] = {
+  def radios(form: Form[?])(implicit messages: Messages): Seq[RadioItem] = {
     val field = form("value")
     Seq(
       RadioItem(content = Text(Messages("businessRegistrationType.company")),
@@ -45,5 +45,5 @@ object BusinessRegistrationType extends Enumerable.Implicits {
   }
 
   implicit val enumerable: Enumerable[BusinessRegistrationType] =
-    Enumerable(values.map(v => v.toString -> v): _*)
+    Enumerable(values.map(v => v.toString -> v)*)
 }

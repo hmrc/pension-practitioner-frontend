@@ -29,7 +29,7 @@ case object AreYouUKResidentPage extends QuestionPage[Boolean] {
 
   override def toString: String = "areYouUKResident"
 
-  private val pagesNotToRemove = Set[Gettable[_]](
+  private val pagesNotToRemove = Set[Gettable[?]](
     AreYouUKResidentPage
   )
 

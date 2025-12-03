@@ -21,7 +21,7 @@ import play.api.libs.json._
 import scala.language.implicitConversions
 
 object EnumUtils {
-  def enumReads[E <: Enumeration](enumValue: E): Reads[E#Value] = {
+  def enumReads[E <: Enumeration](enumValue: E): Reads[enumValue.Value] = {
     case JsString(s) => {
       try {
         JsSuccess(enumValue.withName(s))
@@ -33,9 +33,9 @@ object EnumUtils {
     case _ => JsError("String value expected")
   }
 
-  implicit def enumWrites[E <: Enumeration]: Writes[E#Value] = (v: E#Value) => JsString(v.toString)
+  implicit def enumWrites[E <: Enumeration](implicit ev: E): Writes[ev.Value] = (v: ev.Value) => JsString(v.toString)
 
-  implicit def enumFormat[E <: Enumeration](enumValue: E): Format[E#Value] = {
-    Format(enumReads(enumValue), enumWrites)
+  implicit def enumFormat[E <: Enumeration](enumValue: E): Format[enumValue.Value] = {
+    Format(enumReads(enumValue), enumWrites(enumValue))
   }
 }

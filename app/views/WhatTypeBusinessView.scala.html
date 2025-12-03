@@ -22,7 +22,7 @@
         govukButton: GovukButton
 )
 
-@(submitCall: Call, form: Form[WhatTypeBusiness], radios: Seq[RadioItem])(implicit request: Request[_], messages: Messages)
+@(submitCall: Call, form: Form[WhatTypeBusiness], radios: Seq[RadioItem])(implicit request: Request[?], messages: Messages)
 
 @field = @{form("value")}
 

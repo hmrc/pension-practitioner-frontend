@@ -25,10 +25,10 @@ import scala.util.{Failure, Success, Try}
 final case class UserAnswers(data: JsObject = Json.obj()) {
 
   def get[A](page: QuestionPage[A])(implicit rds: Reads[A]): Option[A] =
-    Reads.optionNoError(Reads.at(page.path)).reads(data).getOrElse(None)
+    Reads.optionNoError(using Reads.at(page.path)).reads(data).getOrElse(None)
 
   def get(path: JsPath)(implicit rds: Reads[JsValue]): Option[JsValue] =
-    Reads.optionNoError(Reads.at(path)).reads(data).getOrElse(None)
+    Reads.optionNoError(using Reads.at(path)).reads(data).getOrElse(None)
 
   def getOrException[A](page: QuestionPage[A])(implicit rds: Reads[A]): A =
     get(page).getOrElse(throw new RuntimeException("Expected a value but none found for " + page))
@@ -83,9 +83,9 @@ final case class UserAnswers(data: JsObject = Json.obj()) {
     }
   }
 
-  def removeAllPages(pages: Set[Gettable[_]]): UserAnswers = {
+  def removeAllPages(pages: Set[Gettable[?]]): UserAnswers = {
     @scala.annotation.tailrec
-    def removeNext(pages: Set[Gettable[_]], ua: UserAnswers): UserAnswers = {
+    def removeNext(pages: Set[Gettable[?]], ua: UserAnswers): UserAnswers = {
       if (pages.isEmpty) {
         ua
       } else {

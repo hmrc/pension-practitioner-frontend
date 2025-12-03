@@ -22,10 +22,13 @@ import models.{JourneyType, SendEmailRequest}
 import play.api.Logger
 import play.api.http.Status._
 import play.api.libs.json.Json
-import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
+import uk.gov.hmrc.crypto.{PlainText}
+import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.ApplicationCrypto
+
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
+import play.api.libs.ws.WSBodyWritables.writeableOf_JsValue
 
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -78,7 +81,7 @@ class EmailConnector @Inject()(
             logger.warn(s"Sending Email failed for $journeyType with response status $status")
             EmailNotSent
         }
-      } recoverWith logExceptions
+      }.recoverWith (logExceptions)
 
   }
 

@@ -121,7 +121,7 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
     "on a POST" must {
 
       "save the manual address and redirect to the next page when valid data of true is submitted" in {
-        when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
+        when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn (Future.successful(Json.obj()))
         when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
         val application = applicationBuilder(userAnswers = Some(uaWithIndividualAddress),
@@ -143,7 +143,7 @@ class UseAddressForContactControllerSpec extends ControllerSpecBase with Mockito
       }
 
       "don't save the manual address and redirect to the next page when valid data of false is submitted" in {
-        when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
+        when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn (Future.successful(Json.obj()))
         when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
         val application = applicationBuilder(userAnswers = Some(uaWithIndividualAddress),

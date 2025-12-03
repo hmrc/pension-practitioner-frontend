@@ -134,7 +134,7 @@ class PartnershipNameControllerSpec extends ControllerSpecBase with MockitoSugar
       val expectedJson = Json.obj(
         BusinessNamePage.toString -> name)
 
-      when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(expectedJson)
+      when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn (Future.successful(expectedJson))
       when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(BusinessNamePage), any(), any())).thenReturn(dummyCall)
 
       val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value

@@ -109,7 +109,7 @@ class PartnershipUseSameAddressController @Inject()(override val messagesApi: Me
       )
   }
 
-  private def retrieveTolerantAddress(implicit request: DataRequest[_]): Option[TolerantAddress] = {
+  private def retrieveTolerantAddress(implicit request: DataRequest[?]): Option[TolerantAddress] = {
     (request.userAnswers.get(AreYouUKCompanyPage),
       request.userAnswers.get(ConfirmAddressPage),
       request.userAnswers.get(PartnershipRegisteredAddressPage)) match {

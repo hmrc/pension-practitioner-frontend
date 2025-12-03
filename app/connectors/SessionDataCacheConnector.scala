@@ -41,7 +41,7 @@ class SessionDataCacheConnector  @Inject()(
     val headers: Seq[(String, String)] = Seq(("Content-Type", "application/json"))
 
     httpClientV2.get(url())
-      .setHeader(headers: _*)
+      .setHeader(headers*)
       .execute[HttpResponse] map { response =>
       response.status match {
         case NOT_FOUND =>
@@ -58,7 +58,7 @@ class SessionDataCacheConnector  @Inject()(
     val headers: Seq[(String, String)] = Seq(("Content-Type", "application/json"))
 
     httpClientV2.delete(url())
-      .setHeader(headers: _*)
+      .setHeader(headers*)
       .execute[HttpResponse] map { _ =>
           Ok
       }

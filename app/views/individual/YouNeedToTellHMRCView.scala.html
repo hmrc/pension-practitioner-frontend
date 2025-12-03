@@ -18,7 +18,7 @@
         layout: templates.Layout
 )
 
-@(changeOfDetailsGovUKLink: String)(implicit request: Request[_], messages: Messages)
+@(changeOfDetailsGovUKLink: String)(implicit request: Request[?], messages: Messages)
 
 @layout(messages("youNeedToTellHMRC.title")) {
     <h1 class="govuk-heading-l">@messages("youNeedToTellHMRC.heading")</h1>

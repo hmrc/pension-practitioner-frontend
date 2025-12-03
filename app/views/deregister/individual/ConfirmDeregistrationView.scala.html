@@ -22,7 +22,7 @@ govukRadios: GovukRadios,
 govukButton: GovukButton
 )
 
-@(submitCall: Call, form: Form[Boolean], radios: Seq[RadioItem], returnUrl: String)(implicit request: Request[_], messages: Messages)
+@(submitCall: Call, form: Form[Boolean], radios: Seq[RadioItem], returnUrl: String)(implicit request: Request[?], messages: Messages)
 
 
 @layout(messages("confirmDeregister.individual.title"), formHasErrors = form.hasErrors) {

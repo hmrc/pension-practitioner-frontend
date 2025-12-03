@@ -71,7 +71,7 @@ class ConfirmAddressController @Inject()(override val messagesApi: MessagesApi,
     implicit request =>
       retrieveDataForRegistration { (pspName, utr, businessType) =>
         val organisation = Organisation(pspName, businessType)
-       registrationConnector.registerWithIdOrganisation(utr, organisation, Partnership).flatMap { reg =>
+        registrationConnector.registerWithIdOrganisation(utr, organisation, Partnership).flatMap { reg =>
 
           val ua = request.userAnswers
             .setOrException(ConfirmAddressPage, reg.response.address)

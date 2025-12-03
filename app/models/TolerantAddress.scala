@@ -40,7 +40,7 @@ case class TolerantAddress(
       this.addressLine4,
       this.postcode,
       countryOptions.getCountryNameFromCode(this)
-    ).flatten(s => s)
+    ).flatten
   }
 
   def print(countryOptions: CountryOptions): String = {
@@ -82,6 +82,17 @@ case class TolerantAddress(
 
 object TolerantAddress {
   private val logger = Logger(classOf[TolerantAddress])
+
+  def apply(addressLine1: Option[String],
+            addressLine2: Option[String],
+            addressLine3: Option[String],
+            addressLine4: Option[String],
+            postcode: Option[String],
+            countryOpt: Option[String]): TolerantAddress =
+    new TolerantAddress(addressLine1, addressLine2, addressLine3, addressLine4, postcode, countryOpt)
+
+  def unapply(t: TolerantAddress): Option[(Option[String], Option[String], Option[String], Option[String], Option[String], Option[String])] =
+    Some((t.addressLine1, t.addressLine2, t.addressLine3, t.addressLine4, t.postcode, t.countryOpt))
 
   val postCodeLookupAddressReads: Reads[TolerantAddress] = (
     (JsPath \ "address" \ "lines").read[List[String]] and
@@ -156,7 +167,7 @@ object TolerantAddress {
           (addresses, currentAddress) => {
             for {
               sequenceOfAddressess <- addresses
-              address <- currentAddress.validate[TolerantAddress](postCodeLookupAddressReads)
+              address <- currentAddress.validate[TolerantAddress](using postCodeLookupAddressReads)
             } yield sequenceOfAddressess :+ address
           }
         }

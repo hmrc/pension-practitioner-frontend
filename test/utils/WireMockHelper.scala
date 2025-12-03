@@ -41,7 +41,7 @@ trait WireMockHelper extends BeforeAndAfterAll with BeforeAndAfterEach {
         "metrics.jvm" -> false
       )
       .overrides(
-        bindings: _*
+        bindings*
       )
       .build()
 

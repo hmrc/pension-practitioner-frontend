@@ -26,7 +26,7 @@
 )
 
 
-@(viewModel: CommonViewModelTwirl, form: Form[_])(implicit request: Request[_], messages: Messages)
+@(viewModel: CommonViewModelTwirl, form: Form[?])(implicit request: Request[?], messages: Messages)
 
 @layout(messages("email.title", messages(viewModel.entityType)), formHasErrors = form.hasErrors) {
 

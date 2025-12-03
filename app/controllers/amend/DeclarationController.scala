@@ -93,7 +93,7 @@ class DeclarationController @Inject()(
                      originalSubscriptionDetails: JsValue,
                      updatedSubscriptionDetails: JsValue
                    )(
-                     implicit request: DataRequest[_]
+                     implicit request: DataRequest[?]
                    ): Future[Unit] =
 
     Future.successful(auditService.sendExtendedEvent(
@@ -109,7 +109,7 @@ class DeclarationController @Inject()(
                          pspId: String,
                          pspName: String
                        )(
-                         implicit request: DataRequest[_],
+                         implicit request: DataRequest[?],
                          hc: HeaderCarrier
                        ): Future[EmailStatus] = {
     val requestId: String =

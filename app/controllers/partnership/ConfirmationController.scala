@@ -42,7 +42,7 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      (BusinessNamePage and PartnershipEmailPage and PspIdPage).retrieve.map {
+      (BusinessNamePage.and(PartnershipEmailPage).and(PspIdPage)).retrieve.map {
         case name ~ email ~ pspid =>
           val commonViewModel = CommonViewModel("partnership.capitalised", name, controllers.routes.SignOutController.signOut().url)
           userAnswersCacheConnector.removeAll.flatMap { _ =>
@@ -52,7 +52,7 @@ class ConfirmationController @Inject()(override val messagesApi: MessagesApi,
               commonViewModel
             )))
           }
-        case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+        case null => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
       }
   }
 }

@@ -19,11 +19,23 @@ package models.register
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{Format, JsPath}
 
-case class TolerantIndividual(firstName: Option[String], middleName: Option[String], lastName: Option[String]) {
-  def fullName: String = Seq(firstName, middleName, lastName).flatten(s => s).mkString(" ")
+case class TolerantIndividual(
+                               firstName: Option[String],
+                               middleName: Option[String],
+                               lastName: Option[String]
+                             ) {
+  def fullName: String =
+    Seq(firstName, middleName, lastName).flatten.mkString(" ")
 }
 
+
 object TolerantIndividual {
+
+  def apply(firstName: Option[String], middleName: Option[String], lastName: Option[String]): TolerantIndividual =
+    new TolerantIndividual(firstName, middleName, lastName)
+
+  def unapply(t: TolerantIndividual): Option[(Option[String], Option[String], Option[String])] =
+    Some((t.firstName, t.middleName, t.lastName))
 
   implicit val formatsTolerantIndividual: Format[TolerantIndividual] = (
     (JsPath \ "firstName").formatNullable[String] and

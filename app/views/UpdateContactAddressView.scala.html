@@ -19,7 +19,7 @@
         govukButton: GovukButton
 )
 
-@(address: Seq[String], continueUrl: String)(implicit request: Request[_], messages: Messages)
+@(address: Seq[String], continueUrl: String)(implicit request: Request[?], messages: Messages)
 
 @layout(messages("updateContactAddress.title")) {
     <h1 class="govuk-heading-l">

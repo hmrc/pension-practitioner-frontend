@@ -22,7 +22,7 @@
     govukButton: GovukButton
 )
 
-@(pspId: String, email: String, submitUrl: String)(implicit request: Request[_], messages: Messages)
+@(pspId: String, email: String, submitUrl: String)(implicit request: Request[?], messages: Messages)
 
 @layout(
     pageTitle = messages("individual.confirmation.title"),

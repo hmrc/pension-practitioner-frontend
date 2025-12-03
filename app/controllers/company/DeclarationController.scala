@@ -104,7 +104,7 @@ class DeclarationController @Inject()(
   }
 
   private def sendEmail(email: String, pspId: String, pspName: String)
-                       (implicit request: DataRequest[_], hc: HeaderCarrier): Future[EmailStatus] =
+                       (implicit request: DataRequest[?], hc: HeaderCarrier): Future[EmailStatus] =
     emailConnector.sendEmail(
       requestId = hc.requestId.map(_.value).getOrElse(request.headers.get("X-Session-ID").getOrElse("")),
       pspId,

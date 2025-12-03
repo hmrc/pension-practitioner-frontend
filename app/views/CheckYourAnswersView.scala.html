@@ -20,7 +20,7 @@
         govukSummaryList: GovukSummaryList
 )
 
-@(redirectUrl: Call, list: Seq[SummaryListRow])(implicit request: Request[_], messages: Messages)
+@(redirectUrl: Call, list: Seq[SummaryListRow])(implicit request: Request[?], messages: Messages)
 
 @layout(messages("checkYourAnswers.title")) {
     <h1 class="govuk-heading-l">

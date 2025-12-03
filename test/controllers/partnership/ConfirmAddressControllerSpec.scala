@@ -92,7 +92,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar
 
       when(mockRegistrationConnector.registerWithIdOrganisation(any(), any(), any())(any(), any()))
         .thenReturn(Future.successful(organisationRegistration))
-      when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
+      when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn (Future.successful(Json.obj()))
       when(mockCountryOptions.getCountryNameFromCode(ArgumentMatchers.any[TolerantAddress])).thenReturn(Some("GB"))
 
       val request = FakeRequest(GET, confirmAddressRoute)
@@ -119,7 +119,7 @@ class ConfirmAddressControllerSpec extends ControllerSpecBase with MockitoSugar
     }
 
     "redirect to the next page when valid data is submitted" in {
-      when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
+      when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn (Future.successful(Json.obj()))
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
       val application = applicationBuilder(userAnswers = Some(UserAnswers().setOrException(BusinessNamePage, "test-partnership")))

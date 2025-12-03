@@ -44,12 +44,12 @@ class ConfirmationController @Inject()(appConfig: FrontendAppConfig,
 
   def onPageLoad: Action[AnyContent] = (authenticate andThen getData andThen requireData).async {
     implicit request =>
-      (CompanyEmailPage and PspIdPage).retrieve.map {
+      (CompanyEmailPage.and (PspIdPage)).retrieve.map {
         case email ~ pspid =>
           userAnswersCacheConnector.removeAll.flatMap { _ =>
             Future.successful(Ok(confirmationView(email, confirmationPanelText(pspid).toString(), appConfig.returnToPspDashboardUrl)))
           }
-        case _ => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
+        case null => Future.successful(Redirect(controllers.routes.SessionExpiredController.onPageLoad()))
       }
   }
 

@@ -59,13 +59,16 @@ class PartnershipPostcodeController @Inject()(override val messagesApi: Messages
       implicit request =>
         getFormToJson(mode).retrieve.map{ formFunction =>
           val  jsObject: JsObject = formFunction(form)
-          get(postCodeView(
-          routes.PartnershipPostcodeController.onSubmit(mode),
+          get(
+            postCodeView(
+            routes.PartnershipPostcodeController.onSubmit(mode),
             routes.PartnershipContactAddressController.onPageLoad(mode).url,
-          "partnership",
-           (jsObject \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
-          form
-        ))}
+            "partnership",
+            (jsObject \ "viewmodel" \ "entityName").asOpt[String].getOrElse(""),
+            form
+            )
+          )
+        }
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =

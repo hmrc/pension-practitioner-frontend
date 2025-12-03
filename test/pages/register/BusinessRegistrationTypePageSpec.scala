@@ -24,7 +24,7 @@ import queries.Gettable
 
 class BusinessRegistrationTypePageSpec extends PageBehaviours {
 
-  private val pagesNotToRemove = Set[Gettable[_]](WhatTypeBusinessPage, AreYouUKCompanyPage, BusinessRegistrationTypePage)
+  private val pagesNotToRemove = Set[Gettable[?]](WhatTypeBusinessPage, AreYouUKCompanyPage, BusinessRegistrationTypePage)
 
   "BusinessRegistrationTypePage" - {
 

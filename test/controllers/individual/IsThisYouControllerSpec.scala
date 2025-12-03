@@ -153,7 +153,7 @@ class IsThisYouControllerSpec extends ControllerSpecBase with MockitoSugar with 
     "on a POST" must {
 
       "redirect to the next page when valid data is submitted" in {
-        when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(Json.obj())
+        when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn (Future.successful(Json.obj()))
         when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(onwardRoute)
 
         val application = applicationBuilder(userAnswers = Some(UserAnswers()),

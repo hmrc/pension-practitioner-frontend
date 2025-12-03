@@ -20,7 +20,7 @@
     govukButton: GovukButton
 )
 
-@(email: String, panelHtml: String, submitUrl: String)(implicit request: Request[_], messages: Messages)
+@(email: String, panelHtml: String, submitUrl: String)(implicit request: Request[?], messages: Messages)
 
 @layout(
     pageTitle = messages("amendConfirmation.title"),

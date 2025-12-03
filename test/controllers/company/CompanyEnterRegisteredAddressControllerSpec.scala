@@ -146,7 +146,7 @@ class CompanyEnterRegisteredAddressControllerSpec extends ControllerSpecBase wit
       verify(mockUserAnswersCacheConnector, times(1))
         .save(jsonCaptor.capture)(any(), any())
       jsonCaptor.getValue must containJson(expectedJson)
-     redirectLocation(result) mustBe Some(dummyCall.url)
+      redirectLocation(result) mustBe Some(dummyCall.url)
       verify(mockRegistrationConnector, times(1))
         .registerWithNoIdOrganisation(
           ArgumentMatchers.eq(companyName),

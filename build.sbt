@@ -14,13 +14,17 @@ lazy val root = (project in file("."))
     majorVersion := 0,
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     PlayKeys.playDefaultPort := 8208,
-    ScoverageKeys.coverageExcludedFiles := "<empty>;Reverse.*;.*handlers.*;.*repositories.*;" +
-      ".*BuildInfo.*;.*javascript.*;.*Routes.*;.*GuiceInjector;" +
-      ".*ControllerConfiguration;.*TestController;.*LanguageSwitchController",
-    ScoverageKeys.coverageMinimumStmtTotal := 80,
-    ScoverageKeys.coverageFailOnMinimum := true,
-    ScoverageKeys.coverageHighlighting := true,
-    scalacOptions ++= Seq("-feature"),
+    scalacOptions ++= Seq(
+      "-feature",
+      "-Xfatal-warnings",
+      "-Wconf:msg=Flag.*repeatedly:silent",
+      "-Wconf:src=routes/.*:silent",
+      "-Wconf:src=twirl/.*:silent",
+      "-Wconf:src=target/.*:silent",
+      "-Wconf:msg=.*unused.*:silent",
+      "-Wconf:msg=Implicit.*:s"
+    ),
+
     TwirlKeys.templateImports ++= Seq(
       "play.twirl.api.HtmlFormat",
       "play.twirl.api.HtmlFormat._",
@@ -32,13 +36,12 @@ lazy val root = (project in file("."))
       "uk.gov.hmrc.hmrcfrontend.views.config._",
     ),
     uglifyCompressOptions := Seq("unused=false", "dead_code=false"),
-    scalacOptions += "-Wconf:src=routes/.*:s",
-    scalacOptions += "-Wconf:cat=unused-imports&src=html/.*:s",
     // Removed uglify due to node 20 compile issues.
     // Suspected cause minification of already minified location-autocomplete.min.js -Pavel Vjalicin
     Assets / pipelineStages := Seq(concat)
   )
-  .settings(scalaVersion := "2.13.12")
+  .settings(new CodeCoverageSettings().apply(): _*)
+  .settings(scalaVersion := "3.7.1")
   .settings(inConfig(Test)(testSettings): _*)
   .settings(resolvers += Resolver.jcenterRepo)
 

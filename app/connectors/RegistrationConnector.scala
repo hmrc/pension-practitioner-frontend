@@ -28,6 +28,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException, StringContextOps}
 import utils.HttpResponseHelper
+import play.api.libs.ws.WSBodyWritables.writeableOf_JsValue
 
 import javax.inject.Singleton
 import scala.concurrent.{ExecutionContext, Future}
@@ -70,7 +71,7 @@ class RegistrationConnectorImpl @Inject()(httpClientV2: HttpClientV2, config: Fr
 
     httpClientV2.post(url)
       .withBody(body)
-      .setHeader(extraHeaders: _*)
+      .setHeader(extraHeaders*)
       .execute[HttpResponse] map { response =>
       response.status match {
         case OK =>
@@ -110,7 +111,7 @@ class RegistrationConnectorImpl @Inject()(httpClientV2: HttpClientV2, config: Fr
 
     httpClientV2.post(url)
       .withBody(Json.obj())
-      .setHeader(extraHeaders: _*)
+      .setHeader(extraHeaders*)
       .execute[HttpResponse] flatMap { response =>
       response.status match {
         case OK =>
@@ -208,7 +209,7 @@ class RegistrationConnectorImpl @Inject()(httpClientV2: HttpClientV2, config: Fr
                                  idNumber: Option[String],
                                  noIdentifier: Boolean): RegistrationInfo = {
 
-        json.validate[String](readsSapNumber) match {
+        json.validate[String](using readsSapNumber) match {
           case JsSuccess(sapNumber, _) =>
             register.RegistrationInfo(legalStatus, sapNumber, noIdentifier = noIdentifier, customerType, idType, idNumber)
           case JsError(errors) => throw JsResultException(errors)

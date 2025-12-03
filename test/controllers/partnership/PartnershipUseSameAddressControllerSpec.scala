@@ -131,7 +131,7 @@ class PartnershipUseSameAddressControllerSpec extends ControllerSpecBase with Mo
         ConfirmAddressPage.toString -> address,
         PartnershipUseSameAddressPage.toString -> true)
 
-      when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(expectedJson)
+      when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(expectedJson))
       when(mockCompoundNavigator.nextPage(any(), any(), any())).thenReturn(dummyCall)
 
       val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value

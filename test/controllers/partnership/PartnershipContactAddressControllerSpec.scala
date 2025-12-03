@@ -122,7 +122,7 @@ class PartnershipContactAddressControllerSpec
           BusinessNamePage.toString -> partnershipName,
           PartnershipAddressPage.toString -> address)
 
-      when(mockUserAnswersCacheConnector.save(any())(any(), any())) thenReturn Future.successful(expectedJson)
+      when(mockUserAnswersCacheConnector.save(any())(any(), any())).thenReturn(Future.successful(expectedJson))
       when(mockCompoundNavigator.nextPage(ArgumentMatchers.eq(PartnershipAddressPage), any(), any())).thenReturn(dummyCall)
 
       val result = route(app, httpPOSTRequest(submitUrl, valuesValid)).value

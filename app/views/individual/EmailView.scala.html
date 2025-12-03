@@ -22,7 +22,7 @@
         govukButton: GovukButton
 )
 
-@(submitCall: Call, form: Form[String])(implicit request: Request[_], messages: Messages)
+@(submitCall: Call, form: Form[String])(implicit request: Request[?], messages: Messages)
 
 @layout(messages("individual.email.title"), formHasErrors = form.hasErrors) {
 
