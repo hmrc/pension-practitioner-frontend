@@ -128,4 +128,6 @@ class FrontendAppConfig @Inject()(configuration: Configuration, servicesConfig: 
   
   lazy val gtmContainerId: String = configuration.get[String]("tracking-consent-frontend.gtm.container")
   lazy val trackingSnippetUrl: String = configuration.get[String]("tracking-consent-frontend.url")
+
+  lazy val forceServiceNavigation: Boolean = configuration.getOptional[Boolean]("play-frontend-hmrc.forceServiceNavigation").getOrElse(false)
 }
