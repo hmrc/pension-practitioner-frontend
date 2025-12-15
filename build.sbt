@@ -43,7 +43,6 @@ lazy val root = (project in file("."))
   .settings(new CodeCoverageSettings().apply() *)
   .settings(scalaVersion := "3.7.1")
   .settings(inConfig(Test)(testSettings) *)
-  .settings(resolvers += Resolver.jcenterRepo)
 
 lazy val testSettings: Seq[Def.Setting[?]] = Seq(
   fork := true,
