@@ -66,8 +66,13 @@ class EmailConnector @Inject()(
                )(implicit hc: HeaderCarrier, executionContext: ExecutionContext): Future[EmailStatus] = {
     val emailServiceUrl = url"${appConfig.emailApiUrl}/hmrc/email"
 
-    val sendEmailReq = SendEmailRequest(List(emailAddress), templateName, templateParams, appConfig.emailSendForce,
-      callBackUrl(requestId, journeyType, pspId, emailAddress))
+    val sendEmailReq = SendEmailRequest(
+      List(emailAddress),
+      templateName,
+      templateParams,
+      appConfig.emailSendForce,
+      callBackUrl(requestId, journeyType, pspId, emailAddress)
+    )
     val jsonData = Json.toJson(sendEmailReq)
 
     httpClientV2.post(emailServiceUrl)

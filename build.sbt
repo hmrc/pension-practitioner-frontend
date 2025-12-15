@@ -40,12 +40,12 @@ lazy val root = (project in file("."))
     // Suspected cause minification of already minified location-autocomplete.min.js -Pavel Vjalicin
     Assets / pipelineStages := Seq(concat)
   )
-  .settings(new CodeCoverageSettings().apply(): _*)
+  .settings(new CodeCoverageSettings().apply() *)
   .settings(scalaVersion := "3.7.1")
-  .settings(inConfig(Test)(testSettings): _*)
+  .settings(inConfig(Test)(testSettings) *)
   .settings(resolvers += Resolver.jcenterRepo)
 
-lazy val testSettings: Seq[Def.Setting[_]] = Seq(
+lazy val testSettings: Seq[Def.Setting[?]] = Seq(
   fork := true,
   javaOptions ++= Seq(
     "-Dconfig.resource=test.application.conf"
